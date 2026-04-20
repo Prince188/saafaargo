@@ -20,10 +20,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello, World!');
-});
-
 // Use auth routes
 app.use('/api/auth', authRoutes);  // https://localhost:5000/api/auth/register or login
 
