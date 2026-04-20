@@ -13,7 +13,7 @@ const app = express();
 
 app.use(cors({
     origin: [
-        // "http://localhost:5173",              // local frontend
+        "http://localhost:5000",              // local frontend
         "https://saafaargo-a731qlx12-prince188s-projects.vercel.app"    // deployed frontend
     ],
     credentials: true
