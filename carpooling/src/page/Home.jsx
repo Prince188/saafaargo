@@ -19,10 +19,13 @@ const Home = () => {
     useEffect(() => {
         // Check if the user has visited the page before
         if (!localStorage.getItem('formVisited')) {
-            // Redirect the user to the Google Form
-            window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLSfw4w_fBdX_0S6urZTIYavT5F4PvTiL4FNGpqk4UNFNYciP3w/viewform?usp=publish-editor';
+            // Open the Google Form in a new tab
+            window.open(
+                'https://docs.google.com/forms/d/e/1FAIpQLSfw4w_fBdX_0S6urZTIYavT5F4PvTiL4FNGpqk4UNFNYciP3w/viewform?usp=publish-editor',
+                '_blank'
+            );
 
-            // Mark the user as having visited by setting a flag in localStorage
+            // Mark the user as having visited
             localStorage.setItem('formVisited', 'true');
         }
     }, []);
