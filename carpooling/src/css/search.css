@@ -1,0 +1,343 @@
+:root {
+    --primary-green: #119822;
+    --dark-green: #0b6e18;
+    --accent-green: #22c55e;
+    --light-green: #e6f7ea;
+    --dark-navy: #1f3d2b;
+    --text-dark: #1a2b1f;
+    --text-gray: #6b7c70;
+    --white: #FFFFFF;
+    --border-color: #d9efe0;
+    --transition: all 0.3s ease;
+}
+
+.ride-container {
+    max-width: 1150px;
+    margin: 20px auto;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-dark);
+    padding: 0 15px;
+}
+
+/* --- Responsive Search Bar --- */
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(17, 152, 34, 0.06);
+    margin-bottom: 30px;
+}
+
+.input-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 18px 15px;
+    border-right: 1px solid var(--border-color);
+}
+
+.input-group:last-of-type {
+    border-right: none;
+}
+
+.input-group input {
+    border: none;
+    outline: none;
+    margin-left: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    color: var(--text-dark);
+    background: transparent;
+}
+
+.icon {
+    color: var(--text-gray);
+    flex-shrink: 0;
+}
+
+.swap-btn {
+    background: none;
+    border: none;
+    color: var(--primary-green);
+    cursor: pointer;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+}
+
+.search-main-btn {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    padding: 20px 40px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* --- Content Layout --- */
+.content-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 50px;
+}
+
+.results-header{
+    display: flex;
+    /* height: fit-content; */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.results-header h3{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+}
+
+.results-header span{
+    font-size: 14px;
+    color: var(--text-gray);
+}
+
+/* --- Sidebar (Map) --- */
+.map-placeholder {
+    height: 160px;
+    background: #f0f4f1 url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=320&h=200') center/cover;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-btn {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.filter-title {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* --- Result Card --- */
+.ride-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    margin-bottom: 15px;
+    padding: 20px;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.ride-card:hover {
+    border-color: var(--accent-green);
+}
+
+.ride-main-info {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #f8fcf9;
+    padding-bottom: 20px;
+}
+
+.time-location-row {
+    display: flex;
+    gap: 20px;
+}
+
+.time-col {
+    display: flex;
+    /* flex-direction: column; */
+    gap: 5px;
+}
+
+.time-node {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: start;
+}
+
+.time {
+    font-weight: 800;
+    font-size: 18px;
+    width: 55px;
+}
+
+.location {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.timeline-visual {
+    display: flex;
+    align-items: center;
+    /* gap: 50px; */
+}
+
+.hr{
+    /* border: none; */
+    width: 80px;
+    border-top: 2px solid var(--accent-green);
+    margin: 20px 0;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--text-dark);
+    border-radius: 50%;
+}
+
+.line {
+    width: 2px;
+    flex: 1;
+    background: var(--text-dark);
+    position: relative;
+}
+
+.duration-label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--text-gray);
+    white-space: nowrap;
+}
+
+.price-tag {
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.driver-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+}
+
+.driver-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.driver-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.driver-name {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.ride-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-gray);
+    font-size: 13px;
+}
+
+.alert-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.alert-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--primary-green);
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: 700;
+}
+
+/* ============================================================
+   RESPONSIVE QUERIES
+   ============================================================ */
+
+/* Tablet & Mobile (Standard Breakpoint) */
+@media (max-width: 992px) {
+
+    .sidebar{
+        display: none;
+    }
+
+    .search-bar-wrapper {
+        flex-direction: column;
+        border-radius: 12px;
+    }
+
+    .input-group {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .swap-btn {
+        padding: 10px;
+        transform: rotate(90deg);
+        /* Swap icon looks better vertically */
+    }
+
+    .search-main-btn {
+        width: 100%;
+        padding: 18px;
+    }
+
+    .content-layout {
+        grid-template-columns: 1fr;
+        /* Stack sidebar on top of results */
+    }
+
+    .sidebar {
+        order: -1;
+        /* Keep map on top if you want, or remove for mobile */
+    }
+}
+
+/* Mobile Specific Tweaks */
+@media (max-width: 576px) {
+    .ride-main-info {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .price-tag {
+        align-self: flex-end;
+        font-size: 20px;
+    }
+
+    .time {
+        font-size: 16px;
+        width: 45px;
+    }
+
+    .location {
+        font-size: 14px;
+    }
+
+    .results-header h3 {
+        font-size: 18px;
+    }
+}

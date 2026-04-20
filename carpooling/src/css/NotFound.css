@@ -1,0 +1,182 @@
+:root {
+    --primary-green: #119822;
+    --dark-green: #0b6e18;
+    --light-green: #e6f7ea;
+    --text-gray: #5f6f73;
+    --navy-bg: #054752;
+}
+
+.error-page-container {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 20px;
+}
+
+.error-content {
+    max-width: 500px;
+    z-index: 2;
+}
+
+/* Icon Styling */
+.error-icon-wrapper {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.road-circle {
+    width: 120px;
+    height: 120px;
+    background-color: var(--light-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.map-icon {
+    font-size: 3.5rem;
+    color: var(--primary-green);
+    animation: bounce 2s infinite;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--navy-bg);
+    margin: -20px 0 0 0;
+    letter-spacing: -5px;
+    opacity: 0.1;
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Text Styling */
+.error-heading {
+    font-size: 2rem;
+    color: var(--navy-bg);
+    margin-bottom: 15px;
+    font-weight: 800;
+}
+
+.error-message {
+    color: var(--text-gray);
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.error-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-green);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--light-green);
+    color: var(--dark-green);
+}
+
+.btn-secondary:hover {
+    background-color: #d8f0dc;
+}
+
+/* Footer Links */
+.error-footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 0.9rem;
+    color: var(--text-gray);
+}
+
+.error-footer-links a {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Decorative Road Background */
+.road-line {
+    position: absolute;
+    bottom: 10%;
+    width: 150%;
+    height: 4px;
+    background: repeating-linear-gradient(90deg,
+            var(--light-green),
+            var(--light-green) 40px,
+            transparent 40px,
+            transparent 80px);
+    transform: rotate(-5deg);
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .error-code {
+        font-size: 6rem;
+    }
+
+    .error-heading {
+        font-size: 1.5rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
