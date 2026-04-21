@@ -12,6 +12,7 @@ import SearchCarSharing from './page/SearchCarSharing';
 import LoginPage from './page/Login';
 import RegisterPage from './page/Register';
 import PublicRoute from './component/PublicRoute';
+import ProtectedRoute from './component/ProtectedRoute';
 import ProfilePage from './page/ProfilePage';
 import EditProfile from './page/EditProfile';
 
@@ -29,8 +30,8 @@ function App() {
         <Route path='/Search-car-sharing' element={<SearchCarSharing />} />
         <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path='/signup' element={<PublicRoute><RegisterPage /></PublicRoute>} />
-        <Route path='/profile' element={<ProfilePage />} />
-        <Route path='/profile/edit' element={<EditProfile />} />
+        <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
         <Route path='*' element={<NotFound />} />
       </Routes>
       <Footer />

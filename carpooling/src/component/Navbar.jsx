@@ -51,6 +51,12 @@ const Navbar = () => {
                                 <button className="nav-action-btn" onClick={handleLogout}>
                                     Logout
                                 </button>
+                                <hr />
+                                <button className="nav-action-btn">
+                                    <Link to="/profile" className="dropdown-link">
+                                        View Profile
+                                    </Link>
+                                </button>
                             </div>
                         )}
                     </div>

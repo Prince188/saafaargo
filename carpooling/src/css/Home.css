@@ -122,7 +122,7 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     min-width: 150px;
-    padding: 10px 0;
+    /* padding: 10px; */
     z-index: 10;
     border: 1px solid var(--text-gray);
     /* Light border */
@@ -140,6 +140,12 @@ body {
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
     /* Smooth transition for hover effect */
+}
+
+.dropdown-link{
+    text-decoration: none;
+    color: inherit;
+    /* Inherit color from parent button */
 }
 
 /* Hero */

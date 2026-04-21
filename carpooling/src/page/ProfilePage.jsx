@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { LuCalendarCheck2 } from "react-icons/lu";
 
 import '../css/ProfilePage.css';
 import { Link } from 'react-router-dom';
 import API from '../api/api';
+import { FaCheck, FaPlus } from 'react-icons/fa';
 
 const ProfilePage = () => {
 
     const [user, setUser] = useState({});
-    const [loading, setLoading] = useState(true);
 
     const token = localStorage.getItem("token");
 
@@ -24,11 +23,9 @@ const ProfilePage = () => {
                 });
 
                 setUser(res.data); // ✅ correct for axios
-                setLoading(false);
 
             } catch (err) {
                 console.log("Error fetching profile", err);
-                setLoading(false);
             }
         };
 
@@ -48,8 +45,7 @@ const ProfilePage = () => {
                 <div className="header-left">
                     <div className="avatar-circle"></div>
                     <div>
-                        <h1 className="user-name">Prince</h1>
-                        <p className="user-label">Newcomer</p>
+                        <h1 className="user-name">{user.firstName}</h1>
                     </div>
                 </div>
                 <span className="arrow-right">〉</span>
@@ -70,16 +66,16 @@ const ProfilePage = () => {
                 <Link to="/profile/edit" className="edit-link">Edit profile</Link>
             </button>
 
-            <hr className="section-divider" />
+            {/* <hr className="section-divider" /> */}
 
             {/* Reliability Section */}
-            <section className="info-section">
+            {/* <section className="info-section">
                 <h2 className="section-title">Your carpooling reliability</h2>
                 <div className="status-row">
                     <span className="icon"><LuCalendarCheck2 /></span>
                     <p>Never cancels bookings as a passenger <span className="info-icon">i</span></p>
                 </div>
-            </section>
+            </section> */}
 
             <hr className="section-divider" />
 
@@ -87,29 +83,30 @@ const ProfilePage = () => {
             <section className="info-section">
                 <h2 className="section-title">Verify your profile</h2>
                 <div className="action-row">
-                    <span className="circle-plus">+</span>
+                    <span ><FaPlus /></span>
                     <span>Verify your Govt. ID</span>
                 </div>
-                <div className="action-row">
-                    <span className="circle-plus">+</span>
+                <div className="action-row verified">
+                    <span ><FaCheck /></span>
                     <span>Confirm email songworld188@gmail.com</span>
                 </div>
                 <div className="action-row verified">
-                    <span className="circle-check">✓</span>
-                    <span>+919106269655</span>
+                    <span ><FaCheck /></span>
+                    <span>{user.mobile}</span>
                 </div>
             </section>
             <section className="info-section">
                 <h2 className="section-title">About You</h2>
-                <div className="action-row">
-                    <span className="circle-plus">+</span>
-                    <span>Add a mini bio</span>
+                <div className="action-row verified">
+                    <span ><FaCheck /></span>
+                    <span>{user.bio}</span>
+
                 </div>
             </section>
             <section className="info-section">
                 <h2 className="section-title">Add Vehicle</h2>
                 <div className="action-row">
-                    <span className="circle-plus">+</span>
+                    <span ><FaPlus /></span>
                     <span>Add Vehicle</span>
                 </div>
             </section>

@@ -67,7 +67,7 @@ const EditProfile = () => {
 
         return () => clearTimeout(timer);
 
-    }, [user]);
+    }, [user , token]);
 
     if (loading) return <p>Loading...</p>;
 
