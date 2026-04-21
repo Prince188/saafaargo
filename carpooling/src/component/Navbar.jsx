@@ -1,59 +1,88 @@
-import React, { useState } from 'react';
-import '../css/Navbar.css'; // Updated path
-import { HiSearch, HiPlusCircle, HiUserCircle } from 'react-icons/hi';
-import { Link, useNavigate } from 'react-router-dom';
-import logout from '../page/Logout';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FaUser, FaSearch, FaPlus } from "react-icons/fa";
+import "../css/Navbar.css";
 
 const Navbar = () => {
+
+    const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const user = (localStorage.getItem("token"));
 
     const handleLogout = () => {
-        logout();
-        setIsDropdownOpen(false); 
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         navigate("/login");
     };
 
-    const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-    };
-
     return (
-        <nav className="navbar">
-            <Link className="nav-logo" to="/">
-                <img src="/logo.png" alt="Safar Go Logo" />
-            </Link>
+        <div className="navbar">
 
-            <div className="nav-links active">
-                <Link to="/#search-area" className="nav-search-wrapper mobile-only">
-                    <HiSearch size={24} />
+            {/* LOGO */}
+            <div className="nav-logo">
+                <Link to="/">
+                    <img src="/logo.png" alt="logo" />
                 </Link>
-                
-                <Link to="/offer-ride" className="nav-action-btn offer-ride">
-                    <HiPlusCircle size={16} /> <span>Offer a ride</span>
+            </div>
+
+            {/* NAV LINKS */}
+            <div className="nav-links">
+
+                {/* SEARCH */}
+                <Link to="/#search-area" className="nav-search-wrapper">
+                    <FaSearch />
                 </Link>
 
+                {/* ADD RIDE */}
+                <Link to="/offer-ride" className="offer-ride">
+                    <FaPlus />
+                    <span>Add Ride</span>
+                </Link>
+
+                {/* PROFILE */}
                 <div className="nav-profile">
-                    <HiUserCircle
+
+                    <FaUser
                         className="profile-icon"
-                        onClick={toggleDropdown}
+                        onClick={() => setShowDropdown(!showDropdown)}
                     />
-                    {isDropdownOpen && (
+
+                    {showDropdown && (
                         <div className="dropdown-menu">
-                            <button className="nav-action-btn" onClick={handleLogout}>
-                                Logout
-                            </button>
-                            <hr style={{ margin: '0', border: '0', borderTop: '1px solid #eee' }} />
-                            <button className="nav-action-btn">
-                                <Link to="/profile" className="dropdown-link" onClick={() => setIsDropdownOpen(false)}>
-                                    View Profile
-                                </Link>
-                            </button>
+
+                            {user ? (
+                                <>
+                                    <Link to="/profile" className="dropdown-link">
+                                        <button className="nav-action-btn">Profile</button>
+                                    </Link>
+
+                                    <button
+                                        className="nav-action-btn"
+                                        onClick={handleLogout}
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/login" className="dropdown-link">
+                                        <button className="nav-action-btn">Login</button>
+                                    </Link>
+
+                                    <Link to="/register" className="dropdown-link">
+                                        <button className="nav-action-btn">Register</button>
+                                    </Link>
+                                </>
+                            )}
+
                         </div>
                     )}
+
                 </div>
+
             </div>
-        </nav>
+        </div>
     );
 };
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { HiOutlineUsers } from "react-icons/hi";
 import '../css/search.css';
-import '../css/Home.css';
 import { useLocation } from 'react-router-dom';
 
 const RideSearch = () => {

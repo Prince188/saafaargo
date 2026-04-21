@@ -59,7 +59,7 @@ const ProfilePage = () => {
         <div className="main-layout">
             <div className="content-wrapper">
                 {/* Profile Hero */}
-                <header className="hero">
+                <header className="heros">
                     <div className="profile-photo-container">
                         <img src={user.profilePic} alt="Julian" className="hero-img" />
                     </div>

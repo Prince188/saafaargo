@@ -74,7 +74,7 @@
 }
 
 /* Hero Section */
-.hero {
+.heros {
     display: flex;
     align-items: center;
     gap: 40px;
@@ -352,7 +352,7 @@
 }
 
 @media (max-width: 768px) {
-    .hero {
+    .heros {
         flex-direction: column;
         text-align: center;
     }
@@ -362,7 +362,4 @@
         grid-template-columns: 1fr;
     }
 
-    .nav-links {
-        display: none;
-    }
 }

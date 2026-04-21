@@ -110,16 +110,36 @@
 }
 
 @media (max-width: 768px) {
+
     .nav-logo img {
-        width: 120px;
+        width: 110px;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
     }
 
     .offer-ride {
-        padding: 8px;
+        width: 38px;
+        height: 38px;
+        padding: 0;
         border-radius: 50%;
+        justify-content: center;
     }
 
     .offer-ride span {
-        display: none !important;
+        display: none;
+    }
+
+    .profile-icon {
+        font-size: 22px;
+    }
+
+    /* VERY IMPORTANT: prevent overflow hiding */
+    .navbar {
+        overflow: visible;
     }
 }

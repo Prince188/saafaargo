@@ -8,12 +8,6 @@
     --transition: all 0.3s ease;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
 /* Base Button */
 .google-form{
     position: fixed;
@@ -85,12 +79,6 @@
     }
 }
 
-body {
-    font-family: 'Inter', sans-serif;
-    color: var(--navy-bg);
-    background-color: white;
-}
-
 /* --- HERO & NAV --- */
 .hero {
     background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
@@ -104,36 +92,6 @@ body {
     padding: 0 8%;
 }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 30px 0;
-    color: white;
-}
-
-.logo {
-    font-weight: 900;
-    font-size: 1.5rem;
-    letter-spacing: -0.5px;
-}
-
-.nav-links {
-    display: flex;
-    gap: 30px;
-}
-
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    opacity: 0.8;
-}
-
-.nav-links a:hover {
-    opacity: 1;
-}
 
 .btn-signup {
     background: var(--primary-green);
@@ -574,9 +532,5 @@ body {
 
     .logistics-stats {
         flex-direction: column;
-    }
-
-    .nav-links {
-        display: none;
     }
 }
