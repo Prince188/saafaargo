@@ -1,0 +1,125 @@
+/* --- Navbar Container --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 5%;
+    background: #fff;
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-logo img {
+    width: 180px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+/* --- Action Buttons --- */
+.offer-ride {
+    background: none;
+    border: 2px solid var(--dark-green);
+    color: var(--dark-green) !important;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    font-size: 16px;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.nav-search-wrapper {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    color: var(--dark-green) !important;
+}
+
+/* --- Profile & Dropdown --- */
+.nav-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    /* Added to keep dropdown relative to this container */
+}
+
+.profile-icon {
+    font-size: 30px;
+    color: #CCC;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--light-green);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    min-width: 150px;
+    z-index: 10;
+    border: 1px solid var(--text-gray);
+    margin-top: 10px;
+}
+
+.dropdown-menu .nav-action-btn {
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.dropdown-menu .nav-action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
+}
+
+/* --- Responsive Navbar --- */
+.mobile-toggle {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--dark-green);
+}
+
+@media (max-width: 768px) {
+    .nav-logo img {
+        width: 120px;
+    }
+
+    .offer-ride {
+        padding: 8px;
+        border-radius: 50%;
+    }
+
+    .offer-ride span {
+        display: none !important;
+    }
+}

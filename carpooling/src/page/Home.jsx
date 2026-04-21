@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiMapPin, FiCalendar, FiUser, FiArrowRight } from 'react-icons/fi';
-import { MdModeOfTravel } from "react-icons/md";
-import { GrMoney } from "react-icons/gr";
-import { GoShieldCheck } from "react-icons/go";
+import { FaCalendar, FaLeaf, FaMapPin, FaShieldAlt, FaStar, FaUsers } from "react-icons/fa";
 
 import '../css/Home.css';
 import { Link, useLocation } from 'react-router-dom';
@@ -102,181 +99,211 @@ const Home = () => {
 
     return (
         <>
-            <div className="cp-container">
+            <div className="landing-page">
+                {/* 1. HERO SECTION */}
+                <section className="hero">
 
-                {/* Hero Section */}
-                <section className="hero-section">
+
                     <div className="hero-content">
-                        <div className='hero-content-left'>
-                            <h1>Travel anywhere together. Spend smarter.</h1>
-                        </div>
-                        <div className="hero-image-container">
-                            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=1000" alt="Travelers" />
-                        </div>
+                        <span className="hero-badge">BE YOUR OWN DRIVER</span>
+                        <h1>Don’t Travel Alone.<br /><span className="green-text">Ride Smarter.</span></h1>
                     </div>
 
-                    {/* Floating Search Area */}
-                    <div className="search-area-wrapper" id='search-area'>
-                        <div className="search-bar-card">
-                            <div className="search-input-group">
-                                <div className="input-with-icon" style={{ position: "relative" }}>
-                                    <FiMapPin />
+                    {/* Floating Search Pill */}
+                    <div className="search-area">
 
-                                    <input
-                                        type="text"
-                                        placeholder="Leaving from"
-                                        value={from}
-                                        onChange={(e) => setFrom(e.target.value)}
-                                    />
+                        {/* FROM */}
+                        <div className="search-item" style={{ position: "relative" }}>
+                            <div className="icon-wrapper"><FaMapPin size={20} /></div>
+                            <div className="input-meta">
+                                <label>LOCATION</label>
 
-                                    {fromResults.length > 0 && (
-                                        <div className="dropdown">
-                                            {fromResults.map((place) => (
-                                                <div
-                                                    key={place.place_id}
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        setFrom(place.display_name);
-                                                        setFromResults([]);
-                                                    }}
-                                                >
-                                                    {place.display_name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="input-with-icon" style={{ position: "relative" }}>
-                                    <FiMapPin />
+                                <input
+                                    type="text"
+                                    placeholder="From"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
+                                />
 
-                                    <input
-                                        type="text"
-                                        placeholder="Going to"
-                                        value={to}
-                                        onChange={(e) => setTo(e.target.value)}
-                                    />
-
-                                    {toResults.length > 0 && (
-                                        <div className="dropdown">
-                                            {toResults.map((place) => (
-                                                <div
-                                                    key={place.place_id}
-                                                    className="dropdown-item"
-                                                    onClick={() => {
-                                                        setTo(place.display_name);
-                                                        setToResults([]);
-                                                    }}
-                                                >
-                                                    {place.display_name}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="input-with-icon">
-                                    <FiCalendar />
-                                    <input
-                                        type="text"
-                                        placeholder="Today"
-                                        onFocus={handleDateInteraction}
-                                        onBlur={handleDateBlur}
-                                    />
-                                </div>
-                                <div className="input-with-icon">
-                                    <FiCalendar />
-                                    <input
-                                        type="text"
-                                        placeholder="Return date"
-                                        onFocus={handleDateInteraction}
-                                        onBlur={handleDateBlur}
-                                    />
-                                </div>
-                                <div className="input-with-icon">
-                                    <FiUser />
-                                    <input type="text" placeholder="1 passenger" />
-                                </div>
-                                {/* <button to={"/search"} className="main-search-btn">Search</button> */}
-                                <Link
-                                    to="/search"
-                                    className="main-search-btn"
-                                // onClick={() => {
-                                //     navigate("/search", {
-                                //         state: {
-                                //             from,
-                                //             to,
-                                //         }
-                                //     })
-                                // }}
-                                >
-                                    Search
-                                </Link>
+                                {fromResults.length > 0 && (
+                                    <div className="dropdown">
+                                        {fromResults.map((place) => (
+                                            <div
+                                                key={place.place_id}
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setFrom(place.display_name);
+                                                    setFromResults([]);
+                                                }}
+                                            >
+                                                {place.display_name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        {/* <div className="search-options-external">
-                        <input type="checkbox" id="stays" />
-                        <label htmlFor="stays">Show stays</label>
-                    </div> */}
+                        {/* TO */}
+                        <div className="search-item" style={{ position: "relative" }}>
+                            <div className="icon-wrapper"><FaMapPin size={20} /></div>
+                            <div className="input-meta">
+                                <label>LOCATION</label>
+
+                                <input
+                                    type="text"
+                                    placeholder="Where to?"
+                                    value={to}
+                                    onChange={(e) => setTo(e.target.value)}
+                                />
+
+                                {toResults.length > 0 && (
+                                    <div className="dropdown">
+                                        {toResults.map((place) => (
+                                            <div
+                                                key={place.place_id}
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setTo(place.display_name);
+                                                    setToResults([]);
+                                                }}
+                                            >
+                                                {place.display_name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* DATE */}
+                        <div className="search-item">
+                            <div className="icon-wrapper"><FaCalendar size={20} /></div>
+                            <div className="input-meta">
+                                <label>DATE</label>
+
+                                <input
+                                    type="text"
+                                    placeholder="Select date"
+                                    onFocus={handleDateInteraction}
+                                    onBlur={handleDateBlur}
+                                />
+                            </div>
+                        </div>
+
+                        {/* PASSENGERS */}
+                        <div className="search-item">
+                            <div className="icon-wrapper"><FaUsers size={20} /></div>
+                            <div className="input-meta">
+                                <label>QTY</label>
+
+                                <input
+                                    type="text"
+                                    placeholder="Add guests"
+                                />
+                            </div>
+                        </div>
+
+                        {/* SEARCH BUTTON */}
+                        <Link
+                            to="/search"
+                            className="search-trigger"
+                            state={{ from, to }}
+                        >
+                            Search
+                        </Link>
+
                     </div>
                 </section>
 
-                {/* Features Section */}
-                <section className="features-grid">
-                    <div className="feature-card">
-                        <div className="icon-box"><MdModeOfTravel /></div>
-                        <h3>Travel everywhere</h3>
-                        <p>Explore all over India with countless carpool rides.</p>
+                {/* 2. BENTO FEATURES SECTION */}
+                <section className="features">
+                    <div className="features-header">
+                        <h2>Elevating the way you<br /><span className="italic-green">connect</span> with the world.</h2>
+                        <p className="header-subtext">
+                            Safar is a curated travel experience with a focus on ease, flexibility, and safety
+                            at the turn of every corner.
+                        </p>
                     </div>
-                    <div className="feature-card">
-                        <div className="icon-box"><GrMoney /></div>
-                        <h3>Prices like nowhere</h3>
-                        <p>Benefit from great-value shared costs on your carpool rides.</p>
-                    </div>
-                    <div className="feature-card">
-                        <div className="icon-box"><GoShieldCheck /></div>
-                        <h3>Ride with confidence</h3>
-                        <p>Feel secure, knowing you're riding with carpool members with Verified Profiles.</p>
+
+                    <div className="bento-grid">
+                        {/* Card 1: Security */}
+                        <div className="bento-card safety-light">
+                            <div className="card-icon"><FaShieldAlt size={18} /></div>
+                            <h3>The Security Aura</h3>
+                            <p>Our smart systems track every move to ensure a safe environment for everyone.</p>
+                            <div className="fingerprint-bg"></div>
+                        </div>
+
+                        {/* Card 2: Sustainable */}
+                        <div className="bento-card eco-purple">
+                            <div className="card-icon"><FaLeaf size={18} /></div>
+                            <h3>Sustainable Luxury</h3>
+                            <p>Our clean energy fleet reduces carbon without sacrificing comfort.</p>
+                        </div>
+
+                        {/* Card 3: Image/Graphic */}
+                        <div className="bento-card geometry-img">
+                            <h3>Geometry Driven.</h3>
+                            <p>A new standard of aesthetic utility.</p>
+                        </div>
+
+                        {/* Card 4: Effortless Logistics (The Dark Card) */}
+                        <div className="bento-card logistics-dark">
+                            <div className="logistics-content">
+                                <h3>Effortless Logistics</h3>
+                                <p>An urban algorithm enables you to move and ride with ease, regardless of the traffic density.</p>
+                                <button className="btn-white">Learn More</button>
+                            </div>
+
+                            {/* These are the stats you see on the right side of the dark card */}
+                            <div className="logistics-stats">
+                                <div className="stat-box">
+                                    <span className="stat-value">98%</span>
+                                    <span className="stat-label">RELIABILITY</span>
+                                </div>
+                                <div className="stat-box">
+                                    <span className="stat-value">11m</span>
+                                    <span className="stat-label">AVG. WAIT</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-                {/* Blue Banner */}
-                <section className="share-ride-banner">
-                    <div className="banner-content">
-                        <h2>Share your ride. Cut your costs.</h2>
-                        <p>Carpool as a driver to turn your empty seats into lower travel costs. It's simple: publish your ride and get passengers to share your fuel and toll expenses.</p>
-                        <button className="cta-white">
-                            Share your ride <FiArrowRight />
-                        </button>
+                {/* 3. TESTIMONIAL SECTION */}
+                <section className="testimonial">
+                    <div className="testimonial-wrapper">
+                        <div className="image-container">
+                            <img src="https://images.unsplash.com/photo-1554080353-a576cf803bda?auto=format&fit=crop&q=80&w=800" alt="Customer Profile" />
+
+                        </div>
+
+                        <div className="testimonial-info">
+                            <div className="star-rating">
+                                {[...Array(5)].map((_, i) => (
+                                    <FaStar key={i} size={16} fill="var(--primary-green)" stroke="none" />
+                                ))}
+                            </div>
+                            <blockquote>
+                                "Safar Go didn't just help me get to my destination, it redefined how I view travel.
+                                Every ride feels like a curated experience with fascinating people."
+                            </blockquote>
+                            <div className="author-meta">
+                                <strong>Laura K.</strong>
+                                <span>Digital Nomad, London Base</span>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-                {/* Never Miss Section */}
-                <section className="info-split">
-                    <div className="info-img">
-                        <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600" alt="Driver" />
-                    </div>
-                    <div className="info-text">
-                        <h2>Never miss a carpool!</h2>
-                        <p>We know it's frustrating when you want to book in advance... stay informed and book the best seat!</p>
-                        <button className="find-ride-btn">Find a ride</button>
-                    </div>
-                </section>
-
-                {/* Testimonial Section */}
-                <section className="testimonial-section">
-                    <div className="testimonial-text">
-                        <h2>Only on Safar Go...</h2>
-                        <blockquote>"Safar Go's great: I pay a little money to get where I'm going on time, in comfort, and meet great people."</blockquote>
-                        <p className="author">Amit, from Pune</p>
-                    </div>
-                    <div className="testimonial-img">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600" alt="User" />
-                    </div>
-                </section>
-
+                {/* 4. NEWSLETTER / FOOTER (Optional based on previous steps) */}
+                {/* ... keeping it concise based on the specific fix requested ... */}
             </div>
             <div className='google-form'>
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfw4w_fBdX_0S6urZTIYavT5F4PvTiL4FNGpqk4UNFNYciP3w/viewform?usp=publish-editor" target='_blank' rel='noopener noreferrer'>Improve Us </a>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfw4w_fBdX_0S6urZTIYavT5F4PvTiL4FNGpqk4UNFNYciP3w/viewform?usp=publish-editor" target='_blank' rel='noopener noreferrer'
+                    className='pulse-shine-btn'
+                >Improve Us </a>
             </div>
         </>
     );
