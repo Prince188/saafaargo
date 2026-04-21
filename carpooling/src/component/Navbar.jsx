@@ -53,7 +53,7 @@ const Navbar = () => {
                                 </button>
                                 <hr />
                                 <button className="nav-action-btn">
-                                    <Link to="/profile" className="dropdown-link">
+                                    <Link to="/profile" className="dropdown-link" onClick={toggleDropdown}>
                                         View Profile
                                     </Link>
                                 </button>
