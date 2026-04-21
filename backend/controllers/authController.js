@@ -12,21 +12,26 @@ exports.register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const user = await User.create({
             firstName,
             lastName,
             email,
             mobile,
-            password: hashedPassword
+            password: hashedPassword,
+            profilePic: req.file ? req.file.path : "" // 👈 important
         });
 
-        await user.save();
-        res.status(201).json({ message: "User created successfully" });
+        res.status(201).json({
+            message: "User created successfully",
+            user
+        });
+
     } catch (err) {
-        console.error("Error in register:", err);
+        console.error(err);
         res.status(500).json({ message: "Server error" });
     }
-}
+};
 
 exports.login = async (req, res) => {
     try {

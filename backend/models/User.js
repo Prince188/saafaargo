@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
     bio:{
         type: String,
         default: ""
+    },
+    profilePic: {
+        type: String,   // store image URL or file path
+        default: ""     // optional default image
     }
 },
     { timestamps: true }
