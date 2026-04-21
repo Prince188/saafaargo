@@ -9,18 +9,6 @@
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: var(--font-main);
-    -webkit-font-smoothing: antialiased;
-    color: var(--navy-bg);
-}
-
 /* 2. Layout Container */
 .profile-wrapper {
     width: 100%;
@@ -228,6 +216,39 @@ body {
     font-size: 12px;
     color: var(--text-gray);
     font-style: normal;
+}
+
+.vehicles{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vehicle-card{
+    padding: 10px 20px !important;
+    transition: 0.2s ease-in;
+}
+
+.vehicle-card:hover{
+    background-color: var(--light-green);
+}
+
+.vehicle-head{
+    border-radius: inherit;
+    padding: 5px;
+    display: flex;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.vehicle-body{
+    align-items: center;
+    border-radius: inherit;
+    padding: 5px;
+    display: flex;
+    gap: 10px;
+    font-size: 16px;
+    color: var(--text-gray);
 }
 
 /* 10. Responsive Adjustments */

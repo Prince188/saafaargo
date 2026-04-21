@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-
 import '../css/ProfilePage.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
 import { FaCheck, FaPlus } from 'react-icons/fa';
+import { GoDotFill } from 'react-icons/go';
 
 const ProfilePage = () => {
 
     const [user, setUser] = useState({});
+    const [vehicles, setVehicles] = useState([]);
 
     const token = localStorage.getItem("token");
 
+    const navigate = useNavigate();
 
     // 🔹 Fetch profile data
     useEffect(() => {
@@ -31,6 +33,28 @@ const ProfilePage = () => {
 
         fetchProfile();
     }, [token]);
+
+    //Fetch All the Car
+
+    useEffect(() => {
+        const fetchVehicles = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                const res = await API.get("/vehicles", {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                console.log("vehicles response:", res.data);
+                setVehicles(res.data || res.data.vehicles || []);
+            } catch (err) {
+                console.log("Error fetching vehicles:", err);
+            }
+        };
+
+        fetchVehicles();
+    }, []);
 
     return (
         <div className="profile-wrapper">
@@ -105,9 +129,37 @@ const ProfilePage = () => {
             </section>
             <section className="info-section">
                 <h2 className="section-title">Add Vehicle</h2>
-                <div className="action-row">
+                <Link to={"/vehicle/add"} className="action-row">
                     <span ><FaPlus /></span>
                     <span>Add Vehicle</span>
+                </Link>
+                <div className='vehicles'>
+                    {vehicles.map((v, index) => (
+                        <div className='vehicle-card' key={index} onClick={() => navigate(`/vehicle/edit/${v._id}`)}> 
+
+                            <div className="vehicle-head">
+                                <div className='vehicle-brand'>
+                                    {v.brand}
+                                </div>
+                                <div className="vehicle-model">
+                                    {v.model}
+                                </div>
+                            </div>
+
+                            <div className="vehicle-body">
+                                <div className="vehicle-color">
+                                    {v.color}
+                                </div>
+
+                                <GoDotFill size={16} />
+
+                                <div className="vehicle-seat">
+                                    {v.seats} Seated
+                                </div>
+                            </div>
+
+                        </div>
+                    ))}
                 </div>
             </section>
         </div>

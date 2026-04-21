@@ -15,6 +15,8 @@ import PublicRoute from './component/PublicRoute';
 import ProtectedRoute from './component/ProtectedRoute';
 import ProfilePage from './page/ProfilePage';
 import EditProfile from './page/EditProfile';
+import AddVehicle from './page/AddVehicle';
+import EditVehicle from './page/EditVehicle';
 
 function App() {
   return (
@@ -32,6 +34,8 @@ function App() {
         <Route path='/signup' element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+        <Route path='/vehicle/add' element={<AddVehicle />} />
+        <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
       <Footer />

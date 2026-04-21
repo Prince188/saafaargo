@@ -5,6 +5,7 @@ const cors = require('cors');
 // Login and Register routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const vehicleRoutes = require("./routes/vehicleRoutes");
 
 
 connectDB();
@@ -33,6 +34,10 @@ app.use('/api/auth', authRoutes);  // https://localhost:5000/api/auth/register o
 
 // User profile routes
 app.use('/api/users', userRoutes);  // https://localhost:5000/api/users/profile
+
+//Vehicle routes
+
+app.use('/api/vehicles' , vehicleRoutes)
 
 const PORT = process.env.PORT || 5000;
 
