@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../css/EditProfile.css';
 import API from '../api/api';
+import { FaShieldAlt } from 'react-icons/fa';
 
 const EditProfile = () => {
 
@@ -9,6 +10,10 @@ const EditProfile = () => {
     const isFirstLoad = useRef(true);
     const [saving, setSaving] = useState(false);
     const [status, setStatus] = useState("Saved");
+
+    const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState("");
+    const [removeImage, setRemoveImage] = useState(false);
 
     const token = localStorage.getItem("token");
 
@@ -22,9 +27,9 @@ const EditProfile = () => {
                     }
                 });
 
-                setUser(res.data); // ✅ correct for axios
+                setUser(res.data);
                 setLoading(false);
-                isFirstLoad.current = false; // ✅ safe here
+                isFirstLoad.current = false;
 
             } catch (err) {
                 console.log("Error fetching profile", err);
@@ -39,17 +44,49 @@ const EditProfile = () => {
         window.history.back();
     };
 
-    // 🔹 Save to DB    
+    // 🔹 Handle Img Change
+    const handleImageChange = (e) => {
+        const selected = e.target.files[0];
+        if (selected) {
+            setFile(selected);
+            setPreview(URL.createObjectURL(selected));
+            setRemoveImage(false);
+        }
+    };
 
+    // 🔹 Remove image
+    const removeProfilePic = () => {
+        setFile(null);
+        setPreview("");
+        setUser({ ...user, profilePic: "" });
+        setRemoveImage(true);
+    };
+
+    // 🔥 AUTO SAVE (FIXED)
     useEffect(() => {
-        if (isFirstLoad.current) return; // ✅ correct now
+        if (isFirstLoad.current) return;
 
         setSaving(true);
         setStatus("Saving...");
 
         const timer = setTimeout(async () => {
             try {
-                await API.put("/users/profile", user, {
+                const formData = new FormData();
+
+                formData.append("firstName", user.firstName || "");
+                formData.append("lastName", user.lastName || "");
+                formData.append("mobile", user.mobile || "");
+                formData.append("bio", user.bio || "");
+
+                if (file) {
+                    formData.append("profilePic", file);
+                }
+
+                if (removeImage) {
+                    formData.append("removeProfilePic", "true");
+                }
+
+                await API.put("/users/profile", formData, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -57,6 +94,9 @@ const EditProfile = () => {
 
                 setSaving(false);
                 setStatus("Saved");
+
+                setFile(null);
+                setRemoveImage(false);
 
             } catch (err) {
                 setSaving(false);
@@ -67,35 +107,73 @@ const EditProfile = () => {
 
         return () => clearTimeout(timer);
 
-    }, [user , token]);
+    }, [
+        user.firstName,
+        user.lastName,
+        user.mobile,
+        user.bio,
+        file,
+        removeImage,
+        token
+    ]);
 
     if (loading) return <p>Loading...</p>;
 
     return (
-        <div className="details-overlay">
-            <div className="details-container">
 
-                <header className="details-header">
+        <div className="profile-container">
+            <div className="profile-card">
+
+                <header className="profile-header">
                     <button className="close-btn" onClick={onClose}>✕</button>
+                    <h2>Personal details</h2>
+
+                    <span className="status-badge">
+                        {saving ? "Saving..." : status}
+                    </span>
                 </header>
 
-                <h1 className="details-title">Personal details</h1>
+                {/* Profile Image Section */}
+                <section className="profile-identity">
+                    <div className="avatar-wrapper">
+                        <img
+                            src={preview || user.profilePic || "https://i.pravatar.cc/150"}
+                            alt="Profile"
+                            className="profile-img"
+                        />
+                    </div>
 
-                <div className='auto-save'>
-                    {saving ? (
-                        <span style={{ color: "orange" }}>🟡 Saving...</span>
-                    ) : (
-                        <span style={{ color: "green" }}>🟢 {status}</span>
-                    )}
-                </div>
+                    <div className="identity-content">
+                        <h3>Profile Identity</h3>
+                        <p>Update your photo to reflect your current professional look.</p>
 
-                <div className="details-list">
+                        <div className="action-buttons">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                style={{ display: "none" }}
+                                id="upload-img"
+                            />
 
-                    {/* First Name */}
-                    <div className="detail-item">
-                        <label>First name</label>
+                            <label htmlFor="upload-img" className="btn-primary">
+                                Change
+                            </label>
+
+                            <button className="btn-link" onClick={removeProfilePic}>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Form Section */}
+                <div className="form-grid">
+
+                    <div className="form-group">
+                        <label>FIRST NAME</label>
                         <input
-                            className="detail-input"
+                            type="text"
                             value={user.firstName || ""}
                             onChange={(e) =>
                                 setUser({ ...user, firstName: e.target.value })
@@ -103,12 +181,21 @@ const EditProfile = () => {
                         />
                     </div>
 
-                    {/* Last Name */}
-                    <div className="detail-item">
-                        <label>Last name</label>
-
+                    <div className="form-group">
+                        <label>EMAIL ADDRESS</label>
                         <input
-                            className="detail-input"
+                            type="email"
+                            value={user.email || ""}
+                            readOnly
+                            className='email-edit'
+                            disabled
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>LAST NAME</label>
+                        <input
+                            type="text"
                             value={user.lastName || ""}
                             onChange={(e) =>
                                 setUser({ ...user, lastName: e.target.value })
@@ -116,18 +203,10 @@ const EditProfile = () => {
                         />
                     </div>
 
-                    {/* Email (READ ONLY) */}
-                    <div className="detail-item">
-                        <label>Email</label>
-                        <p>{user.email}</p>
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="detail-item">
-                        <label>Mobile</label>
-
+                    <div className="form-group">
+                        <label>MOBILE NUMBER</label>
                         <input
-                            className="detail-input"
+                            type="text"
                             value={user.mobile || ""}
                             onChange={(e) =>
                                 setUser({ ...user, mobile: e.target.value })
@@ -135,20 +214,45 @@ const EditProfile = () => {
                         />
                     </div>
 
-                    {/* Bio */}
-                    <div className="detail-item">
-                        <label>Bio</label>
+                </div>
 
-                        <input
-                            className="detail-input"
-                            value={user.bio || ""}
-                            onChange={(e) =>
-                                setUser({ ...user, bio: e.target.value })
-                            }
-                        />
+                {/* Bio Section */}
+                <section className="bio-section">
+                    <div className="section-header">
+                        <div>PERSONAL BIO</div>
+                        <div className="char-count">
+                            {(user.bio || "").length} / 500
+                        </div>
                     </div>
 
-                </div>
+                    <textarea
+                        value={user.bio || ""}
+                        maxLength={500}
+                        onChange={(e) =>
+                            setUser({ ...user, bio: e.target.value })
+                        }
+                    />
+                </section>
+
+                {/* Footer */}
+                <footer className="privacy-footer">
+                    <div className="privacy-info">
+                        <div className="privacy-icon">
+                            <FaShieldAlt size={20} color="var(--primary-green)" />
+                        </div>
+
+                        <div className="privacy-text">
+                            <h4>Data Privacy</h4>
+                            <p>
+                                Your personal information is encrypted and never shared with third parties.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* <button className="manage-link">
+                        Manage Privacy
+                    </button> */}
+                </footer>
 
             </div>
         </div>

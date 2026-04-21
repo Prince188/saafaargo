@@ -61,13 +61,14 @@ const ProfilePage = () => {
             {/* Navigation Tabs */}
             <nav className="profile-tabs">
                 <button className="tab active">About you</button>
-                <button className="tab">Account</button>
             </nav>
 
             {/* Profile Header */}
             <div className="profile-header">
                 <div className="header-left">
-                    <div className="avatar-circle"></div>
+                    <div className="avatar-circle">
+                        <img src={user.profilePic} alt='Profile Pic' />
+                    </div>
                     <div>
                         <h1 className="user-name">{user.firstName}</h1>
                     </div>

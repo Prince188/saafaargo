@@ -1,166 +1,250 @@
-/* 1. Page / Overlay Container */
-.details-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    /* Main white background */
-    z-index: 1000;
-    overflow-y: auto;
+:root {
+    /* User Palette */
+    --primary-green: #119822;
+    --dark-green: #0b6e18;
+    --light-green: #f0fdf4;
+    --text-gray: #718096;
+    --navy-bg: #054752;
+
+    /* Refined Design Tokens */
+    --bg-main: #f4f7fe;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    --input-fill: #eef4ff;
+    /* The light blue tint from the image */
+    --privacy-fill: #f3efff;
+    /* The light purple tint from the image */
+    --border-radius-lg: 24px;
+    --border-radius-md: 12px;
+}
+
+.email-edit{
+    cursor: not-allowed;
+}
+
+.profile-container {
+    background-color: var(--bg-main);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.auto-save {
-    height: 20px;
-    text-align: center;
-    color: var(--dark-gray);
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.details-container {
+.profile-card {
+    background: white;
     width: 100%;
-    max-width: 600px;
-    padding: 20px;
+    max-width: 850px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    padding: 40px;
+}
+
+.section-header{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Header Section */
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.profile-header h2 {
+    font-size: 1.2rem;
+    color: var(--navy-bg);
+    font-weight: 700;
+    margin: 0 12px;
+}
+
+.status-badge {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #4c6ef5;
+    /* Blue "Saved" text from image */
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Profile Identity */
+.profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.avatar-wrapper {
+    position: relative;
+}
+
+.profile-img {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.identity-content h3 {
+    font-size: 1.4rem;
+    color: var(--navy-bg);
+    margin: 0 0 6px 0;
+}
+
+.identity-content p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    max-width: 300px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-green);
+    /* Using blue to match original screenshot button */
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* To use your green palette instead, swap background-color to var(--primary-green) */
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #4c6ef5;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Form Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #718096;
+    margin-bottom: 10px;
+    letter-spacing: 0.1em;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 18px 20px;
+    border: none;
+    border-radius: 14px;
+    background-color: var(--input-fill);
+    color: #2d3748;
+    font-size: 0.95rem;
     box-sizing: border-box;
 }
 
-/* 2. Header and Title */
-.details-header {
-    display: flex;
-    justify-content: flex-start;
-    padding: 10px 0 20px;
+.input-with-icon {
+    position: relative;
 }
 
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #007aff;
-    /* BlaBlaCar specific blue for 'X' */
-    cursor: pointer;
-    padding: 0;
+.input-with-icon svg {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
 }
 
-.details-title {
-    color: var(--navy-bg);
-    font-size: 30px;
-    font-weight: 700;
-    text-align: center;
-    margin: 30px 0 50px;
-    /* Large margin matching original */
+.input-with-icon input {
+    padding-left: 45px;
 }
 
-/* 3. Detail List Items (Form style) */
-.details-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    /* Space between rows */
+/* Bio Section */
+.bio-section {
+    background-color: var(--input-fill);
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+}
+
+.bio-section textarea {
     width: 100%;
-    max-width: 320px;
-    /* Limits width of the detail list on desktop */
-    margin: 0 auto;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 20px;
-    border-radius: 10px;
-    gap: 5px;
-}
-
-.detail-item:hover {
-    background-color: var(--light-green);
-    /* Light hover effect */
-}
-
-.detail-input {
     background: transparent;
     border: none;
-    font-size: 14px;
-}
-
-.detail-input:focus {
-    outline: none;
-    border-bottom: 2px solid var(--navy-bg);
-    /* Focus state with navy underline */
-}
-
-.detail-item label {
-    color: var(--text-gray);
-    /* Use the same light gray */
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.detail-item .detail-value {
     color: var(--navy-bg);
-    /* Use navy for the main value */
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    height: 80px;
+    resize: none;
+    outline: none;
 }
 
-/* 4. Divider and Actions */
-.details-divider {
-    border: 0;
-    border-top: 1px solid #ededed;
-    margin: 40px auto 20px;
-    width: 100%;
-    max-width: 320px;
-}
 
-.details-actions {
+
+/* Privacy Footer */
+.privacy-footer {
+    background-color: var(--privacy-fill);
+    padding: 24px 30px;
+    border-radius: 20px;
     display: flex;
-    justify-content: flex-start;
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto 40px;
-}
-
-.add-bio-btn {
-    background: none;
-    border: none;
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    color: #007aff;
-    /* Actions are blue in this view */
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 12px 0;
 }
 
-.plus-icon {
-    width: 20px;
-    height: 20px;
-    border: 1.5px solid currentColor;
-    border-radius: 50%;
+.privacy-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.privacy-icon {
+    background: white;
+    padding: 8px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
 }
 
-/* 5. Responsive Adjustment */
-@media (max-width: 480px) {
-    .details-title {
-        font-size: 26px;
-        margin: 20px 0 30px;
-    }
+.privacy-text h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #1a202c;
+}
 
-    .details-list,
-    .details-divider,
-    .details-actions {
-        max-width: 100%;
-        /* Fill screen width on mobile */
-    }
+.privacy-text p {
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-gray);
+}
+
+.manage-link {
+    background: none;
+    border: none;
+    color: #2d3748;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.char-count{
+    color: var(--text-gray);
+    font-size: 14px;
+    margin-left: auto;
 }

@@ -8,9 +8,11 @@ import API from '../api/api';
 
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [file, setFile] = useState(null);
+
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        firsName: "",
+        firstName: "",
         lastName: "",
         email: "",
         mobile: "",
@@ -28,12 +30,25 @@ const RegisterPage = () => {
         e.preventDefault();
 
         try {
-            const res = await API.post("/auth/register", formData);
+            const data = new FormData();
+
+            // append text fields
+            Object.keys(formData).forEach(key => {
+                data.append(key, formData[key]);
+            });
+
+            // append file (if selected)
+            if (file) {
+                data.append("profilePic", file);
+            }
+
+            const res = await API.post("/auth/register", data);
+
+            console.log(res)
+
             alert("Registered successfully");
+            navigate("/");
 
-            console.log(res.data);
-
-            navigate("/"); // Redirect to home page after successful registration
         } catch (err) {
             alert(err.response?.data?.message || "Error");
         }
@@ -116,6 +131,15 @@ const RegisterPage = () => {
                             </button>
                         </div>
                         <div className="password-hint">Must be at least 8 characters.</div>
+                    </div>
+
+                    <div className="input-field">
+                        <label>Profile Picture (optional)</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setFile(e.target.files[0])}
+                        />
                     </div>
 
                     {/* <label className="terms-checkbox">
