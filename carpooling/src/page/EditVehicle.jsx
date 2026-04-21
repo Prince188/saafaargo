@@ -73,7 +73,7 @@ const EditVehicle = () => {
 
     return (
         <div className="vehicle-page-container">
-            <div className="vehicle-card">
+            <div className="vehicle-cards">
 
                 <div className="vehicle-header">
                     <h2>Edit Your Vehicle</h2>

@@ -59,10 +59,10 @@ const AddVehicle = () => {
     const onClose = () => {
         window.history.back();
     };
-
+ 
     return (
         <div className="vehicle-page-container">
-            <div className="vehicle-card">
+            <div className="vehicle-cards">
                 <div className="vehicle-header">
                     <h2>Add Your Vehicle</h2>
                     <p>Register your car to start sharing rides.</p>

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../css/ProfilePage.css';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
-import { FaCheck, FaPlus } from 'react-icons/fa';
-import { GoDotFill } from 'react-icons/go';
+import { FaCarAlt, FaCheckCircle, FaPlus, FaShieldAlt } from 'react-icons/fa';
 
 const ProfilePage = () => {
 
@@ -57,112 +56,118 @@ const ProfilePage = () => {
     }, []);
 
     return (
-        <div className="profile-wrapper">
-            {/* Navigation Tabs */}
-            <nav className="profile-tabs">
-                <button className="tab active">About you</button>
-            </nav>
-
-            {/* Profile Header */}
-            <div className="profile-header">
-                <div className="header-left">
-                    <div className="avatar-circle">
-                        <img src={user.profilePic} alt='Profile Pic' />
+        <div className="main-layout">
+            <div className="content-wrapper">
+                {/* Profile Hero */}
+                <header className="hero">
+                    <div className="profile-photo-container">
+                        <img src={user.profilePic} alt="Julian" className="hero-img" />
                     </div>
-                    <div>
-                        <h1 className="user-name">{user.firstName}</h1>
+                    <div className="hero-details">
+                        {/* <p className="subtitle">CREATOR PROFILE</p> */}
+                        <h1>{user.firstName} {user.lastName}</h1>
+                        <br />
+                        {/* <p className="bio-text">
+                            {user.bio}
+                        </p> */}
+                        <Link to={"/profile/edit"} className="btn-edit">Edit profile</Link>
                     </div>
-                </div>
-                <span className="arrow-right">〉</span>
-            </div>
+                </header>
 
-            {/* Completion Card */}
-            {/* <div className="completion-card">
-                <h3>Complete your profile</h3>
-                <p>This helps builds trust, encouraging members to travel with you.</p>
-                <div className="progress-status">1 out of 6 complete</div>
-                <div className="progress-track">
-                    <div className="progress-fill" style={{ width: '16.6%' }}></div>
-                </div>
-                <button className="link-btn green">Add profile picture</button>
-            </div> */}
-
-            <button className="link-btn green edit-btn">
-                <Link to="/profile/edit" className="edit-link">Edit profile</Link>
-            </button>
-
-            {/* <hr className="section-divider" /> */}
-
-            {/* Reliability Section */}
-            {/* <section className="info-section">
-                <h2 className="section-title">Your carpooling reliability</h2>
-                <div className="status-row">
-                    <span className="icon"><LuCalendarCheck2 /></span>
-                    <p>Never cancels bookings as a passenger <span className="info-icon">i</span></p>
-                </div>
-            </section> */}
-
-            <hr className="section-divider" />
-
-            {/* Verification Section */}
-            <section className="info-section">
-                <h2 className="section-title">Verify your profile</h2>
-                <div className="action-row">
-                    <span ><FaPlus /></span>
-                    <span>Verify your Govt. ID</span>
-                </div>
-                <div className="action-row verified">
-                    <span ><FaCheck /></span>
-                    <span>Confirm email songworld188@gmail.com</span>
-                </div>
-                <div className="action-row verified">
-                    <span ><FaCheck /></span>
-                    <span>{user.mobile}</span>
-                </div>
-            </section>
-            <section className="info-section">
-                <h2 className="section-title">About You</h2>
-                <div className="action-row verified">
-                    <span ><FaCheck /></span>
-                    <span>{user.bio}</span>
-
-                </div>
-            </section>
-            <section className="info-section">
-                <h2 className="section-title">Add Vehicle</h2>
-                <Link to={"/vehicle/add"} className="action-row">
-                    <span ><FaPlus /></span>
-                    <span>Add Vehicle</span>
-                </Link>
-                <div className='vehicles'>
-                    {vehicles.map((v, index) => (
-                        <div className='vehicle-card' key={index} onClick={() => navigate(`/vehicle/edit/${v._id}`)}> 
-
-                            <div className="vehicle-head">
-                                <div className='vehicle-brand'>
-                                    {v.brand}
-                                </div>
-                                <div className="vehicle-model">
-                                    {v.model}
-                                </div>
+                {/* Verification Section */}
+                <section className="verify-section">
+                    <div className="verify-header">
+                        <FaShieldAlt size={20} color="var(--primary-green)" />
+                        <h3>Verify your profile</h3>
+                    </div>
+                    <div className="verify-grid">
+                        <div className="verify-card">
+                            <div className="v-card-top">
+                                <label>GOVT. ID</label>
+                                <span className="status-dot error">!</span>
                             </div>
-
-                            <div className="vehicle-body">
-                                <div className="vehicle-color">
-                                    {v.color}
-                                </div>
-
-                                <GoDotFill size={16} />
-
-                                <div className="vehicle-seat">
-                                    {v.seats} Seated
-                                </div>
+                            <p className="v-status unverified">Unverified</p>
+                            <div className="add-btn"><FaPlus size={16} color="var(--primary-green)" /></div>
+                        </div>
+                        <div className="verify-card">
+                            <div className="v-card-top">
+                                <label>EMAIL</label>
+                                <FaCheckCircle size={16} color="var(--primary-green)" />
                             </div>
+                            <p className="v-value">{user.email}</p>
+                        </div>
+                        <div className="verify-card">
+                            <div className="v-card-top">
+                                <label>MOBILE</label>
+                                <FaCheckCircle size={16} color="var(--primary-green)" />
+                            </div>
+                            <p className="v-value">{user.mobile} </p>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Lower Grid */}
+                <div className="lower-grid">
+                    <section className="about-card">
+                        <h3>About You</h3>
+                        <div className="about-content">
+                            <p>
+                                {user.bio}
+                            </p>
 
                         </div>
-                    ))}
+                    </section>
+
+                    <section className="vehicle-section">
+
+                        <div className="section-header">
+                            <h3>Your Vehicles</h3>
+
+                            <button
+                                className="btn-add-vehicle"
+                                onClick={() => navigate("/vehicle/add")}
+                            >
+                                <FaPlus size={14} /> Add Vehicle
+                            </button>
+                        </div>
+
+                        <div className="vehicle-list">
+                            {vehicles.map((v, index) => (
+
+                                <div
+                                    className="vehicle-card"
+                                    key={index}
+                                    onClick={() => navigate(`/vehicle/edit/${v._id}`)}
+                                >
+
+                                    <div className="v-img-box">
+                                        <FaCarAlt size={32} color="white" />
+                                    </div>
+
+                                    <div className="v-details">
+
+                                        <p className="v-brand">
+                                            {v.brand?.toUpperCase()}
+                                        </p>
+
+                                        <p className="v-model">
+                                            {v.model}
+                                        </p>
+
+                                        <div className="v-meta">
+                                            <span>{v.color}</span> • <span>{v.seats} Seats</span>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+                        </div>
+
+                    </section>
                 </div>
-            </section>
+            </div>
         </div>
     );
 };

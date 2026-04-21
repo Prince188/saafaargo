@@ -6,7 +6,6 @@ import { FaShieldAlt } from 'react-icons/fa';
 const EditProfile = () => {
 
     const [user, setUser] = useState({});
-    const [loading, setLoading] = useState(true);
     const isFirstLoad = useRef(true);
     const [saving, setSaving] = useState(false);
     const [status, setStatus] = useState("Saved");
@@ -28,12 +27,10 @@ const EditProfile = () => {
                 });
 
                 setUser(res.data);
-                setLoading(false);
                 isFirstLoad.current = false;
 
             } catch (err) {
                 console.log("Error fetching profile", err);
-                setLoading(false);
             }
         };
 
@@ -117,7 +114,6 @@ const EditProfile = () => {
         token
     ]);
 
-    if (loading) return <p>Loading...</p>;
 
     return (
 
