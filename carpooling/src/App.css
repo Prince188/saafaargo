@@ -1,5 +1,13 @@
-:root{
-  --c : #119822;
+:root {
+  --primary-green: #119822;
+  --dark-green: #0b6e18;
+  --light-green: #f0fdf4;
+  --text-gray: #4a5568;
+  --navy-bg: #054752;
+  /* This will be our main heading/text color */
+
+  --border-gray: #ededed;
+  --font-main: 'Inter', system-ui, sans-serif;
 }
 
 .App {
@@ -36,6 +44,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

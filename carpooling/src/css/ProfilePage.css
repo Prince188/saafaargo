@@ -1,0 +1,258 @@
+/* 1. Brand Variables & Reset */
+:root {
+    --primary-green: #119822;
+    --dark-green: #0b6e18;
+    --light-green: #f0fdf4;
+    --text-gray: #4a5568;
+    --navy-bg: #054752;
+    --border-gray: #ededed;
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    -webkit-font-smoothing: antialiased;
+    color: var(--navy-bg);
+}
+
+/* 2. Layout Container */
+.profile-wrapper {
+    width: 100%;
+    max-width: 600px;
+    /* Dashboard feel on desktop */
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* 3. Navigation Tabs */
+.profile-tabs {
+    display: flex;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.tab {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--border-gray);
+    padding: 16px 0;
+    font-weight: 600;
+    color: var(--text-gray);
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.tab.active {
+    color: var(--navy-bg);
+    border-bottom: 3px solid var(--navy-bg);
+}
+
+/* 4. Profile Header */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    margin-bottom: 16px;
+    cursor: pointer;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar-circle {
+    width: 72px;
+    height: 72px;
+    background-color: #f2f2f2;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.user-label {
+    color: var(--text-gray);
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.arrow-right {
+    color: var(--text-gray);
+    font-size: 20px;
+    font-weight: 300;
+}
+
+/* 5. Progress Card */
+.completion-card {
+    background-color: var(--light-green);
+    padding: 24px;
+    border-radius: 16px;
+    margin: 20px 0 12px;
+}
+
+.completion-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.completion-card p {
+    font-size: 14px;
+    color: var(--navy-bg);
+    line-height: 1.4;
+    margin-bottom: 16px;
+}
+
+.progress-status {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.progress-track {
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin: 12px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-green);
+    transition: width 0.4s ease-out;
+}
+
+/* 6. Buttons & Action Links */
+.link-btn {
+    background: none;
+    border: none;
+    padding: 8px 0;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.link-btn.green {
+    color: var(--primary-green);
+}
+
+.edit-btn {
+    margin-bottom: 24px;
+}
+
+/* 7. General Sections */
+.info-section {
+    padding: 8px 0;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.section-divider {
+    border: 0;
+    border-top: 1px solid var(--border-gray);
+    margin: 24px 0;
+}
+
+/* 8. Action Rows (Verify/Reliability) */
+.action-row,
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    color: var(--primary-green);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.action-row.verified {
+    color: var(--navy-bg);
+    cursor: default;
+}
+
+.status-row {
+    color: var(--navy-bg);
+    cursor: default;
+}
+
+.status-row p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 9. Custom Icons */
+.circle-plus,
+.circle-check {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.info-icon {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--text-gray);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--text-gray);
+    font-style: normal;
+}
+
+/* 10. Responsive Adjustments */
+@media (max-width: 480px) {
+    .profile-wrapper {
+        padding: 12px;
+    }
+
+    .avatar-circle {
+        width: 60px;
+        height: 60px;
+    }
+
+    .user-name {
+        font-size: 20px;
+    }
+
+    .completion-card {
+        padding: 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    .profile-wrapper {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+}
