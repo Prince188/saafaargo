@@ -386,9 +386,9 @@ button {
     }
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
     .section {
-        padding: 5rem 2rem;
+        padding: 5rem 0.8rem;
     }
 }
 
