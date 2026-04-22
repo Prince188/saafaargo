@@ -25,11 +25,7 @@
     --font-sans: "Inter", system-ui, sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+
 
 body {
     background: var(--bg);
@@ -386,7 +382,13 @@ button {
 
 @media (min-width: 1024px) {
     .section {
-        padding: 7rem 0;
+        padding: 5rem 2rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .section {
+        padding: 5rem 2rem;
     }
 }
 
@@ -581,6 +583,24 @@ button {
 .stats {
     display: flex;
     gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .stats {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-box{
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        height: fit-content;
+    }
+
+    .stat-box .stat-value{
+        font-size: 1.5rem;
+    }
 }
 
 .stat-box {
