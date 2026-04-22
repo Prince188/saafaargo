@@ -15,7 +15,7 @@ const Routing = ({ pickup, destination }) => {
                 L.latLng(Number(destination.lat), Number(destination.lng)),
             ],
             lineOptions: {
-                styles: [{ color: "#119822", weight: 5 }], // 👈 force visible
+                styles: [{ color: "#119822", weight: 4 }], // 👈 force visible
             },
             show: true,
         }).addTo(map);
