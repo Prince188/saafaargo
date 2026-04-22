@@ -14,6 +14,7 @@ import {
 import { TfiCar } from "react-icons/tfi";
 import { FaArrowRight } from "react-icons/fa";
 import "../css/OfferRide.css";
+import { Link } from "react-router-dom";
 
 const OfferRide = () => {
     const [formData, setFormData] = useState({
@@ -107,10 +108,13 @@ const OfferRide = () => {
                                     </div>
                                 </div>
 
-                                <button type="submit" className="btn-publish">
+                                <Link
+                                    to={"/offer-ride/pickup"}
+                                    state={{ formData }}
+                                    className="btn-publish">
                                     Publish a ride
                                     <FaArrowRight />
-                                </button>
+                                </Link>
                                 <div className="trust-note">FREE TO LIST · NO HIDDEN FEES</div>
                             </form>
 

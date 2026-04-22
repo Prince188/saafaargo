@@ -1,4 +1,5 @@
 import './App.css';
+import "leaflet/dist/leaflet.css";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Footer from './component/Footer';
 import Navbar from './component/Navbar';
@@ -16,6 +17,9 @@ import ProfilePage from './page/ProfilePage';
 import EditProfile from './page/EditProfile';
 import AddVehicle from './page/AddVehicle';
 import EditVehicle from './page/EditVehicle';
+import PickUp from './page/PickUp';
+import DestinationPage from './page/DestinationPage';
+import RoutePreviewPage from './page/RoutePreviewPage';
 
 function App() {
   return (
@@ -34,6 +38,9 @@ function App() {
         <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
         <Route path='/vehicle/add' element={<AddVehicle />} />
         <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
+        <Route path='/offer-ride/pickup' element={<PickUp />} />
+        <Route path='/offer-ride/destination' element={<DestinationPage />} />
+        <Route path='/offer-ride/route-preview' element={<RoutePreviewPage />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
       <Footer />

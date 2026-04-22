@@ -1,0 +1,78 @@
+/* Page Layout */
+.route-container {
+    padding: 20px;
+    background: #f9fafb;
+    min-height: 100vh;
+}
+
+/* Title */
+.route-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #222;
+}
+
+/* Map */
+.route-map {
+    height: 400px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+/* Info Card */
+.route-info {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+/* Locations */
+.route-location {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.route-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.pickup-dot {
+    background: #22c55e;
+    /* green */
+}
+
+.destination-dot {
+    background: #ef4444;
+    /* red */
+}
+
+.route-text {
+    font-size: 14px;
+    color: #333;
+}
+
+/* Button */
+.route-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #119822;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.route-btn:hover {
+    background: #0b6e18;
+}

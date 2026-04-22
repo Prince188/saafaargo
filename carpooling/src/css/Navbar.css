@@ -170,7 +170,7 @@
 
 .offer-link {
     background: var(--gradient-primary);
-    color: white;
+    color: white !important;
     padding: 8px 20px;
     border-radius: var(--radius-full);
 }
