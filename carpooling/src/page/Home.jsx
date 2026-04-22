@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
     FaMapPin,
     FaCalendar,
@@ -345,14 +345,6 @@ export default function Home() {
                     </a>
                 </div>
 
-                <footer className="footer">
-                    <div>© {new Date().getFullYear()} Safar. Crafted for the curious.</div>
-                    <div className="footer-links">
-                        <a href="/">Privacy</a>
-                        <a href="/">Terms</a>
-                        <a href="/">Contact</a>
-                    </div>
-                </footer>
             </section>
         </div>
     );
