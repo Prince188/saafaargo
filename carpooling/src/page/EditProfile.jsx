@@ -109,7 +109,7 @@ const EditProfile = () => {
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [user.firstName, user.lastName, user.mobile, user.bio, file, removeImage, token]);
+    }, [user.firstName, user.lastName, user.mobile, user.bio, file, removeImage, token, statusType]);
 
     return (
         <div className="edit-profile-page">

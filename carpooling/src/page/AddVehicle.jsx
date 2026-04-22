@@ -6,11 +6,10 @@ import {
     FiTag,
     FiCircle,
     FiArrowLeft,
-    FiCheckCircle,
-    FiCar
+    FiCheckCircle
 } from 'react-icons/fi';
 import { FaArrowRight, FaCar } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import '../css/AddVehicle.css';
 import API from '../api/api';
 

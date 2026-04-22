@@ -1,5 +1,5 @@
 import "../css/AboutUs.css";
-import { FaArrowRight, FaDollarSign, FaLeaf, FaStar, FaUsers, FaHeart, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
+import { FaArrowRight, FaDollarSign, FaLeaf, FaStar, FaUsers, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const AboutUs = () => {
