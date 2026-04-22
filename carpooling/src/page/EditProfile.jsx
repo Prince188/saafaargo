@@ -1,13 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+    FaShieldAlt,
+    FaUser,
+    FaEnvelope,
+    FaPhone,
+    FaPencilAlt,
+    FaTrashAlt,
+    FaCheckCircle,
+    FaExclamationCircle,
+    FaArrowLeft,
+    FaCamera
+} from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import '../css/EditProfile.css';
 import API from '../api/api';
-import { FaShieldAlt } from 'react-icons/fa';
 
 const EditProfile = () => {
+    const navigate = useNavigate();
     const [user, setUser] = useState({});
     const isFirstLoad = useRef(true);
     const [saving, setSaving] = useState(false);
     const [status, setStatus] = useState("Saved");
+    const [statusType, setStatusType] = useState("success");
 
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState("");
@@ -15,7 +29,7 @@ const EditProfile = () => {
 
     const token = localStorage.getItem("token");
 
-    // 🔹 Fetch profile data
+    // Fetch profile data
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -31,11 +45,11 @@ const EditProfile = () => {
         fetchProfile();
     }, [token]);
 
-    const onClose = () => {
-        window.history.back();
+    const handleBack = () => {
+        navigate(-1);
     };
 
-    // 🔹 Handle Img Change
+    // Handle Image Change
     const handleImageChange = (e) => {
         const selected = e.target.files[0];
         if (selected) {
@@ -45,7 +59,7 @@ const EditProfile = () => {
         }
     };
 
-    // 🔹 Remove image
+    // Remove image
     const removeProfilePic = () => {
         setFile(null);
         setPreview("");
@@ -53,12 +67,13 @@ const EditProfile = () => {
         setRemoveImage(true);
     };
 
-    // 🔥 AUTO SAVE
+    // AUTO SAVE
     useEffect(() => {
         if (isFirstLoad.current) return;
 
         setSaving(true);
         setStatus("Saving...");
+        setStatusType("info");
 
         const timer = setTimeout(async () => {
             try {
@@ -77,11 +92,19 @@ const EditProfile = () => {
 
                 setSaving(false);
                 setStatus("Saved");
+                setStatusType("success");
                 setFile(null);
                 setRemoveImage(false);
+
+                setTimeout(() => {
+                    if (statusType === "success") {
+                        // Keep it showing briefly then fade
+                    }
+                }, 2000);
             } catch (err) {
                 setSaving(false);
                 setStatus("Error saving");
+                setStatusType("error");
             }
         }, 500);
 
@@ -89,32 +112,44 @@ const EditProfile = () => {
     }, [user.firstName, user.lastName, user.mobile, user.bio, file, removeImage, token]);
 
     return (
-        <div className="profile-container">
-            <div className="profile-card">
-
-                <header className="profile-header">
-                    <button className="close-btn" onClick={onClose}>✕</button>
-                    <h2>Personal details</h2>
-                    <span className="status-badge">
-                        {saving ? "Saving..." : status}
-                    </span>
-                </header>
-
-                {/* Profile Image Section */}
-                <section className="profile-identity">
-                    <div className="avatar-wrapper">
-                        <img
-                            src={preview || user.profilePic || "https://i.pravatar.cc/150"}
-                            alt="Profile"
-                            className="profile-img"
-                        />
+        <div className="edit-profile-page">
+            <div className="edit-profile-container">
+                <div className="edit-profile-card">
+                    <div className="card-header">
+                        <button className="back-button" onClick={handleBack}>
+                            <FaArrowLeft />
+                        </button>
+                        <div className="header-badge">
+                            <FaUser className="badge-icon" />
+                            <span>PROFILE SETTINGS</span>
+                        </div>
+                        <div className={`status-indicator ${statusType}`}>
+                            {statusType === "success" && !saving && <FaCheckCircle className="status-icon" />}
+                            {statusType === "error" && <FaExclamationCircle className="status-icon" />}
+                            <span>{saving ? "Saving..." : status}</span>
+                        </div>
                     </div>
 
-                    <div className="identity-content">
-                        <h3>Profile Identity</h3>
-                        <p>Update your photo to reflect your current professional look.</p>
+                    <h1 className="card-title">
+                        Edit Your <span className="highlight-green">Profile</span>
+                    </h1>
+                    <p className="card-description">
+                        Update your personal information and profile picture
+                    </p>
 
-                        <div className="action-buttons">
+                    {/* Profile Image Section */}
+                    <section className="profile-identity-section">
+                        <div className="avatar-container">
+                            <div className="avatar-wrapper">
+                                <img
+                                    src={preview || user.profilePic || `https://ui-avatars.com/api/?background=7A9B7A&color=fff&bold=true&size=120&name=${user.firstName || 'U'}+${user.lastName || ''}`}
+                                    alt="Profile"
+                                    className="profile-avatar"
+                                />
+                                <label htmlFor="upload-img" className="avatar-upload-btn">
+                                    <FaCamera />
+                                </label>
+                            </div>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -122,88 +157,114 @@ const EditProfile = () => {
                                 style={{ display: "none" }}
                                 id="upload-img"
                             />
-                            <label htmlFor="upload-img" className="btn-primary">
-                                Change
-                            </label>
-                            <button className="btn-link" onClick={removeProfilePic}>
-                                Remove
-                            </button>
                         </div>
-                    </div>
-                </section>
 
-                {/* Form Section */}
-                <div className="form-grid">
-                    <div className="form-group">
-                        <label>FIRST NAME</label>
-                        <input
-                            type="text"
-                            value={user.firstName || ""}
-                            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>EMAIL ADDRESS</label>
-                        <input
-                            type="email"
-                            value={user.email || ""}
-                            readOnly
-                            className='email-edit'
-                            disabled
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>LAST NAME</label>
-                        <input
-                            type="text"
-                            value={user.lastName || ""}
-                            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>MOBILE NUMBER</label>
-                        <input
-                            type="text"
-                            value={user.mobile || ""}
-                            onChange={(e) => setUser({ ...user, mobile: e.target.value })}
-                        />
-                    </div>
-                </div>
-
-                {/* Bio Section */}
-                <section className="bio-section">
-                    <div className="section-header">
-                        <div>PERSONAL BIO</div>
-                        <div className="char-count">
-                            {(user.bio || "").length} / 500
-                        </div>
-                    </div>
-
-                    <textarea
-                        value={user.bio || ""}
-                        maxLength={500}
-                        onChange={(e) => setUser({ ...user, bio: e.target.value })}
-                    />
-                </section>
-
-                {/* Footer */}
-                <footer className="privacy-footer">
-                    <div className="privacy-info">
-                        <div className="privacy-icon">
-                            <FaShieldAlt size={20} color="var(--mint)" />
-                        </div>
-                        <div className="privacy-text">
-                            <h4>Data Privacy</h4>
-                            <p>
-                                Your personal information is encrypted and never shared with third parties.
+                        <div className="identity-content">
+                            <h3 className="identity-title">Profile Identity</h3>
+                            <p className="identity-description">
+                                Update your photo to reflect your current professional look.
                             </p>
+                            <div className="action-buttons">
+                                <label htmlFor="upload-img" className="btn-outline-small">
+                                    <FaPencilAlt />
+                                    Change
+                                </label>
+                                <button className="btn-link-small" onClick={removeProfilePic}>
+                                    <FaTrashAlt />
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Form Section */}
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label>
+                                <FaUser className="input-icon" />
+                                <span>FIRST NAME</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={user.firstName || ""}
+                                onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                                placeholder="Your first name"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>
+                                <FaUser className="input-icon" />
+                                <span>LAST NAME</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={user.lastName || ""}
+                                onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                                placeholder="Your last name"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>
+                                <FaEnvelope className="input-icon" />
+                                <span>EMAIL ADDRESS</span>
+                            </label>
+                            <input
+                                type="email"
+                                value={user.email || ""}
+                                readOnly
+                                className="readonly-input"
+                                disabled
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>
+                                <FaPhone className="input-icon" />
+                                <span>MOBILE NUMBER</span>
+                            </label>
+                            <input
+                                type="tel"
+                                value={user.mobile || ""}
+                                onChange={(e) => setUser({ ...user, mobile: e.target.value })}
+                                placeholder="Your mobile number"
+                            />
                         </div>
                     </div>
-                </footer>
 
+                    {/* Bio Section */}
+                    <section className="bio-section">
+                        <div className="bio-header">
+                            <label>PERSONAL BIO</label>
+                            <div className="char-count">
+                                {(user.bio || "").length} / 500 characters
+                            </div>
+                        </div>
+                        <textarea
+                            value={user.bio || ""}
+                            maxLength={500}
+                            onChange={(e) => setUser({ ...user, bio: e.target.value })}
+                            placeholder="Tell us a little about yourself..."
+                            rows={4}
+                        />
+                    </section>
+
+                    {/* Privacy Footer */}
+                    <footer className="privacy-footer">
+                        <div className="privacy-info">
+                            <div className="privacy-icon">
+                                <FaShieldAlt />
+                            </div>
+                            <div className="privacy-text">
+                                <h4>Data Privacy</h4>
+                                <p>
+                                    Your personal information is encrypted and never shared with third parties.
+                                </p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
             </div>
         </div>
     );

@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { FiTruck, FiHash, FiUsers, FiTag, FiCircle } from 'react-icons/fi';
-import '../css/AddVehicle.css';
+import {
+    FiTruck,
+    FiHash,
+    FiUsers,
+    FiTag,
+    FiCircle,
+    FiArrowLeft,
+    FiCheckCircle,
+    FiAlertCircle
+} from 'react-icons/fi';
+import { FaArrowRight, FaCar } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
+import '../css/EditVehicle.css';
 import API from '../api/api';
-import { useParams } from 'react-router-dom';
 
 const EditVehicle = () => {
-
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [vehicle, setVehicle] = useState({
         brand: '',
@@ -17,6 +27,9 @@ const EditVehicle = () => {
     });
 
     const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
 
     const token = localStorage.getItem("token");
 
@@ -29,16 +42,18 @@ const EditVehicle = () => {
                         Authorization: `Bearer ${token}`
                     }
                 });
-
                 setVehicle(res.data);
-
+                setIsFetching(false);
             } catch (err) {
                 console.log(err);
+                setMessageType('error');
+                setMessage("Failed to load vehicle details ❌");
+                setIsFetching(false);
+                setTimeout(() => setMessage(''), 3000);
             }
         };
-
         fetchVehicle();
-    }, [id , token]);
+    }, [id, token]);
 
     // ✏️ HANDLE INPUT
     const handleChange = (e) => {
@@ -49,6 +64,7 @@ const EditVehicle = () => {
     // 💾 UPDATE VEHICLE
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
         try {
             await API.put(`/vehicles/${id}`, vehicle, {
@@ -57,107 +73,182 @@ const EditVehicle = () => {
                 }
             });
 
-            setMessage("Vehicle updated successfully 🚗");
+            setMessageType('success');
+            setMessage("Vehicle updated successfully! 🚗");
 
-            setTimeout(() => setMessage(''), 3000);
+            setTimeout(() => {
+                navigate('/profile');
+            }, 500);
 
         } catch (err) {
             console.log(err);
-            setMessage("Update failed ❌");
+            setMessageType('error');
+            setMessage(err.response?.data?.message || "Update failed ❌");
+            setTimeout(() => setMessage(''), 3000);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const onClose = () => {
-        window.history.back();
+    const handleBack = () => {
+        navigate(-1);
     };
 
-    return (
-        <div className="vehicle-page-container">
-            <div className="vehicle-cards">
-
-                <div className="vehicle-header">
-                    <h2>Edit Your Vehicle</h2>
-                    <p>Update your car details.</p>
+    if (isFetching) {
+        return (
+            <div className="add-vehicle-page">
+                <div className="add-vehicle-container">
+                    <div className="add-vehicle-card">
+                        <div className="loading-state">
+                            <div className="loading-spinner"></div>
+                            <p>Loading vehicle details...</p>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        );
+    }
 
-                <form onSubmit={handleSubmit} className="vehicle-form">
-
-                    <div className="form-grid">
-
-                        {/* Brand */}
-                        <div className="form-group">
-                            <label><FiTag /> Brand</label>
-                            <input
-                                name="brand"
-                                value={vehicle.brand}
-                                onChange={handleChange}
-                            />
+    return (
+        <div className="add-vehicle-page">
+            <div className="add-vehicle-container">
+                <div className="add-vehicle-card">
+                    <div className="card-header">
+                        <button className="back-button" onClick={handleBack}>
+                            <FiArrowLeft />
+                        </button>
+                        <div className="header-badge">
+                            <FaCar className="badge-icon" />
+                            <span>EDIT VEHICLE</span>
                         </div>
-
-                        {/* Model */}
-                        <div className="form-group">
-                            <label><FiTruck /> Model</label>
-                            <input
-                                name="model"
-                                value={vehicle.model}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        {/* Color */}
-                        <div className="form-group">
-                            <label><FiCircle /> Color</label>
-                            <input
-                                name="color"
-                                value={vehicle.color}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        {/* Number Plate */}
-                        <div className="form-group">
-                            <label><FiHash /> Number Plate</label>
-                            <input
-                                name="numberPlate"
-                                value={vehicle.numberPlate}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        {/* Seats */}
-                        <div className="form-group full-width">
-                            <label><FiUsers /> Seats</label>
-                            <input
-                                type="number"
-                                name="seats"
-                                value={vehicle.seats}
-                                onChange={handleChange}
-                            />
-                        </div>
-
                     </div>
 
-                    {message && (
-                        <div className="success-banner">
-                            {message}
+                    <h1 className="card-title">
+                        Edit Your <span className="highlight-green">Vehicle</span>
+                    </h1>
+                    <p className="card-description">
+                        Update your car details to keep your ride information current.
+                    </p>
+
+                    <form onSubmit={handleSubmit} className="vehicle-form">
+                        <div className="form-grid">
+                            {/* Brand */}
+                            <div className="form-group">
+                                <label>
+                                    <FiTag className="input-icon" />
+                                    <span>Brand</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="brand"
+                                    placeholder="e.g., Maruti Suzuki, Tata"
+                                    value={vehicle.brand}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            {/* Model */}
+                            <div className="form-group">
+                                <label>
+                                    <FiTruck className="input-icon" />
+                                    <span>Model</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="model"
+                                    placeholder="e.g., Swift, Nexon"
+                                    value={vehicle.model}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            {/* Color */}
+                            <div className="form-group">
+                                <label>
+                                    <FiCircle className="input-icon" />
+                                    <span>Color</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="color"
+                                    placeholder="e.g., White, Midnight Blue"
+                                    value={vehicle.color}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            {/* Number Plate */}
+                            <div className="form-group">
+                                <label>
+                                    <FiHash className="input-icon" />
+                                    <span>Number Plate</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="numberPlate"
+                                    placeholder="e.g., MH 12 AB 1234"
+                                    value={vehicle.numberPlate}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            {/* Seats */}
+                            <div className="form-group full-width">
+                                <label>
+                                    <FiUsers className="input-icon" />
+                                    <span>Available Seats</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    name="seats"
+                                    min="1"
+                                    max="10"
+                                    placeholder="Number of passenger seats"
+                                    value={vehicle.seats}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
                         </div>
-                    )}
 
-                    <div className='btn-grp'>
-                        <button type="submit" className="add-vehicle-btn">
-                            Update Vehicle
-                        </button>
+                        {message && (
+                            <div className={`message-banner ${messageType}`}>
+                                {messageType === 'success' && <FiCheckCircle className="message-icon" />}
+                                {messageType === 'error' && <FiAlertCircle className="message-icon" />}
+                                <span>{message}</span>
+                            </div>
+                        )}
 
-                        <button
-                            type="button"
-                            className="add-vehicle-btn"
-                            onClick={onClose}
-                        >
-                            Back
-                        </button>
-                    </div>
-
-                </form>
+                        <div className="button-group">
+                            <button
+                                type="submit"
+                                className="btn-primary"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <>Updating vehicle...</>
+                                ) : (
+                                    <>
+                                        Update Vehicle
+                                        <FaArrowRight />
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={handleBack}
+                            >
+                                <FiArrowLeft />
+                                <span>Back</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

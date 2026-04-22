@@ -1,226 +1,491 @@
 /* ============================================
-   Safar — Add Vehicle
-   Editorial green design system (plain CSS)
+   SAFAR GO — Add Vehicle Page
+   Consistent with Homepage & About Us Design System
    ============================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 :root {
-    --bg: #f8f6ef;
-    --fg: #0f1d15;
-    --muted: #5a6b62;
-    --muted-soft: #eeece2;
-    --card: #ffffff;
-    --border: #dde3df;
-    --primary: #1a3d2c;
-    --primary-fg: #f8f6ef;
-    --accent: #266b46;
-    --mint: #c8e3cf;
-    --mint-soft: #dcefdf;
+    --color-cream: #FDFBF7;
+    --color-off-white: #F9F8F4;
+    --color-forest: #1A3A2E;
+    --color-forest-light: #2A4D3F;
+    --color-sage: #7A9B7A;
+    --color-sage-light: #A8C3A3;
+    --color-sage-soft: #DCE8D4;
+    --color-clay: #C4A484;
+    --color-clay-light: #D4B896;
+    --color-stone: #6B7280;
+    --color-stone-light: #9CA3AF;
+    --color-charcoal: #1F2937;
+    --color-warm-gray: #F5F2EB;
+    --color-success: #10B981;
+    --color-success-bg: rgba(16, 185, 129, 0.1);
+    --color-error: #EF4444;
+    --color-error-bg: rgba(239, 68, 68, 0.1);
+
+    --gradient-hero: linear-gradient(135deg, #DCE8D4 0%, #FDFBF7 100%);
+    --gradient-primary: linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%);
+    --gradient-sage: linear-gradient(135deg, #7A9B7A 0%, #A8C3A3 100%);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-2xl: 0 32px 64px rgba(0, 0, 0, 0.14);
 
     --radius-sm: 12px;
-    --radius: 20px;
+    --radius-md: 20px;
     --radius-lg: 32px;
-    --radius-xl: 40px;
+    --radius-xl: 48px;
+    --radius-full: 9999px;
 
-    --shadow-soft: 0 10px 40px -15px rgba(20, 50, 35, 0.18);
-    --shadow-card: 0 1px 2px rgba(20, 50, 35, 0.05), 0 8px 24px -12px rgba(20, 50, 35, 0.10);
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    --spacing-3xl: 64px;
+    --spacing-4xl: 96px;
+
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ---------- Container ---------- */
-.vehicle-page-container {
+/* Page Container */
+.add-vehicle-page {
     min-height: 100vh;
-    background: radial-gradient(ellipse at top, #c8e3cf 0%, #f8f6ef 50%);
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    color: var(--fg);
-    padding: 48px 24px 80px;
+    background: var(--gradient-hero);
+    font-family: 'Inter', sans-serif;
     display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: flex-start;
-    -webkit-font-smoothing: antialiased;
-}
-
-.vehicle-cards {
-    width: 100%;
-    max-width: 760px;
-    background: var(--card);
-    border-radius: var(--radius-xl);
-    padding: 48px 44px;
-    box-shadow: var(--shadow-soft);
-    border: 1px solid rgba(26, 61, 44, 0.06);
     position: relative;
     overflow: hidden;
 }
 
-.vehicle-cards::before {
-    content: "";
+/* Animated background elements */
+.add-vehicle-page::before,
+.add-vehicle-page::after {
+    content: '';
     position: absolute;
-    top: -100px;
-    right: -100px;
-    width: 280px;
-    height: 280px;
-    border-radius: 999px;
-    background: rgba(200, 227, 207, 0.45);
-    filter: blur(60px);
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    z-index: 0;
     pointer-events: none;
 }
 
-@media (max-width: 600px) {
-    .vehicle-cards {
-        padding: 32px 22px;
-        border-radius: var(--radius-lg);
+.add-vehicle-page::before {
+    background: var(--color-sage-light);
+    top: -100px;
+    right: -100px;
+    animation: float 20s ease-in-out infinite;
+}
+
+.add-vehicle-page::after {
+    background: var(--color-clay-light);
+    bottom: -100px;
+    left: -100px;
+    animation: float 25s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
     }
 
-    .vehicle-page-container {
-        padding: 24px 16px 60px;
+    33% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
     }
 }
 
-/* ---------- Header ---------- */
-.vehicle-header {
+/* Container */
+.add-vehicle-container {
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: 800px;
+    margin: var(--spacing-3xl) auto;
+    padding: 0 var(--spacing-xl);
+}
+
+/* Card */
+.add-vehicle-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-3xl);
+    box-shadow: var(--shadow-xl);
+    transition: all var(--transition-base);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.add-vehicle-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-2xl);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    flex-direction: column;
     text-align: center;
-    margin-bottom: 36px;
-    padding-bottom: 28px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--spacing-2xl);
 }
 
-.vehicle-header h2 {
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(122, 155, 122, 0.1);
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid rgba(122, 155, 122, 0.2);
+}
+
+.badge-icon {
+    color: var(--color-sage);
+    font-size: 14px;
+}
+
+.header-badge span {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: var(--color-sage);
+    text-transform: uppercase;
+}
+
+.card-title {
     font-family: 'Fraunces', serif;
-    font-weight: 500;
-    font-size: clamp(28px, 4.5vw, 40px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--primary);
-    margin: 0 0 10px;
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-forest);
 }
 
-.vehicle-header p {
-    margin: 0;
+.highlight-green {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.card-description {
     font-size: 15px;
-    color: var(--muted);
-    max-width: 380px;
-    margin-left: auto;
-    margin-right: auto;
+    color: var(--color-stone);
+    line-height: 1.5;
 }
 
-/* ---------- Form ---------- */
+/* Form Styles */
 .vehicle-form {
-    position: relative;
-    z-index: 1;
+    margin-top: var(--spacing-xl);
 }
 
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px 24px;
-    margin-bottom: 28px;
-}
-
-@media (max-width: 600px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--spacing-sm);
 }
 
 .form-group.full-width {
-    grid-column: 1 / -1;
+    grid-column: span 2;
 }
 
 .form-group label {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 10px;
-    letter-spacing: 0.22em;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--color-stone);
     text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 500;
 }
 
-.form-group label svg {
-    width: 14px;
-    height: 14px;
-    color: var(--accent);
+.input-icon {
+    color: var(--color-sage);
+    font-size: 14px;
 }
 
 .form-group input {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: var(--radius-sm);
-    background: var(--bg);
-    border: 1px solid var(--border);
+    padding: 14px 18px;
+    background: var(--color-off-white);
+    border: 1.5px solid var(--color-sage-soft);
+    border-radius: var(--radius-md);
     font-size: 15px;
-    font-family: inherit;
-    color: var(--primary);
-    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-}
-
-.form-group input::placeholder {
-    color: rgba(90, 107, 98, 0.6);
+    font-family: 'Inter', sans-serif;
+    color: var(--color-charcoal);
+    transition: all var(--transition-base);
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--accent);
-    background: var(--card);
-    box-shadow: 0 0 0 4px rgba(38, 107, 70, 0.08);
+    border-color: var(--color-sage);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(122, 155, 122, 0.1);
 }
 
-/* ---------- Success Banner ---------- */
-.success-banner {
-    margin-bottom: 20px;
-    padding: 14px 18px;
-    border-radius: var(--radius-sm);
-    background: var(--mint-soft);
-    border: 1px solid var(--mint);
-    color: var(--primary);
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
+.form-group input::placeholder {
+    color: var(--color-stone-light);
+    font-weight: 400;
 }
 
-/* ---------- Buttons ---------- */
-.btn-grp {
+.form-group input:hover:not(:focus) {
+    border-color: var(--color-sage-light);
+    background: var(--color-cream);
+}
+
+/* Message Banner */
+.message-banner {
     display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
-    flex-wrap: wrap;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-xl);
+    animation: slideDown 0.3s ease-out;
 }
 
-.add-vehicle-btn {
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-banner.success {
+    background: var(--color-success-bg);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--color-success);
+}
+
+.message-banner.error {
+    background: var(--color-error-bg);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--color-error);
+}
+
+.message-icon {
+    font-size: 18px;
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+}
+
+.btn-primary {
     flex: 1;
-    min-width: 140px;
-    padding: 14px 24px;
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--gradient-primary);
+    color: white;
+    padding: 14px 32px;
+    border-radius: var(--radius-full);
+    border: none;
+    font-weight: 700;
     font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    font-family: inherit;
-    border: 1px solid transparent;
-    transition: transform .2s ease, background .2s ease, color .2s ease;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
 }
 
-.add-vehicle-btn[type="submit"] {
-    background: var(--primary);
-    color: var(--primary-fg);
-    box-shadow: var(--shadow-soft);
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
 }
 
-.add-vehicle-btn[type="submit"]:hover {
-    transform: scale(1.02);
+.btn-primary:hover::before {
+    left: 100%;
 }
 
-.add-vehicle-btn:not([type="submit"]) {
-    background: var(--card);
-    color: var(--primary);
-    border-color: rgba(26, 61, 44, 0.15);
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(26, 58, 46, 0.3);
+    gap: 16px;
 }
 
-.add-vehicle-btn:not([type="submit"]):hover {
-    background: var(--mint-soft);
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--color-forest);
+    padding: 14px 32px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-sage);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+    background: var(--color-sage);
+    color: white;
+    transform: translateY(-2px);
+    gap: 12px;
+}
+
+/* Loading state animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.btn-primary:disabled {
+    background: linear-gradient(135deg, #4a7c59, #2d5a42);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .add-vehicle-container {
+        padding: 0 var(--spacing-lg);
+        margin: var(--spacing-2xl) auto;
+    }
+
+    .add-vehicle-card {
+        padding: var(--spacing-xl);
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .add-vehicle-container {
+        padding: 0 var(--spacing-md);
+    }
+
+    .add-vehicle-card {
+        padding: var(--spacing-lg);
+    }
+
+    .card-title {
+        font-size: 28px;
+    }
+
+    .card-description {
+        font-size: 14px;
+    }
+
+    .form-group input {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Smooth Scroll Behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection Color */
+::selection {
+    background: var(--color-sage-soft);
+    color: var(--color-forest);
+}
+
+/* Focus Visible for Accessibility */
+.form-group input:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+    outline: 2px solid var(--color-clay);
+    outline-offset: 2px;
+}
+
+/* Number input spinner styling */
+.form-group input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.form-group input[type="number"]::-webkit-inner-spin-button,
+.form-group input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
