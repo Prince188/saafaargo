@@ -255,7 +255,6 @@ ul {
     font-size: clamp(44px, 8vw, 88px);
     line-height: 1.05;
     letter-spacing: -0.02em;
-    margin: 28px 0 0;
 }
 
 .hero p.lead {
