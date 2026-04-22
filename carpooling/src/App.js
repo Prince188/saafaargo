@@ -31,7 +31,7 @@ function App() {
         <Route path='/About-us' element={<AboutUs />} />
         <Route path='/Search-car-sharing' element={<SearchCarSharing />} />
         <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path='/signup' element={<PublicRoute><RegisterPage /></PublicRoute>} />
+        <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
         <Route path='/vehicle/add' element={<AddVehicle />} />

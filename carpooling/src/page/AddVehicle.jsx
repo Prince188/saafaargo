@@ -26,18 +26,13 @@ const AddVehicle = () => {
             const token = localStorage.getItem("token");
 
             const res = await API.post("/vehicles", vehicle, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             });
 
             console.log("Vehicle added:", res.data);
-
             setMessage("Vehicle added successfully!");
-
             onClose();
 
-            // reset form
             setVehicle({
                 brand: '',
                 model: '',
@@ -47,11 +42,9 @@ const AddVehicle = () => {
             });
 
             setTimeout(() => setMessage(''), 3000);
-
         } catch (err) {
             console.log("Error adding vehicle:", err);
             setMessage("Failed to add vehicle ❌");
-
             setTimeout(() => setMessage(''), 3000);
         }
     };
@@ -59,12 +52,12 @@ const AddVehicle = () => {
     const onClose = () => {
         window.history.back();
     };
- 
+
     return (
         <div className="vehicle-page-container">
             <div className="vehicle-cards">
                 <div className="vehicle-header">
-                    <h2>Add Your Vehicle</h2> 
+                    <h2>Add Your Vehicle</h2>
                     <p>Register your car to start sharing rides.</p>
                 </div>
 
@@ -141,10 +134,10 @@ const AddVehicle = () => {
                     {message && <div className="success-banner">{message}</div>}
 
                     <div className='btn-grp'>
-                        <button type="submit" className="add-vehicle-btn" >
+                        <button type="submit" className="add-vehicle-btn">
                             Add Vehicle
                         </button>
-                        <button className="add-vehicle-btn" onClick={onClose} >
+                        <button type="button" className="add-vehicle-btn" onClick={onClose}>
                             Back
                         </button>
                     </div>

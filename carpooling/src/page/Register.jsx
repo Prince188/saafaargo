@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { IoMailOutline, IoLockClosedOutline, IoEyeOutline, IoEyeOffOutline, IoPersonOutline } from "react-icons/io5";
-// import { FcGoogle } from "react-icons/fc";
-// import { FaGithub } from "react-icons/fa";
+import {
+    IoMailOutline,
+    IoLockClosedOutline,
+    IoEyeOutline,
+    IoEyeOffOutline,
+    IoPersonOutline,
+    IoCallOutline,
+} from "react-icons/io5";
 import '../css/Register.css';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
@@ -17,38 +22,28 @@ const RegisterPage = () => {
         email: "",
         mobile: "",
         password: ""
-    })
+    });
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
-        })
-    }
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const data = new FormData();
-
-            // append text fields
             Object.keys(formData).forEach(key => {
                 data.append(key, formData[key]);
             });
-
-            // append file (if selected)
-            if (file) {
-                data.append("profilePic", file);
-            }
+            if (file) data.append("profilePic", file);
 
             const res = await API.post("/auth/register", data);
-
-            console.log(res)
-
+            console.log(res);
             alert("Registered successfully");
             navigate("/");
-
         } catch (err) {
             alert(err.response?.data?.message || "Error");
         }
@@ -57,102 +52,135 @@ const RegisterPage = () => {
     return (
         <div className="register-container">
             <div className="register-card">
+
                 <div className="register-header">
-                    <h1 className="brand-logo">Safar <span>GO</span></h1>
-                    <p className="subtitle">Join our community of developers today.</p>
+                    <div className="brand-mark">s</div>
+                    <h1>Join Safar GO</h1>
+                    <p>Create your account and start sharing the journey.</p>
                 </div>
-
-                {/* <div className="social-login">
-                    <button className="social-btn">
-                        <FcGoogle size={20} />
-                        <span>Google</span>
-                    </button>
-                    <button className="social-btn">
-                        <FaGithub size={20} />
-                        <span>GitHub</span>
-                    </button>
-                </div>
-
-                <div className="divider">
-                    <span>OR REGISTER WITH EMAIL</span>
-                </div> */}
 
                 <form className="register-form" onSubmit={handleSubmit}>
+
                     <div className="name-row">
-                        <div className="input-field">
-                            <label>First Name</label>
-                            <div className="input-wrapper">
-                                <IoPersonOutline className="input-icon" />
-                                <input type="text" name='firstName' placeholder="John" onChange={handleChange} required />
+                        <div className="field">
+                            <label>FIRST NAME</label>
+                            <div className="input-wrap">
+                                <IoPersonOutline className="leading-icon" />
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    placeholder="Jane"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
                         </div>
-                        <div className="input-field">
-                            <label>Last Name</label>
-                            <div className="input-wrapper">
-                                <IoPersonOutline className="input-icon" />
-                                <input type="text" name='lastName' placeholder="Doe" onChange={handleChange} required />
+
+                        <div className="field">
+                            <label>LAST NAME</label>
+                            <div className="input-wrap">
+                                <IoPersonOutline className="leading-icon" />
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    placeholder="Doe"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
                         </div>
                     </div>
 
-                    <div className="input-field">
-                        <label>Email Address</label>
-                        <div className="input-wrapper">
-                            <IoMailOutline className="input-icon" />
-                            <input type="email" name='email' placeholder="john@example.com" onChange={handleChange} required />
+                    <div className="field">
+                        <label>EMAIL ADDRESS</label>
+                        <div className="input-wrap">
+                            <IoMailOutline className="leading-icon" />
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="jane@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
                         </div>
                     </div>
 
-                    <div className="input-field">
-                        <label>Mobile Number</label>
-                        <div className="input-wrapper">
-                            <IoMailOutline className="input-icon" />
-                            <input type="tel" name='mobile' placeholder="123-456-7890" onChange={handleChange} required />
+                    <div className="field">
+                        <label>MOBILE NUMBER</label>
+                        <div className="input-wrap">
+                            <IoCallOutline className="leading-icon" />
+                            <input
+                                type="tel"
+                                name="mobile"
+                                placeholder="+91 98765 43210"
+                                value={formData.mobile}
+                                onChange={handleChange}
+                                required
+                            />
                         </div>
                     </div>
 
-                    <div className="input-field">
-                        <label>Password</label>
-                        <div className="input-wrapper">
-                            <IoLockClosedOutline className="input-icon" />
+                    <div className="field">
+                        <label>PASSWORD</label>
+                        <div className="input-wrap">
+                            <IoLockClosedOutline className="leading-icon" />
                             <input
                                 type={showPassword ? "text" : "password"}
-                                name='password'
-                                placeholder="Create a strong password"
+                                name="password"
+                                placeholder="At least 8 characters"
+                                value={formData.password}
                                 onChange={handleChange}
+                                minLength={8}
                                 required
                             />
                             <button
                                 type="button"
-                                className="toggle-password"
+                                className="toggle-eye"
                                 onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                                 {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                             </button>
                         </div>
-                        <div className="password-hint">Must be at least 8 characters.</div>
+                        <p className="field-hint">Must be at least 8 characters.</p>
                     </div>
 
-                    <div className="input-field">
-                        <label>Profile Picture (optional)</label>
+                    <div className="file-field">
+                        <label className="field" style={{ gap: 0 }}>
+                            <span style={{
+                                fontSize: 10,
+                                letterSpacing: '0.22em',
+                                textTransform: 'uppercase',
+                                color: 'var(--muted)',
+                                fontWeight: 500,
+                                marginBottom: 8,
+                                display: 'block'
+                            }}>
+                                Profile Picture (optional)
+                            </span>
+                        </label>
                         <input
                             type="file"
                             accept="image/*"
+                            className="file-input"
                             onChange={(e) => setFile(e.target.files[0])}
                         />
                     </div>
 
-                    {/* <label className="terms-checkbox">
-                        <input type="checkbox" required />
-                        <span>I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</span>
-                    </label> */}
+                    <button type="submit" className="submit-btn">
+                        Create Account
+                    </button>
 
-                    <button type="submit" className="register-btn">Create Account</button>
                 </form>
 
-                <p className="login-text">
-                    Already have an account? <Link to="/login">Log in</Link>
-                </p>
+                <div className="register-footer">
+                    Already have an account?
+                    <Link to="/login">Log in</Link>
+                </div>
+
             </div>
         </div>
     );

@@ -231,7 +231,7 @@ button {
 }
 
 .search-cell:hover {
-    background: var(--muted);
+    background: var(--primary-glow);
 }
 
 .search-icon {

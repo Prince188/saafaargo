@@ -1,42 +1,125 @@
+/* ============================================
+   Safar — Add Vehicle
+   Editorial green design system (plain CSS)
+   ============================================ */
+
+:root {
+    --bg: #f8f6ef;
+    --fg: #0f1d15;
+    --muted: #5a6b62;
+    --muted-soft: #eeece2;
+    --card: #ffffff;
+    --border: #dde3df;
+    --primary: #1a3d2c;
+    --primary-fg: #f8f6ef;
+    --accent: #266b46;
+    --mint: #c8e3cf;
+    --mint-soft: #dcefdf;
+
+    --radius-sm: 12px;
+    --radius: 20px;
+    --radius-lg: 32px;
+    --radius-xl: 40px;
+
+    --shadow-soft: 0 10px 40px -15px rgba(20, 50, 35, 0.18);
+    --shadow-card: 0 1px 2px rgba(20, 50, 35, 0.05), 0 8px 24px -12px rgba(20, 50, 35, 0.10);
+}
+
+/* ---------- Container ---------- */
 .vehicle-page-container {
     min-height: 100vh;
-    background-color: #f4f7f6;
+    background: radial-gradient(ellipse at top, #c8e3cf 0%, #f8f6ef 50%);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    color: var(--fg);
+    padding: 48px 24px 80px;
     display: flex;
     justify-content: center;
-    align-items: center; 
-    padding: 20px;
+    align-items: flex-start;
+    -webkit-font-smoothing: antialiased;
 }
 
 .vehicle-cards {
-    background: white;
     width: 100%;
-    max-width: 600px;
-    padding: 40px;
-    border-radius: 24px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
+    max-width: 760px;
+    background: var(--card);
+    border-radius: var(--radius-xl);
+    padding: 48px 44px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(26, 61, 44, 0.06);
+    position: relative;
+    overflow: hidden;
 }
 
+.vehicle-cards::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 280px;
+    height: 280px;
+    border-radius: 999px;
+    background: rgba(200, 227, 207, 0.45);
+    filter: blur(60px);
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    .vehicle-cards {
+        padding: 32px 22px;
+        border-radius: var(--radius-lg);
+    }
+
+    .vehicle-page-container {
+        padding: 24px 16px 60px;
+    }
+}
+
+/* ---------- Header ---------- */
 .vehicle-header {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 36px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
 }
 
 .vehicle-header h2 {
-    color: var(--dark-blue, #054752);
-    font-size: 2rem;
-    margin-bottom: 8px;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(28px, 4.5vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--primary);
+    margin: 0 0 10px;
 }
 
 .vehicle-header p {
-    color: var(--text-gray, #5f6f73);
+    margin: 0;
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ---------- Form ---------- */
+.vehicle-form {
+    position: relative;
+    z-index: 1;
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 20px 24px;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .form-group {
@@ -46,82 +129,98 @@
 }
 
 .form-group.full-width {
-    grid-column: span 2;
+    grid-column: 1 / -1;
 }
 
 .form-group label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--dark-blue, #054752);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
 }
 
 .form-group label svg {
-    color: var(--dark-green, #119822);
+    width: 14px;
+    height: 14px;
+    color: var(--accent);
 }
 
 .form-group input {
-    padding: 14px;
-    border: 2px solid #eef2f1;
-    border-radius: 12px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--primary);
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.form-group input::placeholder {
+    color: rgba(90, 107, 98, 0.6);
 }
 
 .form-group input:focus {
-    border-color: var(--dark-green, #119822);
+    outline: none;
+    border-color: var(--accent);
+    background: var(--card);
+    box-shadow: 0 0 0 4px rgba(38, 107, 70, 0.08);
 }
 
+/* ---------- Success Banner ---------- */
+.success-banner {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--mint-soft);
+    border: 1px solid var(--mint);
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+}
 
-.btn-grp{
+/* ---------- Buttons ---------- */
+.btn-grp {
     display: flex;
-    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .add-vehicle-btn {
-    width: 48%;
-    margin-top: 30px;
-    padding: 16px;
-    background-color: var(--dark-green, #119822);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    flex: 1;
+    min-width: 140px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    transition: transform 0.2s, background 0.3s;
+    font-family: inherit;
+    border: 1px solid transparent;
+    transition: transform .2s ease, background .2s ease, color .2s ease;
 }
 
-.add-vehicle-btn:hover {
-    background-color: #0b6e18;
-    transform: translateY(-2px);
+.add-vehicle-btn[type="submit"] {
+    background: var(--primary);
+    color: var(--primary-fg);
+    box-shadow: var(--shadow-soft);
 }
 
-.success-banner {
-    margin-top: 20px;
-    padding: 12px;
-    background-color: #e6f7ea;
-    color: #119822;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 600;
+.add-vehicle-btn[type="submit"]:hover {
+    transform: scale(1.02);
 }
 
+.add-vehicle-btn:not([type="submit"]) {
+    background: var(--card);
+    color: var(--primary);
+    border-color: rgba(26, 61, 44, 0.15);
+}
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .form-group.full-width {
-        grid-column: span 1;
-    }
-
-    .vehicle-cards {
-        padding: 25px;
-    }
+.add-vehicle-btn:not([type="submit"]):hover {
+    background: var(--mint-soft);
 }
