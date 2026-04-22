@@ -8,7 +8,6 @@ import Search from './page/Search';
 import AboutUs from './page/AboutUs';
 import NotFound from './page/NotFound';
 import ScrollToTop from './component/ScrollToTop';
-import SearchCarSharing from './page/SearchCarSharing';
 import LoginPage from './page/Login';
 import RegisterPage from './page/Register';
 import PublicRoute from './component/PublicRoute';
@@ -29,7 +28,6 @@ function App() {
         <Route path='/offer-ride' element={<OfferRide />} />
         <Route path='/search' element={<Search />} />
         <Route path='/About-us' element={<AboutUs />} />
-        <Route path='/Search-car-sharing' element={<SearchCarSharing />} />
         <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
