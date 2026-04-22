@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../css/EditProfile.css';
-import API from '../api/api'; 
+import API from '../api/api';
 import { FaShieldAlt } from 'react-icons/fa';
 
 const EditProfile = () => {
-
     const [user, setUser] = useState({});
     const isFirstLoad = useRef(true);
     const [saving, setSaving] = useState(false);
@@ -21,19 +20,14 @@ const EditProfile = () => {
         const fetchProfile = async () => {
             try {
                 const res = await API.get("/users/profile", {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
-
                 setUser(res.data);
                 isFirstLoad.current = false;
-
             } catch (err) {
                 console.log("Error fetching profile", err);
             }
         };
-
         fetchProfile();
     }, [token]);
 
@@ -59,7 +53,7 @@ const EditProfile = () => {
         setRemoveImage(true);
     };
 
-    // 🔥 AUTO SAVE (FIXED)
+    // 🔥 AUTO SAVE
     useEffect(() => {
         if (isFirstLoad.current) return;
 
@@ -69,61 +63,38 @@ const EditProfile = () => {
         const timer = setTimeout(async () => {
             try {
                 const formData = new FormData();
-
                 formData.append("firstName", user.firstName || "");
                 formData.append("lastName", user.lastName || "");
                 formData.append("mobile", user.mobile || "");
                 formData.append("bio", user.bio || "");
 
-                if (file) {
-                    formData.append("profilePic", file);
-                }
-
-                if (removeImage) {
-                    formData.append("removeProfilePic", "true");
-                }
+                if (file) formData.append("profilePic", file);
+                if (removeImage) formData.append("removeProfilePic", "true");
 
                 await API.put("/users/profile", formData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
 
                 setSaving(false);
                 setStatus("Saved");
-
                 setFile(null);
                 setRemoveImage(false);
-
             } catch (err) {
                 setSaving(false);
                 setStatus("Error saving");
             }
-
         }, 500);
 
         return () => clearTimeout(timer);
-
-    }, [
-        user.firstName,
-        user.lastName,
-        user.mobile,
-        user.bio,
-        file,
-        removeImage,
-        token
-    ]);
-
+    }, [user.firstName, user.lastName, user.mobile, user.bio, file, removeImage, token]);
 
     return (
-
         <div className="profile-container">
             <div className="profile-card">
 
                 <header className="profile-header">
                     <button className="close-btn" onClick={onClose}>✕</button>
                     <h2>Personal details</h2>
-
                     <span className="status-badge">
                         {saving ? "Saving..." : status}
                     </span>
@@ -151,11 +122,9 @@ const EditProfile = () => {
                                 style={{ display: "none" }}
                                 id="upload-img"
                             />
-
                             <label htmlFor="upload-img" className="btn-primary">
                                 Change
                             </label>
-
                             <button className="btn-link" onClick={removeProfilePic}>
                                 Remove
                             </button>
@@ -165,15 +134,12 @@ const EditProfile = () => {
 
                 {/* Form Section */}
                 <div className="form-grid">
-
                     <div className="form-group">
                         <label>FIRST NAME</label>
                         <input
                             type="text"
                             value={user.firstName || ""}
-                            onChange={(e) =>
-                                setUser({ ...user, firstName: e.target.value })
-                            }
+                            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
                         />
                     </div>
 
@@ -193,9 +159,7 @@ const EditProfile = () => {
                         <input
                             type="text"
                             value={user.lastName || ""}
-                            onChange={(e) =>
-                                setUser({ ...user, lastName: e.target.value })
-                            }
+                            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
                         />
                     </div>
 
@@ -204,12 +168,9 @@ const EditProfile = () => {
                         <input
                             type="text"
                             value={user.mobile || ""}
-                            onChange={(e) =>
-                                setUser({ ...user, mobile: e.target.value })
-                            }
+                            onChange={(e) => setUser({ ...user, mobile: e.target.value })}
                         />
                     </div>
-
                 </div>
 
                 {/* Bio Section */}
@@ -224,9 +185,7 @@ const EditProfile = () => {
                     <textarea
                         value={user.bio || ""}
                         maxLength={500}
-                        onChange={(e) =>
-                            setUser({ ...user, bio: e.target.value })
-                        }
+                        onChange={(e) => setUser({ ...user, bio: e.target.value })}
                     />
                 </section>
 
@@ -234,9 +193,8 @@ const EditProfile = () => {
                 <footer className="privacy-footer">
                     <div className="privacy-info">
                         <div className="privacy-icon">
-                            <FaShieldAlt size={20} color="var(--primary-green)" />
+                            <FaShieldAlt size={20} color="var(--mint)" />
                         </div>
-
                         <div className="privacy-text">
                             <h4>Data Privacy</h4>
                             <p>
@@ -244,10 +202,6 @@ const EditProfile = () => {
                             </p>
                         </div>
                     </div>
-
-                    {/* <button className="manage-link">
-                        Manage Privacy
-                    </button> */}
                 </footer>
 
             </div>

@@ -64,7 +64,7 @@ const AddVehicle = () => {
         <div className="vehicle-page-container">
             <div className="vehicle-cards">
                 <div className="vehicle-header">
-                    <h2>Add Your Vehicle</h2>
+                    <h2>Add Your Vehicle</h2> 
                     <p>Register your car to start sharing rides.</p>
                 </div>
 
