@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import {
-    IoMailOutline,
-    IoLockClosedOutline,
     IoEyeOutline,
     IoEyeOffOutline,
-    IoPersonOutline,
-    IoCallOutline,
+    IoArrowForwardOutline,
+    IoCameraOutline
 } from "react-icons/io5";
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaArrowRight, FaShieldAlt, FaCar } from 'react-icons/fa';
 import '../css/Register.css';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
@@ -14,6 +13,9 @@ import API from '../api/api';
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [file, setFile] = useState(null);
+    const [fileName, setFileName] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [agreeTerms, setAgreeTerms] = useState(false);
 
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -31,8 +33,24 @@ const RegisterPage = () => {
         });
     };
 
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            setFileName(selectedFile.name);
+        } else {
+            setFile(null);
+            setFileName("");
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!agreeTerms) {
+            alert("Please agree to the Terms & Conditions");
+            return;
+        }
+        setIsLoading(true);
         try {
             const data = new FormData();
             Object.keys(formData).forEach(key => {
@@ -46,141 +64,189 @@ const RegisterPage = () => {
             navigate("/");
         } catch (err) {
             alert(err.response?.data?.message || "Error");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="register-container">
-            <div className="register-card">
+        <div className="register-page">
+            <div className="register-container">
+                <div className="register-card">
+                    <div className="register-header">
+                        <div className="brand-badge">
+                            <FaCar className="brand-icon" />
+                            <span>JOIN SAFAR GO</span>
+                        </div>
+                        <h1 className="register-title">
+                            Create <span className="highlight-green">account</span>
+                        </h1>
+                        <p className="register-subtitle">
+                            Start sharing the journey with thousands of travellers.
+                        </p>
+                    </div>
 
-                <div className="register-header">
-                    <div className="brand-mark">s</div>
-                    <h1>Join Safar GO</h1>
-                    <p>Create your account and start sharing the journey.</p>
-                </div>
+                    <form className="register-form" onSubmit={handleSubmit}>
+                        <div className="name-row">
+                            <div className="form-group">
+                                <label>
+                                    <FaUser className="input-icon" />
+                                    <span>FIRST NAME</span>
+                                </label>
+                                <div className="input-wrapper">
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        placeholder="Jane"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                <form className="register-form" onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>
+                                    <FaUser className="input-icon" />
+                                    <span>LAST NAME</span>
+                                </label>
+                                <div className="input-wrapper">
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        placeholder="Doe"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
-                    <div className="name-row">
-                        <div className="field">
-                            <label>FIRST NAME</label>
-                            <div className="input-wrap">
-                                <IoPersonOutline className="leading-icon" />
+                        <div className="form-group">
+                            <label>
+                                <FaEnvelope className="input-icon" />
+                                <span>EMAIL ADDRESS</span>
+                            </label>
+                            <div className="input-wrapper">
                                 <input
-                                    type="text"
-                                    name="firstName"
-                                    placeholder="Jane"
-                                    value={formData.firstName}
+                                    type="email"
+                                    name="email"
+                                    placeholder="jane@example.com"
+                                    value={formData.email}
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div className="field">
-                            <label>LAST NAME</label>
-                            <div className="input-wrap">
-                                <IoPersonOutline className="leading-icon" />
+                        <div className="form-group">
+                            <label>
+                                <FaPhone className="input-icon" />
+                                <span>MOBILE NUMBER</span>
+                            </label>
+                            <div className="input-wrapper">
                                 <input
-                                    type="text"
-                                    name="lastName"
-                                    placeholder="Doe"
-                                    value={formData.lastName}
+                                    type="tel"
+                                    name="mobile"
+                                    placeholder="+91 98765 43210"
+                                    value={formData.mobile}
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
                         </div>
-                    </div>
 
-                    <div className="field">
-                        <label>EMAIL ADDRESS</label>
-                        <div className="input-wrap">
-                            <IoMailOutline className="leading-icon" />
-                            <input
-                                type="email"
-                                name="email"
-                                placeholder="jane@example.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                            />
+                        <div className="form-group">
+                            <label>
+                                <FaLock className="input-icon" />
+                                <span>PASSWORD</span>
+                            </label>
+                            <div className="input-wrapper password-wrapper">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="At least 8 characters"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    minLength={8}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="toggle-password"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                                </button>
+                            </div>
+                            <p className="field-hint">Must be at least 8 characters</p>
                         </div>
-                    </div>
 
-                    <div className="field">
-                        <label>MOBILE NUMBER</label>
-                        <div className="input-wrap">
-                            <IoCallOutline className="leading-icon" />
-                            <input
-                                type="tel"
-                                name="mobile"
-                                placeholder="+91 98765 43210"
-                                value={formData.mobile}
-                                onChange={handleChange}
-                                required
-                            />
+                        <div className="form-group">
+                            <label className="file-label">
+                                <IoCameraOutline className="input-icon" />
+                                <span>PROFILE PICTURE (optional)</span>
+                            </label>
+                            <div className="file-upload-wrapper">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    id="profile-pic-input"
+                                    onChange={handleFileChange}
+                                    className="file-input-hidden"
+                                />
+                                <label htmlFor="profile-pic-input" className="file-upload-btn">
+                                    <IoCameraOutline />
+                                    Choose image
+                                </label>
+                                {fileName && (
+                                    <span className="file-name-display">{fileName}</span>
+                                )}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="field">
-                        <label>PASSWORD</label>
-                        <div className="input-wrap">
-                            <IoLockClosedOutline className="leading-icon" />
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                placeholder="At least 8 characters"
-                                value={formData.password}
-                                onChange={handleChange}
-                                minLength={8}
-                                required
-                            />
-                            <button
-                                type="button"
-                                className="toggle-eye"
-                                onClick={() => setShowPassword(!showPassword)}
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                                {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
-                            </button>
+                        <div className="terms-group">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={agreeTerms}
+                                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                                />
+                                <span className="checkmark"></span>
+                                <span className="terms-text">
+                                    I agree to the <Link to="/terms">Terms & Conditions</Link> and
+                                    <Link to="/privacy"> Privacy Policy</Link>
+                                </span>
+                            </label>
                         </div>
-                        <p className="field-hint">Must be at least 8 characters.</p>
+
+                        <button type="submit" className="btn-register" disabled={isLoading}>
+                            {isLoading ? (
+                                <>Creating account...</>
+                            ) : (
+                                <>
+                                    Create Account
+                                    <IoArrowForwardOutline />
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="register-footer">
+                        <p>Already have an account?</p>
+                        <Link to="/login" className="login-link">
+                            Log in
+                            <FaArrowRight />
+                        </Link>
                     </div>
 
-                    <div className="file-field">
-                        <label className="field" style={{ gap: 0 }}>
-                            <span style={{
-                                fontSize: 10,
-                                letterSpacing: '0.22em',
-                                textTransform: 'uppercase',
-                                color: 'var(--muted)',
-                                fontWeight: 500,
-                                marginBottom: 8,
-                                display: 'block'
-                            }}>
-                                Profile Picture (optional)
-                            </span>
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="file-input"
-                            onChange={(e) => setFile(e.target.files[0])}
-                        />
+                    <div className="security-note">
+                        <FaShieldAlt className="security-icon" />
+                        <span>Your data is protected with 256-bit encryption</span>
                     </div>
-
-                    <button type="submit" className="submit-btn">
-                        Create Account
-                    </button>
-
-                </form>
-
-                <div className="register-footer">
-                    Already have an account?
-                    <Link to="/login">Log in</Link>
                 </div>
-
             </div>
         </div>
     );

@@ -6,7 +6,6 @@ import {
     FaUsers,
     FaShieldAlt,
     FaLeaf,
-    FaStar,
     FaArrowRight,
     FaPlus,
     FaMinus,
@@ -321,7 +320,7 @@ export default function Home() {
             </section>
 
             {/* TESTIMONIAL SECTION */}
-            <section className="testimonial-section">
+            {/* <section className="testimonial-section">
                 <div className="container">
                     <div className="testimonial-container">
                         <div className="testimonial-image-wrapper">
@@ -359,7 +358,7 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* CTA SECTION */}
             <section className="cta-section">

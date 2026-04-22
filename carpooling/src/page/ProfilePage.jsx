@@ -5,15 +5,13 @@ import {
     FaCheckCircle,
     FaPlus,
     FaShieldAlt,
-    FaUserEdit,
     FaEnvelope,
     FaPhone,
     FaIdCard,
     FaArrowRight,
     FaCalendarAlt,
     FaStar,
-    FaUserFriends,
-    FaGasPump
+    FaUserFriends
 } from 'react-icons/fa';
 import { FiEdit2 } from 'react-icons/fi';
 import '../css/ProfilePage.css';
@@ -58,7 +56,7 @@ const ProfilePage = () => {
             }
         };
         fetchVehicles();
-    }, []);
+    }, [token]);
 
     const getInitials = () => {
         return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`;
@@ -228,7 +226,13 @@ const ProfilePage = () => {
                                                 </div>
                                                 <div className="vehicle-card-meta">
                                                     <span className="meta-item">
-                                                        <span className="meta-dot" style={{ background: vehicle.color?.toLowerCase() || '#7A9B7A' }}></span>
+                                                        <span
+                                                            className="meta-dot"
+                                                            style={{
+                                                                background: vehicle.color?.toLowerCase() || '#7A9B7A',
+                                                                border: '1px solid grey'
+                                                            }}
+                                                        ></span>
                                                         {vehicle.color}
                                                     </span>
                                                     <span className="meta-separator">•</span>

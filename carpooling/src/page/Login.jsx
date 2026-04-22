@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import {
-    IoMailOutline,
-    IoLockClosedOutline,
     IoEyeOutline,
     IoEyeOffOutline,
+    IoArrowForwardOutline,
+    IoCarSportOutline
 } from "react-icons/io5";
+import { FaEnvelope, FaLock, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
 import '../css/Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
@@ -26,6 +28,7 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const res = await API.post("/auth/login", formData);
             localStorage.setItem("token", res.data.token);
@@ -33,74 +36,101 @@ const LoginPage = () => {
             navigate("/");
         } catch (err) {
             alert(err.response?.data?.message || "Error");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="login-container">
-            <div className="login-card">
-
-                <div className="login-header">
-                    <div className="brand-mark">s</div>
-                    <h1>Welcome back</h1>
-                    <p>Sign in to continue your journey with Safar GO.</p>
-                </div>
-
-                <form className="login-form" onSubmit={handleSubmit}>
-
-                    <div className="field">
-                        <label>EMAIL ADDRESS</label>
-                        <div className="input-wrap">
-                            <IoMailOutline className="leading-icon" />
-                            <input
-                                type="email"
-                                name="email"
-                                placeholder="you@example.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                            />
+        <div className="login-page">
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="login-header">
+                        <div className="brand-badge">
+                            <IoCarSportOutline className="brand-icon" />
+                            <span>SAFAR GO</span>
                         </div>
+                        <h1 className="login-title">
+                            Welcome <span className="highlight-green">back</span>
+                        </h1>
+                        <p className="login-subtitle">
+                            Sign in to continue your journey with Safar GO.
+                        </p>
                     </div>
 
-                    <div className="field">
-                        <div className="field-row">
-                            <label>PASSWORD</label>
-                            <Link to="/forgot-password" className="forgot-link">
-                                Forgot password?
-                            </Link>
+                    <form className="login-form" onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>
+                                <FaEnvelope className="input-icon" />
+                                <span>EMAIL ADDRESS</span>
+                            </label>
+                            <div className="input-wrapper">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="you@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
                         </div>
-                        <div className="input-wrap">
-                            <IoLockClosedOutline className="leading-icon" />
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                placeholder="Enter your password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
-                            <button
-                                type="button"
-                                className="toggle-eye"
-                                onClick={() => setShowPassword(!showPassword)}
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                            >
-                                {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
-                            </button>
+
+                        <div className="form-group">
+                            <div className="label-row">
+                                <label>
+                                    <FaLock className="input-icon" />
+                                    <span>PASSWORD</span>
+                                </label>
+                                <Link to="/forgot-password" className="forgot-link">
+                                    Forgot password?
+                                </Link>
+                            </div>
+                            <div className="input-wrapper password-wrapper">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="toggle-password"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                                </button>
+                            </div>
                         </div>
+
+                        <button type="submit" className="btn-login" disabled={isLoading}>
+                            {isLoading ? (
+                                <>Signing in...</>
+                            ) : (
+                                <>
+                                    Sign In
+                                    <IoArrowForwardOutline />
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <div className="login-footer">
+                        <p>Don't have an account?</p>
+                        <Link to="/register" className="signup-link">
+                            Sign up for free
+                            <FaArrowRight />
+                        </Link>
                     </div>
 
-                    <button type="submit" className="submit-btn">
-                        Sign In
-                    </button>
-                </form>
-
-                <div className="login-footer">
-                    Don't have an account?
-                    <Link to="/register">Sign up for free</Link>
+                    <div className="security-note">
+                        <FaShieldAlt className="security-icon" />
+                        <span>Your data is protected with 256-bit encryption</span>
+                    </div>
                 </div>
-
             </div>
         </div>
     );
