@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../css/EditProfile.css';
-import API from '../api/api';
+import API from '../api/api'; 
 import { FaShieldAlt } from 'react-icons/fa';
 
 const EditProfile = () => {
