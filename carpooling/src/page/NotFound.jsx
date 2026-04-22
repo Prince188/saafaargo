@@ -1,7 +1,6 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiMap, FiArrowLeft, FiHome } from 'react-icons/fi';
-import '../css/NotFound.css';
+import { Link, useNavigate } from "react-router-dom";
+import { FiMap, FiArrowLeft, FiHome } from "react-icons/fi";
+import "../css/NotFound.css";
 
 const NotFound = () => {
     const navigate = useNavigate();
@@ -20,18 +19,19 @@ const NotFound = () => {
                 {/* Text Content */}
                 <h2 className="error-heading">Looks like you've taken a wrong turn!</h2>
                 <p className="error-message">
-                    The page you're looking for has moved to a new destination or never existed or under development.
-                    Don't worry, we'll help you get back on track.
+                    The page you're looking for has moved to a new destination or never
+                    existed or under development. Don't worry, we'll help you get back on
+                    track.
                 </p>
 
                 {/* Navigation Buttons */}
                 <div className="error-actions">
-                    <button className="btn-secondary" onClick={() => navigate(-1)}>
+                    <Link className="btn-secondary" onClick={() => navigate(-1)}>
                         <FiArrowLeft /> Go Back
-                    </button>
-                    <button className="btn-primary" onClick={() => navigate('/')}>
+                    </Link>
+                    <Link to={"/"} className="btn-primary">
                         <FiHome /> Back to Home
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Helpful Links */}

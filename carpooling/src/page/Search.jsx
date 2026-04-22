@@ -61,7 +61,7 @@ const Search = () => {
 
                     <div className="price-action-section">
                         <div style={{ textAlign: "right" }}>
-                            <div className="price-amount">$24.00</div>
+                            <div className="price-amount"> 800.00</div>
                             <div className="loc-val">Per Seat</div>
                         </div>
                         <button className="select-btn">
