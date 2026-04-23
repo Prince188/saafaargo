@@ -32,11 +32,7 @@ const PickUp = () => {
                         <FiArrowLeft />
                     </button>
                     <div className="header-progress">
-                        <div className="progress-step active">1</div>
-                        <div className="progress-line" />
-                        <div className="progress-step">2</div>
-                        <div className="progress-line" />
-                        <div className="progress-step">3</div>
+                        
                     </div>
                 </div>
 

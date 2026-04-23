@@ -39,11 +39,7 @@ const DestinationPage = () => {
                         <FiArrowLeft />
                     </button>
                     <div className="header-progress">
-                        <div className="progress-step completed">✓</div>
-                        <div className="progress-line" />
-                        <div className="progress-step active">2</div>
-                        <div className="progress-line" />
-                        <div className="progress-step">3</div>
+                        
                     </div>
                 </div>
 

@@ -114,15 +114,7 @@ const PriceSelection = () => {
                     </button>
 
                     <div className="progress">
-                        <div className="step completed">✓</div>
-                        <div className="line" />
-                        <div className="step completed">✓</div>
-                        <div className="line" />
-                        <div className="step completed">✓</div>
-                        <div className="line" />
-                        <div className="step completed">✓</div>
-                        <div className="line" />
-                        <div className="step active">5</div>
+                        
                     </div>
                 </div>
 

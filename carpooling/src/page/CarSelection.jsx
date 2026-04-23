@@ -85,17 +85,7 @@ const CarSelection = () => {
                         <FiArrowLeft />
                     </button>
                     <div className="header-progress">
-                        <div className="progress-step completed">✓</div>
-                        <div className="progress-line" />
-                        <div className="progress-step completed">✓</div>
-                        <div className="progress-line" />
-                        <div className="progress-step completed">✓</div>
-                        <div className="progress-line" />
-                        <div className="progress-step completed">✓</div>
-                        <div className="progress-line" />
-                        <div className="progress-step completed">✓</div>
-                        <div className="progress-line" />
-                        <div className="progress-step active">6</div>
+                        
                     </div>
                 </div>
 

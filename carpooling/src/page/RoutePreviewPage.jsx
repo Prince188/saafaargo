@@ -86,11 +86,7 @@ const RoutePreviewPage = () => {
                             <FiArrowLeft />
                         </button>
                         <div className="header-progress">
-                            <div className="progress-step completed">✓</div>
-                            <div className="progress-line" />
-                            <div className="progress-step completed">✓</div>
-                            <div className="progress-line" />
-                            <div className="progress-step active">3</div>
+                            
                         </div>
                     </div>
 
