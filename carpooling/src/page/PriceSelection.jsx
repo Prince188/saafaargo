@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiMapPin, FiInfo } from "react-icons/fi";
-import { FaArrowRight, FaCar, FaLocationArrow, FaRupeeSign, FaRoad } from "react-icons/fa";
+import { FiArrowLeft, FiInfo } from "react-icons/fi";
+import { FaArrowRight, FaCar, FaRupeeSign, FaRoad } from "react-icons/fa";
 import "../css/PriceSelection.css";
 
 const PriceSelection = () => {
@@ -162,7 +162,7 @@ const PriceSelection = () => {
                 </div>
 
                 {/* Route Preview */}
-                <div className="route-preview-compact">
+                {/* <div className="route-preview-compact">
                     <div className="route-point">
                         <FaLocationArrow className="icon pickup" />
                         <span className="name">{pickup.displayName?.split(",")[0]}</span>
@@ -184,7 +184,7 @@ const PriceSelection = () => {
                         <FiMapPin className="icon destination" />
                         <span className="name">{destination.displayName?.split(",")[0]}</span>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Price Cards */}
                 <div className="price-cards">
