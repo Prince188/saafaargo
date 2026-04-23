@@ -27,6 +27,19 @@ const vehicleSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    isInUse: {
+        type: Boolean,
+        default: false
+    },
+    currentRideId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ride",
+        default: null
+    }
 },
     { timestamps: true }
 )

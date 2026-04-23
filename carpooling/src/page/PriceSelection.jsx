@@ -223,7 +223,7 @@ const PriceSelection = () => {
 
                 {/* Continue */}
                 <button className="continue-btn" onClick={handleContinue}>
-                    Continue to Confirm
+                    Select Vehicle
                     <FaArrowRight />
                 </button>
 

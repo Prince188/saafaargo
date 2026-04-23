@@ -300,7 +300,7 @@ const StopoversPage = () => {
                     </div>
 
                     <button className="continue-btn" onClick={handleContinue}>
-                        Continue to Confirm
+                        Set Price
                         <FaArrowRight />
                     </button>
 

@@ -79,3 +79,24 @@ exports.deleteVehicle = async (req, res) => {
         res.status(500).json({ message: 'Error deleting vehicle', error: error.message });
     }
 }
+
+exports.getAvailableVehicles = async (req, res) => {
+    try {
+        if (!req.user?.id) {
+            return res.status(401).json({ message: "Unauthorized user" });
+        }
+
+        const vehicles = await Vehicle.find({
+            userId: req.user.id
+        });
+
+        return res.status(200).json(vehicles);
+
+    } catch (err) {
+        console.log("VEHICLE API ERROR:", err);
+        return res.status(500).json({
+            message: "Server error",
+            error: err.message
+        });
+    }
+};
