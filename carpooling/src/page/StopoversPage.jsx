@@ -50,38 +50,57 @@ const StopoversPage = () => {
     const getCitiesOnRoute = () => {
         if (!routeCoords.length || !pickup) return [];
 
+        // Step 1: build real travel distance along route
+        let totalDistance = 0;
 
-        const citiesWithIndex = allCities
+        const routeProgress = routeCoords.map((point, i) => {
+            if (i > 0) {
+                totalDistance += calculateDistance(
+                    routeCoords[i - 1].lat,
+                    routeCoords[i - 1].lng,
+                    point.lat,
+                    point.lng
+                );
+            }
+
+            return {
+                ...point,
+                progress: totalDistance
+            };
+        });
+
+        // Step 2: match cities to closest route progress
+        return allCities
             .map(city => {
-                let minIndex = Infinity;
+                let bestProgress = Infinity;
 
-                routeCoords.forEach((point, index) => {
-                    const dist = calculateDistance(
+                routeProgress.forEach((point) => {
+                    const distToRoute = calculateDistance(
                         city.lat,
                         city.lng,
                         point.lat,
                         point.lng
                     );
 
-                    if (dist < 5) {
-                        minIndex = Math.min(minIndex, index);
+                    // 🔥 realistic road threshold
+                    if (distToRoute < 25) {
+                        bestProgress = Math.min(bestProgress, point.progress);
                     }
                 });
 
                 return {
                     ...city,
-                    routeIndex: minIndex
+                    routeIndex: bestProgress
                 };
             })
             .filter(city => city.routeIndex !== Infinity)
             .filter(city => {
                 const pickupName = pickup?.displayName?.split(",")[0];
                 const destName = destination?.displayName?.split(",")[0];
+
                 return city.name !== pickupName && city.name !== destName;
             })
-            .sort((a, b) => a.routeIndex - b.routeIndex); // 🔥 IMPORTANT
-
-        return citiesWithIndex;
+            .sort((a, b) => a.routeIndex - b.routeIndex);
     };
 
     const citiesBetween = getCitiesOnRoute();
@@ -122,7 +141,7 @@ const StopoversPage = () => {
 
     // 👉 Continue
     const handleContinue = () => {
-        navigate("/offer-ride/confirm", {
+        navigate("/offer-ride/prices", {
             state: {
                 pickup,
                 destination,

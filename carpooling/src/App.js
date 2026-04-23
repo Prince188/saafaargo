@@ -24,6 +24,8 @@ import PickUp from './page/PickUp';
 import DestinationPage from './page/DestinationPage';
 import RoutePreviewPage from './page/RoutePreviewPage';
 import StopoversPage from './page/StopoversPage';
+import CarSelection from './page/CarSelection';
+import PriceSelection from './page/PriceSelection';
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
           <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path='/vehicle/add' element={<AddVehicle />} />
           <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
+          <Route path='*' element={<NotFound />} />
+
         </Route>
 
         {/* ❌ WITHOUT Navbar + Footer */}
@@ -52,9 +56,10 @@ function App() {
           <Route path='/offer-ride/destination' element={<DestinationPage />} />
           <Route path='/offer-ride/route-preview' element={<RoutePreviewPage />} />
           <Route path='/offer-ride/stop-over' element={<StopoversPage />} />
+          <Route path='/offer-ride/prices' element={<PriceSelection />} />
+          <Route path='/offer-ride/car' element={<CarSelection />} />
         </Route>
 
-        <Route path='*' element={<NotFound />} />
 
       </Routes>
     </BrowserRouter>
