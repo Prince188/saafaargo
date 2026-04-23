@@ -27,6 +27,7 @@ import StopoversPage from './page/StopoversPage';
 import CarSelection from './page/CarSelection';
 import PriceSelection from './page/PriceSelection';
 import RideReview from './page/RideReview';
+import RideDateSeat from './page/RideDateSeat';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
           <Route path='/offer-ride/stop-over' element={<StopoversPage />} />
           <Route path='/offer-ride/prices' element={<PriceSelection />} />
           <Route path='/offer-ride/car' element={<CarSelection />} />
+          <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
           <Route path='/offer-ride/ride-review' element={<RideReview />} />
         </Route>
 

@@ -1,0 +1,681 @@
+/* ============================================
+   SAFAR GO — Ride Review Page (Horizontal Layout)
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-off-white: #F9F8F4;
+    --color-forest: #1A3A2E;
+    --color-sage: #7A9B7A;
+    --color-sage-light: #A8C3A3;
+    --color-sage-soft: #DCE8D4;
+    --color-clay: #C4A484;
+    --color-stone: #6B7280;
+    --color-success: #10B981;
+    --gradient-primary: linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-full: 9999px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --transition: 0.3s ease;
+}
+
+/* Page Layout */
+.ride-review-page {
+    min-height: 100vh;
+    background: var(--color-off-white);
+    font-family: 'Inter', sans-serif;
+}
+
+.ride-review-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Header */
+.ride-review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-bottom: 1px solid var(--color-sage-soft);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+}
+
+.back-button {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid var(--color-sage-soft);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-forest);
+    transition: var(--transition);
+}
+
+.back-button:hover {
+    background: var(--color-sage-soft);
+    transform: translateX(-2px);
+}
+
+.header-progress {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.progress-step {
+    width: 32px;
+    height: 32px;
+    background: var(--color-off-white);
+    border: 1.5px solid var(--color-sage-soft);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-stone);
+}
+
+.progress-step.active {
+    background: var(--gradient-primary);
+    border-color: var(--color-forest);
+    color: white;
+}
+
+.progress-step.completed {
+    background: var(--color-success);
+    border-color: var(--color-success);
+    color: white;
+}
+
+.progress-line {
+    width: 40px;
+    height: 2px;
+    background: var(--color-sage-soft);
+}
+
+/* Title */
+.ride-review-title-section {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-xl) var(--spacing-xl);
+}
+
+.ride-review-title {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--color-forest);
+    margin-bottom: var(--spacing-sm);
+}
+
+.highlight-green {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.ride-review-subtitle {
+    font-size: 14px;
+    color: var(--color-stone);
+}
+
+/* Review Cards */
+.review-card {
+    background: var(--color-off-white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin: 0 var(--spacing-xl) var(--spacing-lg);
+    transition: var(--transition);
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-sage-soft);
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--color-sage-soft);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-sage);
+    font-size: 20px;
+}
+
+.card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-forest);
+}
+
+/* Route Horizontal Layout */
+.route-horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.route-horizontal-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    min-width: 120px;
+}
+
+.route-badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.pickup-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--color-success);
+}
+
+.destination-badge {
+    background: rgba(196, 164, 132, 0.15);
+    color: var(--color-clay);
+}
+
+.stop-badge {
+    background: var(--color-sage-soft);
+    color: var(--color-sage);
+}
+
+.route-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.route-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--color-stone);
+    text-transform: uppercase;
+}
+
+.route-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-forest);
+}
+
+.route-arrow {
+    color: var(--color-sage-light);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Horizontal Row for Vehicle & Schedule */
+.horizontal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin: 0 var(--spacing-xl) var(--spacing-lg);
+}
+
+.info-card {
+    background: var(--color-off-white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    transition: var(--transition);
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-sage-soft);
+}
+
+.info-card-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-sage-soft);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-sage);
+    font-size: 18px;
+}
+
+.info-card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-forest);
+}
+
+/* Vehicle Card Horizontal */
+.vehicle-content-horizontal {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.vehicle-icon-small {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.vehicle-details-horizontal h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-forest);
+    margin-bottom: var(--spacing-xs);
+}
+
+.vehicle-meta-horizontal {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 11px;
+    color: var(--color-stone);
+    margin-bottom: var(--spacing-xs);
+}
+
+.dot {
+    color: var(--color-sage-light);
+}
+
+.vehicle-plate-small {
+    font-size: 10px;
+    font-family: monospace;
+    color: var(--color-stone);
+    background: white;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+/* Schedule Card Horizontal */
+.schedule-content-horizontal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.schedule-item-horizontal {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.schedule-icon-small {
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-sage);
+    font-size: 14px;
+}
+
+.schedule-item-horizontal div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-label-small {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--color-stone);
+    text-transform: uppercase;
+}
+
+.schedule-value-small {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-forest);
+}
+
+/* Price Summary Card */
+.price-summary-card {
+    margin: 0 var(--spacing-xl) var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background: var(--gradient-primary);
+    border-radius: var(--radius-md);
+    color: white;
+}
+
+.price-header {
+    display: flex;
+    background-color: transparent;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+}
+
+.price-icon {
+    font-size: 20px;
+}
+
+.price-header h3 {
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+}
+
+.price-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.price-row.total {
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    font-weight: 700;
+    opacity: 1;
+}
+
+/* Security Note */
+.security-note {
+    display: flex;
+    gap: var(--spacing-md);
+    margin: 0 var(--spacing-xl) var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--color-sage-soft);
+    border-radius: var(--radius-md);
+}
+
+.security-icon {
+    color: var(--color-sage);
+    font-size: 20px;
+}
+
+.security-text strong {
+    display: block;
+    font-size: 13px;
+    color: var(--color-forest);
+    margin-bottom: 2px;
+}
+
+.security-text p {
+    font-size: 11px;
+    color: var(--color-stone);
+    line-height: 1.4;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-xl) var(--spacing-2xl);
+}
+
+.edit-btn {
+    flex: 1;
+    background: transparent;
+    border: 1.5px solid var(--color-sage);
+    border-radius: var(--radius-full);
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-sage);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.edit-btn:hover {
+    background: var(--color-sage-soft);
+    transform: translateY(-2px);
+}
+
+.publish-btn {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-md);
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.publish-btn:hover {
+    transform: translateY(-2px);
+    gap: var(--spacing-lg);
+    box-shadow: var(--shadow-md);
+}
+
+/* Error State */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: var(--spacing-lg);
+    text-align: center;
+    padding: var(--spacing-2xl);
+}
+
+.error-icon {
+    font-size: 48px;
+    color: var(--color-clay);
+}
+
+.error-state h3 {
+    font-size: 20px;
+    color: var(--color-forest);
+}
+
+.error-state p {
+    color: var(--color-stone);
+}
+
+.error-state button {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .route-horizontal {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .route-arrow {
+        transform: rotate(90deg);
+        text-align: center;
+    }
+
+    .route-horizontal-item {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .ride-review-header {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .ride-review-title-section {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+
+    .ride-review-title {
+        font-size: 28px;
+    }
+
+    .review-card,
+    .price-summary-card,
+    .security-note {
+        margin: 0 var(--spacing-lg) var(--spacing-lg);
+    }
+
+    .horizontal-row {
+        margin: 0 var(--spacing-lg) var(--spacing-lg);
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .action-buttons {
+        padding: 0 var(--spacing-lg) var(--spacing-xl);
+    }
+
+    .progress-step {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .progress-line {
+        width: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ride-review-header {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .ride-review-title-section {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+
+    .ride-review-title {
+        font-size: 24px;
+    }
+
+    .review-card,
+    .price-summary-card,
+    .security-note {
+        margin: 0 var(--spacing-md) var(--spacing-md);
+        padding: var(--spacing-md);
+    }
+
+    .horizontal-row {
+        margin: 0 var(--spacing-md) var(--spacing-md);
+    }
+
+    .action-buttons {
+        padding: 0 var(--spacing-md) var(--spacing-lg);
+    }
+
+    .progress-step {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
+    }
+
+    .progress-line {
+        width: 20px;
+    }
+
+    .vehicle-content-horizontal {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .vehicle-meta-horizontal {
+        justify-content: center;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.review-card,
+.info-card,
+.price-summary-card,
+.security-note {
+    animation: fadeInUp 0.4s ease-out forwards;
+}
