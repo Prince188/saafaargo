@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiUsers, FiHash, FiPlus } from "react-icons/fi";
 import { FaCar, FaPalette } from "react-icons/fa";
-import "../css/CarSelection.css";
+import "../../css/CarSelection.css";
 
 const CarSelection = () => {
     const location = useLocation();

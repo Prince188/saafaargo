@@ -9,7 +9,7 @@ import {
     FiCheck
 } from "react-icons/fi";
 import { FaArrowRight, FaCar } from "react-icons/fa";
-import "../css/RideDateSeat.css";
+import "../../css/RideDateSeat.css";
 
 const RideDateSeat = () => {
     const location = useLocation();

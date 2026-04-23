@@ -9,7 +9,7 @@ import {
   FiInfo
 } from "react-icons/fi";
 import { FaCar, FaArrowRight, FaRupeeSign, FaShieldAlt } from "react-icons/fa";
-import "../css/RideReview.css";
+import "../../css/RideReview.css";
 
 const RideReview = () => {
   const navigate = useNavigate();
@@ -44,20 +44,43 @@ const RideReview = () => {
     });
   };
 
-  const handleConfirmRide = () => {
-    console.log("FINAL DATA:", {
-      pickup,
-      destination,
-      stops,
-      selectedCar,
-      date,
-      time,
-      seats,
-      totalPrice: calculatedTotal
-    });
+  const handleConfirmRide = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    alert("Ride published successfully! 🚀");
-    navigate("/");
+      const res = await fetch("http://localhost:5000/api/rides", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          pickup,
+          destination,
+          stops, // already contains price
+          date,
+          time,
+          seats,
+          selectedCar
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Error:", data);
+        alert("Failed to publish ride");
+        return;
+      }
+
+      alert("Ride published successfully 🚀");
+
+      navigate("/"); // redirect home
+
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Something went wrong");
+    }
   };
 
   if (!pickup || !destination) {

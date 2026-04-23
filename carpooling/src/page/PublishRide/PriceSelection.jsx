@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiInfo } from "react-icons/fi";
 import { FaArrowRight, FaCar, FaRupeeSign, FaRoad } from "react-icons/fa";
-import "../css/PriceSelection.css";
+import "../../css/PriceSelection.css";
 
 const PriceSelection = () => {
     const location = useLocation();

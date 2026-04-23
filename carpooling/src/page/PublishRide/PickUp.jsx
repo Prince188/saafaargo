@@ -1,8 +1,8 @@
 import React  from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiArrowLeft,  FiMapPin } from 'react-icons/fi';
-import MapPicker from '../component/MapPicker';
-import '../css/PickUp.css';
+import MapPicker from '../../component/MapPicker';
+import '../../css/PickUp.css';
 
 const PickUp = () => {
     const location = useLocation();

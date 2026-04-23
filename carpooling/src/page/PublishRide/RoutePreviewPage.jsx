@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { useLocation, useNavigate } from "react-router-dom";
 import L from "leaflet";
 import "leaflet-routing-machine";
-import Routing from "../component/Routing";
+import Routing from "../../component/Routing";
 import {
     FiArrowLeft,
     FiMapPin,
@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import { BsFuelPump } from "react-icons/bs";
 import { FaArrowRight } from "react-icons/fa";
-import "../css/RoutePreview.css";
+import "../../css/RoutePreview.css";
 
 // Fix marker icons
 delete L.Icon.Default.prototype._getIconUrl;

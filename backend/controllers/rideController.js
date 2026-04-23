@@ -1,32 +1,40 @@
-const Vehicle = require("../models/Vehicle");
+const Ride = require("../models/Ride");
 
-exports.startRide = async (req, res) => {
+const createRide = async (req, res) => {
     try {
-        const { vehicleId } = req.body;
+        const {
+            pickup,
+            destination,
+            stops,
+            date,
+            time,
+            seats,
+            selectedCar
+        } = req.body;
 
-        // mark vehicle as in use
-        await Vehicle.findByIdAndUpdate(vehicleId, {
-            isInUse: true
+        const ride = new Ride({
+            user: req.user.id, // from authMiddleware
+            pickup,
+            destination,
+            stops,
+            date,
+            time,
+            seatsAvailable: seats,
+            car: selectedCar
         });
 
-        res.json({ message: "Ride started" });
+        await ride.save();
 
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(201).json({
+            success: true,
+            message: "Ride created successfully",
+            ride
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
     }
 };
 
-exports.endRide = async (req, res) => {
-    try {
-        const { vehicleId } = req.body;
-
-        await Vehicle.findByIdAndUpdate(vehicleId, {
-            isInUse: false
-        });
-
-        res.json({ message: "Ride ended" });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
+module.exports = { createRide };

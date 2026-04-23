@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
 import { FaArrowRight, FaLocationArrow, FaMapPin } from "react-icons/fa";
-import "../css/StopoversPage.css";
+import "../../css/StopoversPage.css";
 
 const StopoversPage = () => {
     const location = useLocation();

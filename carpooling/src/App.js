@@ -20,14 +20,14 @@ import ProfilePage from './page/ProfilePage';
 import EditProfile from './page/EditProfile';
 import AddVehicle from './page/AddVehicle';
 import EditVehicle from './page/EditVehicle';
-import PickUp from './page/PickUp';
-import DestinationPage from './page/DestinationPage';
-import RoutePreviewPage from './page/RoutePreviewPage';
-import StopoversPage from './page/StopoversPage';
-import CarSelection from './page/CarSelection';
-import PriceSelection from './page/PriceSelection';
-import RideReview from './page/RideReview';
-import RideDateSeat from './page/RideDateSeat';
+import PickUp from './page/PublishRide/PickUp';
+import DestinationPage from './page/PublishRide/DestinationPage';
+import RoutePreviewPage from './page/PublishRide/RoutePreviewPage';
+import StopoversPage from './page/PublishRide/StopoversPage';
+import CarSelection from './page/PublishRide/CarSelection';
+import PriceSelection from './page/PublishRide/PriceSelection';
+import RideReview from './page/PublishRide/RideReview';
+import RideDateSeat from './page/PublishRide/RideDateSeat';
 
 function App() {
   return (
