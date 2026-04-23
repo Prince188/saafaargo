@@ -302,10 +302,9 @@
 
 .cities-horizontal-scroll {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--spacing-md);
-    overflow-x: auto;
     padding: var(--spacing-md) 0;
-    scrollbar-width: thin;
 }
 
 .cities-horizontal-scroll::-webkit-scrollbar {

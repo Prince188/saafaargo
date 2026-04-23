@@ -51,6 +51,7 @@ const RoutePreviewPage = () => {
                 state: {
                     pickup,
                     destination,
+                    routeCoords: routeInfo.coordinates,
                     formData: {
                         pickup,
                         destination

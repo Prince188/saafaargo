@@ -37,10 +37,16 @@ const Routing = ({ pickup, destination, setRouteInfo }) => {
         instance.on("routesfound", (e) => {
             const route = e.routes[0];
 
+            const coordinates = route.coordinates.map(p => ({
+                lat: p.lat,
+                lng: p.lng
+            }));
+
             if (setRouteInfo) {
                 setRouteInfo({
                     distance: (route.summary.totalDistance / 1000).toFixed(1),
                     time: Math.round(route.summary.totalTime / 60),
+                    coordinates
                 });
             }
         });
@@ -60,7 +66,7 @@ const Routing = ({ pickup, destination, setRouteInfo }) => {
             }
         };
 
-    }, [pickup, destination , map , setRouteInfo]);
+    }, [pickup, destination, map, setRouteInfo]);
 
     return null;
 };
