@@ -8,7 +8,7 @@ import {
   FiUsers,
   FiInfo
 } from "react-icons/fi";
-import { FaCar, FaArrowRight, FaRupeeSign, FaShieldAlt } from "react-icons/fa";
+import { FaCar, FaArrowRight } from "react-icons/fa";
 import "../../css/RideReview.css";
 
 const RideReview = () => {
@@ -23,15 +23,14 @@ const RideReview = () => {
     date,
     time,
     seats,
-    totalPrice // 👈 coming from previous page or backend
+    // totalPrice // 👈 coming from previous page or backend
   } = location.state || {};
 
   // ✅ If totalPrice not passed, calculate from stops
-  const calculatedTotal =
-    totalPrice ||
-    stops.reduce((sum, stop) => sum + (stop.price || 0), 0);
+  // const calculatedTotal =
+  //   totalPrice ||
+  //   stops.reduce((sum, stop) => sum + (stop.price || 0), 0);
 
-  const totalEarning = calculatedTotal * (seats || 1);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not set";
@@ -48,6 +47,18 @@ const RideReview = () => {
     try {
       const token = localStorage.getItem("token");
 
+      // ✅ FIX HERE
+      const formattedStops = stops.slice(0, -1).map(stop => ({
+        lat: stop.lat,
+        lng: stop.lng,
+        address: stop.address,
+        city: stop.city,
+        displayName: stop.displayName,
+        price: stop.price
+      }));
+
+      console.log("SEATS:", seats);
+
       const res = await fetch("http://localhost:5000/api/rides", {
         method: "POST",
         headers: {
@@ -57,11 +68,11 @@ const RideReview = () => {
         body: JSON.stringify({
           pickup,
           destination,
-          stops, // already contains price
+          stops: formattedStops, // ✅ FIXED
           date,
           time,
-          seats,
-          selectedCar
+          seatsAvailable: seats, // ✅ correct
+          car: selectedCar
         })
       });
 
@@ -74,8 +85,7 @@ const RideReview = () => {
       }
 
       alert("Ride published successfully 🚀");
-
-      navigate("/"); // redirect home
+      navigate("/my-rides");
 
     } catch (err) {
       console.error("Network error:", err);

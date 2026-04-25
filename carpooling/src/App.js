@@ -28,6 +28,7 @@ import CarSelection from './page/PublishRide/CarSelection';
 import PriceSelection from './page/PublishRide/PriceSelection';
 import RideReview from './page/PublishRide/RideReview';
 import RideDateSeat from './page/PublishRide/RideDateSeat';
+import MyRide from './page/User/MyRide';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
           <Route path='/vehicle/add' element={<AddVehicle />} />
           <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
+          <Route path='/my-rides' element={<MyRide/>}/>
           <Route path='*' element={<NotFound />} />
 
         </Route>

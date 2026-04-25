@@ -11,7 +11,11 @@ const rideSchema = new mongoose.Schema({
 
     stops: [
         {
-            location: Object,
+            lat: Number,
+            lng: Number,
+            address: String,
+            city: String,
+            displayName: String,
             price: Number
         }
     ],
@@ -27,7 +31,39 @@ const rideSchema = new mongoose.Schema({
         color: String,
         numberPlate: String,
         seats: Number
-    }
+    },
+
+    passengers: [
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            },
+
+            name: String,
+            phone: String,
+            email: String,
+
+            from: {
+                lat: Number,
+                lng: Number,
+                displayName: String
+            },
+
+            to: {
+                lat: Number,
+                lng: Number,
+                displayName: String
+            },
+
+            amountPaid: Number,
+
+            seatsBooked: {
+                type: Number,
+                default: 1
+            }
+        }
+    ],
 
 }, { timestamps: true });
 
