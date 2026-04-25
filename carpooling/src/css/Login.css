@@ -11,52 +11,7 @@
     box-sizing: border-box;
 }
 
-:root {
-    --color-cream: #FDFBF7;
-    --color-off-white: #F9F8F4;
-    --color-forest: #1A3A2E;
-    --color-forest-light: #2A4D3F;
-    --color-sage: #7A9B7A;
-    --color-sage-light: #A8C3A3;
-    --color-sage-soft: #DCE8D4;
-    --color-clay: #C4A484;
-    --color-clay-light: #D4B896;
-    --color-stone: #6B7280;
-    --color-stone-light: #9CA3AF;
-    --color-charcoal: #1F2937;
-    --color-warm-gray: #F5F2EB;
-    --color-success: #10B981;
-    --color-error: #EF4444;
 
-    --gradient-hero: linear-gradient(135deg, #DCE8D4 0%, #FDFBF7 100%);
-    --gradient-primary: linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%);
-    --gradient-sage: linear-gradient(135deg, #7A9B7A 0%, #A8C3A3 100%);
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
-    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.06);
-    --shadow-2xl: 0 32px 64px rgba(0, 0, 0, 0.14);
-
-    --radius-sm: 12px;
-    --radius-md: 20px;
-    --radius-lg: 32px;
-    --radius-xl: 48px;
-    --radius-full: 9999px;
-
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-    --spacing-2xl: 48px;
-    --spacing-3xl: 64px;
-    --spacing-4xl: 96px;
-
-    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
 /* Page Container */
 .login-page {

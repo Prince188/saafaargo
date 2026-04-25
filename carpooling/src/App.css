@@ -2,15 +2,81 @@
 
 
 :root {
-  --primary-green: #119822;
-  --dark-green: #0b6e18;
-  --light-green: #f0fdf4;
-  --text-gray: #4a5568;
-  --navy-bg: #054752;
-  /* This will be our main heading/text color */
+  /* ===== COLOR PALETTE ===== */
+  --color-cream: #FDFBF7;
+  --color-off-white: #F9F8F4;
+  --color-forest: #1A3A2E;
+  --color-forest-light: #2A4D3F;
+  --color-sage: #7A9B7A;
+  --color-sage-light: #A8C3A3;
+  --color-sage-soft: #DCE8D4;
+  --color-clay: #C4A484;
+  --color-clay-light: #D4B896;
+  --color-stone: #6B7280;
+  --color-stone-light: #9CA3AF;
+  --color-charcoal: #1F2937;
+  --color-warm-gray: #F5F2EB;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  --color-pending: #F59E0B;
+  --color-info: #3B82F6;
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+  --color-info-bg: rgba(59, 130, 246, 0.1);
 
-  --border-gray: #ededed;
-  --font-main: 'Inter', system-ui, sans-serif;
+  /* ===== GRADIENTS ===== */
+  --gradient-hero: linear-gradient(135deg, #DCE8D4 0%, #FDFBF7 100%);
+  --gradient-primary: linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%);
+  --gradient-sage: linear-gradient(135deg, #7A9B7A 0%, #A8C3A3 100%);
+  --gradient-gold: linear-gradient(135deg, #C4A484 0%, #D4B896 100%);
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-2xl: 0 32px 64px rgba(0, 0, 0, 0.14);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 10px 40px -15px rgba(20, 50, 35, 0.18);
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-xs: 6px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-xl: 48px;
+  --radius-full: 9999px;
+
+  /* ===== SPACING ===== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  --spacing-4xl: 96px;
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.3s ease;
+  /* simplified version, keep both */
+
+  /* ===== ALTERNATIVE NAMING (from various files) ===== */
+  --bg: #f8f6ef;
+  --fg: #0f1d15;
+  --muted: #5a6b62;
+  --card: #ffffff;
+  --border: #dde3df;
+  --primary: #1a3d2c;
+  --primary-fg: #f8f6ef;
+  --accent: #266b46;
+  --mint: #c8e3cf;
+  --mint-soft: #dcefdf;
 }
 
 * {

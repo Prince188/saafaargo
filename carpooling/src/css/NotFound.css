@@ -3,25 +3,6 @@
    Editorial green design system (plain CSS)
    ============================================ */
 
-:root {
-    --bg: #f8f6ef;
-    --fg: #0f1d15;
-    --muted: #5a6b62;
-    --card: #ffffff;
-    --border: #dde3df;
-    --primary: #1a3d2c;
-    --primary-fg: #f8f6ef;
-    --accent: #266b46;
-    --mint: #c8e3cf;
-    --mint-soft: #dcefdf;
-
-    --radius: 20px;
-    --radius-lg: 32px;
-    --radius-xl: 40px;
-
-    --shadow-soft: 0 10px 40px -15px rgba(20, 50, 35, 0.18);
-    --shadow-card: 0 1px 2px rgba(20, 50, 35, 0.05), 0 8px 24px -12px rgba(20, 50, 35, 0.10);
-}
 
 /* ---------- Container ---------- */
 .error-page-container {
