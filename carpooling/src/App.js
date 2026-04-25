@@ -1,4 +1,4 @@
-import './App.css';
+// Remove this line: import './App.css';
 import "leaflet/dist/leaflet.css";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
