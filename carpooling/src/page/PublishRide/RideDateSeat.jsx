@@ -4,9 +4,7 @@ import {
     FiArrowLeft,
     FiCalendar,
     FiClock,
-    FiUsers,
-    FiInfo,
-    FiCheck
+    FiUsers
 } from "react-icons/fi";
 import { FaArrowRight, FaCar } from "react-icons/fa";
 import "../../css/RideDateSeat.css";
