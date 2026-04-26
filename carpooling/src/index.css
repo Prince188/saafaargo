@@ -101,6 +101,118 @@
     animation: slideDown 0.3s ease-out;
   }
 
+  /* Slow floating animation for the icon */
+  @keyframes float-slow {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float-slow {
+    animation: float-slow 3s ease-in-out infinite;
+  }
+
+  /* Slow pulse animation for the 404 text */
+  @keyframes pulse-slow {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .animate-fade-in-up-delay {
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -30px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+  }
+
+  @keyframes float-reverse {
+
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+      transform: translate(-30px, 30px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(20px, -20px) scale(0.9);
+    }
+  }
+
+  .animate-float {
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .animate-float-reverse {
+    animation: float-reverse 25s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: scale(1.5);
+      opacity: 0.5;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
   /* For disabled button state */
   .disabled\:bg-gradient-disabled:disabled {
     background: linear-gradient(135deg, #4a7c59, #2d5a42);
@@ -294,6 +406,357 @@
       height: 32px;
       line-height: 32px;
     }
+  }
+
+  ::selection {
+    background: var(--color-sage-soft);
+    color: var(--color-forest);
+  }
+
+  /* Map Picker Styles for Tailwind */
+  .map-picker {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  .map-search-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 10;
+  }
+
+  .map-search-bar {
+    display: flex;
+    gap: 16px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid #DCE8D4;
+  }
+
+  .search-input-container {
+    flex: 1;
+    position: relative;
+  }
+
+  .map-search-input {
+    width: 100%;
+    padding: 10px 16px 10px 38px;
+    background: #F9F8F4;
+    border: 1px solid #DCE8D4;
+    border-radius: 12px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .map-search-input:focus {
+    outline: none;
+    border-color: #7A9B7A;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(122, 155, 122, 0.1);
+  }
+
+  .current-location-map-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    background: #F9F8F4;
+    border: 1px solid #DCE8D4;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7A9B7A;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+  }
+
+  .current-location-map-btn:hover {
+    background: #DCE8D4;
+  }
+
+  /* Map Search Results */
+  .map-search-results {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid #DCE8D4;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 20;
+  }
+
+  .map-result-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    width: 100%;
+    background: white;
+    border: none;
+    border-bottom: 1px solid #DCE8D4;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+
+  .map-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .map-result-item:hover {
+    background: #F9F8F4;
+  }
+
+  /* Map Selected Location */
+  .map-selected-location {
+    position: absolute;
+    bottom: 80px;
+    left: 20px;
+    right: 20px;
+    background: rgba(16, 185, 129, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border-left: 3px solid #10B981;
+    font-size: 13px;
+    color: #10B981;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Map Instruction */
+  .map-instruction-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .instruction-icon {
+    color: #C4A484;
+  }
+
+  /* Map Container */
+  .map-container-fullscreen {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Loading Spinner */
+  .loading-spinner-small {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #DCE8D4;
+    border-top-color: #7A9B7A;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .map-search-loading {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  /* Leaflet Fixes */
+  .leaflet-container {
+    z-index: 1;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+
+  /* ============================================
+   CUSTOM TIME PICKER STYLES - Safar Go Theme
+   ============================================ */
+
+  .custom-time-picker {
+    width: 100%;
+  }
+
+  /* TimePicker Wrapper */
+  .custom-time-picker .react-time-picker__wrapper {
+    border: 1px solid #DCE8D4;
+    border-radius: 6px;
+    background: #F9F8F4;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+  }
+
+  .custom-time-picker .react-time-picker__wrapper:hover {
+    border-color: #A8C3A3;
+    background: #FDFBF7;
+  }
+
+  .custom-time-picker .react-time-picker__wrapper:focus-within {
+    border-color: #7A9B7A;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(122, 155, 122, 0.1);
+  }
+
+  /* Input Group */
+  .custom-time-picker .react-time-picker__inputGroup {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .custom-time-picker .react-time-picker__inputGroup__input {
+    background: transparent;
+    color: #1F2937;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    padding: 4px 2px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .custom-time-picker .react-time-picker__inputGroup__input:focus {
+    outline: none;
+    background: #DCE8D4;
+    color: #1A3A2E;
+  }
+
+  .custom-time-picker .react-time-picker__inputGroup__input:hover {
+    background: #DCE8D4;
+  }
+
+  /* Separators (colon between hour and minute) */
+  .custom-time-picker .react-time-picker__inputGroup__divider {
+    color: #7A9B7A;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 2px;
+  }
+
+  /* AM/PM Part */
+  .custom-time-picker .react-time-picker__inputGroup__input--amPm {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Buttons (clear icon - hidden) */
+  .custom-time-picker .react-time-picker__clear-button {
+    display: none;
+  }
+
+  /* Clock Button */
+  .custom-time-picker .react-time-picker__clock-button {
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  .custom-time-picker .react-time-picker__clock-button:hover {
+    background: #DCE8D4;
+  }
+
+  .custom-time-picker .react-time-picker__clock-button svg {
+    stroke: #7A9B7A;
+    width: 16px;
+    height: 16px;
+  }
+
+  .custom-time-picker .react-time-picker__clock-button:hover svg {
+    stroke: #1A3A2E;
+  }
+
+  /* Clock Dropdown */
+  .react-clock {
+    background: white;
+    border: 1px solid #DCE8D4;
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+  }
+
+  .react-clock__face {
+    background: #F9F8F4;
+  }
+
+  .react-clock__mark__body {
+    background: #7A9B7A;
+  }
+
+  .react-clock__hand {
+    background: #1A3A2E;
+  }
+
+  .react-clock__hand__body {
+    background: #1A3A2E;
+  }
+
+  .react-clock__mark {
+    color: #1A3A2E;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 550px) {
+    .custom-time-picker .react-time-picker__wrapper {
+      padding: 6px 10px;
+    }
+
+    .custom-time-picker .react-time-picker__inputGroup__input {
+      font-size: 13px;
+      min-width: 30px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .custom-time-picker .react-time-picker__inputGroup__input {
+      font-size: 12px;
+      min-width: 25px;
+    }
+  }
+
+  .custom-time-picker .react-time-picker__inputGroup__input {
+    min-width: 32px;
+  }
+
+  .custom-time-picker .react-time-picker__inputGroup__input--amPm {
+    min-width: 48px;
   }
 }
 

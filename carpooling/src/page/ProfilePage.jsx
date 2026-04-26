@@ -14,7 +14,6 @@ import {
     FaUserFriends
 } from 'react-icons/fa';
 import { FiEdit2 } from 'react-icons/fi';
-import '../css/ProfilePage.css';
 import API from '../api/api';
 
 const ProfilePage = () => {
@@ -63,190 +62,197 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="profile-page">
-            <div className="profile-container">
-                {/* Hero Section */}
-                <div className="profile-hero">
-                    <div className="profile-hero-bg" />
-                    <div className="profile-hero-overlay" />
-                    <div className="profile-hero-content">
-                        <div className="profile-avatar-wrapper">
-                            <img
-                                src={user.profilePic || `https://ui-avatars.com/api/?background=7A9B7A&color=fff&bold=true&size=120&name=${getInitials()}`}
-                                alt={user.firstName}
-                                className="profile-avatar-large"
-                            />
-                            <Link to="/profile/edit" className="profile-edit-btn">
-                                <FiEdit2 />
-                            </Link>
-                        </div>
-                        <div className="profile-info">
-                            <h1 className="profile-name">{user.firstName} {user.lastName}</h1>
-                            <p className="profile-email">{user.email}</p>
-                            <div className="profile-stats">
-                                <div className="stat">
-                                    <FaStar className="stat-icon" />
-                                    <span>4.8 Rating</span>
-                                </div>
-                                <div className="stat">
-                                    <FaCarAlt className="stat-icon" />
-                                    <span>{vehicles.length} Vehicles</span>
-                                </div>
-                                <div className="stat">
-                                    <FaCalendarAlt className="stat-icon" />
-                                    <span>12 Trips</span>
-                                </div>
-                                <div className="stat">
-                                    <FaUserFriends className="stat-icon" />
-                                    <span>24 Passengers</span>
-                                </div>
+        <div className="min-h-screen bg-off-white font-inter">
+            {/* Hero Section */}
+            <div className="relative bg-gradient-hero py-3xl pb-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(122,155,122,0.08)_0%,transparent_70%)] z-0"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(196,164,132,0.05)_0%,transparent_60%)] z-0"></div>
+
+                <div className="relative z-10 max-w-[1280px] mx-auto px-xl flex flex-col md:flex-row items-center gap-2xl text-center md:text-left">
+                    <div className="relative">
+                        <img
+                            src={user.profilePic || `https://ui-avatars.com/api/?background=7A9B7A&color=fff&bold=true&size=120&name=${getInitials()}`}
+                            alt={user.firstName}
+                            className="w-[140px] h-[140px] rounded-full object-cover border-4 border-white shadow-lg"
+                        />
+                        <Link
+                            to="/profile/edit"
+                            className="absolute bottom-2 right-2 w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center text-white transition-all duration-base shadow-md hover:scale-110"
+                        >
+                            <FiEdit2 />
+                        </Link>
+                    </div>
+                    <div className="flex-1">
+                        <h1 className="font-fraunces text-[clamp(32px,5vw,48px)] font-semibold text-forest mb-sm">
+                            {user.firstName} {user.lastName}
+                        </h1>
+                        <p className="text-[15px] text-stone mb-md">{user.email}</p>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-xl">
+                            <div className="flex items-center gap-sm text-[13px] text-stone">
+                                <FaStar className="text-clay text-sm" />
+                                <span>4.8 Rating</span>
+                            </div>
+                            <div className="flex items-center gap-sm text-[13px] text-stone">
+                                <FaCarAlt className="text-clay text-sm" />
+                                <span>{vehicles.length} Vehicles</span>
+                            </div>
+                            <div className="flex items-center gap-sm text-[13px] text-stone">
+                                <FaCalendarAlt className="text-clay text-sm" />
+                                <span>12 Trips</span>
+                            </div>
+                            <div className="flex items-center gap-sm text-[13px] text-stone">
+                                <FaUserFriends className="text-clay text-sm" />
+                                <span>24 Passengers</span>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div className="profile-content-wrapper">
-                    {/* Verification Section */}
-                    <section className="verification-section">
-                        <div className="section-header">
-                            <div className="section-title-wrapper">
-                                <FaShieldAlt className="section-icon" />
-                                <h2>Verification Status</h2>
+            {/* Content Wrapper */}
+            <div className="max-w-[1280px] mx-auto px-xl py-2xl">
+
+                {/* Verification Section */}
+                <section className="mb-3xl">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-lg flex-wrap gap-md">
+                        <div>
+                            <div className="flex items-center gap-sm mb-xs">
+                                <FaShieldAlt className="text-sage text-xl" />
+                                <h2 className="font-fraunces text-2xl font-semibold text-forest">Verification Status</h2>
                             </div>
-                            <p className="section-subtitle">Complete your verification to unlock all features</p>
+                            <p className="text-[13px] text-stone">Complete your verification to unlock all features</p>
                         </div>
+                    </div>
 
-                        <div className="verification-grid">
-                            <div className="verification-card verification-card--pending">
-                                <div className="card-status">
-                                    <FaIdCard className="card-icon" />
-                                    <span className="status-badge pending">Pending</span>
-                                </div>
-                                <h3>Government ID</h3>
-                                <p>Verify your identity to build trust</p>
-                                <button className="btn-add-verification">
-                                    <FaPlus />
-                                    Add ID
-                                </button>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        {/* Government ID Card - Pending */}
+                        <div className="bg-white rounded-lg p-xl transition-all duration-base border border-sage-15 relative overflow-hidden hover:-translate-y-1 hover:shadow-lg border-l-4 border-l-pending">
+                            <div className="flex justify-between items-center mb-md">
+                                <FaIdCard className="text-3xl text-sage" />
+                                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-pending/10 text-pending uppercase">Pending</span>
                             </div>
-
-                            <div className="verification-card verification-card--verified">
-                                <div className="card-status">
-                                    <FaEnvelope className="card-icon" />
-                                    <FaCheckCircle className="verified-icon" />
-                                </div>
-                                <h3>Email Address</h3>
-                                <p>{user.email}</p>
-                                <div className="verified-badge">Verified</div>
-                            </div>
-
-                            <div className="verification-card verification-card--verified">
-                                <div className="card-status">
-                                    <FaPhone className="card-icon" />
-                                    <FaCheckCircle className="verified-icon" />
-                                </div>
-                                <h3>Mobile Number</h3>
-                                <p>{user.mobile}</p>
-                                <div className="verified-badge">Verified</div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* About Section - Full Width */}
-                    <section className="about-section-full">
-                        <div className="section-header">
-                            <h2>About Me</h2>
-                            <Link to="/profile/edit" className="edit-link">
-                                <FiEdit2 />
-                                Edit
-                            </Link>
-                        </div>
-                        <div className="about-content-full">
-                            {user.bio ? (
-                                <p>{user.bio}</p>
-                            ) : (
-                                <p className="empty-state">No bio yet. Click edit to tell us about yourself!</p>
-                            )}
-                        </div>
-                        <div className="member-since">
-                            <FaCalendarAlt className="member-icon" />
-                            <span>Member since {new Date(user.createdAt).getFullYear() || '2024'}</span>
-                        </div>
-                    </section>
-
-                    {/* Vehicles Section - Card Grid */}
-                    <section className="vehicles-section-full">
-                        <div className="section-header">
-                            <h2>Your Vehicles</h2>
-                            <button
-                                className="btn-add-vehicle"
-                                onClick={() => navigate("/vehicle/add")}
-                            >
+                            <h3 className="text-lg font-bold text-forest mb-sm">Government ID</h3>
+                            <p className="text-[13px] text-stone mb-md">Verify your identity to build trust</p>
+                            <button className="inline-flex items-center gap-2 bg-transparent border-2 border-sage rounded-full px-5 py-2 text-xs font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage hover:text-white">
                                 <FaPlus />
-                                Add Vehicle
+                                Add ID
                             </button>
                         </div>
 
-                        {isLoading ? (
-                            <div className="loading-vehicles">
-                                <div className="loading-spinner-small"></div>
-                                <p>Loading your vehicles...</p>
+                        {/* Email Card - Verified */}
+                        <div className="bg-white rounded-lg p-xl transition-all duration-base border border-sage-15 relative overflow-hidden hover:-translate-y-1 hover:shadow-lg border-l-4 border-l-success">
+                            <div className="flex justify-between items-center mb-md">
+                                <FaEnvelope className="text-3xl text-sage" />
+                                <FaCheckCircle className="text-success text-xl" />
                             </div>
-                        ) : vehicles.length === 0 ? (
-                            <div className="empty-vehicles">
-                                <FaCarAlt className="empty-icon" />
-                                <p>No vehicles added yet</p>
-                                <button
-                                    className="btn-primary-small"
-                                    onClick={() => navigate("/vehicle/add")}
-                                >
-                                    Add your first vehicle
-                                    <FaArrowRight />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="vehicles-grid">
-                                {vehicles.map((vehicle, index) => (
-                                    <div
-                                        className="vehicle-card-grid"
-                                        key={vehicle._id || index}
-                                        onClick={() => navigate(`/vehicle/edit/${vehicle._id}`)}
-                                    >
-                                        <div className="vehicle-card-inner">
-                                            <div className="vehicle-card-icon">
-                                                <FaCarAlt />
-                                            </div>
-                                            <div className="vehicle-card-details">
-                                                <div className="vehicle-name">
-                                                    <h3 className="vehicle-card-brand">{vehicle.brand}</h3>
-                                                    <p className="vehicle-card-model">{vehicle.model}</p>
-                                                    <div className="vehicle-card-plate">
-                                                        {vehicle.numberPlate}
-                                                    </div>
-                                                </div>
-                                                <div className="vehicle-card-meta">
-                                                    <span className="meta-item">
-                                                        <span
-                                                            className="meta-dot"
-                                                            style={{
-                                                                background: vehicle.color?.toLowerCase() || '#7A9B7A',
-                                                                border: '1px solid grey'
-                                                            }}
-                                                        ></span>
-                                                        {vehicle.color}
-                                                    </span>
-                                                    <span className="meta-separator">•</span>
-                                                    <span className="meta-item">{vehicle.seats} Seats</span>
-                                                </div>
+                            <h3 className="text-lg font-bold text-forest mb-sm">Email Address</h3>
+                            <p className="text-[13px] text-stone mb-md">{user.email}</p>
+                            <div className="inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-success/10 text-success uppercase">Verified</div>
+                        </div>
 
+                        {/* Mobile Card - Verified */}
+                        <div className="bg-white rounded-lg p-xl transition-all duration-base border border-sage-15 relative overflow-hidden hover:-translate-y-1 hover:shadow-lg border-l-4 border-l-success">
+                            <div className="flex justify-between items-center mb-md">
+                                <FaPhone className="text-3xl text-sage" />
+                                <FaCheckCircle className="text-success text-xl" />
+                            </div>
+                            <h3 className="text-lg font-bold text-forest mb-sm">Mobile Number</h3>
+                            <p className="text-[13px] text-stone mb-md">{user.mobile || 'Not provided'}</p>
+                            <div className="inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-success/10 text-success uppercase">Verified</div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* About Section - Full Width */}
+                <section className="bg-white rounded-lg p-xl shadow-sm border border-sage-15 mb-2xl">
+                    <div className="flex justify-between items-center mb-lg flex-wrap gap-md">
+                        <h2 className="font-fraunces text-2xl font-semibold text-forest">About Me</h2>
+                        <Link to="/profile/edit" className="inline-flex items-center gap-2 text-[13px] font-semibold text-sage no-underline transition-all duration-base hover:text-forest hover:gap-3">
+                            <FiEdit2 />
+                            Edit
+                        </Link>
+                    </div>
+                    <div className="my-lg leading-relaxed text-charcoal text-[15px] min-h-[100px]">
+                        {user.bio ? (
+                            <p>{user.bio}</p>
+                        ) : (
+                            <p className="text-stone-light italic">No bio yet. Click edit to tell us about yourself!</p>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2 pt-md border-t border-sage-15 text-[13px] text-stone-light">
+                        <FaCalendarAlt className="text-clay text-sm" />
+                        <span>Member since {user.createdAt ? new Date(user.createdAt).getFullYear() : '2024'}</span>
+                    </div>
+                </section>
+
+                {/* Vehicles Section - Full Width */}
+                <section className="bg-white rounded-lg p-xl shadow-sm border border-sage-15">
+                    <div className="flex justify-between items-center mb-lg flex-wrap gap-md">
+                        <h2 className="font-fraunces text-2xl font-semibold text-forest">Your Vehicles</h2>
+                        <button
+                            className="inline-flex items-center gap-2 bg-gradient-primary text-white border-none px-5 py-2 rounded-full text-[13px] font-semibold cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:shadow-md hover:gap-3"
+                            onClick={() => navigate("/vehicle/add")}
+                        >
+                            <FaPlus />
+                            Add Vehicle
+                        </button>
+                    </div>
+
+                    {isLoading ? (
+                        <div className="text-center py-3xl px-xl">
+                            <div className="w-10 h-10 border-3 border-sage-soft border-t-forest rounded-full animate-spin mx-auto mb-md"></div>
+                            <p className="text-sm text-stone">Loading your vehicles...</p>
+                        </div>
+                    ) : vehicles.length === 0 ? (
+                        <div className="text-center py-3xl px-xl">
+                            <FaCarAlt className="text-6xl text-sage-light mx-auto mb-md" />
+                            <p className="text-sm text-stone mb-lg">No vehicles added yet</p>
+                            <button
+                                className="inline-flex items-center gap-2 bg-gradient-primary text-white border-none px-6 py-2.5 rounded-full text-[13px] font-semibold cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-3 hover:shadow-md"
+                                onClick={() => navigate("/vehicle/add")}
+                            >
+                                Add your first vehicle
+                                <FaArrowRight />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg mt-lg">
+                            {vehicles.map((vehicle, index) => (
+                                <div
+                                    className="bg-off-white rounded-md cursor-pointer transition-all duration-base border border-sage-15 overflow-hidden hover:-translate-y-1 hover:shadow-card-hover hover:border-sage group"
+                                    key={vehicle._id || index}
+                                    onClick={() => navigate(`/vehicle/edit/${vehicle._id}`)}
+                                >
+                                    <div className="p-lg flex gap-md relative">
+                                        <div className="w-[60px] h-[60px] bg-gradient-primary rounded-md flex items-center justify-center text-white text-[28px] flex-shrink-0 transition-all duration-base group-hover:scale-105">
+                                            <FaCarAlt />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-baseline gap-1 flex-wrap">
+                                                <h3 className="text-lg font-bold text-forest mb-1 font-fraunces">{vehicle.brand}</h3>
+                                                <p className="text-sm text-stone">{vehicle.model}</p>
+                                            </div>
+                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                <div className="flex items-center gap-1.5 text-xs text-stone-light">
+                                                    <span
+                                                        className="w-2.5 h-2.5 rounded-full inline-block"
+                                                        style={{ backgroundColor: vehicle.color?.toLowerCase() || '#7A9B7A' }}
+                                                    ></span>
+                                                    {vehicle.color}
+                                                </div>
+                                                <span className="text-sage-light text-xs">•</span>
+                                                <span className="text-xs text-stone-light">{vehicle.seats} Seats</span>
+                                            </div>
+                                            <div className="text-[11px] font-semibold text-sage bg-sage/30 inline-block px-2.5 py-1 rounded-sm tracking-wide font-mono">
+                                                {vehicle.numberPlate}
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </section>
-                </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
             </div>
         </div>
     );

@@ -10,7 +10,6 @@ import {
     FaSortAmountDown
 } from "react-icons/fa";
 import { FiMapPin, FiUsers } from "react-icons/fi";
-import "../css/search.css";
 
 const Search = () => {
     const [showFilters, setShowFilters] = useState(false);
@@ -66,25 +65,25 @@ const Search = () => {
     ];
 
     return (
-        <div className="search-page">
-            <div className="search-container">
+        <div className="min-h-screen bg-off-white font-inter">
+            <div className="max-w-[1280px] mx-auto px-xl py-2xl">
                 {/* Header Section */}
-                <div className="search-header">
-                    <div className="header-badge">
-                        <FaCalendar className="badge-icon" />
-                        <span>Friday, 24 April</span>
+                <div className="text-center mb-2xl">
+                    <div className="inline-flex items-center gap-2.5 bg-sage/10 px-4 py-1.5 rounded-full mb-lg border border-sage/20">
+                        <FaCalendar className="text-sage text-sm" />
+                        <span className="text-[11px] font-extrabold tracking-[0.15em] text-sage uppercase">Friday, 24 April</span>
                     </div>
-                    <h1 className="search-title">
-                        Palod <span className="route-arrow">→</span> Ahmedabad
+                    <h1 className="font-fraunces text-[clamp(32px,5vw,48px)] font-semibold text-forest mb-sm">
+                        Palod <span className="text-clay mx-2">→</span> Ahmedabad
                     </h1>
-                    <p className="ride-count">{rides.length} rides available for this route</p>
+                    <p className="text-sm text-stone">{rides.length} rides available for this route</p>
                 </div>
 
                 {/* Map Section */}
-                <div className="map-section">
-                    <div className="map-placeholder">
-                        <div className="map-overlay" />
-                        <button className="map-button">
+                <div className="mb-2xl">
+                    <div className="relative bg-gradient-to-br from-sage-soft to-cream rounded-lg h-[300px] overflow-hidden shadow-md">
+                        <div className="absolute inset-0 bg-black/20"></div>
+                        <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-md border-none px-5 py-3 rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base flex items-center gap-2 hover:bg-white hover:shadow-lg z-10">
                             <FaMap />
                             Expand Interactive Map
                         </button>
@@ -92,22 +91,22 @@ const Search = () => {
                 </div>
 
                 {/* Filters Bar */}
-                <div className="filters-bar">
-                    <div className="filters-left">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-lg">
+                    <div className="flex flex-wrap items-center gap-md">
                         <button
-                            className="filter-btn"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-sage-soft rounded-full text-sm font-medium text-stone cursor-pointer transition-all duration-base hover:border-sage hover:bg-sage/5"
                             onClick={() => setShowFilters(!showFilters)}
                         >
-                            <FaFilter />
+                            <FaFilter className="text-sage text-xs" />
                             Filters
-                            {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+                            {showFilters ? <FaChevronUp className="text-xs" /> : <FaChevronDown className="text-xs" />}
                         </button>
-                        <div className="sort-group">
-                            <FaSortAmountDown className="sort-icon" />
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white border border-sage-soft rounded-full">
+                            <FaSortAmountDown className="text-sage text-xs" />
                             <select
                                 value={selectedSort}
                                 onChange={(e) => setSelectedSort(e.target.value)}
-                                className="sort-select"
+                                className="bg-transparent border-none text-sm font-medium text-stone focus:outline-none cursor-pointer"
                             >
                                 <option value="recommended">Recommended</option>
                                 <option value="price-low">Price: Low to High</option>
@@ -116,95 +115,104 @@ const Search = () => {
                             </select>
                         </div>
                     </div>
-                    <div className="filters-right">
-                        <span className="results-count">{rides.length} results found</span>
+                    <div className="text-sm text-stone">
+                        <span className="font-semibold text-forest">{rides.length}</span> results found
                     </div>
                 </div>
 
                 {/* Filter Panel */}
                 {showFilters && (
-                    <div className="filter-panel">
-                        <div className="filter-group">
-                            <label>Price Range</label>
-                            <div className="price-range">
-                                <input type="range" min="0" max="2000" />
-                                <div className="price-inputs">
-                                    <input type="number" placeholder="Min" />
-                                    <span>-</span>
-                                    <input type="number" placeholder="Max" />
+                    <div className="bg-white rounded-lg p-xl shadow-lg border border-sage-15 mb-xl animate-slide-down">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-xl">
+                            <div>
+                                <label className="block text-[11px] font-extrabold tracking-[0.1em] text-stone mb-sm uppercase">Price Range</label>
+                                <div className="space-y-3">
+                                    <input type="range" min="0" max="2000" className="w-full accent-sage" />
+                                    <div className="flex items-center gap-2">
+                                        <input type="number" placeholder="Min" className="flex-1 px-3 py-2 bg-off-white border border-sage-soft rounded-md text-sm focus:outline-none focus:border-sage" />
+                                        <span className="text-stone">-</span>
+                                        <input type="number" placeholder="Max" className="flex-1 px-3 py-2 bg-off-white border border-sage-soft rounded-md text-sm focus:outline-none focus:border-sage" />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="filter-group">
-                            <label>Departure Time</label>
-                            <div className="time-filters">
-                                <button className="time-chip">Morning (6-12)</button>
-                                <button className="time-chip">Afternoon (12-6)</button>
-                                <button className="time-chip">Evening (6-9)</button>
+                            <div>
+                                <label className="block text-[11px] font-extrabold tracking-[0.1em] text-stone mb-sm uppercase">Departure Time</label>
+                                <div className="flex flex-wrap gap-2">
+                                    <button className="px-3 py-1.5 bg-off-white border border-sage-soft rounded-full text-xs font-medium text-stone transition-all duration-base hover:border-sage hover:bg-sage/5">Morning (6-12)</button>
+                                    <button className="px-3 py-1.5 bg-off-white border border-sage-soft rounded-full text-xs font-medium text-stone transition-all duration-base hover:border-sage hover:bg-sage/5">Afternoon (12-6)</button>
+                                    <button className="px-3 py-1.5 bg-off-white border border-sage-soft rounded-full text-xs font-medium text-stone transition-all duration-base hover:border-sage hover:bg-sage/5">Evening (6-9)</button>
+                                </div>
                             </div>
-                        </div>
-                        <div className="filter-group">
-                            <label>Seats Available</label>
-                            <div className="seat-filters">
-                                <button className="seat-chip">1+</button>
-                                <button className="seat-chip">2+</button>
-                                <button className="seat-chip">3+</button>
-                                <button className="seat-chip">4+</button>
+                            <div>
+                                <label className="block text-[11px] font-extrabold tracking-[0.1em] text-stone mb-sm uppercase">Seats Available</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {["1+", "2+", "3+", "4+"].map((seat) => (
+                                        <button key={seat} className="px-3 py-1.5 bg-off-white border border-sage-soft rounded-full text-xs font-medium text-stone transition-all duration-base hover:border-sage hover:bg-sage/5">{seat}</button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
 
                 {/* Ride Cards List */}
-                <div className="rides-list">
+                <div className="space-y-lg">
                     {rides.map((ride) => (
-                        <div className="ride-card" key={ride.id}>
-                            <div className="ride-card-inner">
+                        <div key={ride.id} className="bg-white rounded-lg shadow-md border border-sage-15 transition-all duration-base hover:shadow-lg hover:-translate-y-0.5">
+                            <div className="p-lg flex flex-col lg:flex-row gap-lg">
                                 {/* Trip Details */}
-                                <div className="trip-details">
-                                    <div className="trip-point">
-                                        <div className="time">08:00</div>
-                                        <div className="location">
-                                            <FiMapPin className="location-icon departure" />
-                                            <span>Palod Junction</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="trip-line">
-                                        <div className="line-dot" />
-                                        <div className="line-bar" />
-                                        <div className="line-dot" />
-                                    </div>
-
-                                    <div className="trip-point">
-                                        <div className="time">10:15</div>
-                                        <div className="location">
-                                            <FiMapPin className="location-icon arrival" />
-                                            <span>Ahmedabad Central</span>
+                                <div className="flex-1">
+                                    <div className="flex items-start gap-4">
+                                        {/* Time and Location */}
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <span className="font-fraunces text-xl font-bold text-forest min-w-[70px]">08:00</span>
+                                                <div className="flex items-center gap-2 text-stone">
+                                                    <FiMapPin className="text-sage text-sm" />
+                                                    <span className="text-sm font-medium">Palod Junction</span>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Journey Line */}
+                                            <div className="flex items-center gap-3 mb-3 ml-[18px]">
+                                                <div className="flex flex-col items-center">
+                                                    <div className="w-2 h-2 bg-sage rounded-full"></div>
+                                                    <div className="w-0.5 h-8 bg-gradient-to-b from-sage to-clay"></div>
+                                                    <div className="w-2 h-2 bg-clay rounded-full"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-fraunces text-xl font-bold text-forest min-w-[70px]">10:15</span>
+                                                <div className="flex items-center gap-2 text-stone">
+                                                    <FiMapPin className="text-clay text-sm" />
+                                                    <span className="text-sm font-medium">Ahmedabad Central</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Driver Info */}
-                                <div className="driver-section">
-                                    <div className="driver-info">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-4">
                                         <img
                                             src={ride.driverImage}
                                             alt={ride.driverName}
-                                            className="driver-avatar"
+                                            className="w-14 h-14 rounded-full object-cover border-2 border-sage"
                                         />
-                                        <div className="driver-details">
-                                            <h4 className="driver-name">{ride.driverName}</h4>
-                                            <div className="driver-rating">
-                                                <FaStar className="star-icon" />
-                                                <span>{ride.rating}</span>
+                                        <div>
+                                            <h4 className="font-fraunces text-lg font-semibold text-forest">{ride.driverName}</h4>
+                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                <FaStar className="text-clay text-xs" />
+                                                <span className="text-sm text-stone">{ride.rating}</span>
                                                 {ride.verified && (
-                                                    <span className="verified-badge">Verified</span>
+                                                    <span className="text-[10px] font-bold px-2 py-0.5 bg-success/10 text-success rounded-full">Verified</span>
                                                 )}
                                             </div>
-                                            <div className="car-info">
+                                            <div className="flex items-center gap-2 mt-1 text-xs text-stone-light">
                                                 <span>{ride.carModel}</span>
-                                                <span className="dot">•</span>
+                                                <span>•</span>
                                                 <span>{ride.carColor}</span>
                                             </div>
                                         </div>
@@ -212,16 +220,16 @@ const Search = () => {
                                 </div>
 
                                 {/* Price & Action */}
-                                <div className="price-section">
-                                    <div className="price-info">
-                                        <div className="price-amount">₹{ride.price}</div>
-                                        <div className="price-label">per seat</div>
-                                        <div className="seats-left">
-                                            <FiUsers className="seats-icon" />
+                                <div className="flex flex-col items-end justify-between min-w-[140px]">
+                                    <div className="text-right">
+                                        <div className="font-fraunces text-2xl font-bold text-forest">₹{ride.price}</div>
+                                        <div className="text-[11px] text-stone-light uppercase tracking-wide">per seat</div>
+                                        <div className="flex items-center gap-1 mt-2 text-xs text-stone">
+                                            <FiUsers className="text-sage text-xs" />
                                             <span>{ride.seats} seats left</span>
                                         </div>
                                     </div>
-                                    <button className="select-button">
+                                    <button className="mt-3 inline-flex items-center gap-2 bg-gradient-primary text-white px-5 py-2 rounded-full text-sm font-semibold transition-all duration-base hover:gap-3 hover:shadow-md hover:-translate-y-0.5">
                                         Select
                                         <FaArrowRight />
                                     </button>
@@ -232,8 +240,10 @@ const Search = () => {
                 </div>
 
                 {/* Load More */}
-                <div className="load-more">
-                    <button className="load-more-btn">Load More Rides</button>
+                <div className="text-center mt-2xl">
+                    <button className="inline-flex items-center gap-2 px-8 py-3 bg-transparent border-2 border-sage rounded-full text-sm font-semibold text-sage transition-all duration-base hover:bg-sage hover:text-white hover:gap-3">
+                        Load More Rides
+                    </button>
                 </div>
             </div>
         </div>

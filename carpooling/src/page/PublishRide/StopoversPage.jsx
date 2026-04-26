@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
-import { FaArrowRight, FaLocationArrow, FaMapPin } from "react-icons/fa";
-import "../../css/StopoversPage.css";
+import { FaArrowRight, FaLocationArrow, FaMapPin as FaMapPinSolid } from "react-icons/fa";
 
 const StopoversPage = () => {
     const location = useLocation();
@@ -12,7 +11,7 @@ const StopoversPage = () => {
     const [pickup, setPickup] = useState(null);
     const [destination, setDestination] = useState(null);
     const [formData, setFormData] = useState({});
-    const [routeCoords, setRouteCoords] = useState([]); // 🔥 NEW
+    const [routeCoords, setRouteCoords] = useState([]);
 
     // 📍 All cities with coordinates
     const allCities = [
@@ -34,14 +33,11 @@ const StopoversPage = () => {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
-
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(lat1 * Math.PI / 180) *
             Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLng / 2) *
             Math.sin(dLng / 2);
-
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
@@ -50,9 +46,7 @@ const StopoversPage = () => {
     const getCitiesOnRoute = () => {
         if (!routeCoords.length || !pickup) return [];
 
-        // Step 1: build real travel distance along route
         let totalDistance = 0;
-
         const routeProgress = routeCoords.map((point, i) => {
             if (i > 0) {
                 totalDistance += calculateDistance(
@@ -62,42 +56,24 @@ const StopoversPage = () => {
                     point.lng
                 );
             }
-
-            return {
-                ...point,
-                progress: totalDistance
-            };
+            return { ...point, progress: totalDistance };
         });
 
-        // Step 2: match cities to closest route progress
         return allCities
             .map(city => {
                 let bestProgress = Infinity;
-
                 routeProgress.forEach((point) => {
-                    const distToRoute = calculateDistance(
-                        city.lat,
-                        city.lng,
-                        point.lat,
-                        point.lng
-                    );
-
-                    // 🔥 realistic road threshold
+                    const distToRoute = calculateDistance(city.lat, city.lng, point.lat, point.lng);
                     if (distToRoute < 25) {
                         bestProgress = Math.min(bestProgress, point.progress);
                     }
                 });
-
-                return {
-                    ...city,
-                    routeIndex: bestProgress
-                };
+                return { ...city, routeIndex: bestProgress };
             })
             .filter(city => city.routeIndex !== Infinity)
             .filter(city => {
                 const pickupName = pickup?.displayName?.split(",")[0];
                 const destName = destination?.displayName?.split(",")[0];
-
                 return city.name !== pickupName && city.name !== destName;
             })
             .sort((a, b) => a.routeIndex - b.routeIndex);
@@ -108,29 +84,24 @@ const StopoversPage = () => {
     // 📥 Load state
     useEffect(() => {
         const state = location.state || {};
-
         setPickup(state.pickup || state.pickupLocation);
         setDestination(state.destination || state.destinationLocation);
         setStops(state.stops || []);
         setFormData(state.formData || state);
-
-        // 🔥 RECEIVE ROUTE COORDINATES FROM ROUTING.JS
         setRouteCoords(state.routeCoords || []);
     }, [location.state]);
 
     // ➕ Add stop
     const handleAddStop = (city) => {
         if (stops.some(s => s.displayName === city.name)) return;
-
         const newStop = {
             id: Date.now(),
             displayName: city.name,
             address: city.name,
             lat: city.lat,
             lng: city.lng,
-            routeIndex: city.routeIndex // 🔥 IMPORTANT
+            routeIndex: city.routeIndex
         };
-
         setStops(prev => [...prev, newStop]);
     };
 
@@ -153,157 +124,161 @@ const StopoversPage = () => {
 
     if (!pickup || !destination) {
         return (
-            <div className="stopovers-page">
-                <div className="stopovers-container">
-                    <div className="stopovers-header">
-                        <button className="back-button" onClick={() => navigate(-1)}>
-                            <FiArrowLeft />
+            <div className="min-h-screen bg-off-white font-inter">
+                <div className="max-w-[1200px] mx-auto bg-white min-h-screen">
+                    <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
+                        <button className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5" onClick={() => navigate(-1)}>
+                            <FiArrowLeft className="text-sm md:text-base" />
                         </button>
                     </div>
-
-                    <div className="loading-state">
-                        <p>Loading route data...</p>
-                        <button className="btn-primary" onClick={() => navigate(-1)}>Go Back</button>
+                    <div className="flex flex-col items-center justify-center min-h-[400px] gap-lg text-center px-4 md:px-8">
+                        <p className="text-sm text-stone">Loading route data...</p>
+                        <button className="bg-gradient-primary text-white border-none px-6 py-2.5 rounded-full cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate(-1)}>Go Back</button>
                     </div>
                 </div>
             </div>
         );
     }
 
-    return (
-        <div className="stopovers-page">
-            <div className="stopovers-container">
+    // Sort stops by routeIndex for timeline display
+    const sortedStops = [...stops].sort((a, b) => (a.routeIndex || 0) - (b.routeIndex || 0));
 
-                <div className="stopovers-header">
-                    <button className="back-button" onClick={() => navigate(-1)}>
-                        <FiArrowLeft />
+    return (
+        <div className="min-h-screen bg-off-white font-inter">
+            <div className="max-w-[1200px] mx-auto bg-white min-h-screen">
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
+                    <button className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5" onClick={() => navigate(-1)}>
+                        <FiArrowLeft className="text-sm md:text-base" />
                     </button>
+                    <div className="flex items-center gap-1 md:gap-sm">
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">1</div>
+                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">2</div>
+                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">3</div>
+                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">4</div>
+                    </div>
                 </div>
 
-                <div className="stopovers-content">
-
-                    <h1 className="stopovers-title">
-                        Add <span className="highlight-green">stopovers</span>
+                {/* Content */}
+                <div className="px-4 md:px-xl py-4 md:py-2xl">
+                    <h1 className="font-fraunces text-2xl md:text-3xl font-semibold text-forest mb-1 md:mb-sm text-center">
+                        Add <span className="text-transparent bg-clip-text bg-gradient-primary">stopovers</span>
                     </h1>
-
-                    <p className="stopovers-subtitle">
+                    <p className="text-xs md:text-sm text-stone mb-4 md:mb-xl text-center">
                         Add intermediate stops along your route
                     </p>
 
-                    {/* TIMELINE (UNCHANGED UI) */}
-                    <div className="horizontal-timeline">
-
-                        <div className="timeline-node pickup">
-                            <div className="node-icon">
-                                <FaLocationArrow />
+                    {/* Horizontal Timeline - Scrollable on mobile */}
+                    <div className="flex items-center justify-start md:justify-center gap-2 md:gap-md mb-4 md:mb-3xl p-3 md:p-xl bg-off-white rounded-lg overflow-x-auto">
+                        {/* Pickup Node */}
+                        <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px] relative">
+                            <div className="w-9 h-9 md:w-10 md:h-10 bg-success rounded-full flex items-center justify-center shadow-md border-2 border-success mb-1 md:mb-2">
+                                <FaLocationArrow className="text-white text-sm md:text-base" />
                             </div>
-                            <div className="node-content">
-                                <span className="node-label">PICKUP</span>
-                                <span className="node-location">
-                                    {pickup.displayName?.split(",")[0]}
-                                </span>
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">PICKUP</span>
+                                <span className="text-xs md:text-sm font-semibold text-forest">{pickup.displayName?.split(",")[0]}</span>
                             </div>
                         </div>
 
-                        <div className="timeline-connector"></div>
+                        <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>
 
-                        {stops
-                            .slice()
-                            .sort((a, b) => a.routeIndex - b.routeIndex)
-                            .map((stop, index) => (
-                                <div key={stop.id} className="timeline-node stop">
-                                    <div className="node-icon stop-icon">
-                                        <span>{index + 1}</span>
-                                    </div>
-                                    <div className="node-content">
-                                        <span className="node-label">STOP {index + 1}</span>
-                                        <span className="node-location">{stop.displayName}</span>
-                                        <button
-                                            className="remove-stop-timeline"
-                                            onClick={() => handleRemoveStop(index)}
-                                        >
-                                            <FiTrash2 />
-                                        </button>
-                                    </div>
+                        {/* Stops */}
+                        {sortedStops.map((stop, index) => (
+                            <div key={stop.id} className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px] relative">
+                                <div className="w-9 h-9 md:w-10 md:h-10 bg-sage rounded-full flex items-center justify-center shadow-md border-2 border-sage mb-1 md:mb-2 relative">
+                                    <span className="text-white text-xs md:text-sm font-bold">{index + 1}</span>
+                                    <button
+                                        className="absolute -top-2 -right-2 md:-top-2.5 md:-right-2.5 w-5 h-5 md:w-6 md:h-6 bg-white border border-error rounded-full flex items-center justify-center text-error cursor-pointer transition-all duration-base hover:bg-error hover:text-white hover:scale-110"
+                                        onClick={() => handleRemoveStop(index)}
+                                    >
+                                        <FiTrash2 className="text-[10px] md:text-xs" />
+                                    </button>
                                 </div>
-                            ))}
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">STOP {index + 1}</span>
+                                    <span className="text-xs md:text-sm font-semibold text-forest">{stop.displayName}</span>
+                                </div>
+                            </div>
+                        ))}
 
                         {stops.length === 0 && (
-                            <div className="timeline-node empty">
-                                <div className="node-icon empty-icon">
-                                    <FiPlus />
+                            <>
+                                <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px]">
+                                    <div className="w-9 h-9 md:w-10 md:h-10 bg-sage-soft rounded-full flex items-center justify-center shadow-md border-2 border-sage-soft mb-1 md:mb-2">
+                                        <FiPlus className="text-sage text-sm md:text-base" />
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">ADD STOP</span>
+                                        <span className="text-[10px] md:text-xs text-stone-light">Select a city below</span>
+                                    </div>
                                 </div>
-                                <div className="node-content">
-                                    <span className="node-label">ADD STOP</span>
-                                    <span className="node-location">Select a city below</span>
-                                </div>
-                            </div>
+                                <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>
+                            </>
                         )}
 
-                        <div className="timeline-connector"></div>
+                        {stops.length > 0 && <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>}
 
-                        <div className="timeline-node destination">
-                            <div className="node-icon">
-                                <FaMapPin />
+                        {/* Destination Node */}
+                        <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px]">
+                            <div className="w-9 h-9 md:w-10 md:h-10 bg-clay rounded-full flex items-center justify-center shadow-md border-2 border-clay mb-1 md:mb-2">
+                                <FaMapPinSolid className="text-white text-sm md:text-base" />
                             </div>
-                            <div className="node-content">
-                                <span className="node-label">DESTINATION</span>
-                                <span className="node-location">
-                                    {destination.displayName?.split(",")[0]}
-                                </span>
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">DESTINATION</span>
+                                <span className="text-xs md:text-sm font-semibold text-forest">{destination.displayName?.split(",")[0]}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* CITIES SECTION (LOGIC FIXED ONLY) */}
-                    <div className="cities-section">
-
-                        <h3>Cities along your route</h3>
-
-                        <div className="cities-horizontal-scroll">
-
+                    {/* Cities Section */}
+                    <div className="mb-4 md:mb-2xl">
+                        <h3 className="text-base md:text-lg font-semibold text-forest mb-0.5 md:mb-xs text-center">Cities along your route</h3>
+                        <div className="flex flex-wrap gap-2 md:gap-md py-2 md:py-md">
                             {citiesBetween.map((city, index) => {
                                 const isSelected = stops.some(s => s.displayName === city.name);
-
                                 return (
-                                    <div key={index} className={`city-card-horizontal ${isSelected ? "selected" : ""}`}>
-                                        <div className="city-card-content">
-
-                                            <div className="city-icon">
+                                    <div
+                                        key={index}
+                                        className={`flex-0 flex-[0_0_140px] md:flex-[0_0_180px] bg-white border border-sage-soft rounded-md p-2 md:p-md transition-all duration-base cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-sage ${isSelected ? 'bg-success/5 border-success' : ''}`}
+                                    >
+                                        <div className="flex items-center gap-2 md:gap-md">
+                                            <div className="w-8 h-8 md:w-10 md:h-10 bg-sage-soft rounded-md flex items-center justify-center text-sage text-sm md:text-lg">
                                                 <FiMapPin />
                                             </div>
-
-                                            <div className="city-info">
-                                                <h4>{city.name}</h4>
+                                            <div className="flex-1">
+                                                <h4 className="text-xs md:text-sm font-semibold text-forest mb-0.5">{city.name}</h4>
                                             </div>
-
                                             {!isSelected ? (
                                                 <button
-                                                    className="add-city-btn"
+                                                    className="w-7 h-7 md:w-8 md:h-8 bg-sage border-none rounded-full flex items-center justify-center text-white cursor-pointer transition-all duration-base hover:bg-forest hover:scale-105"
                                                     onClick={() => handleAddStop(city)}
                                                 >
-                                                    <FiPlus />
+                                                    <FiPlus className="text-xs md:text-sm" />
                                                 </button>
                                             ) : (
-                                                <div className="selected-check">
-                                                    <FiCheck />
+                                                <div className="w-7 h-7 md:w-8 md:h-8 bg-success rounded-full flex items-center justify-center text-white">
+                                                    <FiCheck className="text-xs md:text-sm" />
                                                 </div>
                                             )}
-
                                         </div>
                                     </div>
                                 );
                             })}
-
                         </div>
-
                     </div>
 
-                    <button className="continue-btn" onClick={handleContinue}>
+                    {/* Continue Button */}
+                    <button
+                        className="w-full inline-flex items-center justify-center gap-2 md:gap-md bg-gradient-primary text-white border-none px-4 md:px-6 py-3 md:py-3.5 rounded-full text-sm md:text-base font-bold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
+                        onClick={handleContinue}
+                    >
                         Set Price
                         <FaArrowRight />
                     </button>
-
                 </div>
             </div>
         </div>

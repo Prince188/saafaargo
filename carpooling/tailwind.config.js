@@ -69,6 +69,11 @@ module.exports = {
         '4xl': '96px',
       },
 
+      borderWidth: {
+        '1.5': '1.5px',
+        '3': '3px',
+      },
+
       // Custom shadows
       boxShadow: {
         'sm': '0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.04)',
