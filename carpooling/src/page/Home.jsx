@@ -120,7 +120,7 @@ export default function Home() {
                                 <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 z-40">
                                     <FaMapPin className="text-sage text-lg transition-colors duration-fast shrink-0" />
                                     <div className="flex-1 relative">
-                                        <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">FROM</label>
+                                        {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">FROM</label> */}
                                         <input
                                             type="text"
                                             value={from}
@@ -152,7 +152,7 @@ export default function Home() {
                                 <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 z-40">
                                     <FaRoute className="text-sage text-lg transition-colors duration-fast shrink-0" />
                                     <div className="flex-1 relative">
-                                        <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">TO</label>
+                                        {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">TO</label> */}
                                         <input
                                             type="text"
                                             value={to}
@@ -184,7 +184,7 @@ export default function Home() {
                                 <div className="flex-1 flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 relative z-40">
                                     <FaCalendar className="text-sage text-lg shrink-0" />
                                     <div className="flex-1">
-                                        <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">DATE</label>
+                                        {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">DATE</label> */}
                                         <DatePicker
                                             selected={selectedDate}
                                             onChange={(date) => setSelectedDate(date)}
@@ -204,7 +204,7 @@ export default function Home() {
                                 <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 z-40">
                                     <FaUsers className="text-sage text-lg shrink-0" />
                                     <div className="flex-1">
-                                        <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">GUESTS</label>
+                                        {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">GUESTS</label> */}
                                         <button
                                             type="button"
                                             className="w-full text-left bg-transparent border-none text-sm font-semibold text-charcoal p-1 cursor-pointer"
