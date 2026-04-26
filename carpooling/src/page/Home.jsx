@@ -117,7 +117,7 @@ export default function Home() {
                             <form className="bg-white/98 backdrop-blur-xl rounded-xl p-4 flex flex-col md:flex-row items-stretch md:items-center gap-3 shadow-xl border border-forest/08 transition-all duration-base hover:-translate-y-0.5 hover:shadow-2xl hover:border-sage/20 relative z-30" onSubmit={handleSearch}>
 
                                 {/* FROM */}
-                                <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 z-40">
+                                <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4">
                                     <FaMapPin className="text-sage text-lg transition-colors duration-fast shrink-0" />
                                     <div className="flex-1 relative">
                                         {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">FROM</label> */}
@@ -126,10 +126,10 @@ export default function Home() {
                                             value={from}
                                             onChange={(e) => setFrom(e.target.value)}
                                             placeholder="Pickup city"
-                                            className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none placeholder:text-stone-light"
+                                            className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none placeholder:text-stone-light z-[100]"
                                         />
                                         {fromResults.length > 0 && (
-                                            <div className="absolute top-[calc(100%+8px)] left-0 min-w-[280px] sm:min-w-[400px] w-max max-w-[90vw] sm:max-w-[600px] bg-white rounded-md shadow-xl border border-sage-soft z-[100] overflow-y-auto max-h-[300px] animate-slide-down">
+                                            <div className="absolute top-[calc(100%+8px)] left-0 min-w-[280px] sm:min-w-[400px] w-max max-w-[90vw] sm:max-w-[600px] bg-white rounded-md shadow-xl border border-sage-soft z-[999] overflow-y-auto max-h-[300px] animate-slide-down">
                                                 {fromResults.map((p) => (
                                                     <button
                                                         type="button"
