@@ -19,7 +19,7 @@ const RideDateSeat = () => {
     const { pickup, destination, stops, selectedCar } = location.state || {};
 
     const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedTime, setSelectedTime] = useState("10:00");
+    const [selectedTime, setSelectedTime] = useState(null);
     const [seats, setSeats] = useState(1);
 
     const tomorrow = new Date();
@@ -48,6 +48,16 @@ const RideDateSeat = () => {
 
     return (
         <div className="min-h-screen bg-off-white font-inter">
+
+            <style>
+                {`
+                    .react-time-picker__inputGroup__leadingZero {
+                        display: inline-block;
+                        font: inherit;
+                    }
+                `}
+            </style>
+
             <div className="max-w-[600px] mx-auto bg-white min-h-screen shadow-sm">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 md:px-xl py-3 md:py-md border-b border-sage-soft sticky top-0 bg-white z-10">
@@ -125,8 +135,11 @@ const RideDateSeat = () => {
                             value={selectedTime}
                             format="hh:mm a"
                             clearIcon={null}
-                            disableClock={false}
+                            disableClock={true}
                             className="custom-time-picker"
+                            hourPlaceholder="00"
+                            minutePlaceholder="00"
+
                         />
                     </div>
                 </div>
@@ -155,7 +168,7 @@ const RideDateSeat = () => {
 
                 {/* Next Button */}
                 <button
-                    className="flex items-center justify-center gap-2 md:gap-md w-[calc(100%-32px)] md:w-[calc(100%-48px)] mx-auto my-3 md:my-md pb-4 md:pb-xl py-3 md:py-3 bg-gradient-primary text-white border-none rounded-full text-sm md:text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
+                    className="flex items-center justify-center gap-2 md:gap-md w-[calc(100%-32px)] md:w-[calc(100%-48px)] mx-auto my-3 md:my-md py-4 md:py-4 bg-gradient-primary text-white border-none rounded-full text-sm md:text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
                     onClick={handleNext}
                 >
                     Continue to Review

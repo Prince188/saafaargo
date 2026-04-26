@@ -671,6 +671,22 @@
     padding: 0 2px;
   }
 
+  /* Hide leading zero spans */
+
+  /* Adjust input width to compensate */
+  .react-time-picker__inputGroup__input {
+    min-width: 40px !important;
+  }
+
+  /* For hour input specifically */
+  .react-time-picker__inputGroup__hour {
+    min-width: 40px !important;
+  }
+
+  .react-time-picker__inputGroup__leadingZero {
+  display: none !important;
+}
+
   /* AM/PM Part */
   .custom-time-picker .react-time-picker__inputGroup__input--amPm {
     text-transform: uppercase;
@@ -752,7 +768,7 @@
   }
 
   .custom-time-picker .react-time-picker__inputGroup__input {
-    min-width: 32px;
+    min-width: 40px;
   }
 
   .custom-time-picker .react-time-picker__inputGroup__input--amPm {
