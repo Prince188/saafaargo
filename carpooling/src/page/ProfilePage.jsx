@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 import { FiEdit2 } from 'react-icons/fi';
 import API from '../api/api';
-import { showSuccess, showError, showInfo, showWarning, showPromise } from '../utils/toastConfig';
+import {  showError, showInfo,  showPromise } from '../utils/toastConfig';
 
 const ProfilePage = () => {
     const [user, setUser] = useState({});

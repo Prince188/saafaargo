@@ -1,6 +1,6 @@
 // Remove this line: import './App.css';
 import "leaflet/dist/leaflet.css";
-import { BrowserRouter, Route, Router, Routes } from 'react-router-dom';
+import { BrowserRouter, Route,  Routes } from 'react-router-dom';
 
 import ScrollToTop from './component/ScrollToTop';
 
