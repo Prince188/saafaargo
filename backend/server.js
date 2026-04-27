@@ -25,7 +25,8 @@ const app = express();
 // }));
 
 app.use(cors({
-    origin: "https://saafaargo.vercel.app", // Allow all origins (for development purposes)
+    // origin: "https://saafaargo.vercel.app",
+    origin: "http://localhost:3000", 
     credentials: true
 }));
 

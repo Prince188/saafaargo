@@ -1,6 +1,6 @@
 // Remove this line: import './App.css';
 import "leaflet/dist/leaflet.css";
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Router, Routes } from 'react-router-dom';
 
 import ScrollToTop from './component/ScrollToTop';
 
@@ -29,12 +29,25 @@ import PriceSelection from './page/PublishRide/PriceSelection';
 import RideReview from './page/PublishRide/RideReview';
 import RideDateSeat from './page/PublishRide/RideDateSeat';
 import MyRide from './page/User/MyRide';
+import { ManageCar } from "./page/ManageCar";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <Routes>
 
         {/* ✅ WITH Navbar + Footer */}
@@ -47,9 +60,10 @@ function App() {
           <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
           <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/profile/manage-car" element={<ManageCar />} />
           <Route path='/vehicle/add' element={<AddVehicle />} />
           <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
-          <Route path='/my-rides' element={<MyRide/>}/>
+          <Route path='/my-rides' element={<MyRide />} />
           <Route path='*' element={<NotFound />} />
 
         </Route>

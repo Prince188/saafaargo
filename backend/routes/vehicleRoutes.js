@@ -11,6 +11,8 @@ const {
     getAvailableVehicles
 } = require("../controllers/vehicleController");
 
+//PRE- FIX IS /api/vehicles 
+
 // Add vehicle
 router.post("/", authMiddleware, createVehicle);
 

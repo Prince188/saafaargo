@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     FaCarAlt,
@@ -11,15 +11,20 @@ import {
     FaArrowRight,
     FaCalendarAlt,
     FaStar,
-    FaUserFriends
+    FaUserFriends,
+    FaTrash
 } from 'react-icons/fa';
 import { FiEdit2 } from 'react-icons/fi';
 import API from '../api/api';
+import { showSuccess, showError, showInfo, showWarning, showPromise } from '../utils/toastConfig';
 
 const ProfilePage = () => {
     const [user, setUser] = useState({});
     const [vehicles, setVehicles] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [vehicleToDelete, setVehicleToDelete] = useState(null);
+    const isFirstRender = useRef(true); // Track first render to prevent duplicate toasts
 
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
@@ -32,37 +37,108 @@ const ProfilePage = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUser(res.data);
+                // Remove success toast on initial load - only show on errors
             } catch (err) {
                 console.log("Error fetching profile", err);
+                showError("Failed to load profile. Please try again.");
             }
         };
         fetchProfile();
     }, [token]);
 
     // Fetch All the Cars
-    useEffect(() => {
-        const fetchVehicles = async () => {
-            try {
-                const res = await API.get("/vehicles", {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                console.log("vehicles response:", res.data);
-                setVehicles(res.data || res.data.vehicles || []);
-                setIsLoading(false);
-            } catch (err) {
-                console.log("Error fetching vehicles:", err);
-                setIsLoading(false);
+    const fetchVehicles = async () => {
+        try {
+            const res = await API.get("/vehicles", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            console.log("vehicles response:", res.data);
+            setVehicles(res.data || res.data.vehicles || []);
+            setIsLoading(false);
+            // Only show info on subsequent renders, not on first load
+            if (!isFirstRender.current && (res.data?.length === 0 || res.data?.vehicles?.length === 0)) {
+                showInfo("You haven't added any vehicles yet.");
             }
-        };
+        } catch (err) {
+            console.log("Error fetching vehicles:", err);
+            showError("Failed to load vehicles. Please refresh the page.");
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchVehicles();
+        // Set first render to false after initial load
+        isFirstRender.current = false;
     }, [token]);
+
+    // Delete vehicle function with toast
+    const handleDeleteVehicle = async () => {
+        if (!vehicleToDelete) return;
+
+        const deletePromise = API.delete(`/vehicles/${vehicleToDelete._id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        try {
+            await showPromise(deletePromise, {
+                pending: `Deleting ${vehicleToDelete.brand} ${vehicleToDelete.model}...`,
+                success: `${vehicleToDelete.brand} ${vehicleToDelete.model} deleted successfully!`,
+                error: "Failed to delete vehicle. Please try again."
+            });
+
+            await fetchVehicles();
+            setShowDeleteModal(false);
+            setVehicleToDelete(null);
+        } catch (err) {
+            console.log("Error deleting vehicle:", err);
+        }
+    };
 
     const getInitials = () => {
         return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`;
     };
 
+    // Delete Confirmation Modal Component
+    const DeleteConfirmationModal = () => {
+        if (!showDeleteModal) return null;
+
+        return (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+                    <h3 className="text-xl font-semibold text-forest mb-3">Delete Vehicle</h3>
+                    <p className="text-stone mb-6">
+                        Are you sure you want to delete {vehicleToDelete?.brand} {vehicleToDelete?.model}?
+                        This action cannot be undone.
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                        <button
+                            onClick={() => {
+                                setShowDeleteModal(false);
+                                setVehicleToDelete(null);
+                                showInfo("Deletion cancelled");
+                            }}
+                            className="px-4 py-2 border border-sage rounded-lg text-sage hover:bg-sage/10 transition-all font-medium"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleDeleteVehicle}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="min-h-screen bg-off-white font-inter">
+            {/* Delete Modal */}
+            <DeleteConfirmationModal />
+
             {/* Hero Section */}
             <div className="relative bg-gradient-hero py-3xl pb-2xl overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(122,155,122,0.08)_0%,transparent_70%)] z-0"></div>
@@ -133,7 +209,10 @@ const ProfilePage = () => {
                             </div>
                             <h3 className="text-lg font-bold text-forest mb-sm">Government ID</h3>
                             <p className="text-[13px] text-stone mb-md">Verify your identity to build trust</p>
-                            <button className="inline-flex items-center gap-2 bg-transparent border-2 border-sage rounded-full px-5 py-2 text-xs font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage hover:text-white">
+                            <button
+                                className="inline-flex items-center gap-2 bg-transparent border-2 border-sage rounded-full px-5 py-2 text-xs font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage hover:text-white"
+                                onClick={() => showInfo("ID verification feature coming soon!")}
+                            >
                                 <FaPlus />
                                 Add ID
                             </button>
@@ -167,7 +246,10 @@ const ProfilePage = () => {
                 <section className="bg-white rounded-lg p-xl shadow-sm border border-sage-15 mb-2xl">
                     <div className="flex justify-between items-center mb-lg flex-wrap gap-md">
                         <h2 className="font-fraunces text-2xl font-semibold text-forest">About Me</h2>
-                        <Link to="/profile/edit" className="inline-flex items-center gap-2 text-[13px] font-semibold text-sage no-underline transition-all duration-base hover:text-forest hover:gap-3">
+                        <Link
+                            to="/profile/edit"
+                            className="inline-flex items-center gap-2 text-[13px] font-semibold text-sage no-underline transition-all duration-base hover:text-forest hover:gap-3"
+                        >
                             <FiEdit2 />
                             Edit
                         </Link>
@@ -185,7 +267,7 @@ const ProfilePage = () => {
                     </div>
                 </section>
 
-                {/* Vehicles Section - Full Width */}
+                {/* Vehicles Section */}
                 <section className="bg-white rounded-lg p-xl shadow-sm border border-sage-15">
                     <div className="flex justify-between items-center mb-lg flex-wrap gap-md">
                         <h2 className="font-fraunces text-2xl font-semibold text-forest">Your Vehicles</h2>
@@ -219,33 +301,56 @@ const ProfilePage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg mt-lg">
                             {vehicles.map((vehicle, index) => (
                                 <div
-                                    className="bg-off-white rounded-md cursor-pointer transition-all duration-base border border-sage-15 overflow-hidden hover:-translate-y-1 hover:shadow-card-hover hover:border-sage group"
+                                    className="bg-off-white rounded-md transition-all duration-base border border-sage-15 overflow-hidden hover:-translate-y-1 hover:shadow-card-hover hover:border-sage"
                                     key={vehicle._id || index}
-                                    onClick={() => navigate(`/vehicle/edit/${vehicle._id}`)}
                                 >
-                                    <div className="p-lg flex gap-md relative">
-                                        <div className="w-[60px] h-[60px] bg-gradient-primary rounded-md flex items-center justify-center text-white text-[28px] flex-shrink-0 transition-all duration-base group-hover:scale-105">
-                                            <FaCarAlt />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-baseline gap-1 flex-wrap">
-                                                <h3 className="text-lg font-bold text-forest mb-1 font-fraunces">{vehicle.brand}</h3>
-                                                <p className="text-sm text-stone">{vehicle.model}</p>
+                                    <div className="p-lg">
+                                        {/* Vehicle Info */}
+                                        <div className="flex gap-md mb-4">
+                                            <div className="w-[60px] h-[60px] bg-gradient-primary rounded-md flex items-center justify-center text-white text-[28px] flex-shrink-0">
+                                                <FaCarAlt />
                                             </div>
-                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                                <div className="flex items-center gap-1.5 text-xs text-stone-light">
-                                                    <span
-                                                        className="w-2.5 h-2.5 rounded-full inline-block"
-                                                        style={{ backgroundColor: vehicle.color?.toLowerCase() || '#7A9B7A' }}
-                                                    ></span>
-                                                    {vehicle.color}
+                                            <div className="flex-1">
+                                                <div className="flex items-baseline gap-1 flex-wrap">
+                                                    <h3 className="text-lg font-bold text-forest mb-1 font-fraunces">{vehicle.brand}</h3>
+                                                    <p className="text-sm text-stone">{vehicle.model}</p>
                                                 </div>
-                                                <span className="text-sage-light text-xs">•</span>
-                                                <span className="text-xs text-stone-light">{vehicle.seats} Seats</span>
+                                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                    <div className="flex items-center gap-1.5 text-xs text-stone-light">
+                                                        <span
+                                                            className="w-2.5 h-2.5 rounded-full inline-block"
+                                                            style={{ backgroundColor: vehicle.color?.toLowerCase() || '#7A9B7A' }}
+                                                        ></span>
+                                                        {vehicle.color}
+                                                    </div>
+                                                    <span className="text-sage-light text-xs">•</span>
+                                                    <span className="text-xs text-stone-light">{vehicle.seats} Seats</span>
+                                                </div>
+                                                <div className="text-[11px] font-semibold text-sage bg-sage/30 inline-block px-2.5 py-1 rounded-sm tracking-wide font-mono">
+                                                    {vehicle.numberPlate}
+                                                </div>
                                             </div>
-                                            <div className="text-[11px] font-semibold text-sage bg-sage/30 inline-block px-2.5 py-1 rounded-sm tracking-wide font-mono">
-                                                {vehicle.numberPlate}
-                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-2 pt-3 border-t border-sage-15">
+                                            <button
+                                                onClick={() => navigate(`/vehicle/edit/${vehicle._id}`)}
+                                                className="flex-1 px-3 py-2 bg-sage-10 text-sage rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-sage-20 transition-colors"
+                                            >
+                                                <FiEdit2 className="text-sm" />
+                                                Edit Vehicle
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setVehicleToDelete(vehicle);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                                className="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-red-100 transition-colors"
+                                            >
+                                                <FaTrash className="text-sm" />
+                                                Delete
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -39,6 +39,8 @@ export default function Home() {
 
     const dFrom = useDebounced(from);
     const dTo = useDebounced(to);
+    const navigate = useNavigate(); // add this
+
 
     // OpenStreetMap (Nominatim) autocomplete — FROM
     useEffect(() => {
@@ -70,8 +72,20 @@ export default function Home() {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        console.log("SEARCH", { from, to, selectedDate, guests });
+        if (!from || !to || !selectedDate) return;
+
+        navigate("/search", {
+            state: {
+                from: from.trim(),
+                to: to.trim(),
+                date: selectedDate.toLocaleDateString("en-CA"),
+                seats: guests,
+            },
+        });
     };
+
+    const extractCity = (displayName) => displayName.split(",")[0].trim();
+
 
     return (
         <div className="font-inter bg-off-white text-charcoal overflow-hidden">
@@ -135,10 +149,14 @@ export default function Home() {
                                                         type="button"
                                                         key={p.place_id}
                                                         className="flex items-center gap-3 w-full px-5 py-3.5 bg-white border-none text-left cursor-pointer transition-all duration-fast text-sm text-charcoal hover:bg-sage-soft border-b border-sage-soft last:border-b-0"
-                                                        onClick={() => { setFrom(p.display_name); setFromResults([]); }}
+                                                        onClick={() => {
+                                                            setFrom(extractCity(p.display_name));
+                                                            setFromResults([]);
+                                                        }}
+
                                                     >
                                                         <FaMapPin className="text-sage text-sm shrink-0" />
-                                                        <span className="flex-1 truncate">{p.display_name}</span>
+                                                        <span className="flex-1 truncate font-semibold">{extractCity(p.display_name)}</span>
                                                     </button>
                                                 ))}
                                             </div>
@@ -167,7 +185,11 @@ export default function Home() {
                                                         type="button"
                                                         key={p.place_id}
                                                         className="flex items-center gap-3 w-full px-5 py-3.5 bg-white border-none text-left cursor-pointer transition-all duration-fast text-sm text-charcoal hover:bg-sage-soft border-b border-sage-soft last:border-b-0"
-                                                        onClick={() => { setTo(p.display_name); setToResults([]); }}
+                                                        onClick={() => {
+                                                            setTo(extractCity(p.display_name));
+                                                            setToResults([]);
+                                                        }}
+
                                                     >
                                                         <FaRoute className="text-sage text-sm shrink-0" />
                                                         <span className="flex-1 truncate">{p.display_name}</span>
@@ -240,11 +262,14 @@ export default function Home() {
                                 </div>
 
                                 {/* SEARCH BUTTON */}
-                                <Link to="/search" className="flex items-center justify-center gap-3 bg-gradient-primary text-white px-8 py-[14px] rounded-full font-bold text-sm tracking-wide transition-all duration-base relative overflow-hidden whitespace-nowrap group shrink-0 hover:translate-y-[-1px] hover:shadow-[0_8px_24px_rgba(26,58,46,0.3)] hover:gap-4">
+                                <button
+                                    type="submit"
+                                    className="flex items-center justify-center gap-3 bg-gradient-primary text-white px-8 py-[14px] rounded-full font-bold text-sm tracking-wide transition-all duration-base relative overflow-hidden whitespace-nowrap group shrink-0 hover:translate-y-[-1px] hover:shadow-[0_8px_24px_rgba(26,58,46,0.3)] hover:gap-4"
+                                >
                                     <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-500 group-hover:left-full"></span>
                                     <span>Search</span>
                                     <FaArrowRight />
-                                </Link>
+                                </button>
                             </form>
 
                             <div className="flex items-center justify-center gap-3 mt-6 text-[11px] font-semibold tracking-[0.1em] text-stone uppercase">
