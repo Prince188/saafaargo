@@ -8,7 +8,6 @@ import {
     FiArrowLeft,
     FiCalendar,
     FiClock,
-    FiUsers
 } from "react-icons/fi";
 import { FaArrowRight, FaCar } from "react-icons/fa";
 

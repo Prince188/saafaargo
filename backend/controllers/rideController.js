@@ -122,15 +122,12 @@ const getSegmentDistance = (ride, from, to) => {
     const toKey = normalize(to);
 
     const fromIndex = route.findIndex(r =>
-        normalize(r.displayName) === fromKey
+        normalize(r.displayName).includes(fromKey)
     );
 
     const toIndex = route.findIndex(r =>
-        normalize(r.displayName) === toKey
+        normalize(r.displayName).includes(toKey)
     );
-
-    console.log("FROM INDEX:", fromIndex);
-    console.log("TO INDEX:", toIndex);
 
     if (fromIndex === -1 || toIndex === -1 || fromIndex >= toIndex) {
         return 0;
@@ -142,13 +139,12 @@ const getSegmentDistance = (ride, from, to) => {
         const a = route[i];
         const b = route[i + 1];
 
-        if (!a || !b) continue;
-
         totalKm += getDistanceInKm(a.lat, a.lng, b.lat, b.lng);
     }
 
     return totalKm;
 };
+
 const getSegmentPrice = (legs, from, to, perkmprice) => {
     let start = false;
     let distance = 0;
@@ -180,11 +176,11 @@ const getSegmentTime = (ride, from, to) => {
     const fromKey = normalize(from);
     const toKey = normalize(to);
 
-    let currentTime = ride.time; // "10:30"
-    let started = false;
-
-    const [h, m] = currentTime.split(":").map(Number);
+    const [h, m] = ride.time.split(":").map(Number);
     let minutes = h * 60 + m;
+
+    let pickupTime = null;
+    let dropTime = null;
 
     for (let i = 0; i < route.length - 1; i++) {
         const start = route[i];
@@ -193,7 +189,6 @@ const getSegmentTime = (ride, from, to) => {
         const startName = normalize(start.displayName);
         const endName = normalize(end.displayName);
 
-        // assume 1 km = 2 min (you can replace later with Google API)
         const distance = getDistanceInKm(
             start.lat,
             start.lng,
@@ -201,32 +196,32 @@ const getSegmentTime = (ride, from, to) => {
             end.lng
         );
 
-        const travelMinutes = distance * 2;
+        const travelMinutes = distance * 2;  // Estimate 2 min. for one km
 
-        if (startName.includes(fromKey)) {
-            started = true;
+        // USER PICKUP
+        if (!pickupTime && startName.includes(fromKey)) {
+            pickupTime = minutes;
         }
 
-        if (started && startName.includes(fromKey)) {
-            var pickupTime = new Date(minutes * 60000);
-        }
+        // travel forward
+        minutes += travelMinutes;
 
-        if (started) {
-            minutes += travelMinutes;
-        }
-
+        // USER DROP
         if (endName.includes(toKey)) {
-            return {
-                pickupTime: formatTime(ride.time, pickupTime),
-                dropTime: formatTime(ride.time, minutes)
-            };
+            dropTime = minutes;
+            break;
         }
     }
 
-    return null;
+    if (!pickupTime || !dropTime) return null;
+
+    return {
+        pickupTime: formatTime(pickupTime),
+        dropTime: formatTime(dropTime),
+    };
 };
 
-const formatTime = (baseTime, minutesFromMidnight) => {
+const formatTime = (minutesFromMidnight) => {
     const h = Math.floor(minutesFromMidnight / 60);
     const m = Math.floor(minutesFromMidnight % 60);
 

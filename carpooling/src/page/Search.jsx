@@ -5,13 +5,14 @@ import {
     FaStar,
     FaCalendar,
     FaChevronLeft,
+    FaCheck,
 } from "react-icons/fa";
 import {
     getRouteInfo,
     calculatePrice,
     calculateArrivalTime
 } from "../utils/routeUtils";
-import { FiMapPin, FiUsers } from "react-icons/fi";
+import { FiUsers } from "react-icons/fi";
 
 const Search = () => {
     const location = useLocation();
@@ -227,125 +228,170 @@ const Search = () => {
 
                 {/* ── Ride cards ────────────────────────────────────────────── */}
                 {!loading && !error && rides.length > 0 && (
-                    <div className="space-y-lg">
+                    <div className="space-y-4">
                         {rides.map((ride) => (
-                            <div
+                            <article
                                 key={ride._id}
-                                className="bg-white rounded-lg shadow-md border border-sage-15 transition-all duration-base hover:shadow-lg hover:-translate-y-0.5"
+                                className="group relative bg-white rounded-2xl border border-sage-15 shadow-sm hover:shadow-xl hover:border-sage/40 transition-all duration-300 overflow-hidden"
                             >
-                                <div className="p-lg flex flex-col lg:flex-row gap-lg">
+                                {/* Accent strip */}
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-sage via-sage to-clay opacity-60 group-hover:opacity-100 transition-opacity" />
+
+                                <div className="p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr_auto] gap-6 lg:gap-8 items-stretch">
 
                                     {/* ── Trip timeline ────────────────────── */}
-                                    <div className="flex-1">
-                                        {/* Departure */}
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <span className="font-fraunces text-xl font-bold text-forest min-w-[70px]">
-                                                {ride.time}
-                                            </span>
-                                            <div className="flex items-center gap-2 text-stone">
-                                                <FiMapPin className="text-sage text-sm shrink-0" />
-                                                <span className="text-sm font-medium">{extractCity(ride.pickup.displayName)}</span>
-                                            </div>
-                                        </div>
+                                    <div className="relative">
+                                        {/* Vertical rail */}
+                                        <div className="absolute left-[6px] top-3 bottom-3 w-px bg-gradient-to-b from-sage via-sage/40 to-clay" />
 
-                                        {/* Route line */}
-                                        <div className="ml-[88px] flex flex-col gap-0.5 my-1">
-                                            <div className="w-px h-3 bg-sage ml-[3px]"></div>
-                                            {/* Show intermediate stops between user's from and to */}
-                                            <div className="flex items-center gap-2 text-xs text-stone-light py-0.5">
-                                                <div className="w-1.5 h-1.5 rounded-full border border-sage bg-white shrink-0"></div>
-                                                <span>{from?.city || extractCity(from)}</span>
-                                            </div>
+                                        <ol className="space-y-4">
+                                            {/* Origin */}
+                                            <li className="flex items-start gap-4">
+                                                <span className="relative z-10 mt-1.5 w-3 h-3 rounded-full bg-sage ring-4 ring-sage/15 shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2 flex-wrap">
+                                                        <span className="font-fraunces text-lg font-bold text-forest">
+                                                            {extractCity(ride.pickup.displayName)}
+                                                        </span>
+                                                        <span className="text-[10px] uppercase tracking-wider text-stone-light font-medium">
+                                                            Origin
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </li>
 
-                                            <div className="w-px h-3 bg-clay ml-[3px]"></div>
+                                            {/* User pickup */}
+                                            <li className="flex items-start gap-4">
+                                                <span className="relative z-10 mt-1.5 w-3 h-3 rounded-full bg-white border-2 border-sage shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2 flex-wrap">
+                                                        <span className="font-fraunces text-base font-semibold text-forest">
+                                                            {from?.city || extractCity(from)}
+                                                        </span>
+                                                        <span className="text-xs text-stone tabular-nums">
+                                                            {typeof ride.userPickupTime === "string" ? ride.userPickupTime : "—"}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[10px] uppercase tracking-wider text-sage font-semibold">
+                                                        Your pickup
+                                                    </span>
+                                                </div>
+                                            </li>
 
-                                            <div className="flex items-center gap-2 text-xs text-stone-light py-0.5">
-                                                <div className="w-1.5 h-1.5 rounded-full border border-sage bg-white shrink-0"></div>
-                                                <span>{to?.city || extractCity(to)}</span>
-                                            </div>
+                                            {/* User drop */}
+                                            <li className="flex items-start gap-4">
+                                                <span className="relative z-10 mt-1.5 w-3 h-3 rounded-full bg-white border-2 border-clay shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2 flex-wrap">
+                                                        <span className="font-fraunces text-base font-semibold text-forest">
+                                                            {to?.city || extractCity(to)}
+                                                        </span>
+                                                        <span className="text-xs text-stone tabular-nums">
+                                                            {ride.userDropTime || "—"}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[10px] uppercase tracking-wider text-clay font-semibold">
+                                                        Your drop
+                                                    </span>
+                                                </div>
+                                            </li>
 
-                                            <div className="w-px h-3 bg-clay ml-[3px]"></div>
-
-                                        </div>
-
-                                        {/* Arrival */}
-                                        <div className="flex items-center gap-3">
-                                            <span className="font-fraunces text-xl font-bold text-forest min-w-[70px] opacity-50">
-                                                —
-                                            </span>
-                                            <div className="flex items-center gap-2 text-stone">
-                                                <FiMapPin className="text-clay text-sm shrink-0" />
-                                                <span className="text-sm font-medium">{extractCity(ride.destination.displayName)}</span>
-                                            </div>
-                                        </div>
+                                            {/* Destination */}
+                                            <li className="flex items-start gap-4">
+                                                <span className="relative z-10 mt-1.5 w-3 h-3 rounded-full bg-clay ring-4 ring-clay/15 shrink-0" />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2 flex-wrap">
+                                                        <span className="font-fraunces text-lg font-bold text-forest/70">
+                                                            {extractCity(ride.destination.displayName)}
+                                                        </span>
+                                                        <span className="text-[10px] uppercase tracking-wider text-stone-light font-medium">
+                                                            Destination
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ol>
                                     </div>
 
                                     {/* ── Driver info ──────────────────────── */}
-                                    <div className="flex-1 flex items-center">
-                                        <div className="flex items-center gap-4">
-                                            <img
-                                                src={
-                                                    ride.user?.profilePic ||
-                                                    `https://i.pravatar.cc/100?u=${ride._id}`
-                                                }
-                                                alt={ride.user?.name || "Driver"}
-                                                className="w-14 h-14 rounded-full object-cover border-2 border-sage shrink-0"
-                                            />
-                                            <div>
-                                                <h4 className="font-fraunces text-lg font-semibold text-forest">
-                                                    {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`}
+                                    <div className="flex items-center lg:border-l lg:border-sage-15 lg:pl-8">
+                                        <div className="flex items-start gap-4">
+                                            <div className="relative shrink-0">
+                                                <img
+                                                    src={ride.user?.profilePic || `https://i.pravatar.cc/100?u=${ride._id}`}
+                                                    alt={ride.user?.name || "Driver"}
+                                                    className="w-16 h-16 rounded-full object-cover border-2 border-sage/30"
+                                                />
+                                                {ride.user?.verified && (
+                                                    <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-success rounded-full border-2 border-white flex items-center justify-center">
+                                                        <FaCheck className="text-white text-[10px]" />
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="min-w-0">
+                                                <h4 className="font-fraunces text-lg font-semibold text-forest leading-tight truncate">
+                                                    {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.trim() || "Driver"}
                                                 </h4>
-                                                <div className="flex items-center gap-2 mt-1">
+
+                                                <div className="flex items-center gap-1.5 mt-1">
                                                     <FaStar className="text-clay text-xs" />
-                                                    <span className="text-sm text-stone">
+                                                    <span className="text-sm font-medium text-forest">
                                                         {ride.user?.rating ?? "New"}
                                                     </span>
                                                     {ride.user?.verified && (
-                                                        <span className="text-[10px] font-bold px-2 py-0.5 bg-success/10 text-success rounded-full">
+                                                        <span className="ml-1 text-[10px] font-semibold px-1.5 py-0.5 bg-success/10 text-success rounded">
                                                             Verified
                                                         </span>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-2 mt-1 text-xs text-stone-light">
-                                                    <span>{ride.car.brand} {ride.car.model}</span>
-                                                    <span>•</span>
+
+                                                <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-stone bg-sage/5 px-2.5 py-1 rounded-md">
+                                                    <span className="font-medium text-forest">
+                                                        {ride.car.brand} {ride.car.model}
+                                                    </span>
+                                                    <span className="w-1 h-1 rounded-full bg-stone-light" />
                                                     <span>{ride.car.color}</span>
-                                                    <span>•</span>
-                                                    <span>{ride.car.numberPlate}</span>
+                                                </div>
+                                                <div className="mt-1 text-[11px] text-stone-light font-mono tracking-wider">
+                                                    {ride.car.numberPlate}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* ── Price + action ───────────────────── */}
-                                    <div className="flex flex-row lg:flex-col items-end justify-between min-w-[140px]">
+                                    <div className="flex flex-row lg:flex-col items-end lg:items-end justify-between lg:justify-center gap-3 lg:border-l lg:border-sage-15 lg:pl-8 lg:min-w-[160px]">
                                         <div className="text-right">
-                                            <div className="font-fraunces text-2xl font-bold text-forest">
-                                                {ride.segmentPrice != null
-                                                    ? `₹${ride.segmentPrice}`
-                                                    : "—"}
+                                            <div className="text-[10px] uppercase tracking-widest text-stone-light font-semibold">
+                                                Per seat
                                             </div>
-                                            <div className="text-[11px] text-stone-light uppercase tracking-wide">
-                                                per seat
+                                            <div className="font-fraunces text-3xl font-bold text-forest leading-none mt-1">
+                                                {ride.segmentPrice != null ? `₹${ride.segmentPrice}` : "—"}
                                             </div>
-                                            <div className="flex items-center justify-end gap-1 mt-2 text-xs text-stone">
-                                                <FiUsers className="text-sage text-xs" />
-                                                <span>{ride.seatsAvailable} seat{ride.seatsAvailable !== 1 ? "s" : ""} left</span>
+                                            <div className="flex items-center justify-end gap-1.5 mt-2 text-xs">
+                                                <FiUsers className="text-sage" />
+                                                <span className="text-stone font-medium">
+                                                    {ride.seatsAvailable} seat{ride.seatsAvailable !== 1 ? "s" : ""} left
+                                                </span>
                                             </div>
                                         </div>
 
                                         <button
-                                            onClick={() => navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })}
-                                            className="mt-3 inline-flex items-center gap-2 bg-gradient-primary text-white px-5 py-2 rounded-full text-sm font-semibold transition-all duration-base hover:gap-3 hover:shadow-md hover:-translate-y-0.5"
+                                            onClick={() =>
+                                                navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })
+                                            }
+                                            className="inline-flex items-center gap-2 bg-gradient-primary text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:shadow-lg hover:gap-3 hover:-translate-y-0.5 transition-all duration-300"
                                         >
-                                            Select <FaArrowRight />
+                                            Select
+                                            <FaArrowRight className="text-xs" />
                                         </button>
                                     </div>
-
                                 </div>
-                            </div>
+                            </article>
                         ))}
                     </div>
+
                 )}
 
             </div>

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Autocomplete } from "@react-google-maps/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -23,8 +22,8 @@ export default function Home() {
     // ---- SEARCH STATE ----
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
-    const [fromAuto, setFromAuto] = useState(null);
-    const [toAuto, setToAuto] = useState(null);
+    // const [fromAuto, setFromAuto] = useState(null);
+    // const [toAuto, setToAuto] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [guests, setGuests] = useState(1);
     const [guestsOpen, setGuestsOpen] = useState(false);
@@ -47,36 +46,36 @@ export default function Home() {
         });
     };
 
-    const extractCity = (place) => {
-        for (let comp of place.address_components) {
-            if (comp.types.includes("locality")) {
-                return comp.long_name;
-            }
-        }
-        return place.formatted_address;
-    };
+    // const extractCity = (place) => {
+    //     for (let comp of place.address_components) {
+    //         if (comp.types.includes("locality")) {
+    //             return comp.long_name;
+    //         }
+    //     }
+    //     return place.formatted_address;
+    // };
 
     //GOOGLE MAP API LOGIC
 
-    const onFromLoad = (autoC) => setFromAuto(autoC);
+    // const onFromLoad = (autoC) => setFromAuto(autoC);
 
-    const onFromPlaceChanged = () => {
-        if (fromAuto) {
-            const place = fromAuto.getPlace();
-            if (!place || !place.address_components) return;
-            setFrom(extractCity(place));
-        }
-    };
+    // const onFromPlaceChanged = () => {
+    //     if (fromAuto) {
+    //         const place = fromAuto.getPlace();
+    //         if (!place || !place.address_components) return;
+    //         setFrom(extractCity(place));
+    //     }
+    // };
 
-    const onToLoad = (autoC) => setToAuto(autoC);
+    // const onToLoad = (autoC) => setToAuto(autoC);
 
-    const onToPlaceChanged = () => {
-        if (toAuto) {
-            const place = toAuto.getPlace();
-            if (!place || !place.address_components) return;
-            setTo(extractCity(place));
-        }
-    };
+    // const onToPlaceChanged = () => {
+    //     if (toAuto) {
+    //         const place = toAuto.getPlace();
+    //         if (!place || !place.address_components) return;
+    //         setTo(extractCity(place));
+    //     }
+    // };
 
     const handleFromInput = (value) => {
         setFrom(value);

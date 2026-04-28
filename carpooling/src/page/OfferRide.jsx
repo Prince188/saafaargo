@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import { TfiCar } from "react-icons/tfi";
 import { FaArrowRight } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import LocationInput from "../component/LocationInput";
 
 const OfferRide = () => {
