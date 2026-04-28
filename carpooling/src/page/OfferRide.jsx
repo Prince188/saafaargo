@@ -18,9 +18,9 @@ import LocationInput from "../component/LocationInput";
 
 const OfferRide = () => {
     const [formData, setFormData] = useState({
-        from: "Delhi",
-        to: "Jaipur",
-        passengers: "2",
+        from: "",
+        to: "",
+        passengers: "",
     });
 
     const navigate = useNavigate();

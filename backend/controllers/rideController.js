@@ -9,7 +9,8 @@ exports.createRide = async (req, res) => {
             date,
             time,
             seatsAvailable,
-            car
+            car,
+            perkmprice
         } = req.body;
 
         const ride = new Ride({
@@ -23,7 +24,8 @@ exports.createRide = async (req, res) => {
             time: req.body.time,
 
             seatsAvailable: req.body.seatsAvailable, // ✅ ADD THIS
-            car: req.body.car                        // ✅ ADD THIS
+            car: req.body.car  ,                      // ✅ ADD THIS
+            perkmprice,
         });
 
         await ride.save();
@@ -65,6 +67,7 @@ const buildRoute = (ride) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER — check if user's from→to exists in ride's route in correct order
 // ─────────────────────────────────────────────────────────────────────────────
+
 const normalize = (str) =>
     str?.toLowerCase().replace(/\s+/g, " ").trim();
 

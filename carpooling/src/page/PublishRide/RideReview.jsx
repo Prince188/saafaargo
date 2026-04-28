@@ -69,7 +69,7 @@ const RideReview = () => {
           date,
           time,
           seatsAvailable: seats,      // ✅ now correct value
-          ratePerKm,                  // ✅ send rate too
+          perkmprice: ratePerKm,                  // ✅ send rate too
           car: selectedCar,
         })
       });
@@ -160,9 +160,11 @@ const RideReview = () => {
             <h3 className="text-base md:text-lg font-semibold text-forest">Route Details</h3>
           </div>
 
-          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-center gap-2 md:gap-md">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center pb-2 gap-2 md:gap-md overflow-y-auto  [&::-webkit-scrollbar]:h-1
+            [&::-webkit-scrollbar-track]:bg-gray-100
+            [&::-webkit-scrollbar-thumb]:bg-gray-300">
             {/* Pickup */}
-            <div className="flex items-center gap-2 md:gap-sm bg-white p-2 md:p-sm px-3 md:px-md rounded-md shadow-sm min-w-[120px]">
+            <div className="flex items-center gap-2 md:gap-sm bg-white p-2 md:p-sm px-3 md:px-md rounded-md shadow-sm min-w-100%">
               <div className="px-2 py-1 rounded-full text-[9px] md:text-[10px] font-bold bg-success/15 text-success">START</div>
               <div className="flex flex-col">
                 <span className="text-[8px] md:text-[9px] font-semibold tracking-[0.05em] text-stone uppercase">Pickup</span>
@@ -179,7 +181,7 @@ const RideReview = () => {
               const isLast = index === stops.length - 1;
               return (
                 <React.Fragment key={index}>
-                  <div className="flex items-center gap-2 md:gap-sm bg-white p-2 md:p-sm px-3 md:px-md rounded-md shadow-sm min-w-[120px]">
+                  <div className="flex items-center gap-2 md:gap-sm bg-white p-2 md:p-sm px-3 md:px-md rounded-md shadow-sm min-w-100%">
                     <div className={`px-2 py-1 rounded-full text-[9px] md:text-[10px] font-bold ${isLast ? 'bg-clay/15 text-clay' : 'bg-sage-soft text-sage'
                       }`}>
                       {isLast ? "END" : index + 1}
@@ -188,10 +190,10 @@ const RideReview = () => {
                       <span className="text-[8px] md:text-[9px] font-semibold tracking-[0.05em] text-stone uppercase">
                         {isLast ? "Destination" : "Stop"}
                       </span>
-                      <span className="text-xs md:text-[13px] font-semibold text-forest">
+                      <span className="text-xs md:text-[13px] font-semibold text-forest text-nowrap">
                         {stop?.displayName?.split(",")[0]}
                       </span>
-                      <small className="text-[10px] text-sage">
+                      <small className="text-[10px] text-sage text-nowrap">
                         ₹ {stop.pricePerSeat || stop.price || "—"} /seat
                       </small>
                     </div>

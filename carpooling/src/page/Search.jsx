@@ -67,7 +67,7 @@ const Search = () => {
             }
         };
 
-        fetchRides();
+        fetchRides(); 
     }, [from, to, date, seats, navigate]);
 
     // ── Format date for display e.g. "Saturday, 26 April" ────────────────────

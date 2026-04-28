@@ -35,8 +35,8 @@ const rideSchema = new mongoose.Schema({
 
     perkmprice: {
         type: Number,
-        require : true,
-        default : 9
+        required: true,
+        default: 9
     },
 
     passengers: [
