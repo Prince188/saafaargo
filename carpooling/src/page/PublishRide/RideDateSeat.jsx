@@ -16,11 +16,12 @@ const RideDateSeat = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { pickup, destination, stops, selectedCar } = location.state || {};
+    const { pickup, destination, stops, selectedCar, ratePerKm, formData } = location.state || {};
+    const [seats, setSeats] = useState(parseInt(formData?.passengers) || 1);
 
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
-    const [seats, setSeats] = useState(1);
+    // const [seats, setSeats] = useState(passedSeats || 1); // ✅ use seats from OfferRide
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -31,7 +32,7 @@ const RideDateSeat = () => {
             return;
         }
 
-        const formattedDate = selectedDate.toISOString().split('T')[0];
+        const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
 
         navigate("/offer-ride/ride-review", {
             state: {
@@ -41,7 +42,9 @@ const RideDateSeat = () => {
                 selectedCar,
                 date: formattedDate,
                 time: selectedTime,
-                seats,
+                seats,          // ✅
+                ratePerKm,      // ✅
+                formData,
             },
         });
     };
@@ -145,7 +148,7 @@ const RideDateSeat = () => {
                 </div>
 
                 {/* Seats Card */}
-                <div className="bg-white border border-sage-soft rounded-md p-3 md:p-md mx-4 md:mx-xl mb-3 md:mb-md transition-all duration-base hover:border-sage hover:shadow-sm">
+                {/* <div className="bg-white border border-sage-soft rounded-md p-3 md:p-md mx-4 md:mx-xl mb-3 md:mb-md transition-all duration-base hover:border-sage hover:shadow-sm">
                     <div className="flex items-center gap-2 md:gap-2.5 mb-2 md:mb-2.5">
                         <div className="w-8 h-8 md:w-9 md:h-9 bg-sage-soft rounded-sm flex items-center justify-center text-sage text-base md:text-lg">
                             <FiUsers />
@@ -164,7 +167,7 @@ const RideDateSeat = () => {
                             </button>
                         ))}
                     </div>
-                </div>
+                </div> */}
 
                 {/* Next Button */}
                 <button

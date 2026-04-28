@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   FiArrowLeft,
@@ -21,12 +21,20 @@ const RideReview = () => {
     selectedCar,
     date,
     time,
-    seats,
+    seats: seatsFromState,
+    ratePerKm,
+    formData,
   } = location.state || {};
+
+
+  const seats = seatsFromState || parseInt(formData?.passengers) || 1;
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not set";
-    const d = new Date(dateString);
+    // ✅ parse parts manually to avoid UTC shift
+    const [year, month, day] = dateString.split('-');
+    const d = new Date(year, month - 1, day); // local time
     return d.toLocaleDateString("en-US", {
       weekday: "short",
       year: "numeric",
@@ -60,8 +68,9 @@ const RideReview = () => {
           stops: formattedStops,
           date,
           time,
-          seatsAvailable: seats,
-          car: selectedCar
+          seatsAvailable: seats,      // ✅ now correct value
+          ratePerKm,                  // ✅ send rate too
+          car: selectedCar,
         })
       });
 
@@ -182,7 +191,9 @@ const RideReview = () => {
                       <span className="text-xs md:text-[13px] font-semibold text-forest">
                         {stop?.displayName?.split(",")[0]}
                       </span>
-                      <small className="text-[10px] text-sage">₹{stop.price}</small>
+                      <small className="text-[10px] text-sage">
+                        ₹ {stop.pricePerSeat || stop.price || "—"} /seat
+                      </small>
                     </div>
                   </div>
                   {!isLast && <div className="text-sage-light text-base md:text-lg font-semibold rotate-90 md:rotate-0 self-center">→</div>}
@@ -264,14 +275,14 @@ const RideReview = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3 md:gap-md px-4 md:px-xl pb-6 md:pb-2xl">
-          <button
+          {/* <button
             className="flex-1 bg-transparent border-2 border-sage rounded-full py-2.5 md:py-3 text-xs md:text-sm font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage-soft hover:-translate-y-0.5"
             onClick={() => navigate(-1)}
           >
             Edit
-          </button>
+          </button> */}
           <button
-            className="flex-2 inline-flex items-center justify-center gap-2 md:gap-md bg-gradient-primary border-none rounded-full py-2.5 md:py-3 text-xs md:text-sm font-bold text-white cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
+            className="flex-1 inline-flex items-center justify-center gap-2 md:gap-md bg-gradient-primary border-none rounded-full py-2.5 md:py-3 text-xs md:text-sm font-bold text-white cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
             onClick={handleConfirmRide}
           >
             Publish Ride

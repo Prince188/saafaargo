@@ -19,10 +19,11 @@ const DestinationPage = () => {
             destination: destinationLocation,
         };
 
-        console.log("FINAL DATA:", finalData);
-
         navigate("/offer-ride/route-preview", {
-            state: finalData,
+            state: {
+                ...finalData,
+                formData: location.state?.formData || formData, // ✅ keep formData nested
+            },
         });
     };
 

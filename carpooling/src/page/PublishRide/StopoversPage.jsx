@@ -174,7 +174,13 @@ const StopoversPage = () => {
 
     const handleContinue = () => {
         navigate("/offer-ride/prices", {
-            state: { pickup, destination, stops, ...formData }
+            state: {
+                pickup,
+                destination,
+                stops,
+                totalDistanceKm: formData?.totalDistanceKm || null, // ✅ forward it
+                formData: formData, // ✅ keep it nested, don't spread
+            }
         });
     };
 

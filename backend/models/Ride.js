@@ -33,6 +33,12 @@ const rideSchema = new mongoose.Schema({
         seats: Number
     },
 
+    perkmprice: {
+        type: Number,
+        require : true,
+        default : 9
+    },
+
     passengers: [
         {
             user: {

@@ -12,6 +12,8 @@ const RoutePreviewPage = () => {
     const navigate = useNavigate();
     const { pickup, destination } = location.state || {};
     const [routeInfo, setRouteInfo] = useState(null);
+    const incomingFormData = location.state?.formData || {}; // ✅ read it
+
 
     if (!pickup || !destination) {
         return (
@@ -37,7 +39,11 @@ const RoutePreviewPage = () => {
                 pickup,
                 destination,
                 routeCoords: routeInfo?.coordinates || [],
-                formData: { pickup, destination },
+                totalDistanceKm: routeInfo?.distance || null, // ✅ pass real road distance
+                formData: {
+                    ...incomingFormData,                          // ✅ forward it
+                    totalDistanceKm: routeInfo?.distance || null,
+                },
             },
         });
     };

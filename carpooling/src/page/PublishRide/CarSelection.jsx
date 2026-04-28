@@ -11,7 +11,7 @@ const CarSelection = () => {
     const [loading, setLoading] = useState(true);
     const [selectedCarId, setSelectedCarId] = useState(null);
 
-    const { pickup, destination, stops = [] } = location.state || {};
+    const { pickup, destination, stops = [], ratePerKm, seats, formData } = location.state || {};
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -66,6 +66,9 @@ const CarSelection = () => {
                     destination,
                     stops,
                     selectedCar: car,
+                    ratePerKm,      // ✅
+                    seats,          // ✅
+                    formData,       // ✅
                 },
             });
         }, 300);
@@ -80,7 +83,7 @@ const CarSelection = () => {
             <div className="max-w-[900px] mx-auto bg-white min-h-screen shadow-sm">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                    <button 
+                    <button
                         className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5"
                         onClick={() => navigate(-1)}
                     >
@@ -121,7 +124,7 @@ const CarSelection = () => {
                             <FaCar className="text-6xl text-sage-light mb-lg" />
                             <h3 className="text-xl font-semibold text-forest mb-sm">No vehicles added yet</h3>
                             <p className="text-sm text-stone mb-xl">Add your first vehicle to start offering rides</p>
-                            <button 
+                            <button
                                 className="inline-flex items-center gap-2 bg-gradient-primary text-white border-none px-6 py-3 rounded-full text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 hover:shadow-md"
                                 onClick={handleAddNewCar}
                             >
@@ -133,9 +136,8 @@ const CarSelection = () => {
                         cars.map((car) => (
                             <div
                                 key={car._id}
-                                className={`bg-white border border-sage-soft rounded-md p-3 md:p-lg cursor-pointer transition-all duration-base relative hover:-translate-y-1 hover:shadow-lg hover:border-sage ${
-                                    selectedCarId === car._id ? 'border-success bg-success/5 shadow-[0_0_0_2px_rgba(16,185,129,0.2)]' : ''
-                                }`}
+                                className={`bg-white border border-sage-soft rounded-md p-3 md:p-lg cursor-pointer transition-all duration-base relative hover:-translate-y-1 hover:shadow-lg hover:border-sage ${selectedCarId === car._id ? 'border-success bg-success/5 shadow-[0_0_0_2px_rgba(16,185,129,0.2)]' : ''
+                                    }`}
                                 onClick={() => handleSelectCar(car)}
                             >
                                 {selectedCarId === car._id && (
@@ -143,7 +145,7 @@ const CarSelection = () => {
                                         <FiCheck className="text-sm" />
                                     </div>
                                 )}
-                                
+
                                 <div className="flex gap-2 md:gap-2.5">
                                     <div className="w-12 h-12 md:w-[60px] md:h-[60px] bg-gradient-primary rounded-md flex items-center justify-center mb-3 md:mb-md">
                                         <FaCar className="text-xl md:text-3xl text-white" />
@@ -170,11 +172,10 @@ const CarSelection = () => {
                                     </div>
                                 </div>
 
-                                <button className={`w-full py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-semibold transition-all duration-base hover:-translate-y-0.5 hover:shadow-sm ${
-                                    selectedCarId === car._id 
-                                        ? 'bg-success text-white' 
-                                        : 'bg-gradient-primary text-white'
-                                }`}>
+                                <button className={`w-full py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-semibold transition-all duration-base hover:-translate-y-0.5 hover:shadow-sm ${selectedCarId === car._id
+                                    ? 'bg-success text-white'
+                                    : 'bg-gradient-primary text-white'
+                                    }`}>
                                     Select
                                 </button>
                             </div>
@@ -185,7 +186,7 @@ const CarSelection = () => {
                 {/* Add New Car Button */}
                 {cars.length > 0 && (
                     <div className="px-4 md:px-xl pb-4 md:pb-2xl">
-                        <button 
+                        <button
                             className="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-dashed border-sage rounded-md py-3 md:py-md text-sm md:text-sm font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage-soft hover:border-forest hover:-translate-y-0.5"
                             onClick={handleAddNewCar}
                         >

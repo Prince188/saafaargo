@@ -65,23 +65,24 @@ const buildRoute = (ride) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER — check if user's from→to exists in ride's route in correct order
 // ─────────────────────────────────────────────────────────────────────────────
+const normalize = (str) =>
+    str?.toLowerCase().replace(/\s+/g, " ").trim();
+
 const isRouteMatch = (ride, from, to) => {
-    const route = buildRoute(ride);
+    const route = [
+        ride.pickup.displayName,
+        ...(ride.stops?.map(s => s.displayName) || []),
+        ride.destination.displayName
+    ].map(normalize);
 
-    const fromKey = from?.toLowerCase().trim();
-    const toKey = to?.toLowerCase().trim();
+    const fromKey = normalize(from);
+    const toKey = normalize(to);
 
-    const fromIdx = route.findIndex((node) =>
-        node.name?.includes(fromKey)
-    );
-
-    const toIdx = route.findIndex((node) =>
-        node.name?.includes(toKey)
-    );
+    const fromIdx = route.findIndex(r => r.includes(fromKey));
+    const toIdx = route.findIndex(r => r.includes(toKey));
 
     return fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx;
 };
-
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPER — get price for user's specific segment
 // The destination node's price is used (each stop carries its own price)
@@ -167,34 +168,44 @@ exports.getRides = async (req, res) => {
         // ── Step 1: DB-level filter (fast — uses indexes) ─────────────────────
         // Broad match on pickup/destination/stops for from and to.
         // Route-order validation happens in JS below (can't do in Mongo query).
-        let dbQuery = {};
-
-        if (from) {
-            dbQuery.$or = [
-                { "pickup.displayName": { $regex: from, $options: "i" } },
-                { "destination.displayName": { $regex: from, $options: "i" } },
-                { "stops.displayName": { $regex: from, $options: "i" } },
-            ];
-        }
-
-        if (to) {
-            dbQuery.$and = [
-                {
-                    $or: [
-                        { "pickup.displayName": { $regex: to, $options: "i" } },
-                        { "destination.displayName": { $regex: to, $options: "i" } },
-                        { "stops.displayName": { $regex: to, $options: "i" } },
-                    ],
-                },
-            ];
-        }
+        let dbQuery = {
+            seatsAvailable: { $gte: requestedSeats }
+        };
 
         if (date) {
             dbQuery.date = date;
         }
 
+        // if (from && to) {
+        //     dbQuery.$and = [
+        //         {
+        //             $or: [
+        //                 { "pickup.displayName": { $regex: from, $options: "i" } },
+        //                 { "stops.displayName": { $regex: from, $options: "i" } }
+        //             ]
+        //         },
+        //         {
+        //             $or: [
+        //                 { "destination.displayName": { $regex: to, $options: "i" } },
+        //                 { "stops.displayName": { $regex: to, $options: "i" } }
+        //             ]
+        //         }
+        //     ];
+        // }
+
         // Always filter by seats at DB level
         dbQuery.seatsAvailable = { $gte: requestedSeats };
+
+        console.log("FROM:", from);
+        console.log("TO:", to);
+
+        // candidates.forEach(r => {
+        //     console.log("ROUTE:", [
+        //         r.pickup.displayName,
+        //         ...(r.stops?.map(s => s.displayName) || []),
+        //         r.destination.displayName
+        //     ]);
+        // });
 
         const candidates = await Ride.find(dbQuery)
             .populate("user", "name email photo")
