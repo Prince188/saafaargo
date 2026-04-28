@@ -57,7 +57,9 @@ const Search = () => {
                     seats: seats ?? 1
                 });
 
-                const res = await fetch(`/api/rides?${params}`);
+                const res = await fetch(
+                    `${process.env.REACT_APP_API_URL}/api/rides?${params}`
+                );
 
                 if (!res.ok) {
                     throw new Error(`Request failed: ${res.status}`);
