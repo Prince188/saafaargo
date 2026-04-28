@@ -6,6 +6,11 @@ import {
     FaCalendar,
     FaChevronLeft,
 } from "react-icons/fa";
+import {
+    getRouteInfo,
+    calculatePrice,
+    calculateArrivalTime
+} from "../utils/routeUtils";
 import { FiMapPin, FiUsers } from "react-icons/fi";
 
 const Search = () => {
@@ -67,8 +72,47 @@ const Search = () => {
             }
         };
 
-        fetchRides(); 
+        fetchRides();
     }, [from, to, date, seats, navigate]);
+
+    useEffect(() => {
+        const enrichRides = async () => {
+            const updated = await Promise.all(
+                rides.map(async (ride) => {
+
+                    const route = await getRouteInfo(
+                        { lat: ride.pickup.lat, lng: ride.pickup.lng },
+                        { lat: ride.destination.lat, lng: ride.destination.lng },
+                        ride.stops || []
+                    );
+
+                    const price = calculatePrice(route.distanceKm, ride.perkmprice);
+
+                    const arrival = calculateArrivalTime(
+                        ride.date,
+                        ride.time,
+                        route.durationSec
+                    );
+
+                    return {
+                        ...ride,
+                        calculatedPrice: price,
+                        arrivalTime: arrival.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        }),
+                        distanceKm: route.distanceKm,
+                    };
+                })
+            );
+
+            setRides(updated);
+        };
+
+        if (rides.length > 0) {
+            enrichRides();
+        }
+    }, [rides]);
 
     // ── Format date for display e.g. "Saturday, 26 April" ────────────────────
     const formattedDate = date
@@ -81,7 +125,7 @@ const Search = () => {
 
     // ── Skeleton card ─────────────────────────────────────────────────────────
     const SkeletonCard = () => (
-        <div className="bg-white rounded-lg border border-sage-15 p-lg animate-pulse">
+        <div className="bg-white rounded-lg border border-sage-15 p-lg">
             <div className="flex flex-col lg:flex-row gap-lg">
                 <div className="flex-1 space-y-3">
                     <div className="h-4 bg-sage-soft rounded w-1/2"></div>
@@ -208,13 +252,20 @@ const Search = () => {
                                         <div className="ml-[88px] flex flex-col gap-0.5 my-1">
                                             <div className="w-px h-3 bg-sage ml-[3px]"></div>
                                             {/* Show intermediate stops between user's from and to */}
-                                            {ride.stops?.map((stop) => (
-                                                <div key={stop._id} className="flex items-center gap-2 text-xs text-stone-light py-0.5">
-                                                    <div className="w-1.5 h-1.5 rounded-full border border-sage bg-white shrink-0"></div>
-                                                    <span>{stop.displayName}</span>
-                                                </div>
-                                            ))}
+                                            <div className="flex items-center gap-2 text-xs text-stone-light py-0.5">
+                                                <div className="w-1.5 h-1.5 rounded-full border border-sage bg-white shrink-0"></div>
+                                                <span>{from?.city || extractCity(from)}</span>
+                                            </div>
+
                                             <div className="w-px h-3 bg-clay ml-[3px]"></div>
+
+                                            <div className="flex items-center gap-2 text-xs text-stone-light py-0.5">
+                                                <div className="w-1.5 h-1.5 rounded-full border border-sage bg-white shrink-0"></div>
+                                                <span>{to?.city || extractCity(to)}</span>
+                                            </div>
+
+                                            <div className="w-px h-3 bg-clay ml-[3px]"></div>
+
                                         </div>
 
                                         {/* Arrival */}
@@ -234,7 +285,7 @@ const Search = () => {
                                         <div className="flex items-center gap-4">
                                             <img
                                                 src={
-                                                    ride.user?.photo ||
+                                                    ride.user?.profilePic ||
                                                     `https://i.pravatar.cc/100?u=${ride._id}`
                                                 }
                                                 alt={ride.user?.name || "Driver"}
@@ -242,7 +293,7 @@ const Search = () => {
                                             />
                                             <div>
                                                 <h4 className="font-fraunces text-lg font-semibold text-forest">
-                                                    {ride.user?.name || "Driver"}
+                                                    {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`}
                                                 </h4>
                                                 <div className="flex items-center gap-2 mt-1">
                                                     <FaStar className="text-clay text-xs" />
@@ -267,7 +318,7 @@ const Search = () => {
                                     </div>
 
                                     {/* ── Price + action ───────────────────── */}
-                                    <div className="flex flex-col items-end justify-between min-w-[140px]">
+                                    <div className="flex flex-row lg:flex-col items-end justify-between min-w-[140px]">
                                         <div className="text-right">
                                             <div className="font-fraunces text-2xl font-bold text-forest">
                                                 {ride.segmentPrice != null

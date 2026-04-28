@@ -32,7 +32,7 @@ const rideSchema = new mongoose.Schema({
         numberPlate: String,
         seats: Number
     },
-
+ 
     perkmprice: {
         type: Number,
         required: true,

@@ -24,7 +24,7 @@ exports.createRide = async (req, res) => {
             time: req.body.time,
 
             seatsAvailable: req.body.seatsAvailable, // ✅ ADD THIS
-            car: req.body.car  ,                      // ✅ ADD THIS
+            car: req.body.car,                      // ✅ ADD THIS
             perkmprice,
         });
 
@@ -90,17 +90,6 @@ const isRouteMatch = (ride, from, to) => {
 // HELPER — get price for user's specific segment
 // The destination node's price is used (each stop carries its own price)
 // ─────────────────────────────────────────────────────────────────────────────
-const getSegmentPrice = (ride, to) => {
-    const route = buildRoute(ride);
-
-    const toKey = to?.toLowerCase().trim();
-
-    const toNode = route.find((node) =>
-        node.name?.includes(toKey)
-    );
-
-    return toNode?.price ?? null;
-};
 
 const getDistanceInKm = (lat1, lon1, lat2, lon2) => {
     const toRad = (value) => (value * Math.PI) / 180;
@@ -129,33 +118,134 @@ const getSegmentDistance = (ride, from, to) => {
         ride.destination,
     ];
 
-    const fromKey = from.toLowerCase().trim();
-    const toKey = to.toLowerCase().trim();
+    const fromKey = normalize(from);
+    const toKey = normalize(to);
 
-    const fromNode = route.find((r) =>
-        r.displayName.toLowerCase().includes(fromKey)
+    const fromIndex = route.findIndex(r =>
+        normalize(r.displayName) === fromKey
     );
 
-    const toNode = route.find((r) =>
-        r.displayName.toLowerCase().includes(toKey)
+    const toIndex = route.findIndex(r =>
+        normalize(r.displayName) === toKey
     );
 
-    if (!fromNode || !toNode) return 0;
+    console.log("FROM INDEX:", fromIndex);
+    console.log("TO INDEX:", toIndex);
 
-    return getDistanceInKm(
-        fromNode.lat,
-        fromNode.lng,
-        toNode.lat,
-        toNode.lng
-    );
+    if (fromIndex === -1 || toIndex === -1 || fromIndex >= toIndex) {
+        return 0;
+    }
+
+    let totalKm = 0;
+
+    for (let i = fromIndex; i < toIndex; i++) {
+        const a = route[i];
+        const b = route[i + 1];
+
+        if (!a || !b) continue;
+
+        totalKm += getDistanceInKm(a.lat, a.lng, b.lat, b.lng);
+    }
+
+    return totalKm;
+};
+const getSegmentPrice = (legs, from, to, perkmprice) => {
+    let start = false;
+    let distance = 0;
+
+    for (let leg of legs) {
+        if (leg.start_address.toLowerCase().includes(from.toLowerCase())) {
+            start = true;
+        }
+
+        if (start) {
+            distance += leg.distance.value;
+        }
+
+        if (leg.end_address.toLowerCase().includes(to.toLowerCase())) {
+            break;
+        }
+    }
+
+    return Math.round((distance / 1000) * perkmprice);
+};
+
+const getSegmentTime = (ride, from, to) => {
+    const route = [
+        ride.pickup,
+        ...(ride.stops || []),
+        ride.destination,
+    ];
+
+    const fromKey = normalize(from);
+    const toKey = normalize(to);
+
+    let currentTime = ride.time; // "10:30"
+    let started = false;
+
+    const [h, m] = currentTime.split(":").map(Number);
+    let minutes = h * 60 + m;
+
+    for (let i = 0; i < route.length - 1; i++) {
+        const start = route[i];
+        const end = route[i + 1];
+
+        const startName = normalize(start.displayName);
+        const endName = normalize(end.displayName);
+
+        // assume 1 km = 2 min (you can replace later with Google API)
+        const distance = getDistanceInKm(
+            start.lat,
+            start.lng,
+            end.lat,
+            end.lng
+        );
+
+        const travelMinutes = distance * 2;
+
+        if (startName.includes(fromKey)) {
+            started = true;
+        }
+
+        if (started && startName.includes(fromKey)) {
+            var pickupTime = new Date(minutes * 60000);
+        }
+
+        if (started) {
+            minutes += travelMinutes;
+        }
+
+        if (endName.includes(toKey)) {
+            return {
+                pickupTime: formatTime(ride.time, pickupTime),
+                dropTime: formatTime(ride.time, minutes)
+            };
+        }
+    }
+
+    return null;
+};
+
+const formatTime = (baseTime, minutesFromMidnight) => {
+    const h = Math.floor(minutesFromMidnight / 60);
+    const m = Math.floor(minutesFromMidnight % 60);
+
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 };
 
 const getDynamicPrice = (ride, from, to) => {
     const distance = getSegmentDistance(ride, from, to);
 
-    const pricePerKm = ride.pricePerKm || 10; // default ₹10/km
+    console.log("SEGMENT DISTANCE:", distance);
+    console.log("PER KM PRICE:", ride.perkmprice);
 
-    return Math.round(distance * pricePerKm);
+    if (!distance || !ride.perkmprice) return 0;
+
+    const price = distance * Number(ride.perkmprice);
+
+    console.log("FINAL PRICE:", price);
+
+    return Math.round(price);
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -168,9 +258,6 @@ exports.getRides = async (req, res) => {
         const { from, to, date, seats } = req.query;
         const requestedSeats = parseInt(seats) || 1;
 
-        // ── Step 1: DB-level filter (fast — uses indexes) ─────────────────────
-        // Broad match on pickup/destination/stops for from and to.
-        // Route-order validation happens in JS below (can't do in Mongo query).
         let dbQuery = {
             seatsAvailable: { $gte: requestedSeats }
         };
@@ -179,22 +266,6 @@ exports.getRides = async (req, res) => {
             dbQuery.date = date;
         }
 
-        // if (from && to) {
-        //     dbQuery.$and = [
-        //         {
-        //             $or: [
-        //                 { "pickup.displayName": { $regex: from, $options: "i" } },
-        //                 { "stops.displayName": { $regex: from, $options: "i" } }
-        //             ]
-        //         },
-        //         {
-        //             $or: [
-        //                 { "destination.displayName": { $regex: to, $options: "i" } },
-        //                 { "stops.displayName": { $regex: to, $options: "i" } }
-        //             ]
-        //         }
-        //     ];
-        // }
 
         // Always filter by seats at DB level
         dbQuery.seatsAvailable = { $gte: requestedSeats };
@@ -209,24 +280,51 @@ exports.getRides = async (req, res) => {
         //         r.destination.displayName
         //     ]);
         // });
-
         const candidates = await Ride.find(dbQuery)
-            .populate("user", "name email photo")
+            .populate("user", "firstName lastName email profilePic")
             .sort({ time: 1 }) // earliest departure first
             .lean();
+
+        console.log("SAMPLE RIDE USER:", candidates[0]?.user);
+
 
         // ── Step 2: JS-level route-order check ───────────────────────────────
         // Removes rides where from and to exist but are in wrong direction.
         // e.g. user wants Ahmedabad→Bayad but ride goes Bayad→Ahmedabad → excluded.
+        console.log("DEBUG FROM:", from);
+        console.log("DEBUG TO:", to);
+        console.log("CANDIDATES:", candidates.length);
         let rides = candidates;
 
         if (from && to) {
             rides = candidates
-                .filter((ride) => isRouteMatch(ride, from, to))
-                .map((ride) => ({
-                    ...ride,
-                    segmentPrice: getDynamicPrice(ride, from, to), // price for their segment
-                }));
+                .filter((ride) => {
+                    try {
+                        return isRouteMatch(ride, from, to);
+                    } catch (e) {
+                        console.log("isRouteMatch error:", e);
+                        return false;
+                    }
+                })
+                .map((ride) => {
+                    let price = 0;
+                    let timeData = null;
+
+                    try {
+                        price = getDynamicPrice(ride, from, to);
+                        timeData = getSegmentTime(ride, from, to); // ✅ IMPORTANT
+                    } catch (e) {
+                        console.log("error:", e);
+                        price = 0;
+                    }
+
+                    return {
+                        ...ride,
+                        segmentPrice: price,
+                        userPickupTime: timeData?.pickupTime,
+                        userDropTime: timeData?.dropTime,
+                    };
+                });
         }
 
         res.json({
