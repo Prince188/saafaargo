@@ -1,25 +1,11 @@
 import React, { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { useLocation, useNavigate } from "react-router-dom";
-import L from "leaflet";
-import "leaflet-routing-machine";
-import Routing from "../../component/Routing";
-import {
-    FiArrowLeft,
-    FiMapPin,
-    FiClock,
-} from "react-icons/fi";
+import GoogleRouteMap from "../../component/GoogleRouteMap";
+import { FiArrowLeft, FiMapPin, FiClock } from "react-icons/fi";
 import { BsFuelPump } from "react-icons/bs";
 import { FaArrowRight } from "react-icons/fa";
-
-// Fix marker icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
 
 const RoutePreviewPage = () => {
     const location = useLocation();
@@ -46,25 +32,15 @@ const RoutePreviewPage = () => {
     }
 
     const handlePublishRide = () => {
-        setTimeout(() => {
-            navigate("/offer-ride/stop-over", {
-                state: {
-                    pickup,
-                    destination,
-                    routeCoords: routeInfo?.coordinates,
-                    formData: {
-                        pickup,
-                        destination
-                    }
-                }
-            });
-        }, 1500);
+        navigate("/offer-ride/stop-over", {
+            state: {
+                pickup,
+                destination,
+                routeCoords: routeInfo?.coordinates || [],
+                formData: { pickup, destination },
+            },
+        });
     };
-
-    const pricePerKm = 6;
-    const calculatedPrice = routeInfo
-        ? `₹${Math.round(routeInfo.distance * pricePerKm)}`
-        : "Calculating...";
 
     const formatDuration = (minutes) => {
         const hrs = Math.floor(minutes / 60);
@@ -75,7 +51,7 @@ const RoutePreviewPage = () => {
 
     return (
         <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden font-inter">
-            {/* Left Panel - Route Details */}
+            {/* Left Panel */}
             <div className="w-full md:w-[45%] bg-white flex flex-col overflow-y-auto border-r border-sage-soft h-[50vh] md:h-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
@@ -86,21 +62,13 @@ const RoutePreviewPage = () => {
                         <FiArrowLeft className="text-sm md:text-base" />
                     </button>
                     <div className="flex items-center gap-1 md:gap-sm">
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">
-                            1
-                        </div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">1</div>
                         <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">
-                            2
-                        </div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">2</div>
                         <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">
-                            3
-                        </div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">3</div>
                         <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-off-white border border-sage-soft rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-stone">
-                            4
-                        </div>
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-off-white border border-sage-soft rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-stone">4</div>
                     </div>
                 </div>
 
@@ -139,25 +107,43 @@ const RoutePreviewPage = () => {
                         <div className="flex items-center gap-2 md:gap-md p-2 md:p-md bg-off-white rounded-md">
                             <FiMapPin className="text-xl md:text-2xl text-sage" />
                             <div>
-                                <span className="block text-sm md:text-base font-bold text-forest">{routeInfo ? `${routeInfo.distance} km` : "Calculating..."}</span>
+                                <span className="block text-sm md:text-base font-bold text-forest">
+                                    {routeInfo ? `${routeInfo.distance} km` : "Calculating..."}
+                                </span>
                                 <span className="block text-[9px] md:text-[10px] text-stone">Distance</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 md:gap-md p-2 md:p-md bg-off-white rounded-md">
                             <FiClock className="text-xl md:text-2xl text-sage" />
                             <div>
-                                <span className="block text-sm md:text-base font-bold text-forest">{routeInfo ? formatDuration(routeInfo.time) : "Calculating..."}</span>
+                                <span className="block text-sm md:text-base font-bold text-forest">
+                                    {routeInfo ? formatDuration(routeInfo.time) : "Calculating..."}
+                                </span>
                                 <span className="block text-[9px] md:text-[10px] text-stone">Duration</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 md:gap-md p-2 md:p-md bg-off-white rounded-md">
                             <BsFuelPump className="text-xl md:text-2xl text-sage" />
                             <div>
-                                <span className="block text-sm md:text-base font-bold text-forest">{calculatedPrice}</span>
-                                <span className="block text-[9px] md:text-[10px] text-stone">Est. Price (6/km)</span>
+                                <span className="block text-sm md:text-base font-bold text-forest">
+                                    {routeInfo?.fuelCost != null ? `₹${routeInfo.fuelCost}` : "Calculating..."}
+                                </span>
+                                <span className="block text-[9px] md:text-[10px] text-stone">
+                                    {routeInfo?.litresUsed != null ? `~${routeInfo.litresUsed}L fuel` : "Est. Fuel Cost"}
+                                </span>
                             </div>
                         </div>
                     </div>
+
+                    {/* ✅ Fuel breakdown note */}
+                    {routeInfo && (
+                        <div className="flex gap-2 p-3 bg-sage-soft rounded-md mb-4 md:mb-xl text-[10px] md:text-xs text-stone">
+                            <BsFuelPump className="text-sage flex-shrink-0 mt-0.5" />
+                            <span>
+                                Based on 15 km/L efficiency · ₹94.5/L petrol (Ahmedabad) · {routeInfo.distance} km route
+                            </span>
+                        </div>
+                    )}
 
                     {/* Add Stopovers Button */}
                     <button
@@ -173,18 +159,11 @@ const RoutePreviewPage = () => {
             {/* Right Panel - Map */}
             <div className="w-full md:w-[55%] relative bg-off-white overflow-hidden h-[50vh] md:h-auto">
                 <div className="h-full w-full relative">
-                    <MapContainer
-                        key={`${pickup.lat}-${destination.lat}`}
-                        center={[pickup.lat, pickup.lng]}
-                        zoom={10}
-                        style={{ height: "100%", width: "100%" }}
-                        className="z-0"
-                    >
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <Marker position={[pickup.lat, pickup.lng]} />
-                        <Marker position={[destination.lat, destination.lng]} />
-                        <Routing pickup={pickup} destination={destination} setRouteInfo={setRouteInfo} />
-                    </MapContainer>
+                    <GoogleRouteMap
+                        pickup={pickup}
+                        destination={destination}
+                        setRouteInfo={setRouteInfo}
+                    />
                 </div>
 
                 {/* Map Overlay Info */}

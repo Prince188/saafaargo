@@ -3,6 +3,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
 import { FaArrowRight, FaLocationArrow, FaMapPin as FaMapPinSolid } from "react-icons/fa";
 
+// ✅ Decode Google's encoded polyline into [{lat, lng}] array
+const decodePolyline = (encoded) => {
+    let index = 0, lat = 0, lng = 0;
+    const coords = [];
+    while (index < encoded.length) {
+        let b, shift = 0, result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 32);
+        lat += result & 1 ? ~(result >> 1) : result >> 1;
+        shift = 0; result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 32);
+        lng += result & 1 ? ~(result >> 1) : result >> 1;
+        coords.push({ lat: lat / 1e5, lng: lng / 1e5 });
+    }
+    return coords;
+};
+
 const StopoversPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -12,8 +28,8 @@ const StopoversPage = () => {
     const [destination, setDestination] = useState(null);
     const [formData, setFormData] = useState({});
     const [routeCoords, setRouteCoords] = useState([]);
+    const [loadingRoute, setLoadingRoute] = useState(false);
 
-    // 📍 All cities with coordinates
     const allCities = [
         { name: "Ahmedabad", lat: 23.0225, lng: 72.5714 },
         { name: "Surat", lat: 21.1702, lng: 72.8311 },
@@ -28,21 +44,81 @@ const StopoversPage = () => {
         { name: "Mehsana", lat: 23.5880, lng: 72.3693 },
     ];
 
-    // 🎯 Calculate distance
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) *
-            Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) *
-            Math.sin(dLng / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+        const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
 
-    // 🚀 REAL ROUTE BASED CITY MATCHING
+    // ✅ Fetch real route from Google Directions API
+    const fetchRoute = (from, to) => {
+        setLoadingRoute(true);
+
+        const loadDirections = () => {
+            const directionsService = new window.google.maps.DirectionsService();
+
+            directionsService.route(
+                {
+                    origin: { lat: from.lat, lng: from.lng },
+                    destination: { lat: to.lat, lng: to.lng },
+                    travelMode: window.google.maps.TravelMode.DRIVING,
+                },
+                (result, status) => {
+                    if (status === "OK" && result.routes.length > 0) {
+                        // Decode all steps' polylines into one flat array
+                        const coords = [];
+                        result.routes[0].legs.forEach(leg => {
+                            leg.steps.forEach(step => {
+                                const decoded = decodePolyline(step.polyline.points);
+                                coords.push(...decoded);
+                            });
+                        });
+                        setRouteCoords(coords);
+                    } else {
+                        console.warn("DirectionsService returned:", status);
+                        setRouteCoords([]);
+                    }
+                    setLoadingRoute(false);
+                }
+            );
+        };
+
+        // Google Maps script might not be loaded yet on this page
+        if (window.google?.maps?.DirectionsService) {
+            loadDirections();
+        } else {
+            const script = document.createElement("script");
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`;
+            script.async = true;
+            script.onload = loadDirections;
+            document.body.appendChild(script);
+        }
+    };
+
+    // 📥 Load state + fetch route
+    useEffect(() => {
+        const state = location.state || {};
+        const p = state.pickup || state.pickupLocation;
+        const d = state.destination || state.destinationLocation;
+
+        setPickup(p);
+        setDestination(d);
+        setStops(state.stops || []);
+        setFormData(state.formData || state);
+
+        // ✅ If routeCoords already passed in (from RoutePreview), use them
+        // Otherwise fetch fresh from Directions API
+        if (state.routeCoords?.length) {
+            setRouteCoords(state.routeCoords);
+        } else if (p && d) {
+            fetchRoute(p, d);
+        }
+    }, [location.state]);
+
     const getCitiesOnRoute = () => {
         if (!routeCoords.length || !pickup) return [];
 
@@ -50,10 +126,8 @@ const StopoversPage = () => {
         const routeProgress = routeCoords.map((point, i) => {
             if (i > 0) {
                 totalDistance += calculateDistance(
-                    routeCoords[i - 1].lat,
-                    routeCoords[i - 1].lng,
-                    point.lat,
-                    point.lng
+                    routeCoords[i - 1].lat, routeCoords[i - 1].lng,
+                    point.lat, point.lng
                 );
             }
             return { ...point, progress: totalDistance };
@@ -81,17 +155,6 @@ const StopoversPage = () => {
 
     const citiesBetween = getCitiesOnRoute();
 
-    // 📥 Load state
-    useEffect(() => {
-        const state = location.state || {};
-        setPickup(state.pickup || state.pickupLocation);
-        setDestination(state.destination || state.destinationLocation);
-        setStops(state.stops || []);
-        setFormData(state.formData || state);
-        setRouteCoords(state.routeCoords || []);
-    }, [location.state]);
-
-    // ➕ Add stop
     const handleAddStop = (city) => {
         if (stops.some(s => s.displayName === city.name)) return;
         const newStop = {
@@ -105,20 +168,13 @@ const StopoversPage = () => {
         setStops(prev => [...prev, newStop]);
     };
 
-    // ❌ Remove stop
     const handleRemoveStop = (index) => {
         setStops(stops.filter((_, i) => i !== index));
     };
 
-    // 👉 Continue
     const handleContinue = () => {
         navigate("/offer-ride/prices", {
-            state: {
-                pickup,
-                destination,
-                stops,
-                ...formData
-            }
+            state: { pickup, destination, stops, ...formData }
         });
     };
 
@@ -140,7 +196,6 @@ const StopoversPage = () => {
         );
     }
 
-    // Sort stops by routeIndex for timeline display
     const sortedStops = [...stops].sort((a, b) => (a.routeIndex || 0) - (b.routeIndex || 0));
 
     return (
@@ -171,9 +226,8 @@ const StopoversPage = () => {
                         Add intermediate stops along your route
                     </p>
 
-                    {/* Horizontal Timeline - Scrollable on mobile */}
+                    {/* Horizontal Timeline */}
                     <div className="flex items-center justify-start md:justify-center gap-2 md:gap-md mb-4 md:mb-3xl p-3 md:p-xl bg-off-white rounded-lg overflow-x-auto">
-                        {/* Pickup Node */}
                         <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px] relative">
                             <div className="w-9 h-9 md:w-10 md:h-10 bg-success rounded-full flex items-center justify-center shadow-md border-2 border-success mb-1 md:mb-2">
                                 <FaLocationArrow className="text-white text-sm md:text-base" />
@@ -186,7 +240,6 @@ const StopoversPage = () => {
 
                         <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>
 
-                        {/* Stops */}
                         {sortedStops.map((stop, index) => (
                             <div key={stop.id} className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px] relative">
                                 <div className="w-9 h-9 md:w-10 md:h-10 bg-sage rounded-full flex items-center justify-center shadow-md border-2 border-sage mb-1 md:mb-2 relative">
@@ -222,7 +275,6 @@ const StopoversPage = () => {
 
                         {stops.length > 0 && <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>}
 
-                        {/* Destination Node */}
                         <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px]">
                             <div className="w-9 h-9 md:w-10 md:h-10 bg-clay rounded-full flex items-center justify-center shadow-md border-2 border-clay mb-1 md:mb-2">
                                 <FaMapPinSolid className="text-white text-sm md:text-base" />
@@ -237,6 +289,17 @@ const StopoversPage = () => {
                     {/* Cities Section */}
                     <div className="mb-4 md:mb-2xl">
                         <h3 className="text-base md:text-lg font-semibold text-forest mb-0.5 md:mb-xs text-center">Cities along your route</h3>
+
+                        {/* ✅ Loading state */}
+                        {loadingRoute && (
+                            <p className="text-xs text-stone text-center py-4">Fetching cities along your route...</p>
+                        )}
+
+                        {/* ✅ No cities found */}
+                        {!loadingRoute && citiesBetween.length === 0 && (
+                            <p className="text-xs text-stone text-center py-4">No known cities found along this route.</p>
+                        )}
+
                         <div className="flex flex-wrap gap-2 md:gap-md py-2 md:py-md">
                             {citiesBetween.map((city, index) => {
                                 const isSelected = stops.some(s => s.displayName === city.name);

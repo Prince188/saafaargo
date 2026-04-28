@@ -20,12 +20,37 @@ const LocationMarker = ({ setLocation }) => {
     return null;
 };
 
+
+const MapUpdater = ({ center }) => {
+    const map = useMapEvents({});
+
+    useEffect(() => {
+        if (center) {
+            map.setView(center);
+        }
+    }, [center, map]);
+
+    return null;
+};
+
 const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
     const [position, setPosition] = useState(initialLocation ? [initialLocation.lat, initialLocation.lng] : null);
     const [query, setQuery] = useState("");
     const [results, setResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState("");
+
+    const defaultCenter = initialLocation
+        ? [initialLocation.lat, initialLocation.lng]
+        : [23.0225, 72.5714]; // fallback Ahmedabad
+
+    const [mapCenter, setMapCenter] = useState(defaultCenter);
+
+    useEffect(() => {
+        if (initialLocation) {
+            setMapCenter([initialLocation.lat, initialLocation.lng]);
+        }
+    }, [initialLocation]);
 
     // 🔍 Search using Nominatim (FREE)
     useEffect(() => {
@@ -42,6 +67,11 @@ const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
                 );
                 const data = await res.json();
                 setResults(data);
+                if (data.length > 0) {
+                    const first = data[0];
+                    setMapCenter([parseFloat(first.lat), parseFloat(first.lon)]);
+                }
+
             } catch (error) {
                 console.error("Search error:", error);
             } finally {
@@ -66,6 +96,7 @@ const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
         };
 
         setPosition([lat, lng]);
+        setMapCenter([lat, lng]); // ✅ IMPORTANT FIX
         setSelectedAddress(place.display_name.split(',')[0]);
         setQuery(place.display_name.split(',')[0]);
         setResults([]);
@@ -112,6 +143,7 @@ const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
         setPosition([lat, lng]);
         setSelectedAddress(extra.displayName);
         setQuery(extra.displayName);
+        setMapCenter([lat, lng]); // ✅ ADD
 
         onSelect(location);
     };
@@ -134,6 +166,7 @@ const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
                 setPosition([lat, lng]);
                 setSelectedAddress(extra.displayName);
                 setQuery(extra.displayName);
+                setMapCenter([lat, lng]); // ✅ ADD
 
                 onSelect(location);
             }, (error) => {
@@ -214,15 +247,20 @@ const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
             {/* Map Container */}
             <div className="map-container-fullscreen">
                 <MapContainer
-                    center={[23.0225, 72.5714]}
+                    key={mapCenter?.toString()}
+                    center={mapCenter}
                     zoom={13}
                     style={{ height: "100%", width: "100%" }}
                 >
+                    <MapUpdater center={mapCenter} />  {/* ✅ ADD THIS */}
+
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        attribution='&copy; OpenStreetMap'
                     />
+
                     <LocationMarker setLocation={handleMapClick} />
+
                     {position && <Marker position={position} />}
                 </MapContainer>
             </div>

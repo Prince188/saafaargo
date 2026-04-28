@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
-import MapPicker from '../../component/MapPicker';
+import GoogleMapPicker from '../../component/GoogleMapPicker';
 
 const PickUp = () => {
     const location = useLocation();
@@ -9,17 +9,39 @@ const PickUp = () => {
 
     const formData = location.state?.formData || {};
 
-    const handlePickupSelect = (pickupLocation) => {
+    const [selectedLocation, setSelectedLocation] = useState({
+        lat: formData?.fromCoords?.lat,
+        lng: formData?.fromCoords?.lng,
+        address: formData?.from,
+        displayName: formData?.from,
+    });
+
+    const handlePickupSelect = (locationData) => {
         navigate("/offer-ride/destination", {
             state: {
                 formData,
-                pickup: pickupLocation,
+                pickup: locationData,
             },
         });
     };
 
+    // Called only when user clicks "Confirm Location" in the map
     const handleMapSelect = (locationData) => {
-        setTimeout(() => handlePickupSelect(locationData), 300);
+        const safeLocation = {
+            lat: locationData.lat,
+            lng: locationData.lng,
+            address: locationData.address,
+            displayName: locationData.displayName,
+        };
+
+        setSelectedLocation(safeLocation);
+
+        navigate("/offer-ride/destination", {
+            state: {
+                formData,
+                pickup: safeLocation,
+            },
+        });
     };
 
     return (
@@ -35,7 +57,6 @@ const PickUp = () => {
                         <FiArrowLeft className="text-sm md:text-base" />
                     </button>
                     <div className="flex items-center gap-1 md:gap-sm">
-                        {/* Progress Step 1 - Active */}
                         <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">
                             1
                         </div>
@@ -92,13 +113,13 @@ const PickUp = () => {
                                     key={place}
                                     className="w-full flex items-center gap-3 p-2 md:p-2.5 bg-off-white border border-sage-soft rounded-md transition-all duration-base hover:bg-white hover:border-sage hover:translate-x-1"
                                     onClick={() => {
-                                        // Handle suggestion selection
                                         const mockLocation = {
                                             lat: 23.0225,
                                             lng: 72.5714,
                                             address: place,
                                             displayName: place
                                         };
+                                        setSelectedLocation(mockLocation);
                                         handlePickupSelect(mockLocation);
                                     }}
                                 >
@@ -111,9 +132,12 @@ const PickUp = () => {
                 </div>
             </div>
 
-            {/* Right Panel - Map (60% width on desktop, full width on mobile below map) */}
+            {/* Right Panel */}
             <div className="w-full md:w-[60%] relative bg-off-white h-[50vh] md:h-auto">
-                <MapPicker onSelect={handleMapSelect} />
+                <GoogleMapPicker
+                    onSelect={handleMapSelect}
+                    initialLocation={formData?.fromCoords}
+                />
             </div>
         </div>
     );

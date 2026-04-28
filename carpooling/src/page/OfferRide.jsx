@@ -13,7 +13,8 @@ import {
 } from "react-icons/fi";
 import { TfiCar } from "react-icons/tfi";
 import { FaArrowRight } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import LocationInput from "../component/LocationInput";
 
 const OfferRide = () => {
     const [formData, setFormData] = useState({
@@ -21,6 +22,8 @@ const OfferRide = () => {
         to: "Jaipur",
         passengers: "2",
     });
+
+    const navigate = useNavigate();
 
     const handleSwitch = () => {
         setFormData({ ...formData, from: formData.to, to: formData.from });
@@ -83,12 +86,16 @@ const OfferRide = () => {
                                             <FiMapPin className="text-sage text-lg" />
                                             <div className="flex-1">
                                                 <label className="block text-[10px] font-extrabold tracking-[0.08em] text-stone mb-1 uppercase">FROM</label>
-                                                <input
-                                                    type="text"
+                                                <LocationInput
                                                     value={formData.from}
-                                                    onChange={(e) => setFormData({ ...formData, from: e.target.value })}
                                                     placeholder="Leaving from"
-                                                    className="w-full bg-transparent border-none text-[15px] font-inter text-charcoal p-1 focus:outline-none"
+                                                    onChange={(data) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            from: data.address,
+                                                            fromCoords: { lat: data.lat, lng: data.lng }
+                                                        })
+                                                    }
                                                 />
                                             </div>
                                             <button
@@ -106,12 +113,16 @@ const OfferRide = () => {
                                             <FiMapPin className="text-sage text-lg" />
                                             <div className="flex-1">
                                                 <label className="block text-[10px] font-extrabold tracking-[0.08em] text-stone mb-1 uppercase">TO</label>
-                                                <input
-                                                    type="text"
+                                                <LocationInput
                                                     value={formData.to}
-                                                    onChange={(e) => setFormData({ ...formData, to: e.target.value })}
                                                     placeholder="Going to"
-                                                    className="w-full bg-transparent border-none text-[15px] font-inter text-charcoal p-1 focus:outline-none"
+                                                    onChange={(data) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            to: data.address,
+                                                            toCoords: { lat: data.lat, lng: data.lng }
+                                                        })
+                                                    }
                                                 />
                                             </div>
                                         </div>
@@ -135,14 +146,25 @@ const OfferRide = () => {
                                     </div>
                                 </div>
 
-                                <Link
-                                    to={"/offer-ride/pickup"}
-                                    state={{ formData }}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        console.log("FINAL FORM DATA:", formData);
+
+                                        if (!formData.fromCoords) {
+                                            alert("Please select a valid FROM location from suggestions");
+                                            return;
+                                        }
+
+                                        navigate("/offer-ride/pickup", {
+                                            state: { formData }
+                                        });
+                                    }}
                                     className="w-full inline-flex items-center justify-center gap-3 bg-gradient-primary text-white px-6 py-3.5 rounded-full font-bold text-sm transition-all duration-base mb-md group hover:translate-y-[-2px] hover:shadow-md hover:gap-4"
                                 >
                                     Publish a ride
                                     <FaArrowRight />
-                                </Link>
+                                </button>
                                 <div className="text-center text-[11px] font-semibold text-stone-light tracking-[0.05em]">FREE TO LIST · NO HIDDEN FEES</div>
                             </form>
 
