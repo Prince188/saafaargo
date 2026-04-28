@@ -19,6 +19,19 @@ const Search = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const extractCity = (value) => {
+        if (!value) return "";
+
+        // If already object (new Google format)
+        if (typeof value === "object" && value.city) {
+            return value.city;
+        }
+
+        // If string (fallback)
+        const parts = value.split(",").map(p => p.trim());
+        return parts.length >= 3 ? parts[parts.length - 3] : value;
+    };
+
     // ── Fetch rides from backend ──────────────────────────────────────────────
     useEffect(() => {
         // If user lands on /search directly without state, redirect home
@@ -31,7 +44,12 @@ const Search = () => {
             setLoading(true);
             setError(null);
             try {
-                const params = new URLSearchParams({ from, to, date, seats: seats ?? 1 });
+                const params = new URLSearchParams({
+                    from: extractCity(from),
+                    to: extractCity(to),
+                    date,
+                    seats: seats ?? 1
+                });
 
                 const res = await fetch(`http://localhost:5000/api/rides?${params}`);
 
@@ -85,6 +103,8 @@ const Search = () => {
         </div>
     );
 
+
+
     return (
         <div className="min-h-screen bg-off-white font-inter">
             <div className="max-w-[1280px] mx-auto px-xl py-2xl">
@@ -108,7 +128,9 @@ const Search = () => {
                     </div>
 
                     <h1 className="font-fraunces text-[clamp(32px,5vw,48px)] font-semibold text-forest mb-sm">
-                        {from} <span className="text-clay mx-2">→</span> {to}
+                        {from?.city || extractCity(from)}
+                        <span className="text-clay mx-2">→</span>
+                        {to?.city || extractCity(to)}
                     </h1>
 
                     <p className="text-sm text-stone">
@@ -147,7 +169,7 @@ const Search = () => {
                         <div className="text-5xl mb-6">🛣️</div>
                         <p className="font-fraunces text-2xl font-semibold text-forest mb-3">No rides found</p>
                         <p className="text-stone text-sm max-w-[360px] mx-auto leading-relaxed">
-                            No rides match <strong>{from} → {to}</strong> on {formattedDate} for {seats ?? 1} seat{(seats ?? 1) > 1 ? "s" : ""}.
+                            No rides match <strong>{from?.city || from} → {to?.city || to}</strong> on {formattedDate} for {seats ?? 1} seat{(seats ?? 1) > 1 ? "s" : ""}.
                             Try a different date or nearby city.
                         </p>
                         <button
@@ -178,7 +200,7 @@ const Search = () => {
                                             </span>
                                             <div className="flex items-center gap-2 text-stone">
                                                 <FiMapPin className="text-sage text-sm shrink-0" />
-                                                <span className="text-sm font-medium">{ride.pickup.displayName}</span>
+                                                <span className="text-sm font-medium">{extractCity(ride.pickup.displayName)}</span>
                                             </div>
                                         </div>
 
@@ -202,7 +224,7 @@ const Search = () => {
                                             </span>
                                             <div className="flex items-center gap-2 text-stone">
                                                 <FiMapPin className="text-clay text-sm shrink-0" />
-                                                <span className="text-sm font-medium">{ride.destination.displayName}</span>
+                                                <span className="text-sm font-medium">{extractCity(ride.destination.displayName)}</span>
                                             </div>
                                         </div>
                                     </div>

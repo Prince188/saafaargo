@@ -1,6 +1,8 @@
 // Remove this line: import './App.css';
 import "leaflet/dist/leaflet.css";
-import { BrowserRouter, Route,  Routes } from 'react-router-dom';
+import { LoadScript } from "@react-google-maps/api";
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import ScrollToTop from './component/ScrollToTop';
 
@@ -33,56 +35,62 @@ import { ManageCar } from "./page/ManageCar";
 import { ToastContainer } from "react-toastify";
 
 function App() {
+  const libraries = ["places"];
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <Routes>
+    <LoadScript
+      googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
+      libraries={libraries}
+    >
+      <BrowserRouter>
+        <ScrollToTop />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+        <Routes>
 
-        {/* ✅ WITH Navbar + Footer */}
-        <Route element={<MainLayout />}>
-          <Route path='/' element={<Home />} />
-          <Route path='/offer-ride' element={<OfferRide />} />
-          <Route path='/search' element={<Search />} />
-          <Route path='/About-us' element={<AboutUs />} />
-          <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
-          <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
-          <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-          <Route path="/profile/manage-car" element={<ManageCar />} />
-          <Route path='/vehicle/add' element={<AddVehicle />} />
-          <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
-          <Route path='/my-rides' element={<MyRide />} />
-          <Route path='*' element={<NotFound />} />
+          {/* ✅ WITH Navbar + Footer */}
+          <Route element={<MainLayout />}>
+            <Route path='/' element={<Home />} />
+            <Route path='/offer-ride' element={<OfferRide />} />
+            <Route path='/search' element={<Search />} />
+            <Route path='/About-us' element={<AboutUs />} />
+            <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
+            <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+            <Route path="/profile/manage-car" element={<ManageCar />} />
+            <Route path='/vehicle/add' element={<AddVehicle />} />
+            <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
+            <Route path='/my-rides' element={<MyRide />} />
+            <Route path='*' element={<NotFound />} />
 
-        </Route>
+          </Route>
 
-        {/* ❌ WITHOUT Navbar + Footer */}
-        <Route element={<PlainLayout />}>
-          <Route path='/offer-ride/pickup' element={<PickUp />} />
-          <Route path='/offer-ride/destination' element={<DestinationPage />} />
-          <Route path='/offer-ride/route-preview' element={<RoutePreviewPage />} />
-          <Route path='/offer-ride/stop-over' element={<StopoversPage />} />
-          <Route path='/offer-ride/prices' element={<PriceSelection />} />
-          <Route path='/offer-ride/car' element={<CarSelection />} />
-          <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
-          <Route path='/offer-ride/ride-review' element={<RideReview />} />
-        </Route>
+          {/* ❌ WITHOUT Navbar + Footer */}
+          <Route element={<PlainLayout />}>
+            <Route path='/offer-ride/pickup' element={<PickUp />} />
+            <Route path='/offer-ride/destination' element={<DestinationPage />} />
+            <Route path='/offer-ride/route-preview' element={<RoutePreviewPage />} />
+            <Route path='/offer-ride/stop-over' element={<StopoversPage />} />
+            <Route path='/offer-ride/prices' element={<PriceSelection />} />
+            <Route path='/offer-ride/car' element={<CarSelection />} />
+            <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
+            <Route path='/offer-ride/ride-review' element={<RideReview />} />
+          </Route>
 
 
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </LoadScript>
   );
 }
 

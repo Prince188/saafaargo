@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { Autocomplete } from "@react-google-maps/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -17,58 +18,20 @@ import {
     FaUserFriends,
 } from "react-icons/fa";
 
-// Tiny debounce hook so we don't hammer the geocoder
-function useDebounced(value, delay = 300) {
-    const [v, setV] = useState(value);
-    useEffect(() => {
-        const id = setTimeout(() => setV(value), delay);
-        return () => clearTimeout(id);
-    }, [value, delay]);
-    return v;
-}
 
 export default function Home() {
     // ---- SEARCH STATE ----
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
-    const [fromResults, setFromResults] = useState([]);
-    const [toResults, setToResults] = useState([]);
+    const [fromAuto, setFromAuto] = useState(null);
+    const [toAuto, setToAuto] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [guests, setGuests] = useState(1);
     const [guestsOpen, setGuestsOpen] = useState(false);
+    const [fromSuggestions, setFromSuggestions] = useState([]);
+    const [toSuggestions, setToSuggestions] = useState([]);
 
-    const dFrom = useDebounced(from);
-    const dTo = useDebounced(to);
     const navigate = useNavigate(); // add this
-
-
-    // OpenStreetMap (Nominatim) autocomplete — FROM
-    useEffect(() => {
-        if (dFrom.trim().length < 3) { setFromResults([]); return; }
-        const ctrl = new AbortController();
-        fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(dFrom)}`,
-            { signal: ctrl.signal, headers: { "Accept-Language": "en" } }
-        )
-            .then((r) => r.json())
-            .then(setFromResults)
-            .catch(() => { });
-        return () => ctrl.abort();
-    }, [dFrom]);
-
-    // Autocomplete — TO
-    useEffect(() => {
-        if (dTo.trim().length < 3) { setToResults([]); return; }
-        const ctrl = new AbortController();
-        fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(dTo)}`,
-            { signal: ctrl.signal, headers: { "Accept-Language": "en" } }
-        )
-            .then((r) => r.json())
-            .then(setToResults)
-            .catch(() => { });
-        return () => ctrl.abort();
-    }, [dTo]);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -84,8 +47,78 @@ export default function Home() {
         });
     };
 
-    const extractCity = (displayName) => displayName.split(",")[0].trim();
+    const extractCity = (place) => {
+        for (let comp of place.address_components) {
+            if (comp.types.includes("locality")) {
+                return comp.long_name;
+            }
+        }
+        return place.formatted_address;
+    };
 
+    //GOOGLE MAP API LOGIC
+
+    const onFromLoad = (autoC) => setFromAuto(autoC);
+
+    const onFromPlaceChanged = () => {
+        if (fromAuto) {
+            const place = fromAuto.getPlace();
+            if (!place || !place.address_components) return;
+            setFrom(extractCity(place));
+        }
+    };
+
+    const onToLoad = (autoC) => setToAuto(autoC);
+
+    const onToPlaceChanged = () => {
+        if (toAuto) {
+            const place = toAuto.getPlace();
+            if (!place || !place.address_components) return;
+            setTo(extractCity(place));
+        }
+    };
+
+    const handleFromInput = (value) => {
+        setFrom(value);
+
+        if (!window.google || !value) {
+            setFromSuggestions([]);
+            return;
+        }
+
+        const service = new window.google.maps.places.AutocompleteService();
+
+        service.getPlacePredictions(
+            {
+                input: value,
+                componentRestrictions: { country: "in" },
+            },
+            (predictions) => {
+                setFromSuggestions(predictions || []);
+            }
+        );
+    };
+
+    const handleToInput = (value) => {
+        setTo(value);
+
+        if (!window.google || !value) {
+            setToSuggestions([]);
+            return;
+        }
+
+        const service = new window.google.maps.places.AutocompleteService();
+
+        service.getPlacePredictions(
+            {
+                input: value,
+                componentRestrictions: { country: "in" },
+            },
+            (predictions) => {
+                setToSuggestions(predictions || []);
+            }
+        );
+    };
 
     return (
         <div className="font-inter bg-off-white text-charcoal overflow-hidden">
@@ -132,71 +165,83 @@ export default function Home() {
 
                                 {/* FROM */}
                                 <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4">
-                                    <FaMapPin className="text-sage text-lg transition-colors duration-fast shrink-0" />
+                                    <FaMapPin className="text-sage text-lg shrink-0" />
+
                                     <div className="flex-1 relative">
-                                        {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">FROM</label> */}
+
                                         <input
                                             type="text"
                                             value={from}
-                                            onChange={(e) => setFrom(e.target.value)}
+                                            onChange={(e) => handleFromInput(e.target.value)}
                                             placeholder="Pickup city"
-                                            className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none placeholder:text-stone-light z-[100]"
+                                            className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none"
                                         />
-                                        {fromResults.length > 0 && (
-                                            <div className="absolute top-[calc(100%+8px)] left-0 min-w-[280px] sm:min-w-[400px] w-max max-w-[90vw] sm:max-w-[600px] bg-white rounded-md shadow-xl border border-sage-soft z-[999] overflow-y-auto max-h-[300px] animate-slide-down">
-                                                {fromResults.map((p) => (
-                                                    <button
-                                                        type="button"
-                                                        key={p.place_id}
-                                                        className="flex items-center gap-3 w-full px-5 py-3.5 bg-white border-none text-left cursor-pointer transition-all duration-fast text-sm text-charcoal hover:bg-sage-soft border-b border-sage-soft last:border-b-0"
-                                                        onClick={() => {
-                                                            setFrom(extractCity(p.display_name));
-                                                            setFromResults([]);
-                                                        }}
 
+                                        {/* ✅ CUSTOM DROPDOWN */}
+                                        {fromSuggestions.length > 0 && (
+                                            <div className="absolute top-[calc(100%+8px)] left-0 w-80 bg-white rounded-lg shadow-xl border border-sage-soft z-[999] overflow-hidden animate-slide-down">
+
+                                                {fromSuggestions.map((item) => (
+                                                    <div
+                                                        key={item.place_id}
+                                                        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-sage-soft transition"
+                                                        onClick={() => {
+                                                            setFrom(item.description);
+                                                            setFromSuggestions([]);
+                                                        }}
                                                     >
-                                                        <FaMapPin className="text-sage text-sm shrink-0" />
-                                                        <span className="flex-1 truncate font-semibold">{extractCity(p.display_name)}</span>
-                                                    </button>
+                                                        <FaMapPin className="text-sage text-sm" />
+                                                        <span className="text-sm font-medium text-charcoal truncate">
+                                                            {item.description}
+                                                        </span>
+                                                    </div>
                                                 ))}
+
                                             </div>
                                         )}
+
                                     </div>
                                 </div>
 
                                 <div className="hidden md:block w-px h-12 bg-gradient-to-b from-transparent via-sage-soft to-transparent"></div>
 
                                 {/* TO */}
-                                <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 z-40">
-                                    <FaRoute className="text-sage text-lg transition-colors duration-fast shrink-0" />
+                                <div className="flex-1 relative flex items-center gap-3.5 px-4 py-3 rounded-md transition-colors duration-fast hover:bg-sage/4 z-50">
+                                    <FaRoute className="text-sage text-lg shrink-0" />
+
                                     <div className="flex-1 relative">
-                                        {/* <label className="block text-[10px] font-bold tracking-[0.1em] text-stone mb-1 uppercase">TO</label> */}
+
                                         <input
                                             type="text"
                                             value={to}
-                                            onChange={(e) => setTo(e.target.value)}
+                                            onChange={(e) => handleToInput(e.target.value)}
                                             placeholder="Destination"
-                                            className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none placeholder:text-stone-light"
+                                            className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none"
                                         />
-                                        {toResults.length > 0 && (
-                                            <div className="absolute top-[calc(100%+8px)] left-0 min-w-[280px] sm:min-w-[400px] w-max max-w-[90vw] sm:max-w-[600px] bg-white rounded-md shadow-xl border border-sage-soft z-[100] overflow-y-auto max-h-[300px] animate-slide-down">
-                                                {toResults.map((p) => (
-                                                    <button
-                                                        type="button"
-                                                        key={p.place_id}
-                                                        className="flex items-center gap-3 w-full px-5 py-3.5 bg-white border-none text-left cursor-pointer transition-all duration-fast text-sm text-charcoal hover:bg-sage-soft border-b border-sage-soft last:border-b-0"
-                                                        onClick={() => {
-                                                            setTo(extractCity(p.display_name));
-                                                            setToResults([]);
-                                                        }}
 
+                                        {/* ✅ CUSTOM DROPDOWN */}
+                                        {toSuggestions.length > 0 && (
+                                            <div className="absolute top-[calc(100%+8px)] left-0 w-80 bg-white rounded-lg shadow-xl border border-sage-soft z-[100] sm:z-999 overflow-hidden animate-slide-down">
+
+                                                {toSuggestions.map((item) => (
+                                                    <div
+                                                        key={item.place_id}
+                                                        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-sage-soft transition"
+                                                        onClick={() => {
+                                                            setTo(item.description);
+                                                            setToSuggestions([]);
+                                                        }}
                                                     >
-                                                        <FaRoute className="text-sage text-sm shrink-0" />
-                                                        <span className="flex-1 truncate">{p.display_name}</span>
-                                                    </button>
+                                                        <FaRoute className="text-sage text-sm" />
+                                                        <span className="text-sm font-medium text-charcoal truncate">
+                                                            {item.description}
+                                                        </span>
+                                                    </div>
                                                 ))}
+
                                             </div>
                                         )}
+
                                     </div>
                                 </div>
 
