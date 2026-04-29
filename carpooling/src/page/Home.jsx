@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -29,6 +29,8 @@ export default function Home() {
     const [guestsOpen, setGuestsOpen] = useState(false);
     const [fromSuggestions, setFromSuggestions] = useState([]);
     const [toSuggestions, setToSuggestions] = useState([]);
+    const [debouncedFrom, setDebouncedFrom] = useState("");
+    const [debouncedTo, setDebouncedTo] = useState("");
 
     const navigate = useNavigate(); // add this
 
@@ -45,6 +47,66 @@ export default function Home() {
             },
         });
     };
+
+    // FROM debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedFrom(from);
+        }, 500); // wait 500ms
+
+        return () => clearTimeout(timer);
+    }, [from]);
+
+    // TO debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedTo(to);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [to]);
+
+    useEffect(() => {
+        if (!window.google || debouncedFrom.length < 3) {
+            setFromSuggestions([]);
+            return;
+        }
+
+        const service = new window.google.maps.places.AutocompleteService();
+
+        service.getPlacePredictions(
+            {
+                input: debouncedFrom,
+                componentRestrictions: { country: "in" },
+            },
+            (predictions) => {
+                setFromSuggestions(predictions || []);
+            }
+        );
+    }, [debouncedFrom]);
+
+    const handleToInput = (value) => {
+        setTo(value);
+    };
+
+    useEffect(() => {
+        if (!window.google || debouncedTo.length < 3) {
+            setToSuggestions([]);
+            return;
+        }
+
+        const service = new window.google.maps.places.AutocompleteService();
+
+        service.getPlacePredictions(
+            {
+                input: debouncedTo,
+                componentRestrictions: { country: "in" },
+            },
+            (predictions) => {
+                setToSuggestions(predictions || []);
+            }
+        );
+    }, [debouncedTo]);
 
     // const extractCity = (place) => {
     //     for (let comp of place.address_components) {
@@ -79,45 +141,28 @@ export default function Home() {
 
     const handleFromInput = (value) => {
         setFrom(value);
-
-        if (!window.google || !value) {
-            setFromSuggestions([]);
-            return;
-        }
-
-        const service = new window.google.maps.places.AutocompleteService();
-
-        service.getPlacePredictions(
-            {
-                input: value,
-                componentRestrictions: { country: "in" },
-            },
-            (predictions) => {
-                setFromSuggestions(predictions || []);
-            }
-        );
     };
 
-    const handleToInput = (value) => {
-        setTo(value);
+    // const handleToInput = (value) => {
+    //     setTo(value);
 
-        if (!window.google || !value) {
-            setToSuggestions([]);
-            return;
-        }
+    //     if (!window.google || !value) {
+    //         setToSuggestions([]);
+    //         return;
+    //     }
 
-        const service = new window.google.maps.places.AutocompleteService();
+    //     const service = new window.google.maps.places.AutocompleteService();
 
-        service.getPlacePredictions(
-            {
-                input: value,
-                componentRestrictions: { country: "in" },
-            },
-            (predictions) => {
-                setToSuggestions(predictions || []);
-            }
-        );
-    };
+    //     service.getPlacePredictions(
+    //         {
+    //             input: value,
+    //             componentRestrictions: { country: "in" },
+    //         },
+    //         (predictions) => {
+    //             setToSuggestions(predictions || []);
+    //         }
+    //     );
+    // };
 
     return (
         <div className="font-inter bg-off-white text-charcoal overflow-hidden">

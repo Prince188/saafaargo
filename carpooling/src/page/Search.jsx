@@ -24,6 +24,7 @@ const Search = () => {
     const [rides, setRides] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [enrichedRides, setEnrichedRides] = useState([]);
 
     const extractCity = (value) => {
         if (!value) return "";
@@ -80,14 +81,25 @@ const Search = () => {
 
     useEffect(() => {
         const enrichRides = async () => {
+
             const updated = await Promise.all(
                 rides.map(async (ride) => {
 
                     const route = await getRouteInfo(
-                        { lat: ride.pickup.lat, lng: ride.pickup.lng },
-                        { lat: ride.destination.lat, lng: ride.destination.lng },
+                        { lat: ride.pickup?.lat, lng: ride.pickup?.lng },
+                        { lat: ride.destination?.lat, lng: ride.destination?.lng },
                         ride.stops || []
                     );
+
+                    // 🛑 handle API fail
+                    if (!route) {
+                        return {
+                            ...ride,
+                            calculatedPrice: 0,
+                            arrivalTime: "--",
+                            distanceKm: 0,
+                        };
+                    }
 
                     const price = calculatePrice(route.distanceKm, ride.perkmprice);
 
@@ -100,16 +112,18 @@ const Search = () => {
                     return {
                         ...ride,
                         calculatedPrice: price,
-                        arrivalTime: arrival.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        }),
+                        arrivalTime: arrival
+                            ? arrival.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })
+                            : "--",
                         distanceKm: route.distanceKm,
                     };
                 })
             );
 
-            setRides(updated);
+            setEnrichedRides(updated);
         };
 
         if (rides.length > 0) {
@@ -231,7 +245,7 @@ const Search = () => {
                 {/* ── Ride cards ────────────────────────────────────────────── */}
                 {!loading && !error && rides.length > 0 && (
                     <div className="space-y-4">
-                        {rides.map((ride) => (
+                        {enrichedRides.map((ride) => (
                             <article
                                 key={ride._id}
                                 className="group relative bg-white rounded-2xl border border-sage-15 shadow-sm hover:shadow-xl hover:border-sage/40 transition-all duration-300 overflow-hidden"

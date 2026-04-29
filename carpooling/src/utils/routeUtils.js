@@ -1,41 +1,54 @@
 // src/utils/routeUtils.js
 export { getSegmentRouteInfo } from "./segmentPricing";
-export const getRouteInfo = (fromLatLng, toLatLng, waypoints = []) => {
-    const directionsService = new window.google.maps.routes.Route.computeRoutes();
+export const getRouteInfo = async (fromLatLng, toLatLng, waypoints = []) => {
+    try {
 
-    return new Promise((resolve, reject) => {
-        directionsService.route(
-            {
-                origin: fromLatLng,
-                destination: toLatLng,
-                travelMode: window.google.maps.TravelMode.DRIVING,
-                waypoints: waypoints.map(w => ({
-                    location: { lat: w.lat, lng: w.lng },
-                    stopover: true,
-                })),
-                optimizeWaypoints: false,
+        // 🛑 Validate first (VERY IMPORTANT)
+        if (!fromLatLng?.lat || !fromLatLng?.lng) return null;
+        if (!toLatLng?.lat || !toLatLng?.lng) return null;
+
+        const response = await window.google.maps.routes.Route.computeRoutes({
+            origin: {
+                location: {
+                    latLng: {
+                        latitude: Number(fromLatLng.lat),
+                        longitude: Number(fromLatLng.lng),
+                    },
+                },
             },
-            (result, status) => {
-                if (status !== "OK") {
-                    reject(status);
-                    return;
-                }
+            destination: {
+                location: {
+                    latLng: {
+                        latitude: Number(toLatLng.lat),
+                        longitude: Number(toLatLng.lng),
+                    },
+                },
+            },
+            intermediates: waypoints.map(w => ({
+                location: {
+                    latLng: {
+                        latitude: Number(w.lat),
+                        longitude: Number(w.lng),
+                    },
+                },
+            })),
+            travelMode: "DRIVE",
+        });
 
-                let totalDistance = 0;
-                let totalDuration = 0;
+        const route = response.routes[0];
 
-                result.routes[0].legs.forEach((leg) => {
-                    totalDistance += leg.distance.value;
-                    totalDuration += leg.duration.value;
-                });
+        const distanceKm = route.distanceMeters / 1000;
+        const durationSec = route.duration;
 
-                resolve({
-                    distanceKm: Number((totalDistance / 1000).toFixed(2)),
-                    durationSec: totalDuration,
-                });
-            }
-        );
-    });
+        return {
+            distanceKm: Number(distanceKm.toFixed(2)),
+            durationSec: durationSec,
+        };
+
+    } catch (error) {
+        console.error("Route API error:", error);
+        return null; // 🛑 IMPORTANT
+    }
 };
 
 export const calculatePrice = (distanceKm, perkmprice) => {

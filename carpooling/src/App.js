@@ -35,11 +35,10 @@ import { ManageCar } from "./page/ManageCar";
 import { ToastContainer } from "react-toastify";
 
 function App() {
-  const libraries = ["places"];
   return (
     <LoadScript
       googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
-      libraries={libraries}
+      libraries={["places", "routes"]}
     >
       <BrowserRouter>
         <ScrollToTop />

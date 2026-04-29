@@ -20,7 +20,7 @@ const GoogleMapPicker = ({ onSelect, initialLocation }) => {
 
         if (!window.google) {
             const script = document.createElement("script");
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places,routes`;
             script.async = true;
             script.defer = true;
             script.onload = loadMap;
