@@ -59,7 +59,7 @@ const StopoversPage = () => {
         setLoadingRoute(true);
 
         const loadDirections = () => {
-            const directionsService = new window.google.maps.DirectionsService();
+            const directionsService = new window.google.maps.routes.Route.computeRoutes();
 
             directionsService.route(
                 {

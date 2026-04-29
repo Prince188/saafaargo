@@ -1,7 +1,7 @@
 // src/utils/routeUtils.js
 export { getSegmentRouteInfo } from "./segmentPricing";
 export const getRouteInfo = (fromLatLng, toLatLng, waypoints = []) => {
-    const directionsService = new window.google.maps.DirectionsService();
+    const directionsService = new window.google.maps.routes.Route.computeRoutes();
 
     return new Promise((resolve, reject) => {
         directionsService.route(

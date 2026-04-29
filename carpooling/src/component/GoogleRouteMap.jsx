@@ -17,22 +17,29 @@ const decodePolyline = (encoded) => {
 
 const GoogleRouteMap = ({ pickup, destination, setRouteInfo }) => {
     const mapRef = useRef(null);
+    const mapInstance = useRef(null);
+    const directionsService = useRef(null);
+    const directionsRenderer = useRef(null);
 
     useEffect(() => {
-        if (!window.google) return;
+        if (!window.google || !pickup || !destination) return;
 
-        const map = new window.google.maps.Map(mapRef.current, {
-            center: { lat: pickup.lat, lng: pickup.lng },
-            zoom: 10,
-        });
+        // ✅ Create map only once
+        if (!mapInstance.current) {
+            mapInstance.current = new window.google.maps.Map(mapRef.current, {
+                center: { lat: pickup.lat, lng: pickup.lng },
+                zoom: 10,
+            });
 
-        const directionsService = new window.google.maps.DirectionsService();
-        const directionsRenderer = new window.google.maps.DirectionsRenderer({
-            map,
-            suppressMarkers: false,
-        });
+            directionsService.current = new window.google.maps.routes.Route.computeRoutes();
 
-        directionsService.route(
+            directionsRenderer.current = new window.google.maps.DirectionsRenderer({
+                map: mapInstance.current,
+            });
+        }
+
+        // ✅ Call API only when coords change
+        directionsService.current.route(
             {
                 origin: { lat: pickup.lat, lng: pickup.lng },
                 destination: { lat: destination.lat, lng: destination.lng },
@@ -40,40 +47,31 @@ const GoogleRouteMap = ({ pickup, destination, setRouteInfo }) => {
             },
             (result, status) => {
                 if (status === "OK") {
-                    directionsRenderer.setDirections(result);
+                    directionsRenderer.current.setDirections(result);
 
                     const route = result.routes[0].legs[0];
-                    const distanceKm = parseFloat((route.distance.value / 1000).toFixed(1));
+                    const distanceKm = route.distance.value / 1000;
                     const durationMin = Math.round(route.duration.value / 60);
 
-                    // ✅ Decode all step polylines into one flat coordinate array
-                    const coordinates = [];
-                    result.routes[0].legs.forEach(leg => {
-                        leg.steps.forEach(step => {
-                            const decoded = decodePolyline(step.polyline.points);
-                            coordinates.push(...decoded);
-                        });
-                    });
+                    const fuelEfficiency = 15;
+                    const fuelPrice = 94.5;
 
-                    // ✅ Fuel cost calculation
-                    const fuelEfficiencyKmPerLitre = 15;     // avg Indian car
-                    const fuelPricePerLitre = 94.5;          // Ahmedabad petrol price (INR)
-                    const litresUsed = distanceKm / fuelEfficiencyKmPerLitre;
-                    const fuelCost = Math.round(litresUsed * fuelPricePerLitre);
+                    const litresUsed = distanceKm / fuelEfficiency;
+                    const fuelCost = Math.round(litresUsed * fuelPrice);
 
                     setRouteInfo({
-                        distance: distanceKm,
+                        distance: Number(distanceKm.toFixed(1)),
                         time: durationMin,
-                        coordinates,
                         fuelCost,
-                        litresUsed: parseFloat(litresUsed.toFixed(2)),
+                        litresUsed: Number(litresUsed.toFixed(2)),
                     });
                 }
             }
         );
-    }, [pickup, destination]);
+    }, [pickup.lat, pickup.lng, destination.lat, destination.lng]);
 
     return <div ref={mapRef} style={{ height: "100%", width: "100%" }} />;
 };
+
 
 export default GoogleRouteMap;
