@@ -19,7 +19,7 @@ const MyRide = () => {
             try {
                 const token = localStorage.getItem("token");
 
-                const res = await fetch("http://localhost:5000/api/rides/my-rides", {
+                const res = await fetch(`${process.env.REACT_APP_API_URL}/api/rides/my-rides`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -68,19 +68,19 @@ const MyRide = () => {
     // Get status badge
     const getStatusBadge = (status) => {
         if (status === 'completed') {
-            return { 
+            return {
                 containerClass: 'bg-success/10 text-success',
                 icon: <FiCheckCircle className="w-3 h-3" />,
                 text: 'Completed'
             };
         } else if (status === 'cancelled') {
-            return { 
+            return {
                 containerClass: 'bg-error/10 text-error',
                 icon: <FiAlertCircle className="w-3 h-3" />,
                 text: 'Cancelled'
             };
         } else {
-            return { 
+            return {
                 containerClass: 'bg-success/10 text-success',
                 icon: <FiInfo className="w-3 h-3" />,
                 text: 'Upcoming'
@@ -111,7 +111,7 @@ const MyRide = () => {
                         <div className="text-6xl mb-md">🚗</div>
                         <h3 className="text-[22px] font-semibold text-forest mb-sm">No rides found</h3>
                         <p className="text-sm text-stone mb-lg">You haven't created any rides yet. Start sharing your journey!</p>
-                        <button 
+                        <button
                             className="bg-gradient-primary text-white border-none px-7 py-3 rounded-full text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:shadow-md"
                             onClick={() => window.location.href = "/offer-ride"}
                         >
@@ -123,7 +123,7 @@ const MyRide = () => {
                         {rides.map((ride, index) => {
                             const statusBadge = getStatusBadge(ride.status);
                             return (
-                                <div 
+                                <div
                                     className="bg-white rounded-md p-lg shadow-sm transition-all duration-base relative border border-sage-soft hover:-translate-y-1 hover:shadow-md hover:border-sage-light animate-fade-in-up"
                                     key={ride._id || index}
                                     style={{ animationDelay: `${index * 0.05}s` }}
@@ -210,7 +210,7 @@ const MyRide = () => {
                                         <FaCar className="text-sm text-sage" />
                                         <span>{ride.car ? `${ride.car.brand} ${ride.car.model}` : "Vehicle not specified"}</span>
                                         {ride.car?.color && (
-                                            <span 
+                                            <span
                                                 className="w-3 h-3 rounded-full ml-auto"
                                                 style={{ backgroundColor: ride.car.color.toLowerCase() }}
                                             ></span>
@@ -219,14 +219,14 @@ const MyRide = () => {
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-sm">
-                                        <button 
+                                        <button
                                             className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-sage text-sage hover:bg-sage-soft hover:-translate-y-0.5"
                                             onClick={() => console.log("View ride", ride._id)}
                                         >
                                             View Details
                                         </button>
                                         {ride.status !== 'cancelled' && (
-                                            <button 
+                                            <button
                                                 className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-error text-error hover:bg-error/5 hover:-translate-y-0.5"
                                                 onClick={() => console.log("Cancel ride", ride._id)}
                                             >
