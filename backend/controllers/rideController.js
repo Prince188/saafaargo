@@ -355,15 +355,21 @@ exports.getMyRides = async (req, res) => {
 
 exports.getRideById = async (req, res) => {
     try {
-        const ride = await Ride.findById(req.params.id);
+        const ride = await Ride.findById(req.params.id)
+            .populate("user", "firstName lastName email profilePic")
+            .populate("passengers.user", "firstName lastName email");
 
         if (!ride) {
             return res.status(404).json({ error: "Ride not found" });
         }
 
-        res.json(ride);
+        res.json({
+            success: true,
+            ride
+        });
 
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Server error" });
     }
 };

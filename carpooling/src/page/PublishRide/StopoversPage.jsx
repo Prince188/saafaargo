@@ -59,7 +59,8 @@ const StopoversPage = () => {
         setLoadingRoute(true);
 
         const loadDirections = () => {
-            const directionsService = new window.google.maps.routes.Route.computeRoutes();
+            // ✅ FIXED HERE
+            const directionsService = new window.google.maps.DirectionsService();
 
             directionsService.route(
                 {
@@ -69,25 +70,26 @@ const StopoversPage = () => {
                 },
                 (result, status) => {
                     if (status === "OK" && result.routes.length > 0) {
-                        // Decode all steps' polylines into one flat array
                         const coords = [];
+
                         result.routes[0].legs.forEach(leg => {
                             leg.steps.forEach(step => {
                                 const decoded = decodePolyline(step.polyline.points);
                                 coords.push(...decoded);
                             });
                         });
+
                         setRouteCoords(coords);
                     } else {
                         console.warn("DirectionsService returned:", status);
                         setRouteCoords([]);
                     }
+
                     setLoadingRoute(false);
                 }
             );
         };
 
-        // Google Maps script might not be loaded yet on this page
         if (window.google?.maps?.DirectionsService) {
             loadDirections();
         } else {

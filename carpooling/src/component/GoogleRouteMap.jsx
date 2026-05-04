@@ -31,8 +31,8 @@ const GoogleRouteMap = ({ pickup, destination, setRouteInfo }) => {
                 zoom: 10,
             });
 
-            directionsService.current = new window.google.maps.routes.Route.computeRoutes();
-
+            directionsService.current = new window.google.maps.DirectionsService();
+            
             directionsRenderer.current = new window.google.maps.DirectionsRenderer({
                 map: mapInstance.current,
             });
