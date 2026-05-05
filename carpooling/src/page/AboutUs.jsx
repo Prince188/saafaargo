@@ -12,7 +12,7 @@ const AboutUs = () => {
                 <div className="absolute w-[300px] h-[300px] rounded-full bg-sage-light blur-[80px] opacity-40 -top-[100px] -right-[100px] animate-float -z-10"></div>
                 <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse -z-10"></div>
                 
-                <div className="container mx-auto max-w-[1280px] px-xl lg:px-xl py-4xl">
+                <div className="container mx-auto max-w-[1280px] px-lg lg:px-lg py-sm">
                     <div className="relative z-20 max-w-[900px] mx-auto text-center pt-4xl pb-4xl">
                         <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-md px-5 py-2 rounded-full mb-xl border border-forest/10 shadow-sm animate-fade-in-up">
                             <span className="w-2 h-2 bg-forest rounded-full animate-pulse"></span>
@@ -35,15 +35,15 @@ const AboutUs = () => {
                                 Start a journey
                                 <FaArrowRight />
                             </Link>
-                            <Link to="#mission-grid" className="inline-flex items-center bg-transparent text-forest px-8 py-[14px] rounded-full font-bold text-sm border-2 border-sage transition-all duration-300 hover:bg-sage hover:text-white hover:translate-y-[-2px]">
+                            {/* <Link to="#mission-grid" className="inline-flex items-center bg-transparent text-forest px-8 py-[14px] rounded-full font-bold text-sm border-2 border-sage transition-all duration-300 hover:bg-sage hover:text-white hover:translate-y-[-2px]">
                                 Read our story
-                            </Link>
+                            </Link> */}
                         </div>
                         
-                        <div className="flex items-center justify-center gap-3 text-[11px] font-semibold tracking-[0.1em] text-stone uppercase animate-fade-in-up-delay">
+                        {/* <div className="flex items-center justify-center gap-3 text-[11px] font-semibold tracking-[0.1em] text-stone uppercase animate-fade-in-up-delay">
                             <FaHeart className="text-clay text-sm animate-heartbeat" />
                             <span>TRUSTED BY 12,400+ TRAVELLERS THIS MONTH</span>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </section>

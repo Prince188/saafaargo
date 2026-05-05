@@ -280,10 +280,10 @@ export default function Home() {
                                 </button>
                             </form>
 
-                            <div className="flex items-center justify-center gap-3 mt-6 text-[11px] font-semibold tracking-[0.1em] text-stone uppercase">
+                            {/* <div className="flex items-center justify-center gap-3 mt-6 text-[11px] font-semibold tracking-[0.1em] text-stone uppercase">
                                 <FaHeart className="text-clay text-sm animate-heartbeat" />
                                 <span>TRUSTED BY 12,400+ TRAVELLERS THIS MONTH</span>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
