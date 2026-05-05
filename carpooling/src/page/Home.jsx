@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -31,6 +31,8 @@ export default function Home() {
     const [toSuggestions, setToSuggestions] = useState([]);
     const [debouncedFrom, setDebouncedFrom] = useState("");
     const [debouncedTo, setDebouncedTo] = useState("");
+    const fromRef = useRef(null);
+    const toRef = useRef(null);
 
     const navigate = useNavigate(); // add this
 
@@ -47,66 +49,6 @@ export default function Home() {
             },
         });
     };
-
-    // FROM debounce
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedFrom(from);
-        }, 500); // wait 500ms
-
-        return () => clearTimeout(timer);
-    }, [from]);
-
-    // TO debounce
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedTo(to);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [to]);
-
-    useEffect(() => {
-        if (!window.google || debouncedFrom.length < 3) {
-            setFromSuggestions([]);
-            return;
-        }
-
-        const service = new window.google.maps.places.AutocompleteService();
-
-        service.getPlacePredictions(
-            {
-                input: debouncedFrom,
-                componentRestrictions: { country: "in" },
-            },
-            (predictions) => {
-                setFromSuggestions(predictions || []);
-            }
-        );
-    }, [debouncedFrom]);
-
-    const handleToInput = (value) => {
-        setTo(value);
-    };
-
-    useEffect(() => {
-        if (!window.google || debouncedTo.length < 3) {
-            setToSuggestions([]);
-            return;
-        }
-
-        const service = new window.google.maps.places.AutocompleteService();
-
-        service.getPlacePredictions(
-            {
-                input: debouncedTo,
-                componentRestrictions: { country: "in" },
-            },
-            (predictions) => {
-                setToSuggestions(predictions || []);
-            }
-        );
-    }, [debouncedTo]);
 
     // const extractCity = (place) => {
     //     for (let comp of place.address_components) {
@@ -139,10 +81,6 @@ export default function Home() {
     //     }
     // };
 
-    const handleFromInput = (value) => {
-        setFrom(value);
-    };
-
     // const handleToInput = (value) => {
     //     setTo(value);
 
@@ -163,6 +101,32 @@ export default function Home() {
     //         }
     //     );
     // };
+
+    useEffect(() => {
+        if (!window.google) return;
+
+        const fromAutocomplete = new window.google.maps.places.Autocomplete(fromRef.current, {
+            componentRestrictions: { country: "in" },
+        });
+
+        const toAutocomplete = new window.google.maps.places.Autocomplete(toRef.current, {
+            componentRestrictions: { country: "in" },
+        });
+
+        fromAutocomplete.addListener("place_changed", () => {
+            const place = fromAutocomplete.getPlace();
+            if (place && place.formatted_address) {
+                setFrom(place.formatted_address);
+            }
+        });
+
+        toAutocomplete.addListener("place_changed", () => {
+            const place = toAutocomplete.getPlace();
+            if (place && place.formatted_address) {
+                setTo(place.formatted_address);
+            }
+        });
+    }, []);
 
     return (
         <div className="font-inter bg-off-white text-charcoal overflow-hidden">
@@ -214,36 +178,13 @@ export default function Home() {
                                     <div className="flex-1 relative">
 
                                         <input
+                                            ref={fromRef}
                                             type="text"
                                             value={from}
-                                            onChange={(e) => handleFromInput(e.target.value)}
+                                            onChange={(e) => setFrom(e.target.value)}
                                             placeholder="Pickup city"
                                             className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none"
                                         />
-
-                                        {/* ✅ CUSTOM DROPDOWN */}
-                                        {fromSuggestions.length > 0 && (
-                                            <div className="absolute top-[calc(100%+8px)] left-0 w-80 bg-white rounded-lg shadow-xl border border-sage-soft z-[999] overflow-hidden animate-slide-down">
-
-                                                {fromSuggestions.map((item) => (
-                                                    <div
-                                                        key={item.place_id}
-                                                        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-sage-soft transition"
-                                                        onClick={() => {
-                                                            setFrom(item.description);
-                                                            setFromSuggestions([]);
-                                                        }}
-                                                    >
-                                                        <FaMapPin className="text-sage text-sm" />
-                                                        <span className="text-sm font-medium text-charcoal truncate">
-                                                            {item.description}
-                                                        </span>
-                                                    </div>
-                                                ))}
-
-                                            </div>
-                                        )}
-
                                     </div>
                                 </div>
 
@@ -256,35 +197,13 @@ export default function Home() {
                                     <div className="flex-1 relative">
 
                                         <input
+                                            ref={toRef}
                                             type="text"
                                             value={to}
-                                            onChange={(e) => handleToInput(e.target.value)}
+                                            onChange={(e) => setTo(e.target.value)}
                                             placeholder="Destination"
                                             className="w-full bg-transparent border-none text-sm font-medium text-charcoal p-1 focus:outline-none"
                                         />
-
-                                        {/* ✅ CUSTOM DROPDOWN */}
-                                        {toSuggestions.length > 0 && (
-                                            <div className="absolute top-[calc(100%+8px)] left-0 w-80 bg-white rounded-lg shadow-xl border border-sage-soft z-[100] sm:z-999 overflow-hidden animate-slide-down">
-
-                                                {toSuggestions.map((item) => (
-                                                    <div
-                                                        key={item.place_id}
-                                                        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-sage-soft transition"
-                                                        onClick={() => {
-                                                            setTo(item.description);
-                                                            setToSuggestions([]);
-                                                        }}
-                                                    >
-                                                        <FaRoute className="text-sage text-sm" />
-                                                        <span className="text-sm font-medium text-charcoal truncate">
-                                                            {item.description}
-                                                        </span>
-                                                    </div>
-                                                ))}
-
-                                            </div>
-                                        )}
 
                                     </div>
                                 </div>
