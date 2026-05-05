@@ -28,6 +28,7 @@ const RideDetail = () => {
 
     // Fetch user data
     useEffect(() => {
+        console.log("TOKEN:", token);
         const fetchUser = async () => {
             try {
                 const res = await API.get("/users/profile", {

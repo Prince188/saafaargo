@@ -1,4 +1,6 @@
+const Booking = require("../models/Booking");
 const Ride = require("../models/Ride");
+const User = require("../models/User");
 
 exports.createRide = async (req, res) => {
     try {
@@ -371,5 +373,107 @@ exports.getRideById = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });
+    }
+};
+
+
+
+exports.bookRide = async (req, res) => {
+    try {
+        const { seats } = req.body;
+        const rideId = req.params.id;
+        const userId = req.user.id;
+
+        // ✅ convert seats to number
+        const seatsCount = Number(seats);
+
+        if (!seatsCount || seatsCount <= 0) {
+            return res.status(400).json({ message: "Invalid seats count" });
+        }
+
+        // 🔍 Find ride
+        const ride = await Ride.findById(rideId).populate("user");
+
+        if (!ride) {
+            return res.status(404).json({ message: "Ride not found" });
+        }
+
+        // ❌ driver cannot book own ride
+        if (ride.user._id.toString() === userId) {
+            return res.status(400).json({ message: "You cannot book your own ride" });
+        }
+
+        // ❌ seat check
+        if (ride.seatsAvailable < seatsCount) {
+            return res.status(400).json({ message: "Not enough seats available" });
+        }
+
+        // ❌ duplicate booking check
+        const alreadyBooked = await Booking.findOne({
+            ride: rideId,
+            user: userId,
+            status: "confirmed"
+        });
+
+        if (alreadyBooked) {
+            return res.status(400).json({ message: "You already booked this ride" });
+        }
+
+        // 👤 fetch user safely (IMPORTANT FIX)
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // 💰 calculate amount
+        const amount = ride.perkmprice * seatsCount;
+
+        // 🧾 create booking
+        const booking = await Booking.create({
+            ride: rideId,
+            user: userId,
+            name: user.firstName + " " + user.lastName,
+            phone: user.mobile,
+            email: user.email,
+            seatsBooked: seatsCount,
+            amountPaid: amount,
+            from: ride.pickup,
+            to: ride.destination
+        });
+
+        // 🚗 ensure passengers array exists
+        if (!ride.passengers) {
+            ride.passengers = [];
+        }
+
+        // ➕ push passenger
+        ride.passengers.push({
+            user: userId,
+            name: booking.name,
+            phone: booking.phone,
+            email: booking.email,
+            from: booking.from,
+            to: booking.to,
+            amountPaid: amount,
+            seatsBooked: seatsCount
+        });
+
+        // 🔻 reduce seats
+        ride.seatsAvailable -= seatsCount;
+
+        await ride.save();
+
+        return res.status(201).json({
+            message: "Ride booked successfully",
+            booking
+        });
+
+    } catch (err) {
+        console.error("BOOK RIDE ERROR:", err);
+
+        return res.status(500).json({
+            message: err.message || "Server error"
+        });
     }
 };
