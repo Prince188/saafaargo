@@ -78,8 +78,8 @@ function App() {
             <Route path="/terms" element={<TermsOfService />} />
 
             {/* ADMIN SIDE ROUTES */}
-            {/* <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} /> */}
-            <Route path="/admin/dashboard" element={<Dashboard /> } />
+            <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+            {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 
             <Route path='*' element={<NotFound />} />
 

@@ -59,6 +59,8 @@ const RegisterPage = () => {
 
             const res = await API.post("/auth/register", data);
             console.log(res);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            localStorage.setItem("token", data.token);
             alert("Registered successfully");
             navigate("/");
         } catch (err) {
@@ -244,8 +246,8 @@ const RegisterPage = () => {
                                     className="hidden"
                                 />
                                 <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-base mt-0.5 ${agreeTerms
-                                        ? 'bg-gradient-primary border-sage'
-                                        : 'bg-white border-sage-soft hover:border-sage'
+                                    ? 'bg-gradient-primary border-sage'
+                                    : 'bg-white border-sage-soft hover:border-sage'
                                     }`}>
                                     {agreeTerms && (
                                         <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
