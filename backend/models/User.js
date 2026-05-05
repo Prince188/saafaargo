@@ -22,9 +22,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    bio:{
+    bio: {
         type: String,
         default: ""
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
     },
     profilePic: {
         type: String,   // store image URL or file path

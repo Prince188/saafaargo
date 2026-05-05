@@ -58,6 +58,8 @@ app.use('/api/vehicles', vehicleRoutes)
 
 app.use("/api/rides", rideRoutes);
 
+app.use("/api/visitor", require("./routes/visitorRoutes"));
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

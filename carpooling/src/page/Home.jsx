@@ -50,57 +50,6 @@ export default function Home() {
         });
     };
 
-    // const extractCity = (place) => {
-    //     for (let comp of place.address_components) {
-    //         if (comp.types.includes("locality")) {
-    //             return comp.long_name;
-    //         }
-    //     }
-    //     return place.formatted_address;
-    // };
-
-    //GOOGLE MAP API LOGIC
-
-    // const onFromLoad = (autoC) => setFromAuto(autoC);
-
-    // const onFromPlaceChanged = () => {
-    //     if (fromAuto) {
-    //         const place = fromAuto.getPlace();
-    //         if (!place || !place.address_components) return;
-    //         setFrom(extractCity(place));
-    //     }
-    // };
-
-    // const onToLoad = (autoC) => setToAuto(autoC);
-
-    // const onToPlaceChanged = () => {
-    //     if (toAuto) {
-    //         const place = toAuto.getPlace();
-    //         if (!place || !place.address_components) return;
-    //         setTo(extractCity(place));
-    //     }
-    // };
-
-    // const handleToInput = (value) => {
-    //     setTo(value);
-
-    //     if (!window.google || !value) {
-    //         setToSuggestions([]);
-    //         return;
-    //     }
-
-    //     const service = new window.google.maps.places.AutocompleteService();
-
-    //     service.getPlacePredictions(
-    //         {
-    //             input: value,
-    //             componentRestrictions: { country: "in" },
-    //         },
-    //         (predictions) => {
-    //             setToSuggestions(predictions || []);
-    //         }
-    //     );
-    // };
 
     useEffect(() => {
         if (!window.google) return;
@@ -125,6 +74,14 @@ export default function Home() {
             if (place && place.formatted_address) {
                 setTo(place.formatted_address);
             }
+        });
+    }, []);
+
+
+    //Count the visitor
+    useEffect(() => {
+        fetch(`${process.env.REACT_APP_API_URL}/api/visitor/track-visitor`, {
+            method: "POST"
         });
     }, []);
 

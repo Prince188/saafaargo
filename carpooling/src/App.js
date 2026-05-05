@@ -35,6 +35,8 @@ import { ManageCar } from "./page/ManageCar";
 import { ToastContainer } from "react-toastify";
 import RideDeatil from "./page/RideDeatil";
 import TermsOfService from "./page/Website Content/TermsOfService";
+import Dashboard from "./page/Admin/Dashboard";
+import AdminRoute from "./component/AdminRoute";
 
 function App() {
   return (
@@ -74,6 +76,11 @@ function App() {
             <Route path='/my-rides' element={<MyRide />} />
             <Route path="/rides/:id" element={<RideDeatil />} />
             <Route path="/terms" element={<TermsOfService />} />
+
+            {/* ADMIN SIDE ROUTES */}
+            {/* <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} /> */}
+            <Route path="/admin/dashboard" element={<Dashboard /> } />
+
             <Route path='*' element={<NotFound />} />
 
           </Route>
