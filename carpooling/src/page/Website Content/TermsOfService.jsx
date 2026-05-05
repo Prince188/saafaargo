@@ -58,10 +58,10 @@ const TermsOfService = () => {
                         <p className="text-lg text-stone max-w-2xl mx-auto">
                             Please read these terms carefully before using SafarGo's services
                         </p>
-                        <div className="flex items-center justify-center gap-2 mt-4 text-sm text-stone-light">
+                        {/* <div className="flex items-center justify-center gap-2 mt-4 text-sm text-stone-light">
                             <FaCalendarAlt className="text-xs" />
                             <span>Last Updated: January 1, 2024</span>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
