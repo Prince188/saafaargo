@@ -20,7 +20,7 @@ const Footer = () => {
             {/* Animated background elements */}
             <div className="absolute -top-[100px] -right-[100px] w-[300px] h-[300px] rounded-full bg-sage/10 blur-[80px] pointer-events-none"></div>
             <div className="absolute -bottom-[100px] -left-[100px] w-[250px] h-[250px] rounded-full bg-clay/20 blur-[80px] pointer-events-none"></div>
-            
+
             <div className="max-w-[1280px] mx-auto py-3xl px-xl relative z-10">
                 {/* Top Section with Newsletter */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3xl mb-3xl">
@@ -49,9 +49,9 @@ const Footer = () => {
                         <h4 className="font-fraunces text-xl font-semibold mb-sm">Stay in the loop</h4>
                         <p className="text-sm text-white/70 mb-lg">Get the latest updates on new routes and features</p>
                         <div className="flex flex-col sm:flex-row gap-sm">
-                            <input 
-                                type="email" 
-                                placeholder="Your email address" 
+                            <input
+                                type="email"
+                                placeholder="Your email address"
                                 className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-full text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-sage focus:bg-white/15 transition-all duration-base"
                             />
                             <button className="inline-flex items-center justify-center gap-sm px-6 py-3 bg-gradient-sage border-none rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-md hover:shadow-md whitespace-nowrap">
@@ -165,7 +165,12 @@ const Footer = () => {
                         <FaHeadset className="text-2xl text-clay" />
                         <div>
                             <span className="block text-[11px] font-bold tracking-[0.1em] text-white/50 uppercase">24/7 Support</span>
-                            <span className="block text-sm font-semibold text-white">help@safargo.com</span>
+                            <a
+                                href="mailto:safargo858@gmail.com?subject=Support Request&body=Hi SafarGo Team,"
+                                className="block text-sm font-semibold text-white hover:underline"
+                            >
+                                help@safargo.com
+                            </a>
                         </div>
                     </div>
 
