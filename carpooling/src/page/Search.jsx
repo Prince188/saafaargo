@@ -392,7 +392,7 @@ const Search = () => {
                                                 </span>
                                             </div>
                                         </div>
-
+ 
                                         <button
                                             onClick={() =>
                                                 navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })

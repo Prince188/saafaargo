@@ -34,6 +34,7 @@ import MyRide from './page/User/MyRide';
 import { ManageCar } from "./page/ManageCar";
 import { ToastContainer } from "react-toastify";
 import RideDeatil from "./page/RideDeatil";
+import TermsOfService from "./page/Website Content/TermsOfService";
 
 function App() {
   return (
@@ -71,7 +72,8 @@ function App() {
             <Route path='/vehicle/add' element={<AddVehicle />} />
             <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
             <Route path='/my-rides' element={<MyRide />} />
-            <Route path="/rides/:id" element={<RideDeatil/>}/>
+            <Route path="/rides/:id" element={<RideDeatil />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route path='*' element={<NotFound />} />
 
           </Route>

@@ -376,11 +376,9 @@ exports.getRideById = async (req, res) => {
     }
 };
 
-
-
 exports.bookRide = async (req, res) => {
     try {
-        const { seats } = req.body;
+        const { seats, segmentPrice, from, to } = req.body;   // from/to = passenger segment   // ← accept segmentPrice from frontend
         const rideId = req.params.id;
         const userId = req.user.id;
 
@@ -419,7 +417,7 @@ exports.bookRide = async (req, res) => {
             return res.status(400).json({ message: "You already booked this ride" });
         }
 
-        // 👤 fetch user safely (IMPORTANT FIX)
+        // 👤 fetch user safely
         const user = await User.findById(userId);
 
         if (!user) {
@@ -427,7 +425,13 @@ exports.bookRide = async (req, res) => {
         }
 
         // 💰 calculate amount
-        const amount = ride.perkmprice * seatsCount;
+        // Use segmentPrice (per-seat price for this user's from→to segment) if
+        // provided by the frontend; fall back to perkmprice only as a last resort.
+        const pricePerSeat = segmentPrice && Number(segmentPrice) > 0
+            ? Number(segmentPrice)
+            : ride.perkmprice;
+
+        const amount = pricePerSeat * seatsCount;
 
         // 🧾 create booking
         const booking = await Booking.create({
@@ -438,8 +442,8 @@ exports.bookRide = async (req, res) => {
             email: user.email,
             seatsBooked: seatsCount,
             amountPaid: amount,
-            from: ride.pickup,
-            to: ride.destination
+            from: from || ride.pickup,
+            to: to || ride.destination
         });
 
         // 🚗 ensure passengers array exists
