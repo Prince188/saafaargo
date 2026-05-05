@@ -121,7 +121,7 @@ const AboutUs = () => {
                                 Share the cost of every kilometre. Travel becomes accessible —
                                 no premium tags, no hidden fees.
                             </p>
-                            <div className="flex gap-xl pt-md border-t border-black/5">
+                            {/* <div className="flex gap-xl pt-md border-t border-black/5">
                                 <div className="flex-1">
                                     <span className="block font-fraunces text-[28px] font-bold text-clay mb-1">€0.06</span>
                                     <span className="text-[10px] font-extrabold tracking-[0.08em] text-stone uppercase">avg / km</span>
@@ -130,7 +130,7 @@ const AboutUs = () => {
                                     <span className="block font-fraunces text-[28px] font-bold text-forest mb-1">−68%</span>
                                     <span className="text-[10px] font-extrabold tracking-[0.08em] text-stone uppercase">vs. solo trip</span>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* Greener Card */}
@@ -147,7 +147,7 @@ const AboutUs = () => {
                                 Fewer cars, lower emissions. Every shared ride is one small
                                 promise back to the planet.
                             </p>
-                            <div className="flex gap-xl pt-md border-t border-white/10">
+                            {/* <div className="flex gap-xl pt-md border-t border-white/10">
                                 <div className="flex-1">
                                     <span className="block font-fraunces text-[28px] font-bold text-sage-light mb-1">2.1M</span>
                                     <span className="text-[10px] font-extrabold tracking-[0.08em] text-sage-light uppercase">kg CO₂ saved</span>
@@ -156,7 +156,7 @@ const AboutUs = () => {
                                     <span className="block font-fraunces text-[28px] font-bold text-sage-light mb-1">98%</span>
                                     <span className="text-[10px] font-extrabold tracking-[0.08em] text-sage-light uppercase">reliability</span>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* Social Card */}
@@ -173,7 +173,7 @@ const AboutUs = () => {
                                 Turn a quiet drive into a real conversation. Meet curious
                                 travellers worth the detour.
                             </p>
-                            <div className="flex gap-xl pt-md border-t border-black/5">
+                            {/* <div className="flex gap-xl pt-md border-t border-black/5">
                                 <div className="flex-1">
                                     <span className="block font-fraunces text-[28px] font-bold text-forest mb-1">12k+</span>
                                     <span className="text-[10px] font-extrabold tracking-[0.08em] text-stone uppercase">monthly riders</span>
@@ -182,7 +182,7 @@ const AboutUs = () => {
                                     <span className="block font-fraunces text-[28px] font-bold text-forest mb-1">4.9★</span>
                                     <span className="text-[10px] font-extrabold tracking-[0.08em] text-stone uppercase">avg. rating</span>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
