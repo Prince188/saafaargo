@@ -16,15 +16,24 @@ import {
 const Navbar = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [user, setUser] = useState(null);
+
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
 
-    const user = localStorage.getItem("token");
+    // ✅ Load user from localStorage
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        setUser(storedUser);
+    }, []);
+
+    const isAdmin = user?.role === "admin";
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        setUser(null); // ✅ instant UI update
         navigate("/login");
         setShowDropdown(false);
     };
@@ -52,10 +61,10 @@ const Navbar = () => {
     const isActive = (path) => location.pathname === path;
 
     return (
-        <header className={`sticky top-0 left-0 right-0 z-[1000] bg-white/98 backdrop-blur-md transition-all duration-base border-b border-transparent ${
-            scrolled ? 'bg-white/98 shadow-md border-b-sage-soft' : ''
-        }`}>
+        <header className={`sticky top-0 left-0 right-0 z-[1000] bg-white/98 backdrop-blur-md transition-all duration-base border-b border-transparent ${scrolled ? 'bg-white/98 shadow-md border-b-sage-soft' : ''
+            }`}>
             <div className="max-w-[1280px] mx-auto px-md lg:px-xl py-sm lg:py-md flex items-center justify-between">
+
                 {/* LOGO */}
                 <div className="flex-shrink-0">
                     <Link to="/" className="flex items-center gap-sm no-underline transition-transform duration-fast hover:scale-102" aria-label="Safar home">
@@ -71,21 +80,20 @@ const Navbar = () => {
 
                 {/* NAV LINKS - Desktop */}
                 <nav className="hidden lg:flex items-center gap-lg">
-                    <Link to="/" className={`flex items-center gap-sm text-sm font-medium text-stone no-underline transition-all duration-base py-xs relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-base hover:after:scale-x-100 hover:text-forest ${
-                        isActive("/") ? 'text-forest font-semibold after:scale-x-100' : ''
-                    }`}>
+                    <Link to="/" className={`flex items-center gap-sm text-sm font-medium text-stone no-underline transition-all duration-base py-xs relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-base hover:after:scale-x-100 hover:text-forest ${isActive("/") ? 'text-forest font-semibold after:scale-x-100' : ''
+                        }`}>
                         <FaHome />
                         <span>Home</span>
                     </Link>
-                    <Link to="/offer-ride" className={`flex items-center gap-sm text-sm font-medium text-stone no-underline transition-all duration-base bg-gradient-primary text-white !px-5 py-2 rounded-full hover:translate-y-[-2px] hover:shadow-md ${
-                        isActive("/offer-ride") ? 'active' : ''
-                    }`}>
+
+                    <Link to="/offer-ride" className={`flex items-center gap-sm text-sm font-medium text-stone no-underline transition-all duration-base bg-gradient-primary text-white !px-5 py-2 rounded-full hover:translate-y-[-2px] hover:shadow-md ${isActive("/offer-ride") ? 'active' : ''
+                        }`}>
                         <FaPlus />
                         <span>Offer Ride</span>
                     </Link>
-                    <Link to="/about-us" className={`flex items-center gap-sm text-sm font-medium text-stone no-underline transition-all duration-base py-xs relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-base hover:after:scale-x-100 hover:text-forest ${
-                        isActive("/about-us") ? 'text-forest font-semibold after:scale-x-100' : ''
-                    }`}>
+
+                    <Link to="/about-us" className={`flex items-center gap-sm text-sm font-medium text-stone no-underline transition-all duration-base py-xs relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-base hover:after:scale-x-100 hover:text-forest ${isActive("/about-us") ? 'text-forest font-semibold after:scale-x-100' : ''
+                        }`}>
                         <FaCompass />
                         <span>About</span>
                     </Link>
@@ -93,6 +101,7 @@ const Navbar = () => {
 
                 {/* RIGHT SECTION */}
                 <div className="flex items-center gap-md">
+
                     {/* ADD RIDE BUTTON - Mobile */}
                     <Link to="/offer-ride" className="lg:hidden w-9 h-9 lg:w-10 lg:h-10 bg-gradient-primary rounded-full flex items-center justify-center text-white no-underline transition-all duration-base hover:translate-y-[-2px] hover:shadow-md">
                         <FaPlus />
@@ -102,9 +111,8 @@ const Navbar = () => {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             type="button"
-                            className={`w-9 h-9 lg:w-10 lg:h-10 bg-off-white border border-sage-soft rounded-full flex items-center justify-center cursor-pointer transition-all duration-base relative hover:bg-sage-soft hover:border-sage hover:translate-y-[-2px] ${
-                                showDropdown ? 'bg-sage-soft border-sage' : ''
-                            }`}
+                            className={`w-9 h-9 lg:w-10 lg:h-10 bg-off-white border border-sage-soft rounded-full flex items-center justify-center cursor-pointer transition-all duration-base relative hover:bg-sage-soft hover:border-sage hover:translate-y-[-2px] ${showDropdown ? 'bg-sage-soft border-sage' : ''
+                                }`}
                             onClick={() => setShowDropdown(!showDropdown)}
                             aria-haspopup="menu"
                             aria-expanded={showDropdown}
@@ -116,6 +124,7 @@ const Navbar = () => {
 
                         {showDropdown && (
                             <div className="absolute top-[calc(100%+12px)] right-0 w-[280px] lg:w-[280px] bg-white rounded-md shadow-xl border border-sage-soft overflow-hidden animate-slide-down z-[1000]">
+
                                 <div className="p-lg bg-off-white flex items-center gap-md">
                                     <div className="w-12 h-12 bg-sage-soft rounded-full flex items-center justify-center text-sage text-2xl">
                                         <FaUserCircle />
@@ -139,14 +148,29 @@ const Navbar = () => {
                                                 <FaUserCircle className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
                                                 <span>My Profile</span>
                                             </Link>
+
                                             <Link to="/my-rides" className="flex items-center gap-md px-lg py-3 text-sm text-charcoal no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white hover:text-forest group" onClick={() => setShowDropdown(false)}>
                                                 <FaCar className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
                                                 <span>My Rides</span>
                                             </Link>
+
                                             <Link to="/favorites" className="flex items-center gap-md px-lg py-3 text-sm text-charcoal no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white hover:text-forest group" onClick={() => setShowDropdown(false)}>
                                                 <FaHeart className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
                                                 <span>Favorites</span>
                                             </Link>
+
+                                            {/* ✅ ADMIN DASHBOARD (same UI style) */}
+                                            {isAdmin && (
+                                                <Link
+                                                    to="/admin/dashboard"
+                                                    className="flex items-center gap-md px-lg py-3 text-sm text-charcoal no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white hover:text-forest group"
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    <FaUser className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
+                                                    <span>Admin Dashboard</span>
+                                                </Link>
+                                            )}
+
                                             <button
                                                 type="button"
                                                 className="flex items-center gap-md px-lg py-3 text-sm text-error no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-error/5 group"
@@ -162,6 +186,7 @@ const Navbar = () => {
                                                 <FaSignInAlt className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
                                                 <span>Login</span>
                                             </Link>
+
                                             <Link to="/register" className="flex items-center gap-md px-lg py-3 text-sm text-sage font-semibold no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white group" onClick={() => setShowDropdown(false)}>
                                                 <FaUserPlus className="text-lg text-sage transition-all duration-base" />
                                                 <span>Create Account</span>
