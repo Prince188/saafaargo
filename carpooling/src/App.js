@@ -38,7 +38,7 @@ import TermsOfService from "./page/Website Content/TermsOfService";
 import Dashboard from "./page/Admin/Dashboard";
 import AdminRoute from "./component/AdminRoute";
 import VerifyOtpPage from "./page/VerifyOtpPage";
-import PribacyPolicy from "./page/Website Content/PribacyPolicy";
+import PribacyPolicy from "./page/Website Content/PrivacyPolicy";
 
 function App() {
   return (
