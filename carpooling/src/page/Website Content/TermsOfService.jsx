@@ -107,7 +107,7 @@ const TermsOfService = () => {
 
                     {/* Main Content */}
                     <div className="lg:col-span-4">
-                        <div className="bg-white rounded-xl shadow-sm border border-sage-15 overflow-hidden">
+                        <div className="bg-white rounded-md shadow-sm border border-sage-15 overflow-hidden transition-all">
                             {/* Section 1: General Condition of Use */}
                             <div id="section-1" className="border-b border-sage-15 last:border-b-0">
                                 <button
