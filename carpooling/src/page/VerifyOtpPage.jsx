@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FaShieldAlt } from "react-icons/fa";
 import { IoArrowForwardOutline } from "react-icons/io5";
 import API from "../api/api";
+import { showError, showSuccess } from "../utils/toastConfig";
 
 const VerifyOtpPage = () => {
     const [otp, setOtp] = useState("");
@@ -38,11 +39,13 @@ const VerifyOtpPage = () => {
             localStorage.setItem("user", JSON.stringify(res.data.user));
             localStorage.setItem("token", res.data.token);
 
-            alert("Registration successful");
+            window.dispatchEvent(new Event("authChange"));
+
+            showSuccess("Registration successful");
             navigate("/");
 
         } catch (err) {
-            alert(err.response?.data?.message || "Verification failed");
+            showError(err.response?.data?.message || "Verification failed");
         } finally {
             setLoading(false);
         }

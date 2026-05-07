@@ -23,17 +23,24 @@ const Navbar = () => {
     const dropdownRef = useRef(null);
 
     // ✅ Load user from localStorage
-    useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem("user") || 'null');
+    const loadUser = () => {
+        const storedUser = JSON.parse(localStorage.getItem("user") || "null");
         setUser(storedUser);
-    }, []);
+    };
+
+    useEffect(() => {
+        loadUser();
+        window.addEventListener("authChange", loadUser);
+        return () => window.removeEventListener("authChange", loadUser);
+    }, [location]);
 
     const isAdmin = user?.role === "admin";
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        setUser(null); // ✅ instant UI update
+        setUser(null);
+        window.dispatchEvent(new Event("authChange")); // ✅ notify navbar
         navigate("/login");
         setShowDropdown(false);
     };
@@ -159,7 +166,6 @@ const Navbar = () => {
                                                 <span>Favorites</span>
                                             </Link>
 
-                                            {/* ✅ ADMIN DASHBOARD (same UI style) */}
                                             {isAdmin && (
                                                 <Link
                                                     to="/admin/dashboard"

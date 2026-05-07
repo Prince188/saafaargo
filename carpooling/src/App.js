@@ -38,6 +38,7 @@ import TermsOfService from "./page/Website Content/TermsOfService";
 import Dashboard from "./page/Admin/Dashboard";
 import AdminRoute from "./component/AdminRoute";
 import VerifyOtpPage from "./page/VerifyOtpPage";
+import PribacyPolicy from "./page/Website Content/PribacyPolicy";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
             <Route path='/my-rides' element={<MyRide />} />
             <Route path="/rides/:id" element={<RideDeatil />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PribacyPolicy />} />
 
             {/* ADMIN SIDE ROUTES */}
             <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
