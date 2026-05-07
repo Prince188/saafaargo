@@ -15,6 +15,7 @@ const RegisterPage = () => {
     const [fileName, setFileName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [otpLoading, setOtpLoading] = useState(false);
 
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -43,30 +44,32 @@ const RegisterPage = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!agreeTerms) {
-            alert("Please agree to the Terms & Conditions");
-            return;
+    const handleSendOtp = async () => {
+        if (!formData.email) {
+            return alert("Please enter email");
         }
-        setIsLoading(true);
-        try {
-            const data = new FormData();
-            Object.keys(formData).forEach(key => {
-                data.append(key, formData[key]);
-            });
-            if (file) data.append("profilePic", file);
+        if (!agreeTerms) {
+            return alert("Please agree to the Terms & Conditions");
+        }
 
-            const res = await API.post("/auth/register", data);
-            console.log(res);
-            localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("token", data.token);
-            alert("Registered successfully");
-            navigate("/");
+        try {
+            setOtpLoading(true);
+
+            const res = await API.post("/auth/send-otp", {
+                email: formData.email
+            });
+
+            alert(res.data.message);
+
+            // ✅ Navigate to OTP page passing formData and file
+            navigate("/verify-otp", {
+                state: { formData, file }
+            });
+
         } catch (err) {
-            alert(err.response?.data?.message || "Error");
+            alert(err.response?.data?.message || "Failed to send OTP");
         } finally {
-            setIsLoading(false);
+            setOtpLoading(false);
         }
     };
 
@@ -102,25 +105,23 @@ const RegisterPage = () => {
                         </p>
                     </div>
 
-                    <form className="mb-xl" onSubmit={handleSubmit}>
-                        {/* Name Row - First & Last Name */}
+                    <form className="mb-xl" onSubmit={(e) => e.preventDefault()}>
+                        {/* Name Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mb-lg">
                             <div>
                                 <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
                                     <FaUser className="text-sage text-xs" />
                                     <span>FIRST NAME</span>
                                 </label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        name="firstName"
-                                        placeholder="Jane"
-                                        value={formData.firstName}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
-                                    />
-                                </div>
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    placeholder="Jane"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                />
                             </div>
 
                             <div>
@@ -128,17 +129,15 @@ const RegisterPage = () => {
                                     <FaUser className="text-sage text-xs" />
                                     <span>LAST NAME</span>
                                 </label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        name="lastName"
-                                        placeholder="Doe"
-                                        value={formData.lastName}
-                                        onChange={handleChange}
-                                        required
-                                        className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
-                                    />
-                                </div>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    placeholder="Doe"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                />
                             </div>
                         </div>
 
@@ -148,36 +147,32 @@ const RegisterPage = () => {
                                 <FaEnvelope className="text-sage text-xs" />
                                 <span>EMAIL ADDRESS</span>
                             </label>
-                            <div className="relative">
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="jane@example.com"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
-                                />
-                            </div>
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="jane@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                            />
                         </div>
 
-                        {/* Mobile Number */}
+                        {/* Mobile */}
                         <div className="mb-lg">
                             <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
                                 <FaPhone className="text-sage text-xs" />
                                 <span>MOBILE NUMBER</span>
                             </label>
-                            <div className="relative">
-                                <input
-                                    type="tel"
-                                    name="mobile"
-                                    placeholder="+91 98765 43210"
-                                    value={formData.mobile}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
-                                />
-                            </div>
+                            <input
+                                type="tel"
+                                name="mobile"
+                                placeholder="+91 98765 43210"
+                                value={formData.mobile}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                            />
                         </div>
 
                         {/* Password */}
@@ -209,7 +204,7 @@ const RegisterPage = () => {
                             <p className="text-[11px] text-stone-light mt-2">Must be at least 8 characters</p>
                         </div>
 
-                        {/* Profile Picture Upload */}
+                        {/* Profile Picture */}
                         <div className="mb-lg">
                             <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm cursor-pointer">
                                 <IoCameraOutline className="text-sage text-sm" />
@@ -236,7 +231,7 @@ const RegisterPage = () => {
                             </div>
                         </div>
 
-                        {/* Terms & Conditions Checkbox */}
+                        {/* Terms */}
                         <div className="mb-lg">
                             <label className="flex items-start gap-3 cursor-pointer">
                                 <input
@@ -262,18 +257,18 @@ const RegisterPage = () => {
                             </label>
                         </div>
 
-                        {/* Register Button */}
+                        {/* Send OTP Button */}
                         <button
-                            type="submit"
-                            className="w-full inline-flex items-center justify-center gap-3 bg-gradient-primary text-white px-8 py-[14px] rounded-full font-bold text-sm cursor-pointer transition-all duration-base relative overflow-hidden mt-md group disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gradient-to-r disabled:from-[#4a7c59] disabled:to-[#2d5a42] disabled:bg-[length:200%_100%] disabled:animate-[shimmer_2s_infinite]"
-                            disabled={isLoading}
+                            type="button"
+                            onClick={handleSendOtp}
+                            className="w-full inline-flex items-center justify-center gap-3 bg-gradient-primary text-white px-8 py-[14px] rounded-full font-bold text-sm cursor-pointer transition-all duration-base relative overflow-hidden mt-md group disabled:opacity-70"
+                            disabled={otpLoading}
                         >
-                            <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-500 group-hover:left-full"></span>
-                            {isLoading ? (
-                                <>Creating account...</>
+                            {otpLoading ? (
+                                "Sending OTP..."
                             ) : (
                                 <>
-                                    Create Account
+                                    Send OTP
                                     <IoArrowForwardOutline />
                                 </>
                             )}

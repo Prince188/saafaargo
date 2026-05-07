@@ -3,7 +3,7 @@
 import { Navigate } from "react-router-dom";
 
 const AdminRoute = ({ children }) => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user") || 'null');
 
     // ❌ Not logged in
     if (!user) {

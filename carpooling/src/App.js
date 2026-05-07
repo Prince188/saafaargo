@@ -37,6 +37,7 @@ import RideDeatil from "./page/RideDeatil";
 import TermsOfService from "./page/Website Content/TermsOfService";
 import Dashboard from "./page/Admin/Dashboard";
 import AdminRoute from "./component/AdminRoute";
+import VerifyOtpPage from "./page/VerifyOtpPage";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
             <Route path='/About-us' element={<AboutUs />} />
             <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="/verify-otp" element={<VerifyOtpPage />} />
             <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
             <Route path="/profile/manage-car" element={<ManageCar />} />

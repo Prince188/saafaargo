@@ -24,7 +24,7 @@ const Navbar = () => {
 
     // ✅ Load user from localStorage
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const storedUser = JSON.parse(localStorage.getItem("user") || 'null');
         setUser(storedUser);
     }, []);
 

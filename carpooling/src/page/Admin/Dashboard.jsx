@@ -84,14 +84,14 @@ const Dashboard = () => {
             else if (dateRange === "month") setMonthlyStats(formatted);
             else setStats(formatted);
 
-            const usersRes = await API.get("/admin/users/stats");
-            setUserStats(usersRes.data);
+            // const usersRes = await API.get("/admin/users/stats");
+            // setUserStats(usersRes.data);
 
-            const ridesRes = await API.get("/admin/rides/stats");
-            setRideStats(ridesRes.data);
+            // const ridesRes = await API.get("/admin/rides/stats");
+            // setRideStats(ridesRes.data);
 
-            const feedbackRes = await API.get("/admin/feedback/stats");
-            setFeedback(feedbackRes.data);
+            // const feedbackRes = await API.get("/admin/feedback/stats");
+            // setFeedback(feedbackRes.data);
 
             showSuccess("Dashboard data loaded");
         } catch (err) {
