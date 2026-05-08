@@ -109,7 +109,7 @@ const RoutePreviewPage = () => {
                     </div>
 
                     {/* Journey Stats */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-md mb-4 md:mb-xl">
+                    <div className="grid grid-cols-1 grid-cols-3 gap-3 md:gap-md mb-4 md:mb-xl">
                         <div className="flex items-center gap-2 md:gap-md p-2 md:p-md bg-off-white rounded-md">
                             <FiMapPin className="text-xl md:text-2xl text-sage" />
                             <div>

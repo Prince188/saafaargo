@@ -215,22 +215,22 @@ const PriceSelection = () => {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="flex justify-around gap-2 md:gap-md px-4 md:px-xl pb-4 md:pb-xl flex-col sm:flex-row">
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
+                {/* <div className="flex justify-around gap-2 md:gap-md px-4 md:px-xl pb-4 md:pb-xl flex-col sm:flex-row"> */}
+                    {/* <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
                         <FaRoad className="text-sage text-base md:text-lg" />
                         <div className="flex flex-col">
                             <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Total Distance</span>
                             <strong className="text-xs md:text-sm font-bold text-forest">{totalDistanceDisplay} km</strong>
                         </div>
-                    </div>
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
+                    </div> */}
+                    {/* <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
                         <FaRupeeSign className="text-sage text-base md:text-lg" />
                         <div className="flex flex-col">
-                            {/* ✅ per seat = total / seats */}
+                            ✅ per seat = total / seats
                             <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Per Seat (full trip)</span>
                             <strong className="text-xs md:text-sm font-bold text-forest">₹{totalPricePerSeat}</strong>
                         </div>
-                    </div>
+                    </div> */}
                     {/* <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
                         <FiUsers className="text-sage text-base md:text-lg" />
                         <div className="flex flex-col">
@@ -239,14 +239,14 @@ const PriceSelection = () => {
                             <strong className="text-xs md:text-sm font-bold text-forest">₹{totalPriceAllSeats}</strong>
                         </div>
                     </div> */}
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
+                    {/* <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
                         <FaCar className="text-sage text-base md:text-lg" />
                         <div className="flex flex-col">
                             <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Rate/km</span>
                             <strong className={`text-xs md:text-sm font-bold ${isAboveAvg ? 'text-red-500' : 'text-forest'}`}>₹{ratePerKm}</strong>
                         </div>
-                    </div>
-                </div>
+                    </div> */}
+                {/* </div> */}
 
                 {/* Segment Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-md px-4 md:px-xl mb-4 md:mb-lg">
@@ -270,16 +270,16 @@ const PriceSelection = () => {
                             </div>
 
                             {/* ✅ Calculation breakdown */}
-                            <div className="flex items-center justify-center gap-1 bg-sage-soft rounded-md p-1.5 mb-2">
+                            {/* <div className="flex items-center justify-center gap-1 bg-sage-soft rounded-md p-1.5 mb-2">
                                 <FiUsers className="text-sage text-[10px]" />
                                 <span className="text-[10px] md:text-xs font-semibold text-forest">
                                     ₹{stop.totalRoutePrice} ÷ {seats} seat{seats > 1 ? 's' : ''}
                                 </span>
-                            </div>
+                            </div> */}
 
                             <div className="flex items-center justify-center gap-1 text-[9px] md:text-[10px] text-stone-light">
                                 <FiInfo className="text-[9px] md:text-[10px]" />
-                                <span>₹{Math.round((stop.distanceKm * 6) / seats)} recommended/seat</span>
+                                <span>₹{Math.round((stop.distanceKm * 6) / seats)} recommended / seat</span>
                             </div>
                         </div>
                     ))}

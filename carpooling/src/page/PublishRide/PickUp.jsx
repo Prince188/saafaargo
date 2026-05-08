@@ -46,8 +46,8 @@ const PickUp = () => {
 
     return (
         <div className="flex flex-col md:flex-row h-screen overflow-hidden">
-            {/* Left Panel - Full width on mobile, 40% on desktop */}
-            <div className="w-full md:w-[40%] bg-white flex flex-col overflow-y-auto border-r border-sage-soft h-[50vh] md:h-auto">
+            {/* Left Panel - Full width on mobile, 35% on desktop */}
+            <div className="w-full md:w-[35%] bg-white flex flex-col overflow-y-auto border-r border-sage-soft md:h-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
                     <button
@@ -71,9 +71,9 @@ const PickUp = () => {
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="px-4 md:px-xl py-4 md:py-xl flex-1">
-                    <h1 className="font-fraunces text-xl md:text-2xl font-semibold leading-[1.3] text-forest mb-2 md:mb-sm">
+                {/* Content - Desktop View (hidden on mobile) */}
+                <div className="hidden md:block px-6 py-6 flex-1">
+                    <h1 className="font-fraunces text-2xl font-semibold leading-[1.3] text-forest mb-2">
                         Where would you like to
                         <span
                             className="inline"
@@ -87,57 +87,44 @@ const PickUp = () => {
                             &nbsp;pick up passengers?
                         </span>
                     </h1>
-                    <p className="text-xs md:text-[13px] text-stone mb-4 md:mb-xl">
+                    <p className="text-[13px] text-stone mb-6">
                         Choose a precise location to help passengers find you easily
                     </p>
 
                     {/* Info Note */}
-                    <div className="flex gap-3 md:gap-md p-3 md:p-md bg-sage-soft rounded-md mb-4 md:mb-xl">
-                        <FiMapPin className="text-sage text-base md:text-lg flex-shrink-0 mt-0.5" />
+                    <div className="flex gap-3 p-4 bg-sage-soft rounded-lg mb-6">
+                        <FiMapPin className="text-sage text-lg flex-shrink-0 mt-0.5" />
                         <div>
-                            <strong className="block text-[11px] md:text-xs text-forest mb-0.5 md:mb-xs">Why an exact location?</strong>
-                            <p className="text-[10px] md:text-[11px] text-stone leading-relaxed">
+                            <strong className="block text-xs text-forest mb-1">Why an exact location?</strong>
+                            <p className="text-[11px] text-stone leading-relaxed">
                                 Precise pickup points help drivers and passengers connect faster.
                             </p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Quick Suggestions */}
-                    <div className="mt-4 md:mt-6">
-                        <h3 className="text-[10px] md:text-[11px] font-bold tracking-[0.1em] text-stone uppercase mb-2 md:mb-3">
-                            SUGGESTIONS
-                        </h3>
-                        <div className="space-y-2">
-                            {['Ahmedabad Junction', 'Gandhinagar Central', 'Vadodara City Center'].map((place) => (
-                                <button
-                                    key={place}
-                                    className="w-full flex items-center gap-3 p-2 md:p-2.5 bg-off-white border border-sage-soft rounded-md transition-all duration-base hover:bg-white hover:border-sage hover:translate-x-1"
-                                    onClick={() => {
-                                        const mockLocation = {
-                                            lat: 23.0225,
-                                            lng: 72.5714,
-                                            address: place,
-                                            displayName: place
-                                        };
-                                        setSelectedLocation(mockLocation);
-                                        handlePickupSelect(mockLocation);
-                                    }}
-                                >
-                                    <FiMapPin className="text-clay text-sm flex-shrink-0" />
-                                    <span className="text-xs md:text-sm text-charcoal">{place}</span>
-                                </button>
-                            ))}
-                        </div>
+                {/* Mobile View - Simplified Content */}
+                <div className="md:hidden px-4 py-6 flex-1 flex flex-col justify-center items-center text-center">
+                    <div className="w-16 h-16 bg-sage-10 rounded-full flex items-center justify-center mb-4">
+                        <FiMapPin className="text-sage text-2xl" />
                     </div>
+                    <h1 className="font-fraunces text-xl font-semibold text-forest mb-2">
+                        Where are you picking up?
+                    </h1>
+                    <p className="text-xs text-stone">
+                        Choose a pickup location for your passengers
+                    </p>
                 </div>
             </div>
 
-            {/* Right Panel */}
-            <div className="w-full md:w-[60%] relative bg-off-white h-[50vh] md:h-auto">
-                <GoogleMapPicker
-                    onSelect={handleMapSelect}
-                    initialLocation={formData?.fromCoords}
-                />
+            {/* Right Panel - Map with increased height */}
+            <div className="w-full md:w-[65%] relative bg-off-white h-[60vh] md:h-auto md:flex-1">
+                <div className="absolute inset-0">
+                    <GoogleMapPicker
+                        onSelect={handleMapSelect}
+                        initialLocation={formData?.fromCoords}
+                    />
+                </div>
             </div>
         </div>
     );
