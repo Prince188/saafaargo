@@ -23,7 +23,7 @@ const Footer = () => {
 
             <div className="max-w-[1280px] mx-auto py-3xl px-xl relative z-10">
                 {/* Top Section with Newsletter */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3xl mb-3xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3xl mb-xl">
                     {/* Brand Section */}
                     <div className="animate-fade-in-up">
                         <div className="flex items-center gap-md mb-lg">
@@ -38,10 +38,10 @@ const Footer = () => {
                         <p className="text-lg leading-tight mb-lg text-white/90">
                             Don't travel alone. Ride smarter.
                         </p>
-                        <div className="flex items-center gap-sm text-[13px] text-white/70">
+                        {/* <div className="flex items-center gap-sm text-[13px] text-white/70">
                             <FaShieldAlt className="text-clay text-sm" />
                             <span>Trusted by 12,400+ travellers</span>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* Newsletter Section */}

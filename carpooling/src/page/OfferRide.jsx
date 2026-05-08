@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import { TfiCar } from "react-icons/tfi";
 import { FaArrowRight } from "react-icons/fa";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LocationInput from "../component/LocationInput";
 
 const OfferRide = () => {
@@ -31,7 +31,29 @@ const OfferRide = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         console.log("Publishing ride:", formData);
+
+        // Validation
+        if (
+            !formData.from ||
+            !formData.to ||
+            !formData.passengers ||
+            !formData.fromCoords ||
+            !formData.toCoords
+        ) {
+            alert("Please fill all fields and select valid locations");
+            return;
+        }
+
+        if (Number(formData.passengers) <= 0) {
+            alert("Passengers must be at least 1");
+            return;
+        }
+
+        navigate("/offer-ride/pickup", {
+            state: { formData }
+        });
     };
 
     return (
@@ -147,19 +169,7 @@ const OfferRide = () => {
                                 </div>
 
                                 <button
-                                    type="button"
-                                    onClick={() => {
-                                        console.log("FINAL FORM DATA:", formData);
-
-                                        if (!formData.fromCoords) {
-                                            alert("Please select a valid FROM location from suggestions");
-                                            return;
-                                        }
-
-                                        navigate("/offer-ride/pickup", {
-                                            state: { formData }
-                                        });
-                                    }}
+                                    type="submit"
                                     className="w-full inline-flex items-center justify-center gap-3 bg-gradient-primary text-white px-6 py-3.5 rounded-full font-bold text-sm transition-all duration-base mb-md group hover:translate-y-[-2px] hover:shadow-md hover:gap-4"
                                 >
                                     Publish a ride
