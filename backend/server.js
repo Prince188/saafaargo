@@ -16,18 +16,18 @@ require('dotenv').config();
 
 const app = express();
 
-// app.use(cors({
-//     origin: [
-//         "http://localhost:5000",              // local frontend
-//         "https://saafaargo.vercel.app"    // deployed frontend
-//     ],
-//     credentials: true
-// }));
+app.use(cors({
+    origin: [
+        // "http://localhost:5000",              // local frontend
+        "https://saafaargo.vercel.app"    // deployed frontend
+    ],
+    credentials: true
+}));
 
-const allowedOrigins = [
-    // "http://localhost:3000",
-    "https://saafaargo.vercel.app"
-];
+// const allowedOrigins = [
+//     // "http://localhost:3000",
+//     "https://saafaargo.vercel.app"
+// ];
 
 app.use(cors({
     origin: function (origin, callback) {
