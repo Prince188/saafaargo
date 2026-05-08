@@ -231,14 +231,14 @@ const PriceSelection = () => {
                             <strong className="text-xs md:text-sm font-bold text-forest">₹{totalPricePerSeat}</strong>
                         </div>
                     </div>
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
+                    {/* <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
                         <FiUsers className="text-sage text-base md:text-lg" />
                         <div className="flex flex-col">
                             <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Driver earns</span>
-                            {/* ✅ driver earns = rate × distance (all seats fill) */}
+                            ✅ driver earns = rate × distance (all seats fill)
                             <strong className="text-xs md:text-sm font-bold text-forest">₹{totalPriceAllSeats}</strong>
                         </div>
-                    </div>
+                    </div> */}
                     <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
                         <FaCar className="text-sage text-base md:text-lg" />
                         <div className="flex flex-col">

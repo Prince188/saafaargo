@@ -132,7 +132,7 @@ const RoutePreviewPage = () => {
                             <BsFuelPump className="text-xl md:text-2xl text-sage" />
                             <div>
                                 <span className="block text-sm md:text-base font-bold text-forest">
-                                    {routeInfo?.fuelCost != null ? `₹${routeInfo.fuelCost}` : "Calculating..."}
+                                    {routeInfo?.fuelCost != null ? `₹${routeInfo.fuelCost}` : "Calculating..."} <span className="text-xs text-stone">(approx.)</span>
                                 </span>
                                 <span className="block text-[9px] md:text-[10px] text-stone">
                                     {routeInfo?.litresUsed != null ? `~${routeInfo.litresUsed}L fuel` : "Est. Fuel Cost"}
