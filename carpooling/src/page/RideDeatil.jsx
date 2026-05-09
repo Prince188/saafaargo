@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import {
     FaUser,
@@ -9,10 +9,35 @@ import {
     FaUsers,
     FaArrowRight,
     FaUserPlus,
+    FaMobile,
 } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import API from "../api/api";
 import { showSuccess, showError, showInfo } from "../utils/toastConfig";
+import { BsFillTelephoneFill } from "react-icons/bs";
+
+// ── Haversine distance (km) ───────────────────────────────────────────────────
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    return Number((R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(2));
+};
+
+// ── Extract plain city name from object or "City, State, Country" string ──────
+const extractCity = (value) => {
+    if (!value) return "";
+    if (typeof value === "object" && value.city) return value.city;
+    const parts = value.split(",").map((p) => p.trim());
+    return parts.length >= 3 ? parts[parts.length - 3] : value;
+};
 
 const RideDetail = () => {
     const { id } = useParams();
@@ -24,30 +49,42 @@ const RideDetail = () => {
         from,
         to,
         seats: requestedSeats,
-        ride: rideFromSearch,   // enriched ride object from Search page
+        ride: rideFromSearch,
     } = location.state || {};
-
-    // Debug — remove once price is confirmed correct
-    console.log("[RideDetail] rideFromSearch:", rideFromSearch);
-    console.log("[RideDetail] segmentPrice:", rideFromSearch?.segmentPrice);
 
     const [ride, setRide] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedSeats, setSelectedSeats] = useState(requestedSeats ?? 1);
     const [booking, setBooking] = useState(false);
     const [user, setUser] = useState(null);
-    const token = localStorage.getItem("token");
 
-    // Extract plain city name from object or "City, State, Country" string
-    const extractCity = (value) => {
-        if (!value) return "";
-        if (typeof value === "object" && value.city) return value.city;
-        const parts = value.split(",").map((p) => p.trim());
-        return parts.length >= 3 ? parts[parts.length - 3] : value;
-    };
+    // ── Price state — single source of truth ──────────────────────────────────
+    // From Search page (passenger): segmentPrice from location.state
+    // From My Rides page (driver):  full ride distance × perkmprice (computed after fetch)
+    // null = still loading, renders "—" to avoid flash of ₹0
+    const [pricePerSeat, setPricePerSeat] = useState(
+        rideFromSearch?.segmentPrice ?? null
+    );
+
+    // Track whether user arrived from Search (has segment context) or My Rides
+    const hasSegmentContext = rideFromSearch?.segmentPrice != null;
+
+    const token = localStorage.getItem("token");
 
     const fromCity = from?.city || extractCity(from);
     const toCity = to?.city || extractCity(to);
+
+    // ── Compute local price from ride data ────────────────────────────────────
+    // Called once ride is loaded and segmentPrice was NOT passed via state.
+    const computeLocalPrice = useCallback((rideData) => {
+        const dist = calculateDistance(
+            Number(rideData.pickup?.lat),
+            Number(rideData.pickup?.lng),
+            Number(rideData.destination?.lat),
+            Number(rideData.destination?.lng)
+        );
+        return Math.round(dist * Number(rideData.perkmprice || 0));
+    }, []);
 
     // ── Fetch logged-in user ──────────────────────────────────────────────────
     useEffect(() => {
@@ -70,7 +107,14 @@ const RideDetail = () => {
         const fetchRide = async () => {
             try {
                 const res = await API.get(`/rides/${id}`);
-                setRide(res.data.ride);
+                const rideData = res.data.ride;
+                setRide(rideData);
+
+                // Passenger from Search → segmentPrice already set from state, skip
+                // Driver from My Rides → no state, compute full ride price
+                if (!hasSegmentContext) {
+                    setPricePerSeat(computeLocalPrice(rideData));
+                }
             } catch (err) {
                 console.log(err);
                 showError("Failed to load ride details");
@@ -79,8 +123,9 @@ const RideDetail = () => {
             }
         };
         fetchRide();
-    }, [id]);
+    }, [id, hasSegmentContext, computeLocalPrice]);
 
+    // ── Booking ───────────────────────────────────────────────────────────────
     const handleBooking = async () => {
         if (!token) {
             showInfo("Please login to book a ride");
@@ -89,7 +134,6 @@ const RideDetail = () => {
         }
         setBooking(true);
         try {
-            // Build from/to in the same shape as ride.pickup / ride.destination
             const passengerFrom = {
                 displayName: from?.displayName || from?.city || fromCity,
                 lat: from?.lat ?? ride?.pickup?.lat,
@@ -105,7 +149,7 @@ const RideDetail = () => {
                 `/rides/${id}/book`,
                 {
                     seats: selectedSeats,
-                    segmentPrice: rideFromSearch?.segmentPrice ?? ride?.segmentPrice ?? 0,
+                    segmentPrice: pricePerSeat,
                     from: passengerFrom,
                     to: passengerTo,
                 },
@@ -149,21 +193,23 @@ const RideDetail = () => {
         );
     }
 
+    // ── Derived values ────────────────────────────────────────────────────────
     const isDriver = user?._id === ride.user?._id;
     const isFullyBooked = ride.seatsAvailable === 0;
     const hasPassengers = ride.passengers?.length > 0;
 
-    // ── Price ─────────────────────────────────────────────────────────────────
-    // segmentPrice = backend-computed per-seat price for the user's from→to
-    // segment. It lives on the enriched ride passed via location.state.
-    const pricePerSeat = rideFromSearch?.segmentPrice ?? ride?.segmentPrice ?? 0;
-    const totalPrice = pricePerSeat * selectedSeats;
+    const totalEarning = ride.passengers?.reduce(
+        (total, passenger) => total + (passenger.amountPaid || 0),
+        0
+    );
+
+    const totalPrice = (pricePerSeat ?? 0) * selectedSeats;
 
     // ── Route stops (conditional) ─────────────────────────────────────────────
     const rideFromCity = extractCity(ride.pickup?.displayName || "");
     const rideTocity = extractCity(ride.destination?.displayName || "");
-    const showRideFrom = rideFromCity.toLowerCase() !== fromCity.toLowerCase();
-    const showRideTo = rideTocity.toLowerCase() !== toCity.toLowerCase();
+    const showRideFrom = fromCity && rideFromCity.toLowerCase() !== fromCity.toLowerCase();
+    const showRideTo = toCity && rideTocity.toLowerCase() !== toCity.toLowerCase();
 
     const routeStops = [
         showRideFrom && {
@@ -177,8 +223,8 @@ const RideDetail = () => {
         },
         {
             key: "my-pickup",
-            label: "Your pickup",
-            name: fromCity,
+            label: fromCity ? "Your pickup" : "From",
+            name: fromCity || ride.pickup?.displayName,
             time: ride.time,
             dot: "bg-sage ring-4 ring-sage/20",
             nameClass: "text-lg text-forest",
@@ -186,8 +232,8 @@ const RideDetail = () => {
         },
         {
             key: "my-drop",
-            label: "Your drop",
-            name: toCity,
+            label: toCity ? "Your drop" : "To",
+            name: toCity || ride.destination?.displayName,
             time: ride.arrivalTime || null,
             dot: "bg-clay ring-4 ring-clay/20",
             nameClass: "text-lg text-forest",
@@ -204,6 +250,7 @@ const RideDetail = () => {
         },
     ].filter(Boolean);
 
+    // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-off-white font-inter">
             <div className="max-w-[1280px] mx-auto px-4 py-6">
@@ -313,6 +360,11 @@ const RideDetail = () => {
                                             </div>
                                             <div>
                                                 <p className="font-medium text-forest">{passenger.name}</p>
+                                                {isDriver && passenger.phone ? (
+                                                    <p className="text-xs text-sage font-medium flex gap-2">
+                                                        <BsFillTelephoneFill /> {passenger.phone}
+                                                    </p>
+                                                ) : null}
                                                 <p className="text-sm text-stone">
                                                     {passenger.from?.displayName || ride.pickup?.displayName}
                                                     {" → "}
@@ -354,9 +406,13 @@ const RideDetail = () => {
                                     {/* Route summary */}
                                     <div className="mb-4 pb-4 border-b border-sage-15">
                                         <div className="flex justify-between items-center gap-2 mb-1">
-                                            <span className="text-stone text-sm font-medium truncate">{fromCity}</span>
+                                            <span className="text-stone text-sm font-medium truncate">
+                                                {fromCity || ride.pickup?.displayName}
+                                            </span>
                                             <FaArrowRight className="text-clay text-xs shrink-0" />
-                                            <span className="text-stone text-sm font-medium truncate text-right">{toCity}</span>
+                                            <span className="text-stone text-sm font-medium truncate text-right">
+                                                {toCity || ride.destination?.displayName}
+                                            </span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-stone-light">
                                             <FaClock />
@@ -400,12 +456,14 @@ const RideDetail = () => {
                                         <div className="flex justify-between items-baseline">
                                             <span className="text-stone">Total Price</span>
                                             <span className="text-2xl font-bold text-forest">
-                                                ₹{totalPrice}
+                                                {pricePerSeat != null ? `₹${totalPrice}` : "—"}
                                             </span>
                                         </div>
-                                        <p className="text-xs text-stone-light mt-1">
-                                            ₹{pricePerSeat} per seat × {selectedSeats} seat{selectedSeats > 1 ? "s" : ""}
-                                        </p>
+                                        {pricePerSeat != null && (
+                                            <p className="text-xs text-stone-light mt-1">
+                                                ₹{pricePerSeat} per seat × {selectedSeats} seat{selectedSeats > 1 ? "s" : ""}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* CTA */}
@@ -437,6 +495,18 @@ const RideDetail = () => {
                                         <div className="bg-sage-10 rounded-xl p-4 text-center">
                                             <p className="text-sage font-medium">You're the driver</p>
                                             <p className="text-xs text-stone mt-1">{ride.seatsAvailable} seats available</p>
+                                            <div className="flex items-center justify-between text-sm mt-3">
+                                                <span className="text-stone">Price per seat</span>
+                                                <span className="font-semibold text-forest">
+                                                    {pricePerSeat != null ? `₹${pricePerSeat}` : "—"}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-sm mt-2">
+                                                <span className="text-stone">Total Earnings</span>
+                                                <span className="font-bold text-sage text-lg">
+                                                    ₹{totalEarning}
+                                                </span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

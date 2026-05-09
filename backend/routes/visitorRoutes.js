@@ -7,4 +7,4 @@ router.get("/today", getTodayVisitors);
 router.get("/total", getTotalVisitors);
 router.get("/stats", getVisitorStats);
 
-module.exports = router;
+module.exports = router; 

@@ -18,10 +18,10 @@ exports.trackUniqueVisitor = async (req, res) => {
         const today = new Date().toISOString().slice(0, 10);
 
         // Check if visitor already exists for today
-        const existing = await Visitor.findOne({ ip, date: today });
+        const existing = await Visitor.findOne({ ip });
 
         if (!existing) {
-            await Visitor.create({ ip, date: today });
+            await Visitor.create({ ip });
         }
 
         res.status(200).json({ message: "Tracked" });

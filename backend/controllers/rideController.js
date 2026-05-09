@@ -358,21 +358,45 @@ exports.getMyRides = async (req, res) => {
 exports.getRideById = async (req, res) => {
     try {
         const ride = await Ride.findById(req.params.id)
-            .populate("user", "firstName lastName email profilePic")
-            .populate("passengers.user", "firstName lastName email");
+            .populate(
+                "user",
+                "_id firstName lastName email profilePic"
+            )
+            .populate(
+                "passengers.user",
+                "_id firstName lastName email"
+            );
 
         if (!ride) {
-            return res.status(404).json({ error: "Ride not found" });
+            return res.status(404).json({
+                error: "Ride not found"
+            });
+        }
+
+        // Check if current user is driver
+        const isDriver =
+            req.user?.id === ride.user?._id.toString();
+
+        // Hide passenger phone numbers from non-driver users
+        if (!isDriver) {
+            ride.passengers = ride.passengers.map((passenger) => ({
+                ...passenger.toObject(),
+                phone: undefined,
+            }));
         }
 
         res.json({
             success: true,
-            ride
+            ride,
+            isDriver
         });
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Server error" });
+
+        res.status(500).json({
+            error: "Server error"
+        });
     }
 };
 
@@ -478,6 +502,46 @@ exports.bookRide = async (req, res) => {
 
         return res.status(500).json({
             message: err.message || "Server error"
+        });
+    }
+};
+
+exports.deleteRide = async (req, res) => {
+    try {
+        const rideId = req.params.id;
+
+        // Find ride
+        const ride = await Ride.findById(rideId);
+
+        if (!ride) {
+            return res.status(404).json({
+                success: false,
+                message: "Ride not found"
+            });
+        }
+
+        // Check ownership
+        if (ride.user.toString() !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        // Delete ride
+        await Ride.findByIdAndDelete(rideId);
+
+        res.status(200).json({
+            success: true,
+            message: "Ride deleted successfully"
+        });
+
+    } catch (error) {
+        console.log("Delete ride error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Server error"
         });
     }
 };
