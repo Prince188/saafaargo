@@ -1,10 +1,24 @@
 const express = require("express");
+
 const router = express.Router();
 
-const { bookRide } = require("../controllers/bookingController");
+const {
+    bookRide,
+    getMyTrips,
+    cancelTrip
+} = require("../controllers/bookingController");
+
 const authMiddleware = require("../middleware/authMiddleware");
 
-// ✅ Final endpoint
+
+// Book Ride
 router.post("/rides/:id/book", authMiddleware, bookRide);
+
+// My Trips
+router.get("/my-trips", authMiddleware, getMyTrips);
+
+// Cancel Trip
+router.put("/cancel/:id", authMiddleware, cancelTrip);
+
 
 module.exports = router;

@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 const rideRoutes = require("./routes/rideRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 
 
@@ -47,6 +48,8 @@ app.use('/api/vehicles', vehicleRoutes)
 app.use("/api/rides", rideRoutes);
 
 app.use("/api/visitor", require("./routes/visitorRoutes"));
+
+app.use("/api/bookings", bookingRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -10,7 +10,8 @@ import {
     FaCar,
     FaHome,
     FaHeart,
-    FaCompass
+    FaCompass,
+    FaRoute
 } from "react-icons/fa";
 
 const Navbar = () => {
@@ -159,6 +160,11 @@ const Navbar = () => {
                                             <Link to="/my-rides" className="flex items-center gap-md px-lg py-3 text-sm text-charcoal no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white hover:text-forest group" onClick={() => setShowDropdown(false)}>
                                                 <FaCar className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
                                                 <span>My Rides</span>
+                                            </Link>
+
+                                            <Link to="/my-trips" className="flex items-center gap-md px-lg py-3 text-sm text-charcoal no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white hover:text-forest group" onClick={() => setShowDropdown(false)}>
+                                                <FaRoute className="text-lg text-stone transition-all duration-base group-hover:text-sage group-hover:translate-x-0.5" />
+                                                <span>My Trips</span>
                                             </Link>
 
                                             <Link to="/favorites" className="flex items-center gap-md px-lg py-3 text-sm text-charcoal no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white hover:text-forest group" onClick={() => setShowDropdown(false)}>

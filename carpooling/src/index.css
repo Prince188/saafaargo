@@ -833,3 +833,8 @@
 html {
   scroll-behavior: smooth;
 }
+
+::selection{
+  background: forestgreen;
+  color: white;
+}

@@ -143,11 +143,162 @@ exports.sendOtp = async (req, res) => {
             otp
         });
 
+        // Beautiful Email Template
+        const htmlTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>OTP Verification</title>
+</head>
+
+<body style="
+  margin:0;
+  padding:0;
+  background:#F5F2EB;
+  font-family:Inter, Arial, sans-serif;
+">
+
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <table width="520" cellpadding="0" cellspacing="0" style="
+          background:#FDFBF7;
+          border-radius:32px;
+          overflow:hidden;
+          box-shadow:0 12px 32px rgba(0,0,0,0.08);
+        ">
+
+          <!-- Top Gradient -->
+          <tr>
+            <td style="
+              background:linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%);
+              padding:40px 32px;
+              text-align:center;
+            ">
+
+              <h1 style="
+                margin:0;
+                color:white;
+                font-size:32px;
+                font-weight:700;
+                letter-spacing:0.5px;
+              ">
+                Safar GO
+              </h1>
+
+              <p style="
+                margin:12px 0 0;
+                color:#DCE8D4;
+                font-size:16px;
+                line-height:24px;
+              ">
+                Secure Email Verification
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding:48px 36px;">
+
+              <h2 style="
+                margin:0;
+                color:#1F2937;
+                font-size:28px;
+                text-align:center;
+              ">
+                Verify Your Account
+              </h2>
+
+              <p style="
+                margin:18px 0 0;
+                color:#6B7280;
+                font-size:16px;
+                line-height:28px;
+                text-align:center;
+              ">
+                Use the verification code below to continue creating your account.
+              </p>
+
+              <!-- OTP BOX -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:40px 0;">
+
+                    <div style="
+                      display:inline-block;
+                      background:#DCE8D4;
+                      color:#1A3A2E;
+                      padding:20px 42px;
+                      border-radius:20px;
+                      font-size:42px;
+                      font-weight:700;
+                      letter-spacing:10px;
+                      box-shadow:0 4px 12px rgba(0,0,0,0.06);
+                    ">
+                      ${otp}
+                    </div>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Message -->
+              <p style="
+                margin:0;
+                color:#6B7280;
+                font-size:15px;
+                line-height:26px;
+                text-align:center;
+              ">
+                This OTP will expire in
+                <span style="
+                  color:#1A3A2E;
+                  font-weight:600;
+                ">
+                  10 minutes
+                </span>.
+              </p>
+
+              <!-- Divider -->
+              <div style="
+                height:1px;
+                background:#E5E7EB;
+                margin:36px 0;
+              "></div>
+
+              <!-- Footer -->
+              <p style="
+                margin:0;
+                color:#9CA3AF;
+                font-size:13px;
+                line-height:24px;
+                text-align:center;
+              ">
+                If you didn’t request this email, you can safely ignore it.
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`;
+
         // Send Mail
         await mailSender(
             email,
             "OTP Verification",
-            `<h2>Your OTP is ${otp}</h2>`
+            htmlTemplate
         );
 
         res.status(200).json({

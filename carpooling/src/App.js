@@ -39,6 +39,7 @@ import Dashboard from "./page/Admin/Dashboard";
 import AdminRoute from "./component/AdminRoute";
 import VerifyOtpPage from "./page/VerifyOtpPage";
 import PribacyPolicy from "./page/Website Content/PrivacyPolicy";
+import MyTrips from "./page/User/MyTrips";
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
             <Route path='/vehicle/add' element={<AddVehicle />} />
             <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
             <Route path='/my-rides' element={<MyRide />} />
+            <Route path="/my-trips" element={<MyTrips />} />
             <Route path="/rides/:id" element={<RideDeatil />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PribacyPolicy />} />
