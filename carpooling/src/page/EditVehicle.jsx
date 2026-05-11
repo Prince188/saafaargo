@@ -118,7 +118,7 @@ const EditVehicle = () => {
             <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse pointer-events-none"></div>
 
             <div className="relative z-10 w-full max-w-[800px] my-3xl mx-auto px-xl">
-                <div className="bg-white rounded-xl px-3xl py-3xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
+                <div className="bg-white rounded-xl sm:px-3xl  px-xl py-xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
                     {/* Card Header */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-lg gap-md">
                         <button

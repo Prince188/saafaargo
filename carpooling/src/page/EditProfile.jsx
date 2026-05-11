@@ -117,7 +117,7 @@ const EditProfile = () => {
             <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse pointer-events-none"></div>
 
             <div className="relative z-10 w-full max-w-[900px] my-3xl mx-auto px-xl">
-                <div className="bg-white rounded-xl px-3xl py-3xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
+                <div className="bg-white rounded-xl sm:px-3xl px-xl py-xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
                     {/* Card Header */}
                     <div className="flex flex-row items-center justify-between mb-lg gap-md flex-wrap sm:flex-nowrap">
                         <button
@@ -132,14 +132,14 @@ const EditProfile = () => {
                             <span className="text-[10px] font-extrabold tracking-[0.15em] text-sage uppercase">PROFILE SETTINGS</span>
                         </div>
 
-                        <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold ${statusType === 'success' ? 'bg-success/10 text-success' :
+                        {/* <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold ${statusType === 'success' ? 'bg-success/10 text-success' :
                                 statusType === 'error' ? 'bg-error/10 text-error' :
                                     'bg-info/10 text-info'
                             }`}>
                             {statusType === "success" && !saving && <FaCheckCircle className="text-xs" />}
                             {statusType === "error" && <FaExclamationCircle className="text-xs" />}
                             <span>{saving ? "Saving..." : status}</span>
-                        </div>
+                        </div> */}
                     </div>
 
                     <h1 className="font-fraunces text-[clamp(28px,4vw,36px)] font-semibold leading-[1.2] mb-sm">
@@ -160,7 +160,7 @@ const EditProfile = () => {
                     </p>
 
                     {/* Profile Image Section */}
-                    <section className="flex flex-col sm:flex-row gap-xl items-start p-xl bg-off-white rounded-lg mb-2xl">
+                    <section className="flex flex-col sm:flex-row gap-xl items-center p-xl bg-off-white rounded-lg mb-2xl">
                         <div className="relative">
                             <div className="relative w-[120px] h-[120px]">
                                 <img
