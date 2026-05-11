@@ -55,7 +55,7 @@ const AddVehicle = () => {
             });
 
             setTimeout(() => {
-                navigate('/profile');
+                navigate(-1);
             }, 500);
         } catch (err) {
             console.log("Error adding vehicle:", err);
