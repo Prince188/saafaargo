@@ -10,7 +10,7 @@ const getClientIp = (req) => {
     // Take first IP if multiple are present
     return ip.split(",")[0].trim();
 };
-
+ 
 exports.trackUniqueVisitor = async (req, res) => {
     try {
         const ip = getClientIp(req);
