@@ -40,7 +40,7 @@ const RegisterPage = () => {
             setFileName(selectedFile.name);
         } else {
             setFile(null);
-            setFileName("");
+            setFileName(""); 
         }
     };
 
