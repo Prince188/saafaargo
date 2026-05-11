@@ -1,14 +1,15 @@
 const nodemailer = require("nodemailer");
 const dns = require("dns");
 
+dns.setDefaultResultOrder("ipv4first");
+
 const mailSender = async (email, title, body) => {
     try {
 
-        // FORCE IPV4
-        dns.setDefaultResultOrder("ipv4first");
-
         const transporter = nodemailer.createTransport({
-            service: "gmail",
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
 
             auth: {
                 user: process.env.MAIL_USER,
@@ -16,6 +17,10 @@ const mailSender = async (email, title, body) => {
             },
 
             family: 4,
+
+            tls: {
+                rejectUnauthorized: false
+            },
 
             connectionTimeout: 10000,
             greetingTimeout: 10000,
@@ -29,7 +34,7 @@ const mailSender = async (email, title, body) => {
             html: body
         });
 
-        console.log("MAIL SENT:", info);
+        console.log(info);
 
         return info;
 
