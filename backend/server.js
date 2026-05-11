@@ -8,6 +8,8 @@ const userRoutes = require("./routes/userRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 const rideRoutes = require("./routes/rideRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const blogRoutes = require("./routes/blogRoutes");
+
 
 
 
@@ -50,6 +52,8 @@ app.use("/api/rides", rideRoutes);
 app.use("/api/visitor", require("./routes/visitorRoutes"));
 
 app.use("/api/bookings", bookingRoutes);
+
+app.use("/api/blogs", blogRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -40,6 +40,9 @@ import AdminRoute from "./component/AdminRoute";
 import VerifyOtpPage from "./page/VerifyOtpPage";
 import PribacyPolicy from "./page/Website Content/PrivacyPolicy";
 import MyTrips from "./page/User/MyTrips";
+import Blogs from "./page/Blog/Blogs";
+import BlogDetails from "./page/Blog/BlogDetails";
+import AdminCreateBlog from "./page/Blog/AdminCreateBlog";
 
 function App() {
   return (
@@ -82,6 +85,9 @@ function App() {
             <Route path="/rides/:id" element={<RideDeatil />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PribacyPolicy />} />
+            <Route path="/blog" element={<Blogs />} />
+            <Route path="/blog/:slug" element={<BlogDetails />} />
+            <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
 
             {/* ADMIN SIDE ROUTES */}
             <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />

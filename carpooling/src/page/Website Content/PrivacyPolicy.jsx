@@ -576,7 +576,7 @@ const PrivacyPolicy = () => {
                                             <div className="space-y-2">
                                                 <p className="flex items-center gap-2 text-stone">
                                                     <FaEnvelope className="text-sage" />
-                                                    <strong>Email:</strong> dataprotection@Safargo.com
+                                                    <strong>Email:</strong> safargo858@gmail.com
                                                 </p>
                                                 <p className="flex items-center gap-2 text-stone">
                                                     <FaBuilding className="text-sage" />
