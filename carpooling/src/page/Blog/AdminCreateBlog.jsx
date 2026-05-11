@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../api/api";
 import { showSuccess, showError, showInfo } from "../../utils/toastConfig";
@@ -38,6 +38,23 @@ const AdminCreateBlog = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [previewMode, setPreviewMode] = useState(false);
     const [showHtmlHelp, setShowHtmlHelp] = useState(false);
+    const [navbarHeight, setNavbarHeight] = useState(80);
+    const previewRef = useRef(null);
+
+    // Get navbar height on mount and window resize
+    useEffect(() => {
+        const getNavbarHeight = () => {
+            const navbar = document.querySelector('nav') || document.querySelector('.navbar');
+            if (navbar) {
+                setNavbarHeight(navbar.offsetHeight);
+            }
+        };
+        
+        getNavbarHeight();
+        window.addEventListener('resize', getNavbarHeight);
+        
+        return () => window.removeEventListener('resize', getNavbarHeight);
+    }, []);
 
     // Auto-generate slug from title
     const generateSlug = (title) => {
@@ -78,7 +95,6 @@ const AdminCreateBlog = () => {
             content: newText
         }));
 
-        // Set cursor position after update
         setTimeout(() => {
             textarea.focus();
             const newCursorPos = start + before.length + selectedText.length + after.length;
@@ -442,17 +458,26 @@ const AdminCreateBlog = () => {
                         </form>
                     </div>
 
-                    {/* Preview Section */}
+                    {/* Preview Section - Fixed sticky with navbar offset */}
                     {previewMode && (
                         <div className="lg:col-span-1">
-                            <div className="bg-white rounded-2xl shadow-sm border border-sage-15 sticky top-6 overflow-hidden">
-                                <div className="p-4 bg-gradient-primary">
+                            <div 
+                                ref={previewRef}
+                                className="bg-white rounded-2xl shadow-sm border border-sage-15 overflow-hidden"
+                                style={{
+                                    position: 'sticky',
+                                    top: `${navbarHeight + 50}px`,
+                                    maxHeight: `calc(100vh - ${navbarHeight + 40}px)`,
+                                    overflowY: 'auto'
+                                }}
+                            >
+                                <div className="p-4 bg-gradient-primary sticky top-0 z-10">
                                     <h3 className="text-white font-semibold flex items-center gap-2">
                                         <FaEye className="text-sm" />
                                         Live Preview
                                     </h3>
                                 </div>
-                                <div className="p-4 max-h-[600px] overflow-y-auto">
+                                <div className="p-4">
                                     {formData.image && (
                                         <img
                                             src={formData.image}
