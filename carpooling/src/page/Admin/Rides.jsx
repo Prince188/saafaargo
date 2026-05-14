@@ -2,7 +2,7 @@ import React from 'react'
 
 const Rides = () => {
   return (
-    <div>R</div>
+    <div>UNDER DEVLOPMENT</div>
   )
 }
 
