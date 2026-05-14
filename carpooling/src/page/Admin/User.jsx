@@ -151,7 +151,7 @@ const User = () => {
         <div className="mb-10">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-sage/20 to-forest/20 rounded-2xl blur-xl"></div>
+              {/* <div className="absolute -inset-1 bg-gradient-to-r from-sage/20 to-forest/20 rounded-2xl blur-xl"></div> */}
               <div className="relative flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg transform -rotate-2">
                   <FaUsers className="text-white text-2xl" />
