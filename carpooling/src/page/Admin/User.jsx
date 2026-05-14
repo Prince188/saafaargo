@@ -39,7 +39,7 @@ const User = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      let url = `http://localhost:5000/api/users?page=${pageNumber}&limit=${limit}`;
+      let url = `${process.env.REACT_APP_API_URL}/api/users?page=${pageNumber}&limit=${limit}`;
       if (search.trim()) {
         url += `&search=${encodeURIComponent(search.trim())}`;
       }
