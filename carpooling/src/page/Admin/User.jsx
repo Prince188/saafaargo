@@ -386,7 +386,7 @@ const User = () => {
                               className="group/btn px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all duration-300 text-sm font-medium flex items-center gap-2"
                             >
                               <FaTrash size={14} className="group-hover/btn:scale-110 transition-transform duration-300" />
-                              Delete
+                              BLOCK
                             </button>
                           </div>
                         </td>
