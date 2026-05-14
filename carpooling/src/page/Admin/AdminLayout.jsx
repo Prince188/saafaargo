@@ -58,7 +58,7 @@ const AdminLayout = () => {
         { path: "/admin/users", name: "Users", icon: Icons.Users },
         { path: "/admin/rides", name: "Rides", icon: Icons.Rides },
         { path: "/admin/blogs", name: "Blogs", icon: Icons.Blogs },
-        { path: "/admin/settings", name: "Settings", icon: Icons.Settings },
+        { path: "/", name: "Home", icon: Icons.Settings },
     ];
 
     return (
