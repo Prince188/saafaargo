@@ -35,7 +35,7 @@ const BlogDetails = () => {
 
     const fetchBlog = async () => {
         try {
-            const { data } = await API.get(`/blogs/${slug}`);
+            const { data } = await API.get(`/blogs/slug/${slug}`);
             setBlog(data);
             setLoading(false);
         } catch (error) {
@@ -253,39 +253,6 @@ const BlogDetails = () => {
                 </div>
             </div>
 
-            {/* Related Articles Section */}
-            <div className="max-w-6xl mx-auto px-4 py-3xl">
-                <h2 className="font-fraunces text-2xl font-semibold text-forest mb-6 text-center">
-                    You Might Also Like
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* You can add related blogs here */}
-                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-sage-15 hover:shadow-md transition-all">
-                        <div className="h-40 bg-sage-5"></div>
-                        <div className="p-4">
-                            <div className="h-4 bg-sage-10 rounded w-3/4 mb-2"></div>
-                            <div className="h-3 bg-sage-10 rounded w-full mb-1"></div>
-                            <div className="h-3 bg-sage-10 rounded w-2/3"></div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-sage-15 hover:shadow-md transition-all">
-                        <div className="h-40 bg-sage-5"></div>
-                        <div className="p-4">
-                            <div className="h-4 bg-sage-10 rounded w-3/4 mb-2"></div>
-                            <div className="h-3 bg-sage-10 rounded w-full mb-1"></div>
-                            <div className="h-3 bg-sage-10 rounded w-2/3"></div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-sage-15 hover:shadow-md transition-all">
-                        <div className="h-40 bg-sage-5"></div>
-                        <div className="p-4">
-                            <div className="h-4 bg-sage-10 rounded w-3/4 mb-2"></div>
-                            <div className="h-3 bg-sage-10 rounded w-full mb-1"></div>
-                            <div className="h-3 bg-sage-10 rounded w-2/3"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* Custom Styles for Blog Content */}
             <style jsx>{`

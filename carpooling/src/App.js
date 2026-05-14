@@ -42,10 +42,12 @@ import PribacyPolicy from "./page/Website Content/PrivacyPolicy";
 import MyTrips from "./page/User/MyTrips";
 import Blogs from "./page/Blog/Blogs";
 import BlogDetails from "./page/Blog/BlogDetails";
-import AdminCreateBlog from "./page/Blog/AdminCreateBlog";
+import AdminCreateBlog from "./page/Admin/AdminCreateBlog";
 import AdminLayout from "./page/Admin/AdminLayout";
 import User from "./page/Admin/User";
 import Rides from "./page/Admin/Rides";
+import AdminBlogs from "./page/Admin/AdminBlogs";
+import AdminEditBlog from "./page/Admin/AdminEditBlog";
 
 function App() {
   return (
@@ -54,73 +56,75 @@ function App() {
       libraries={["places", "routes"]}
     >
       {/* <BrowserRouter> */}
-        <ScrollToTop />
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-        <Routes>
+      <ScrollToTop />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      <Routes>
 
-          {/* ✅ WITH Navbar + Footer */}
-          <Route element={<MainLayout />}>
-            <Route path='/' element={<Home />} />
-            <Route path='/offer-ride' element={<OfferRide />} />
-            <Route path='/search' element={<Search />} />
-            <Route path='/About-us' element={<AboutUs />} />
-            <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
-            <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
-            <Route path="/verify-otp" element={<VerifyOtpPage />} />
-            <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-            <Route path="/profile/manage-car" element={<ManageCar />} />
-            <Route path='/vehicle/add' element={<AddVehicle />} />
-            <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
-            <Route path='/my-rides' element={<MyRide />} />
-            <Route path="/my-trips" element={<MyTrips />} />
-            <Route path="/rides/:id" element={<RideDeatil />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PribacyPolicy />} />
-            <Route path="/blog" element={<Blogs />} />
-            <Route path="/blog/:slug" element={<BlogDetails />} />
-            <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
+        {/* ✅ WITH Navbar + Footer */}
+        <Route element={<MainLayout />}>
+          <Route path='/' element={<Home />} />
+          <Route path='/offer-ride' element={<OfferRide />} />
+          <Route path='/search' element={<Search />} />
+          <Route path='/About-us' element={<AboutUs />} />
+          <Route path='/login' element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path='/register' element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
+          <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/profile/manage-car" element={<ManageCar />} />
+          <Route path='/vehicle/add' element={<AddVehicle />} />
+          <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
+          <Route path='/my-rides' element={<MyRide />} />
+          <Route path="/my-trips" element={<MyTrips />} />
+          <Route path="/rides/:id" element={<RideDeatil />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PribacyPolicy />} />
+          <Route path="/blog" element={<Blogs />} />
+          <Route path="/blog/:slug" element={<BlogDetails />} />
+          <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
 
-            {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
+          {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 
 
 
-            <Route path='*' element={<NotFound />} />
+          <Route path='*' element={<NotFound />} />
 
+        </Route>
+
+        {/* ❌ WITHOUT Navbar + Footer */}
+        <Route element={<PlainLayout />}>
+          <Route path='/offer-ride/pickup' element={<PickUp />} />
+          <Route path='/offer-ride/destination' element={<DestinationPage />} />
+          <Route path='/offer-ride/route-preview' element={<RoutePreviewPage />} />
+          <Route path='/offer-ride/stop-over' element={<StopoversPage />} />
+          <Route path='/offer-ride/prices' element={<PriceSelection />} />
+          <Route path='/offer-ride/car' element={<CarSelection />} />
+          <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
+          <Route path='/offer-ride/ride-review' element={<RideReview />} />
+
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+            <Route index element={<Navigate to="dashboard" />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="users" element={<User />} />
+            <Route path="rides" element={<Rides />} />
+            <Route path="blogs" element={<AdminBlogs />} />
+            <Route path="blogs/edit/:id" element={<AdminEditBlog />} />
           </Route>
-
-          {/* ❌ WITHOUT Navbar + Footer */}
-          <Route element={<PlainLayout />}>
-            <Route path='/offer-ride/pickup' element={<PickUp />} />
-            <Route path='/offer-ride/destination' element={<DestinationPage />} />
-            <Route path='/offer-ride/route-preview' element={<RoutePreviewPage />} />
-            <Route path='/offer-ride/stop-over' element={<StopoversPage />} />
-            <Route path='/offer-ride/prices' element={<PriceSelection />} />
-            <Route path='/offer-ride/car' element={<CarSelection />} />
-            <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
-            <Route path='/offer-ride/ride-review' element={<RideReview />} />
-
-            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
-              <Route index element={<Navigate to="dashboard" />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="users" element={<User />} />
-              <Route path="rides" element={<Rides />} />
-            </Route>
-          </Route>
+        </Route>
 
 
-        </Routes>
+      </Routes>
       {/* </BrowserRouter> */}
     </LoadScript>
   );
