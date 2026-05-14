@@ -2,7 +2,7 @@
 import "leaflet/dist/leaflet.css";
 import { LoadScript } from "@react-google-maps/api";
 
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import ScrollToTop from './component/ScrollToTop';
 
@@ -43,6 +43,9 @@ import MyTrips from "./page/User/MyTrips";
 import Blogs from "./page/Blog/Blogs";
 import BlogDetails from "./page/Blog/BlogDetails";
 import AdminCreateBlog from "./page/Blog/AdminCreateBlog";
+import AdminLayout from "./page/Admin/AdminLayout";
+import User from "./page/Admin/User";
+import Rides from "./page/Admin/Rides";
 
 function App() {
   return (
@@ -50,7 +53,7 @@ function App() {
       googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
       libraries={["places", "routes"]}
     >
-      <BrowserRouter>
+      {/* <BrowserRouter> */}
         <ScrollToTop />
         <ToastContainer
           position="top-right"
@@ -89,9 +92,9 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetails />} />
             <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
 
-            {/* ADMIN SIDE ROUTES */}
-            <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
             {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
+
+
 
             <Route path='*' element={<NotFound />} />
 
@@ -107,11 +110,18 @@ function App() {
             <Route path='/offer-ride/car' element={<CarSelection />} />
             <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
             <Route path='/offer-ride/ride-review' element={<RideReview />} />
+
+            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+              <Route index element={<Navigate to="dashboard" />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="users" element={<User />} />
+              <Route path="rides" element={<Rides />} />
+            </Route>
           </Route>
 
 
         </Routes>
-      </BrowserRouter>
+      {/* </BrowserRouter> */}
     </LoadScript>
   );
 }

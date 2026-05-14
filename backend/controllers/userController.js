@@ -1,5 +1,10 @@
 const User = require("../models/User");
 
+exports.getMe = async (req, res) => {
+    res.json({ user: req.user });
+};
+
+
 exports.getProfile = async (req, res) => {
     try {
         console.log("USER ID:", req.user);
