@@ -66,9 +66,9 @@ const Footer = () => {
                 <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2xl"></div>
 
                 {/* Main Columns */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2xl mb-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2xl mb-2xl">
                     {/* Column 1 */}
-                    <div className="animate-fade-in-up">
+                    {/* <div className="animate-fade-in-up">
                         <span className="inline-block text-[10px] font-extrabold tracking-[0.15em] text-sage-light uppercase mb-md">EXPLORE</span>
                         <h4 className="font-fraunces text-lg font-medium mb-lg text-white">Go anywhere with Safar Go</h4>
                         <nav className="flex flex-col gap-md">
@@ -85,10 +85,10 @@ const Footer = () => {
                                 <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
                             </Link>
                         </nav>
-                    </div>
+                    </div> */}
 
                     {/* Column 2 */}
-                    <div className="animate-fade-in-up">
+                    {/* <div className="animate-fade-in-up">
                         <span className="inline-block text-[10px] font-extrabold tracking-[0.15em] text-sage-light uppercase mb-md">CARPOOL ROUTES</span>
                         <h4 className="font-fraunces text-lg font-medium mb-lg text-white">Travel with carpool</h4>
                         <nav className="flex flex-col gap-md">
@@ -109,7 +109,7 @@ const Footer = () => {
                                 <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
                             </Link>
                         </nav>
-                    </div>
+                    </div> */}
 
                     {/* Column 3 */}
                     <div className="animate-fade-in-up">
