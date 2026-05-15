@@ -120,7 +120,7 @@ const BlogDetails = () => {
 
                 {/* Back Button */}
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate("/blog")}
                     className="absolute top-6 left-6 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-forest hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg"
                 >
                     <FaArrowLeft className="text-sm" />
