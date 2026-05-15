@@ -9,16 +9,12 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaTimes,
-  FaTrash,
   FaEdit,
   FaUsers,
-  FaUserCheck,
   FaUserPlus,
-  FaChartLine,
-  FaShieldAlt,
   FaPhone,
-  FaMapMarkerAlt,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaArrowRight,
 } from "react-icons/fa";
 import { MdVerified, MdAdminPanelSettings } from "react-icons/md";
 import { CgBlock, CgUnblock } from "react-icons/cg";
@@ -83,29 +79,29 @@ const User = () => {
     }
   };
 
-  const getRoleBadgeColor = (role) => {
+  const getRoleStyles = (role) => {
     switch (role?.toLowerCase()) {
       case "admin":
-        return "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md";
+        return "bg-[#fdecec] text-[#9b2c2c] ring-1 ring-[#f5c2c2]";
       case "driver":
-        return "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md";
+        return "bg-[#eaf1fb] text-[#1e3a8a] ring-1 ring-[#c7d8f3]";
       case "rider":
-        return "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-md";
+        return "bg-[#e8f1ea] text-[#2f5a3d] ring-1 ring-[#c5dccb]";
       default:
-        return "bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-md";
+        return "bg-[#efece4] text-[#4a4a3f] ring-1 ring-[#dcd8cc]";
     }
   };
 
   const getRoleIcon = (role) => {
     switch (role?.toLowerCase()) {
       case "admin":
-        return <MdAdminPanelSettings className="mr-1 text-sm" />;
+        return <MdAdminPanelSettings className="text-[13px]" />;
       case "driver":
-        return <FaUserTag className="mr-1 text-xs" />;
+        return <FaUserTag className="text-[11px]" />;
       case "rider":
-        return <FaUser className="mr-1 text-xs" />;
+        return <FaUser className="text-[11px]" />;
       default:
-        return <FaUser className="mr-1 text-xs" />;
+        return <FaUser className="text-[11px]" />;
     }
   };
 
@@ -114,26 +110,23 @@ const User = () => {
       title: "Total Users",
       value: totalUsers,
       icon: FaUsers,
-      color: "from-violet-500 to-purple-600",
-      bgGradient: "from-violet-50 to-purple-50",
-      borderColor: "border-purple-100"
+      accent: "#2f5a3d",
+      tint: "#e8f1ea",
     },
     {
       title: "New This Month",
       value: 45,
       icon: FaUserPlus,
-      color: "from-amber-500 to-orange-600",
-      bgGradient: "from-amber-50 to-orange-50",
-      borderColor: "border-amber-100"
+      accent: "#a0522d",
+      tint: "#f5e9df",
     },
     {
       title: "Verified Users",
-      value: users.filter(u => u.isVerified).length || 0,
+      value: users.filter((u) => u.isVerified).length || 0,
       icon: MdVerified,
-      color: "from-sky-500 to-blue-600",
-      bgGradient: "from-sky-50 to-blue-50",
-      borderColor: "border-sky-100"
-    }
+      accent: "#1e3a8a",
+      tint: "#eaf1fb",
+    },
   ];
 
   const handleBlockUser = async (id) => {
@@ -155,144 +148,162 @@ const User = () => {
       fetchUsers(page, searchTerm);
     } catch (err) {
       console.log(err);
-      showError(
-        err.response?.data?.message || "Failed to update user status"
-      );
+      showError(err.response?.data?.message || "Failed to update user status");
     }
   };
 
   return (
-    <div className="bg-gradient-to-br min-h-screen font-inter">
+    <div className="min-h-screen bg-[#f8f6ef] font-inter text-[#1a2620]">
       <div className="max-w-7xl mx-auto ">
-
-        {/* Header Section with Glassmorphism */}
+        {/* HEADER */}
         <div className="mb-10">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
-            <div className="relative">
-              {/* <div className="absolute -inset-1 bg-gradient-to-r from-sage/20 to-forest/20 rounded-2xl blur-xl"></div> */}
-              <div className="relative flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg transform -rotate-2">
-                  <FaUsers className="text-white text-2xl" />
-                </div>
-                <div>
-                  <h1 className="font-fraunces text-4xl lg:text-5xl font-bold bg-gradient-to-r from-forest to-sage bg-clip-text text-transparent">
-                    User Management
-                  </h1>
-                  <p className="text-stone mt-2 ml-1">
-                    Manage and view all registered users
-                  </p>
-                </div>
-              </div>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-[#e6e1d3]">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#7a8478] mb-3">
+                <span className="w-6 h-px bg-[#7a8478]" />
+                Admin · Directory
+              </span>
+              <h1
+                className="text-4xl lg:text-5xl font-semibold leading-[1.05] text-[#1a2620]"
+                style={{ fontFamily: '"Fraunces", serif' }}
+              >
+                User <span className="italic text-[#2f5a3d]">management</span>
+              </h1>
+              <p className="text-[#5a6358] mt-3 max-w-md text-[15px]">
+                Browse, search and moderate every account registered on Safar.
+              </p>
             </div>
 
             <button
               onClick={() => console.log("Export users")}
-              className="group relative overflow-hidden px-6 py-3 bg-gradient-to-r from-sage to-forest text-white rounded-2xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 font-medium flex items-center gap-2"
+              className="group inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#1a2620] text-[#f8f6ef] hover:bg-[#2f5a3d] transition-colors duration-300 text-sm font-medium"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <FaUserPlus className="text-sm" />
-              Export Users
+              <FaUserPlus className="text-xs" />
+              Export users
+              <FaArrowRight className="text-[11px] group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
         </div>
 
-        {/* Search and Filter Bar with Glass Effect */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-5 mb-8">
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative group">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-light group-focus-within:text-sage transition-colors duration-200" />
+        {/* SEARCH */}
+        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
+          <form
+            onSubmit={handleSearch}
+            className="flex flex-col md:flex-row gap-3"
+          >
+            <div className="flex-1 relative">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
               <input
                 type="text"
-                placeholder="Search by name, email, or role..."
+                placeholder="Search by name, email, or role…"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-sage-10 rounded-2xl focus:ring-4 focus:ring-sage/20 focus:border-sage outline-none transition-all duration-300 text-stone placeholder:text-stone-light/70"
+                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-sage to-forest text-white rounded-2xl hover:shadow-xl transition-all duration-300 flex items-center gap-2 font-medium"
+                className="px-5 py-3 rounded-xl bg-[#2f5a3d] text-white hover:bg-[#244730] transition-colors flex items-center gap-2 font-medium text-sm"
               >
-                <FaSearch size={16} />
+                <FaSearch size={13} />
                 Search
               </button>
               {searchTerm && (
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="px-6 py-3 bg-gray-500 text-white rounded-2xl hover:bg-gray-600 transition-all duration-300 flex items-center gap-2 font-medium"
+                  className="px-5 py-3 rounded-xl bg-[#efece4] text-[#5a6358] hover:bg-[#e6e1d3] transition-colors flex items-center gap-2 font-medium text-sm"
                 >
-                  <FaTimes size={16} />
+                  <FaTimes size={13} />
                   Clear
                 </button>
               )}
             </div>
           </form>
           {searchTerm && (
-            <div className="mt-4 pt-3 border-t border-sage-10">
-              <p className="text-sm text-stone">
-                Showing results for: <span className="font-bold text-sage text-base">"{searchTerm}"</span>
-                <span className="ml-2 font-semibold text-forest">({totalUsers} users found)</span>
-              </p>
+            <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
+              Results for{" "}
+              <span className="font-semibold text-[#2f5a3d]">"{searchTerm}"</span>
+              <span className="ml-2 text-[#7a8478]">
+                · {totalUsers} {totalUsers === 1 ? "user" : "users"} found
+              </span>
             </div>
           )}
         </div>
 
-        {/* Modern Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        {/* STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           {statsCards.map((card, index) => {
             const Icon = card.icon;
             return (
               <div
                 key={index}
-                className={`group relative overflow-hidden bg-gradient-to-br ${card.bgGradient} rounded-3xl border ${card.borderColor} p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
+                className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                      <Icon className="text-white text-xl" />
-                    </div>
-                    <span className="text-3xl font-black bg-gradient-to-br from-forest to-sage bg-clip-text text-transparent">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
+                      {card.title}
+                    </p>
+                    <p
+                      className="text-4xl font-semibold text-[#1a2620] tracking-tight"
+                      style={{ fontFamily: '"Fraunces", serif' }}
+                    >
                       {card.value}
-                    </span>
+                    </p>
                   </div>
-                  <p className="text-stone font-medium">{card.title}</p>
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+                    style={{ backgroundColor: card.tint, color: card.accent }}
+                  >
+                    <Icon className="text-lg" />
+                  </div>
                 </div>
+                <div
+                  className="mt-5 h-px w-10"
+                  style={{ backgroundColor: card.accent, opacity: 0.4 }}
+                />
               </div>
             );
           })}
         </div>
 
-        {/* Modern Users Table Card */}
-        <div className="bg-white rounded-3xl shadow-xl border border-sage-10 overflow-hidden backdrop-blur-sm">
+        {/* TABLE */}
+        <div className="bg-white rounded-2xl border border-[#e6e1d3] overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-32">
               <div className="text-center">
-                <div className="relative">
-                  <div className="w-20 h-20 border-4 border-sage-20 border-t-sage rounded-full animate-spin"></div>
-                  <FaSpinner className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sage text-2xl animate-pulse" />
+                <div className="relative w-16 h-16 mx-auto">
+                  <div className="absolute inset-0 border-2 border-[#e6e1d3] border-t-[#2f5a3d] rounded-full animate-spin" />
+                  <FaSpinner className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#2f5a3d] text-lg" />
                 </div>
-                <p className="text-stone mt-6 font-medium">Loading users...</p>
+                <p className="text-[#5a6358] mt-5 text-sm">Loading users…</p>
               </div>
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-32">
-              <div className="w-24 h-24 bg-gradient-to-br from-sage-10 to-sage-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <FaUser className="text-sage text-4xl" />
+            <div className="text-center py-32 px-6">
+              <div className="w-20 h-20 bg-[#efece4] rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <FaUser className="text-[#7a8478] text-2xl" />
               </div>
-              <p className="text-stone text-xl font-semibold mb-2">No users found</p>
-              <p className="text-stone-light mb-8">
-                {searchTerm ? "Try a different search term" : "No users registered yet"}
+              <p
+                className="text-2xl font-semibold mb-2 text-[#1a2620]"
+                style={{ fontFamily: '"Fraunces", serif' }}
+              >
+                No users found
+              </p>
+              <p className="text-[#7a8478] mb-7 text-sm">
+                {searchTerm
+                  ? "Try a different search term"
+                  : "No users registered yet"}
               </p>
               {searchTerm && (
                 <button
                   onClick={handleClearSearch}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sage to-forest text-white rounded-2xl hover:shadow-2xl transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a2620] text-[#f8f6ef] hover:bg-[#2f5a3d] transition-colors text-sm"
                 >
-                  <FaTimes className="text-sm" />
-                  Clear Search
+                  <FaTimes className="text-xs" />
+                  Clear search
                 </button>
               )}
             </div>
@@ -301,162 +312,143 @@ const User = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-sage-5 to-sage-8 border-b-2 border-sage-10">
-                      <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider rounded-tl-3xl">
-                        User
-                      </th>
-                      <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                        Contact Info
-                      </th>
-                      <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                        Role
-                      </th>
-                      <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                        Joined
-                      </th>
-                      <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider rounded-tr-3xl">
-                        Actions
-                      </th>
+                    <tr className="bg-[#faf8f2] border-b border-[#e6e1d3]">
+                      {["User", "Contact", "Role", "Status", "Joined", "Actions"].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            className="px-6 py-4 text-left text-[11px] font-semibold text-[#7a8478] uppercase tracking-[0.16em]"
+                          >
+                            {h}
+                          </th>
+                        )
+                      )}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-sage-8">
-                    {users.map((user, idx) => (
+                  <tbody className="divide-y divide-[#efece4]">
+                    {users.map((user) => (
                       <tr
                         key={user._id}
-                        className="group hover:bg-gradient-to-r hover:from-sage-5 hover:to-transparent transition-all duration-300 cursor-pointer"
-                        style={{ animationDelay: `${idx * 50}ms` }}
+                        className="group hover:bg-[#faf8f2] transition-colors duration-200"
                       >
                         <td className="px-6 py-5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sage to-forest flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-110 transition-transform duration-300">
-                              {user.firstName?.[0]}{user.lastName?.[0]}
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5a3d] to-[#1a2620] flex items-center justify-center text-white font-semibold text-[15px] shadow-sm">
+                              {user.firstName?.[0]}
+                              {user.lastName?.[0]}
                             </div>
                             <div>
-                              <div className="font-semibold text-forest text-lg">
+                              <div
+                                className="font-semibold text-[#1a2620] text-[15px] leading-tight"
+                                style={{ fontFamily: '"Fraunces", serif' }}
+                              >
                                 {user.firstName} {user.lastName}
                               </div>
-                              <div className="flex items-center gap-1 mt-1">
+                              <div className="flex items-center gap-2 mt-1">
                                 {user.isVerified && (
-                                  <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                  <span className="text-[10px] text-[#2f5a3d] bg-[#e8f1ea] px-2 py-0.5 rounded-full flex items-center gap-1 font-medium">
                                     <MdVerified size={10} />
                                     Verified
                                   </span>
                                 )}
-                                <span className="text-xs text-stone-light">
-                                  ID: {user._id?.slice(-8)}
+                                <span className="text-[11px] text-[#9aa194] font-mono">
+                                  #{user._id?.slice(-6)}
                                 </span>
                               </div>
                             </div>
                           </div>
                         </td>
+
                         <td className="px-6 py-5">
                           <div className="space-y-1.5">
-                            <div className="flex items-center gap-2 text-stone">
-                              <FaEnvelope className="text-sage text-sm" />
-                              <span className="text-sm">{user.email}</span>
+                            <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
+                              <FaEnvelope className="text-[#7a8478] text-xs" />
+                              <span>{user.email}</span>
                             </div>
                             {user.phone && (
-                              <div className="flex items-center gap-2 text-stone">
-                                <FaPhone className="text-sage text-sm" />
-                                <span className="text-sm">{user.phone}</span>
+                              <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
+                                <FaPhone className="text-[#7a8478] text-xs" />
+                                <span>{user.phone}</span>
                               </div>
                             )}
                           </div>
                         </td>
+
                         <td className="px-6 py-5">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ${getRoleStyles(
+                              user.role
+                            )}`}
+                          >
                             {getRoleIcon(user.role)}
                             {user.role || "User"}
                           </span>
                         </td>
+
                         <td className="px-6 py-5">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border
-    ${user.status === "block"
-                                ? "bg-red-50 text-red-700 border-red-200"
-                                : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ring-1 ${user.status === "block"
+                                ? "bg-[#fdecec] text-[#9b2c2c] ring-[#f5c2c2]"
+                                : "bg-[#e8f1ea] text-[#2f5a3d] ring-[#c5dccb]"
                               }`}
                           >
-                            <div
-                              className={`w-1.5 h-1.5 rounded-full animate-pulse
-      ${user.status === "block"
-                                  ? "bg-red-500"
-                                  : "bg-emerald-500"
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full animate-pulse ${user.status === "block"
+                                  ? "bg-[#9b2c2c]"
+                                  : "bg-[#2f5a3d]"
                                 }`}
-                            ></div>
-
+                            />
                             {user.status === "block" ? "Blocked" : "Active"}
                           </span>
                         </td>
+
                         <td className="px-6 py-5">
-                          <div className="flex items-center gap-2 text-stone">
-                            <FaCalendarAlt className="text-sage text-sm" />
-                            <span className="text-sm">
-                              {new Date(user.createdAt).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
+                          <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
+                            <FaCalendarAlt className="text-[#7a8478] text-xs" />
+                            <span>
+                              {new Date(user.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
                             </span>
                           </div>
                         </td>
+
                         <td className="px-6 py-5">
                           <div className="flex gap-2">
-
-                            {/* Edit Button */}
                             <button
-                              onClick={() => console.log("Edit user:", user._id)}
-                              className="group/btn relative overflow-hidden px-4 py-2 bg-sage-10 text-sage rounded-xl hover:bg-sage-15 transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                              onClick={() =>
+                                console.log("Edit user:", user._id)
+                              }
+                              className="w-9 h-9 rounded-lg bg-[#efece4] text-[#5a6358] hover:bg-[#2f5a3d] hover:text-white transition-colors flex items-center justify-center"
+                              title="Edit user"
                             >
-                              <FaEdit size={18} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-                              </button>
-
-                            {/* Block UnBlock Button */}
+                              <FaEdit size={13} />
+                            </button>
 
                             <div className="relative group/tooltip">
                               <button
                                 onClick={() => handleBlockUser(user._id)}
-                                className={`group/btn px-2 py-2 rounded-xl transition-all duration-300 text-sm font-medium flex items-center gap-2
-      ${user.status === "block"
-                                    ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                                    : "bg-red-50 text-red-600 hover:bg-red-100"
+                                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${user.status === "block"
+                                    ? "bg-[#e8f1ea] text-[#2f5a3d] hover:bg-[#2f5a3d] hover:text-white"
+                                    : "bg-[#fdecec] text-[#9b2c2c] hover:bg-[#9b2c2c] hover:text-white"
                                   }`}
                               >
                                 {user.status === "block" ? (
-                                  <CgUnblock
-                                    size={20}
-                                    className="group-hover/btn:scale-110 transition-transform duration-300"
-                                  />
+                                  <CgUnblock size={18} />
                                 ) : (
-                                  <CgBlock
-                                    size={20}
-                                    className="group-hover/btn:scale-110 transition-transform duration-300"
-                                  />
+                                  <CgBlock size={18} />
                                 )}
                               </button>
 
-                              {/* Tooltip */}
-                              <div
-                                className="
-      absolute left-1/2 -translate-x-1/2 -top-10
-      opacity-0 group-hover/tooltip:opacity-100
-      scale-95 group-hover/tooltip:scale-100
-      transition-all duration-200
-      pointer-events-none
-      bg-gray-900 text-white text-xs
-      px-3 py-1.5 rounded-lg shadow-lg
-      whitespace-nowrap z-50
-    "
-                              >
+                              <div className="absolute left-1/2 -translate-x-1/2 -top-9 opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none bg-[#1a2620] text-white text-[11px] px-2.5 py-1 rounded-md whitespace-nowrap z-50">
                                 {user.status === "block"
-                                  ? "Unblock User"
-                                  : "Block User"}
-
-                                {/* Arrow */}
-                                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                  ? "Unblock user"
+                                  : "Block user"}
                               </div>
                             </div>
                           </div>
@@ -467,71 +459,73 @@ const User = () => {
                 </table>
               </div>
 
-              {/* Modern Pagination */}
+              {/* PAGINATION */}
               {!loading && users.length > 0 && (
-                <div className="px-6 py-5 bg-gradient-to-r from-sage-5 to-sage-8 border-t-2 border-sage-10 rounded-b-3xl">
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-5">
-                    <div className="text-sm text-stone font-medium">
-                      Showing page <span className="font-bold text-forest">{page}</span> of{" "}
-                      <span className="font-bold text-forest">{totalPages}</span>
+                <div className="px-6 py-5 bg-[#faf8f2] border-t border-[#e6e1d3]">
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="text-sm text-[#5a6358]">
+                      Page{" "}
+                      <span className="font-semibold text-[#1a2620]">
+                        {page}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-semibold text-[#1a2620]">
+                        {totalPages}
+                      </span>
                       {totalUsers > 0 && (
-                        <span className="ml-2 text-stone-light">
-                          (Total <span className="font-semibold text-sage">{totalUsers}</span> users)
+                        <span className="ml-2 text-[#7a8478]">
+                          · {totalUsers} total
                         </span>
                       )}
                     </div>
-                    <div className="flex gap-2">
+
+                    <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => changePage(page - 1)}
                         disabled={page === 1}
-                        className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium ${page === 1
-                          ? "bg-gray-100 text-stone-light cursor-not-allowed"
-                          : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${page === 1
+                            ? "text-[#c8ccc4] cursor-not-allowed"
+                            : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                           }`}
                       >
-                        <FaChevronLeft size={14} />
-                        Previous
+                        <FaChevronLeft size={12} />
                       </button>
-                      <div className="flex gap-1.5">
-                        {[...Array(Math.min(5, totalPages))].map((_, idx) => {
-                          let pageNum;
-                          if (totalPages <= 5) {
-                            pageNum = idx + 1;
-                          } else if (page <= 3) {
-                            pageNum = idx + 1;
-                          } else if (page >= totalPages - 2) {
-                            pageNum = totalPages - 4 + idx;
-                          } else {
-                            pageNum = page - 2 + idx;
-                          }
 
-                          if (pageNum > 0 && pageNum <= totalPages) {
-                            return (
-                              <button
-                                key={pageNum}
-                                onClick={() => changePage(pageNum)}
-                                className={`w-11 h-11 rounded-xl font-semibold transition-all duration-300 ${page === pageNum
-                                  ? "bg-gradient-to-r from-sage to-forest text-white shadow-lg scale-110"
-                                  : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
-                                  }`}
-                              >
-                                {pageNum}
-                              </button>
-                            );
-                          }
-                          return null;
-                        })}
-                      </div>
+                      {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                        let pageNum;
+                        if (totalPages <= 5) pageNum = idx + 1;
+                        else if (page <= 3) pageNum = idx + 1;
+                        else if (page >= totalPages - 2)
+                          pageNum = totalPages - 4 + idx;
+                        else pageNum = page - 2 + idx;
+
+                        if (pageNum > 0 && pageNum <= totalPages) {
+                          const active = page === pageNum;
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => changePage(pageNum)}
+                              className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${active
+                                  ? "bg-[#1a2620] text-white"
+                                  : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                                }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        }
+                        return null;
+                      })}
+
                       <button
                         onClick={() => changePage(page + 1)}
                         disabled={page === totalPages}
-                        className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium ${page === totalPages
-                          ? "bg-gray-100 text-stone-light cursor-not-allowed"
-                          : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${page === totalPages
+                            ? "text-[#c8ccc4] cursor-not-allowed"
+                            : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                           }`}
                       >
-                        Next
-                        <FaChevronRight size={14} />
+                        <FaChevronRight size={12} />
                       </button>
                     </div>
                   </div>

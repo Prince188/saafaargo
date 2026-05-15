@@ -28,12 +28,10 @@ import {
     FaMapMarkerAlt,
     FaPercentage,
     FaRocket,
-    FaTrophy,
-    FaBuilding
+    FaArrowRight,
 } from "react-icons/fa";
 import { FaArrowTrendUp } from "react-icons/fa6";
-
-import { MdVerified, MdPayment, MdRateReview, MdAnalytics, MdDashboard as MdDashboardIcon } from "react-icons/md";
+import { MdVerified, MdPayment, MdRateReview, MdAnalytics } from "react-icons/md";
 import API from "../../api/api";
 import { showSuccess, showError } from "../../utils/toastConfig";
 
@@ -120,12 +118,12 @@ const Dashboard = () => {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-2xl border border-sage-15">
-                    <p className="text-sm font-semibold text-forest mb-1">{label}</p>
-                    <p className="text-3xl font-bold bg-gradient-to-r from-sage to-forest bg-clip-text text-transparent">
+                <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-[#e6e1d3]">
+                    <p className="text-sm font-semibold text-[#1a2620] mb-1">{label}</p>
+                    <p className="text-3xl font-bold text-[#2f5a3d]">
                         {payload[0].value.toLocaleString()}
                     </p>
-                    <p className="text-xs text-stone-light mt-1">visitors</p>
+                    <p className="text-xs text-[#7a8478] mt-1">visitors</p>
                 </div>
             );
         }
@@ -139,9 +137,8 @@ const Dashboard = () => {
             icon: FaEye,
             trend: "+12%",
             trendUp: true,
-            gradient: "from-blue-500 to-indigo-600",
-            bgGradient: "from-blue-50 to-indigo-50",
-            borderColor: "border-blue-100"
+            accent: "#2f5a3d",
+            tint: "#e8f1ea",
         },
         {
             title: "Total Visitors",
@@ -149,9 +146,8 @@ const Dashboard = () => {
             icon: FaUsers,
             trend: "+8%",
             trendUp: true,
-            gradient: "from-emerald-500 to-green-600",
-            bgGradient: "from-emerald-50 to-green-50",
-            borderColor: "border-emerald-100"
+            accent: "#1e3a8a",
+            tint: "#eaf1fb",
         },
         {
             title: "Total Users",
@@ -159,9 +155,8 @@ const Dashboard = () => {
             icon: FaUserPlus,
             trend: `${userStats.newUsersToday} new today`,
             trendUp: true,
-            gradient: "from-violet-500 to-purple-600",
-            bgGradient: "from-violet-50 to-purple-50",
-            borderColor: "border-purple-100"
+            accent: "#a0522d",
+            tint: "#f5e9df",
         },
         {
             title: "Avg Rating",
@@ -169,9 +164,8 @@ const Dashboard = () => {
             icon: FaStar,
             trend: "+0.2",
             trendUp: true,
-            gradient: "from-amber-500 to-orange-600",
-            bgGradient: "from-amber-50 to-orange-50",
-            borderColor: "border-amber-100"
+            accent: "#9b2c2c",
+            tint: "#fdecec",
         }
     ];
 
@@ -193,63 +187,61 @@ const Dashboard = () => {
 
     if (loading) {
         return (
-            <div className="min-h-[400px] bg-gradient-to-br from-off-white via-white to-off-white font-inter flex items-center justify-center">
+            <div className="min-h-[400px] bg-[#f8f6ef] font-inter flex items-center justify-center">
                 <div className="text-center">
-                    <div className="relative">
-                        <div className="w-20 h-20 border-4 border-sage-20 border-t-sage rounded-full animate-spin"></div>
-                        <FaChartLine className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sage text-2xl animate-pulse" />
+                    <div className="relative w-16 h-16 mx-auto">
+                        <div className="absolute inset-0 border-2 border-[#e6e1d3] border-t-[#2f5a3d] rounded-full animate-spin" />
                     </div>
-                    <p className="text-stone mt-6 font-medium">Loading dashboard...</p>
+                    <p className="text-[#5a6358] mt-5 text-sm">Loading dashboard…</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-gradient-to-br font-inter">
+        <div className="min-h-screen bg-[#f8f6ef] font-inter text-[#1a2620]">
             <div className="max-w-[1400px] mx-auto">
 
-                {/* Dashboard Header with Glassmorphism */}
+                {/* HEADER */}
                 <div className="mb-10">
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
-                        <div className="relative">
-                            {/* <div className="absolute -inset-1 bg-gradient-to-r from-sage/20 to-forest/20 rounded-2xl blur-xl"></div> */}
-                            <div className="relative flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg transform rotate-2">
-                                    <MdDashboardIcon className="text-white text-2xl" />
-                                </div>
-                                <div>
-                                    <h1 className="font-fraunces text-3xl lg:text-5xl font-bold bg-gradient-to-r from-forest to-sage bg-clip-text text-transparent">
-                                        Analytics Dashboard
-                                    </h1>
-                                    <p className="text-stone mt-2 ml-1">
-                                        Monitor your platform's growth and performance
-                                    </p>
-                                </div>
-                            </div>
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-[#e6e1d3]">
+                        <div>
+                            <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#7a8478] mb-3">
+                                <span className="w-6 h-px bg-[#7a8478]" />
+                                Analytics · Overview
+                            </span>
+                            <h1
+                                className="text-4xl lg:text-5xl font-semibold leading-[1.05] text-[#1a2620]"
+                                style={{ fontFamily: '"Fraunces", serif' }}
+                            >
+                                Analytics <span className="italic text-[#2f5a3d]">dashboard</span>
+                            </h1>
+                            <p className="text-[#5a6358] mt-3 max-w-md text-[15px]">
+                                Monitor your platform's growth and performance.
+                            </p>
                         </div>
 
                         <div className="flex gap-3">
                             <button
                                 onClick={handleExportData}
-                                className="group relative overflow-hidden px-5 py-2.5 bg-white border-2 border-sage-15 rounded-2xl text-stone hover:border-sage hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
                             >
-                                <FaDownload className="text-sm text-sage group-hover:scale-110 transition-transform duration-300" />
-                                <span className="text-sm font-medium">Export</span>
+                                <FaDownload className="text-xs text-[#2f5a3d]" />
+                                Export
                             </button>
                             <button
                                 onClick={handlePrint}
-                                className="group relative overflow-hidden px-5 py-2.5 bg-white border-2 border-sage-15 rounded-2xl text-stone hover:border-sage hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
                             >
-                                <FaPrint className="text-sm text-sage group-hover:scale-110 transition-transform duration-300" />
-                                <span className="text-sm font-medium">Print</span>
+                                <FaPrint className="text-xs text-[#2f5a3d]" />
+                                Print
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Modern Date Range Selector */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-2 mb-8 inline-flex flex-wrap gap-2">
+                {/* DATE RANGE SELECTOR */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-1.5 mb-8 inline-flex flex-wrap gap-1 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
                     {[
                         { id: "day", label: "Today", icon: FaCalendarDay },
                         { id: "week", label: "This Week", icon: FaCalendarWeek },
@@ -258,242 +250,241 @@ const Dashboard = () => {
                         <button
                             key={range.id}
                             onClick={() => handleDateRangeChange(range.id)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ${dateRange === range.id
-                                ? "bg-gradient-to-r from-sage to-forest text-white shadow-md scale-105"
-                                : "text-stone hover:bg-sage-5"
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${dateRange === range.id
+                                ? "bg-[#1a2620] text-white shadow-sm"
+                                : "text-[#5a6358] hover:bg-[#faf8f2] hover:text-[#2f5a3d]"
                                 }`}
                         >
-                            <range.icon className="text-sm" />
+                            <range.icon className="text-xs" />
                             <span className="hidden sm:inline">{range.label}</span>
                         </button>
                     ))}
                 </div>
 
-                {/* Modern Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                {/* STATS CARDS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     {statsCards.map((card, index) => {
                         const Icon = card.icon;
                         return (
                             <div
                                 key={index}
-                                className={`group relative overflow-hidden bg-gradient-to-br ${card.bgGradient} rounded-3xl border ${card.borderColor} p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
+                                className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
                             >
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                                <div className="relative">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                                            <Icon className="text-white text-xl" />
-                                        </div>
-                                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${card.trendUp ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                                            } flex items-center gap-1`}>
-                                            {card.trendUp ? <FaArrowUp className="text-xs" /> : <FaArrowDown className="text-xs" />}
-                                            {card.trend}
-                                        </span>
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
+                                            {card.title}
+                                        </p>
+                                        <p
+                                            className="text-4xl font-semibold text-[#1a2620] tracking-tight"
+                                            style={{ fontFamily: '"Fraunces", serif' }}
+                                        >
+                                            {card.value}
+                                        </p>
                                     </div>
-                                    <h3 className="text-stone text-sm mb-1">{card.title}</h3>
-                                    <p className="text-3xl font-bold bg-gradient-to-r from-forest to-sage bg-clip-text text-transparent">
-                                        {card.value}
-                                    </p>
+                                    <div
+                                        className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+                                        style={{ backgroundColor: card.tint, color: card.accent }}
+                                    >
+                                        <Icon className="text-lg" />
+                                    </div>
                                 </div>
+                                <div className="mt-4 flex items-center gap-1.5">
+                                    <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
+                                        {card.trendUp ? <FaArrowUp className="inline text-[10px] mr-0.5" /> : <FaArrowDown className="inline text-[10px] mr-0.5" />}
+                                        {card.trend}
+                                    </span>
+                                    <span className="text-[11px] text-[#9aa194]">vs last period</span>
+                                </div>
+                                <div
+                                    className="mt-5 h-px w-10"
+                                    style={{ backgroundColor: card.accent, opacity: 0.4 }}
+                                />
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Detailed Stats Row with Modern Cards */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-                    {/* Verified Users Card */}
-                    <div className="group relative overflow-hidden bg-white rounded-3xl border border-sage-10 p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sage-5 to-transparent rounded-full -mr-20 -mt-20"></div>
-                        <div className="relative">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg">
-                                        <FaUserCheck className="text-white text-xl" />
-                                    </div>
-                                    <div>
-                                        <p className="text-stone-light text-xs uppercase tracking-wide font-semibold">Verified Users</p>
-                                        <p className="text-3xl font-bold text-forest">{userStats.verifiedUsers.toLocaleString()}</p>
-                                    </div>
+                {/* DETAILED STATS ROW */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
+                    {/* Verified Users */}
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-11 h-11 rounded-xl bg-[#e8f1ea] flex items-center justify-center">
+                                    <FaUserCheck className="text-[#2f5a3d] text-lg" />
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-2xl font-bold text-sage">
-                                        {((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0)}%
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Verified Users</p>
+                                    <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                        {userStats.verifiedUsers.toLocaleString()}
                                     </p>
-                                    <p className="text-xs text-stone-light">of total</p>
                                 </div>
                             </div>
-                            <div className="w-full bg-sage-10 rounded-full h-3">
-                                <div
-                                    className="bg-gradient-to-r from-sage to-forest rounded-full h-3 transition-all duration-1000"
-                                    style={{ width: `${(userStats.verifiedUsers / userStats.totalUsers) * 100}%` }}
-                                ></div>
+                            <div className="text-right">
+                                <p className="text-xl font-bold text-[#2f5a3d]">
+                                    {((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0)}%
+                                </p>
+                                <p className="text-[10px] text-[#7a8478]">of total</p>
+                            </div>
+                        </div>
+                        <div className="w-full bg-[#e6e1d3] rounded-full h-2">
+                            <div
+                                className="bg-[#2f5a3d] rounded-full h-2 transition-all duration-1000"
+                                style={{ width: `${(userStats.verifiedUsers / userStats.totalUsers) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Total Rides */}
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="w-11 h-11 rounded-xl bg-[#eaf1fb] flex items-center justify-center">
+                                <FaCar className="text-[#1e3a8a] text-lg" />
+                            </div>
+                            <div>
+                                <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Total Rides</p>
+                                <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                    {rideStats.totalRides.toLocaleString()}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#efece4]">
+                            <div className="text-center">
+                                <p className="text-base font-bold text-emerald-600">{rideStats.completedRides.toLocaleString()}</p>
+                                <p className="text-[10px] text-[#7a8478] mt-0.5">Completed</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-base font-bold text-amber-600">{rideStats.cancelledRides.toLocaleString()}</p>
+                                <p className="text-[10px] text-[#7a8478] mt-0.5">Cancelled</p>
+                            </div>
+                            <div className="text-center">
+                                <p className="text-base font-bold text-[#2f5a3d]">{rideStats.seatsBooked.toLocaleString()}</p>
+                                <p className="text-[10px] text-[#7a8478] mt-0.5">Seats Booked</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Total Rides Card */}
-                    <div className="group relative overflow-hidden bg-white rounded-3xl border border-sage-10 p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sage-5 to-transparent rounded-full -mr-20 -mt-20"></div>
-                        <div className="relative">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg">
-                                    <FaCar className="text-white text-xl" />
-                                </div>
-                                <div>
-                                    <p className="text-stone-light text-xs uppercase tracking-wide font-semibold">Total Rides</p>
-                                    <p className="text-3xl font-bold text-forest">{rideStats.totalRides.toLocaleString()}</p>
-                                </div>
+                    {/* Positive Feedback */}
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-11 h-11 rounded-xl bg-[#fdecec] flex items-center justify-center">
+                                <MdRateReview className="text-[#9b2c2c] text-lg" />
                             </div>
-                            <div className="grid grid-cols-3 gap-4 pt-4 border-t-2 border-sage-10">
-                                <div className="text-center">
-                                    <p className="text-xl font-bold text-emerald-600">{rideStats.completedRides.toLocaleString()}</p>
-                                    <p className="text-xs text-stone-light mt-1">Completed</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-xl font-bold text-amber-600">{rideStats.cancelledRides.toLocaleString()}</p>
-                                    <p className="text-xs text-stone-light mt-1">Cancelled</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-xl font-bold text-sage">{rideStats.seatsBooked.toLocaleString()}</p>
-                                    <p className="text-xs text-stone-light mt-1">Seats Booked</p>
-                                </div>
+                            <div>
+                                <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Positive Feedback</p>
+                                <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                    {((feedback.positiveReviews / feedback.totalReviews) * 100).toFixed(0)}%
+                                </p>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Positive Feedback Card */}
-                    <div className="group relative overflow-hidden bg-white rounded-3xl border border-sage-10 p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sage-5 to-transparent rounded-full -mr-20 -mt-20"></div>
-                        <div className="relative">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg">
-                                    <MdRateReview className="text-white text-xl" />
-                                </div>
-                                <div>
-                                    <p className="text-stone-light text-xs uppercase tracking-wide font-semibold">Positive Feedback</p>
-                                    <p className="text-3xl font-bold text-forest">
-                                        {((feedback.positiveReviews / feedback.totalReviews) * 100).toFixed(0)}%
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="w-full bg-sage-10 rounded-full h-3 mb-4">
-                                <div
-                                    className="bg-gradient-to-r from-sage to-forest rounded-full h-3 transition-all duration-1000"
-                                    style={{ width: `${(feedback.positiveReviews / feedback.totalReviews) * 100}%` }}
-                                ></div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <p className="text-sm font-semibold text-forest">
-                                    {feedback.positiveReviews.toLocaleString()} positive
-                                </p>
-                                <p className="text-sm text-stone-light">
-                                    out of {feedback.totalReviews.toLocaleString()}
-                                </p>
-                            </div>
+                        <div className="w-full bg-[#e6e1d3] rounded-full h-2 mb-3">
+                            <div
+                                className="bg-[#2f5a3d] rounded-full h-2 transition-all duration-1000"
+                                style={{ width: `${(feedback.positiveReviews / feedback.totalReviews) * 100}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between">
+                            <p className="text-xs font-medium text-[#1a2620]">{feedback.positiveReviews.toLocaleString()} positive</p>
+                            <p className="text-[11px] text-[#7a8478]">out of {feedback.totalReviews.toLocaleString()}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Chart Section with Glass Effect */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-6 mb-10">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+                {/* CHART SECTION */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sage to-forest flex items-center justify-center">
-                                    <FaChartLine className="text-white text-lg" />
-                                </div>
-                                <h2 className="font-fraunces text-2xl font-bold text-forest">
+                            <div className="flex items-center gap-2 mb-1">
+                                <FaChartLine className="text-[#2f5a3d] text-sm" />
+                                <h2 className="font-semibold text-lg text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
                                     Visitor Insights
                                 </h2>
                             </div>
-                            <p className="text-stone text-sm ml-13">
-                                {dateRange === "week" ? "Weekly traffic overview" :
-                                    dateRange === "month" ? "Monthly trends" : "Daily analytics"}
+                            <p className="text-[13px] text-[#7a8478]">
+                                {dateRange === "week" ? "Weekly traffic overview" : dateRange === "month" ? "Monthly trends" : "Daily analytics"}
                             </p>
                         </div>
-                        <div className="mt-4 md:mt-0 flex items-center gap-2">
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded-full bg-sage"></div>
-                                <span className="text-xs text-stone-light">Visitors</span>
+                        <div className="mt-3 md:mt-0 flex items-center gap-2">
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-2.5 h-2.5 rounded-full bg-[#2f5a3d]" />
+                                <span className="text-xs text-[#7a8478]">Visitors</span>
                             </div>
                         </div>
                     </div>
 
-                    <ResponsiveContainer width="100%" height={400}>
+                    <ResponsiveContainer width="100%" height={380}>
                         <AreaChart
                             data={dateRange === "week" ? weeklyStats : dateRange === "month" ? monthlyStats : stats}
                             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                         >
                             <defs>
                                 <linearGradient id="visitorGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#7A9B7A" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#7A9B7A" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#2f5a3d" stopOpacity={0.1} />
+                                    <stop offset="95%" stopColor="#2f5a3d" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#E8E8E8" vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#efece4" vertical={false} />
                             <XAxis
                                 dataKey="date"
-                                stroke="#9CA3AF"
-                                tick={{ fontSize: 12 }}
+                                stroke="#9aa194"
+                                tick={{ fontSize: 11 }}
                                 axisLine={false}
                                 tickLine={false}
                             />
                             <YAxis
-                                stroke="#9CA3AF"
-                                tick={{ fontSize: 12 }}
+                                stroke="#9aa194"
+                                tick={{ fontSize: 11 }}
                                 axisLine={false}
                                 tickLine={false}
                             />
-                            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#7A9B7A', strokeWidth: 2 }} />
+                            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2f5a3d', strokeWidth: 1.5, strokeDasharray: "4 4" }} />
                             <Area
                                 type="monotone"
                                 dataKey="visitors"
-                                stroke="#7A9B7A"
-                                strokeWidth={3}
+                                stroke="#2f5a3d"
+                                strokeWidth={2}
                                 fill="url(#visitorGradient)"
-                                activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }}
+                                activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#2f5a3d' }}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* Bottom Sections */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                {/* BOTTOM SECTIONS */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
                     {/* Recent Activity */}
-                    <div className="bg-white rounded-3xl shadow-xl border border-sage-10 p-6 hover:shadow-2xl transition-all duration-300">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sage to-forest flex items-center justify-center">
-                                    <FaRegClock className="text-white text-lg" />
-                                </div>
-                                <h3 className="font-fraunces text-xl font-semibold text-forest">
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-2">
+                                <FaRegClock className="text-[#2f5a3d] text-sm" />
+                                <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
                                     Recent Activity
                                 </h3>
                             </div>
-                            <span className="text-xs text-sage font-semibold">Live</span>
+                            <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live</span>
                         </div>
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-3 max-h-[380px] overflow-y-auto">
                             {recentActivities.map((activity, idx) => {
                                 const Icon = activity.icon;
+                                const typeStyles = {
+                                    user: "bg-[#e8f1ea] text-[#2f5a3d]",
+                                    ride: "bg-[#eaf1fb] text-[#1e3a8a]",
+                                    booking: "bg-[#f5e9df] text-[#a0522d]",
+                                    review: "bg-[#fdecec] text-[#9b2c2c]",
+                                    verification: "bg-[#e8f1ea] text-[#2f5a3d]"
+                                };
                                 return (
-                                    <div key={idx} className="group flex items-start gap-3 p-3 rounded-xl hover:bg-sage-5 transition-all duration-300">
-                                        <div className={`w-10 h-10 rounded-xl ${activity.type === 'user' ? 'bg-gradient-to-br from-emerald-400 to-green-500' :
-                                            activity.type === 'ride' ? 'bg-gradient-to-br from-blue-400 to-indigo-500' :
-                                                activity.type === 'booking' ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
-                                                    'bg-gradient-to-br from-amber-400 to-orange-500'
-                                            } flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300`}>
-                                            <Icon className="text-white text-sm" />
+                                    <div key={idx} className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#faf8f2] transition-all duration-200">
+                                        <div className={`w-9 h-9 rounded-xl ${typeStyles[activity.type]} flex items-center justify-center flex-shrink-0`}>
+                                            <Icon className="text-sm" />
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-sm text-forest">
+                                            <p className="text-[13.5px] text-[#1a2620]">
                                                 <span className="font-semibold">{activity.user}</span>
-                                                <span className="text-stone"> {activity.action}</span>
+                                                <span className="text-[#5a6358]"> {activity.action}</span>
                                             </p>
-                                            <p className="text-xs text-stone-light mt-1 flex items-center gap-1">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-sage"></div>
-                                                {activity.time}
-                                            </p>
+                                            <p className="text-[11px] text-[#9aa194] mt-1">{activity.time}</p>
                                         </div>
                                     </div>
                                 );
@@ -502,43 +493,36 @@ const Dashboard = () => {
                     </div>
 
                     {/* Top Performing Cities */}
-                    <div className="bg-white rounded-3xl shadow-xl border border-sage-10 p-6 hover:shadow-2xl transition-all duration-300">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sage to-forest flex items-center justify-center">
-                                    <FaTrophy className="text-white text-lg" />
-                                </div>
-                                <h3 className="font-fraunces text-xl font-semibold text-forest">
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-2">
+                                <FaMapMarkerAlt className="text-[#2f5a3d] text-sm" />
+                                <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
                                     Top Performing Cities
                                 </h3>
                             </div>
-                            <FaArrowTrendUp className="text-sage text-lg" />
+                            <FaArrowTrendUp className="text-[#2f5a3d] text-sm opacity-60" />
                         </div>
-                        <div className="space-y-5">
+                        <div className="space-y-4">
                             {topCities.map((city, idx) => (
                                 <div key={idx} className="group">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sage-10 to-sage-20 flex items-center justify-center">
-                                                <FaBuilding className="text-sage text-sm" />
-                                            </div>
-                                            <div>
-                                                <span className="text-sm font-semibold text-forest">{city.city}</span>
-                                                <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                                                        {city.growth}
-                                                    </span>
-                                                    <span className="text-xs text-stone-light">{city.revenue}</span>
-                                                </div>
-                                            </div>
+                                    <div className="flex justify-between items-center mb-1.5">
+                                        <div className="flex items-center gap-2.5">
+                                            <span className="text-sm font-medium text-[#1a2620]">{city.city}</span>
+                                            <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                                                {city.growth}
+                                            </span>
                                         </div>
-                                        <span className="text-sm font-semibold text-sage">{city.rides} rides</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xs text-[#5a6358]">{city.revenue}</span>
+                                            <span className="text-sm font-semibold text-[#2f5a3d]">{city.rides} rides</span>
+                                        </div>
                                     </div>
-                                    <div className="w-full bg-sage-10 rounded-full h-2.5">
+                                    <div className="w-full bg-[#e6e1d3] rounded-full h-1.5">
                                         <div
-                                            className="bg-gradient-to-r from-sage to-forest rounded-full h-2.5 transition-all duration-1000 group-hover:opacity-80"
+                                            className="bg-[#2f5a3d] rounded-full h-1.5 transition-all duration-1000"
                                             style={{ width: `${city.percentage}%` }}
-                                        ></div>
+                                        />
                                     </div>
                                 </div>
                             ))}
@@ -546,40 +530,35 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Quick Stats Footer */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                    <div className="group relative overflow-hidden bg-gradient-to-br from-sage-10 to-sage-20 rounded-2xl p-5 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="relative">
-                            <FaPercentage className="text-sage text-2xl mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
-                            <p className="text-2xl font-bold text-forest">
-                                {((rideStats.completedRides / rideStats.totalRides) * 100).toFixed(0)}%
-                            </p>
-                            <p className="text-xs text-stone-light mt-1">Booking Success Rate</p>
-                        </div>
+                {/* QUICK STATS FOOTER */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
+                        <FaPercentage className="text-[#2f5a3d] text-xl mx-auto mb-2" />
+                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                            {((rideStats.completedRides / rideStats.totalRides) * 100).toFixed(0)}%
+                        </p>
+                        <p className="text-[10px] text-[#7a8478] mt-0.5">Booking Success Rate</p>
                     </div>
-                    <div className="group relative overflow-hidden bg-gradient-to-br from-sage-10 to-sage-20 rounded-2xl p-5 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div className="relative">
-                            <FaRocket className="text-sage text-2xl mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
-                            <p className="text-2xl font-bold text-forest">2.5K</p>
-                            <p className="text-xs text-stone-light mt-1">Active Rides Today</p>
-                        </div>
+                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
+                        <FaRocket className="text-[#2f5a3d] text-xl mx-auto mb-2" />
+                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                            2.5K
+                        </p>
+                        <p className="text-[10px] text-[#7a8478] mt-0.5">Active Rides Today</p>
                     </div>
-                    <div className="group relative overflow-hidden bg-gradient-to-br from-sage-10 to-sage-20 rounded-2xl p-5 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div className="relative">
-                            <FaUserCheck className="text-sage text-2xl mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
-                            <p className="text-2xl font-bold text-forest">
-                                {((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0)}%
-                            </p>
-                            <p className="text-xs text-stone-light mt-1">Verification Rate</p>
-                        </div>
+                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
+                        <FaUserCheck className="text-[#2f5a3d] text-xl mx-auto mb-2" />
+                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                            {((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0)}%
+                        </p>
+                        <p className="text-[10px] text-[#7a8478] mt-0.5">Verification Rate</p>
                     </div>
-                    <div className="group relative overflow-hidden bg-gradient-to-br from-sage-10 to-sage-20 rounded-2xl p-5 text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div className="relative">
-                            <FaStar className="text-sage text-2xl mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
-                            <p className="text-2xl font-bold text-forest">{feedback.averageRating.toFixed(1)}</p>
-                            <p className="text-xs text-stone-light mt-1">Average Rating</p>
-                        </div>
+                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
+                        <FaStar className="text-[#2f5a3d] text-xl mx-auto mb-2" />
+                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                            {feedback.averageRating.toFixed(1)}
+                        </p>
+                        <p className="text-[10px] text-[#7a8478] mt-0.5">Average Rating</p>
                     </div>
                 </div>
             </div>
