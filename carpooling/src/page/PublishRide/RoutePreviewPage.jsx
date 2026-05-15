@@ -134,22 +134,22 @@ const RoutePreviewPage = () => {
                                 <span className="block text-sm md:text-base font-bold text-forest">
                                     {routeInfo?.fuelCost != null ? `₹${routeInfo.fuelCost}` : "Calculating..."} <span className="text-xs text-stone">(approx.)</span>
                                 </span>
-                                <span className="block text-[9px] md:text-[10px] text-stone">
+                                {/* <span className="block text-[9px] md:text-[10px] text-stone">
                                     {routeInfo?.litresUsed != null ? `~${routeInfo.litresUsed}L fuel` : "Est. Fuel Cost"}
-                                </span>
+                                </span> */}
                             </div>
                         </div>
                     </div>
 
                     {/* ✅ Fuel breakdown note */}
-                    {routeInfo && (
+                    {/* {routeInfo && (
                         <div className="flex gap-2 p-3 bg-sage-soft rounded-md mb-4 md:mb-xl text-[10px] md:text-xs text-stone">
                             <BsFuelPump className="text-sage flex-shrink-0 mt-0.5" />
                             <span>
                                 Based on 15 km/L efficiency · ₹94.5/L petrol (Ahmedabad) · {routeInfo.distance} km route
                             </span>
                         </div>
-                    )}
+                    )} */}
 
                     {/* Add Stopovers Button */}
                     <button
