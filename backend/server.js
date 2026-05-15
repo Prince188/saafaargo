@@ -9,8 +9,7 @@ const vehicleRoutes = require("./routes/vehicleRoutes");
 const rideRoutes = require("./routes/rideRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const blogRoutes = require("./routes/blogRoutes");
-
-
+const newsletterRoutes = require("./routes/newsletterRoutes");
 
 
 connectDB();
@@ -54,6 +53,8 @@ app.use("/api/visitor", require("./routes/visitorRoutes"));
 app.use("/api/bookings", bookingRoutes);
 
 app.use("/api/blogs", blogRoutes);
+
+app.use("/api/newsletter", newsletterRoutes);
 
 const PORT = process.env.PORT || 5000;
 

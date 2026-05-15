@@ -1,4 +1,6 @@
+import axios from "axios";
 import React from "react";
+import { useState } from "react";
 import {
     FaFacebook,
     FaTwitter,
@@ -14,6 +16,44 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
+    const [email, setEmail] = useState("");
+    const [subscribed, setSubscribed] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const handleSubscribe = async () => {
+        try {
+            setLoading(true);
+
+            await axios.post("http://localhost:5000/api/newsletter/subscribe", {
+                email,
+            });
+
+            setSubscribed(true);
+            alert("Subscribed successfully!");
+        } catch (err) {
+            alert(err.response?.data?.message || "Error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUnsubscribe = async () => {
+        try {
+            setLoading(true);
+
+            await axios.post("http://localhost:5000/api/newsletter/unsubscribe", {
+                email,
+            });
+
+            setSubscribed(false);
+            setEmail("");
+            alert("Unsubscribed successfully!");
+        } catch (err) {
+            alert("Error");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <footer className="bg-forest text-white font-inter relative overflow-hidden">
@@ -51,13 +91,25 @@ const Footer = () => {
                         <div className="flex flex-col sm:flex-row gap-sm">
                             <input
                                 type="email"
+                                value={email}
+                                disabled={subscribed}
+                                onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Your email address"
-                                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-full text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-sage focus:bg-white/15 transition-all duration-base"
+                                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-full text-sm text-white"
                             />
-                            <button className="inline-flex items-center justify-center gap-sm px-6 py-3 bg-gradient-sage border-none rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-md hover:shadow-md whitespace-nowrap">
-                                Subscribe
-                                <FaArrowRight />
-                            </button>
+                            {!subscribed ? (
+                                <button
+                                    className="inline-flex items-center justify-center gap-sm px-6 py-3 bg-gradient-sage border-none rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-md hover:shadow-md whitespace-nowrap"
+                                    onClick={handleSubscribe} disabled={loading}>
+                                    Subscribe
+                                </button>
+                            ) : (
+                                <button
+                                    className="inline-flex items-center justify-center gap-sm px-6 py-3 bg-gradient-sage border-none rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-md hover:shadow-md whitespace-nowrap"
+                                    onClick={handleUnsubscribe} disabled={loading}>
+                                    Unsubscribe
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
