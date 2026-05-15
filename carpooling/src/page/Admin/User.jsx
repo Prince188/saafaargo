@@ -153,7 +153,7 @@ const User = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f6ef] font-inter text-[#1a2620]">
+    <div className="min-h-screen font-inter text-[#1a2620]">
       <div className="max-w-7xl mx-auto ">
         {/* HEADER */}
         <div className="mb-10">

@@ -199,7 +199,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8f6ef] font-inter text-[#1a2620]">
+        <div className="min-h-screen font-inter text-[#1a2620]">
             <div className="max-w-[1400px] mx-auto">
 
                 {/* HEADER */}

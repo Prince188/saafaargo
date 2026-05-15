@@ -14,12 +14,10 @@ import {
     FaChevronLeft,
     FaChevronRight,
     FaTimes,
-    FaFilter,
-    FaChartLine,
-    FaClock,
-    FaCheckCircle,
-    FaBookOpen
+    FaBookOpen,
+    FaArrowRight
 } from "react-icons/fa";
+import { FaArrowTrendUp } from "react-icons/fa6";
 import { MdDashboard, MdOutlinePublishedWithChanges } from "react-icons/md";
 import { showSuccess, showError } from "../../utils/toastConfig";
 
@@ -82,7 +80,6 @@ const AdminBlogs = () => {
         }
     };
 
-    // Pagination
     const indexOfLastBlog = currentPage * blogsPerPage;
     const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
     const currentBlogs = filteredBlogs.slice(indexOfFirstBlog, indexOfLastBlog);
@@ -90,14 +87,14 @@ const AdminBlogs = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    const getStatusColor = (status) => {
+    const getStatusStyles = (status) => {
         switch (status?.toLowerCase()) {
             case 'published':
-                return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
             case 'draft':
-                return 'bg-amber-50 text-amber-700 border-amber-200';
+                return "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
             default:
-                return 'bg-sage-10 text-sage border-sage-20';
+                return "bg-[#e8f1ea] text-[#2f5a3d] ring-1 ring-[#c5dccb]";
         }
     };
 
@@ -106,162 +103,167 @@ const AdminBlogs = () => {
             title: "Total Blogs",
             value: blogs.length,
             icon: FaBookOpen,
-            color: "from-violet-500 to-purple-600",
-            bgGradient: "from-violet-50 to-purple-50",
-            borderColor: "border-purple-100"
+            accent: "#2f5a3d",
+            tint: "#e8f1ea",
         },
         {
             title: "Published",
             value: blogs.filter(b => b.status === 'published').length,
             icon: MdOutlinePublishedWithChanges,
-            color: "from-emerald-500 to-green-600",
-            bgGradient: "from-emerald-50 to-green-50",
-            borderColor: "border-emerald-100"
+            accent: "#1e3a8a",
+            tint: "#eaf1fb",
         },
         {
             title: "Drafts",
             value: blogs.filter(b => b.status === 'draft').length,
-            icon: FaClock,
-            color: "from-amber-500 to-orange-600",
-            bgGradient: "from-amber-50 to-orange-50",
-            borderColor: "border-amber-100"
+            icon: FaTag,
+            accent: "#a0522d",
+            tint: "#f5e9df",
         },
         {
-            title: "Active Views",
+            title: "Total Views",
             value: blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString(),
-            icon: FaChartLine,
-            color: "from-sky-500 to-blue-600",
-            bgGradient: "from-sky-50 to-blue-50",
-            borderColor: "border-sky-100"
+            icon: FaEye,
+            accent: "#9b2c2c",
+            tint: "#fdecec",
         }
     ];
 
     return (
-        <div className="bg-gradient-to-br  min-h-screen font-inter">
-            <div className="max-w-7xl mx-auto ">
+        <div className="min-h-screen font-inter text-[#1a2620]">
+            <div className="max-w-7xl mx-auto">
 
-                {/* Header Section with Glassmorphism */}
+                {/* HEADER */}
                 <div className="mb-10">
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
-                        <div className="relative">
-                            {/* <div className="absolute -inset-1 bg-gradient-to-r from-sage/20 to-forest/20 rounded-2xl blur-xl"></div> */}
-                            <div className="relative flex items-center gap-4">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sage to-forest flex items-center justify-center shadow-lg transform rotate-3">
-                                    <MdDashboard className="text-white text-2xl" />
-                                </div>
-                                <div>
-                                    <h1 className="font-fraunces text-4xl lg:text-5xl font-bold bg-gradient-to-r from-forest to-sage bg-clip-text text-transparent">
-                                        Blog Management
-                                    </h1>
-                                    <p className="text-stone mt-2 ml-1">
-                                        Create, edit, and manage your blog posts
-                                    </p>
-                                </div>
-                            </div>
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-[#e6e1d3]">
+                        <div>
+                            <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#7a8478] mb-3">
+                                <span className="w-6 h-px bg-[#7a8478]" />
+                                Content · Directory
+                            </span>
+                            <h1
+                                className="text-4xl lg:text-5xl font-semibold leading-[1.05] text-[#1a2620]"
+                                style={{ fontFamily: '"Fraunces", serif' }}
+                            >
+                                Blog <span className="italic text-[#2f5a3d]">management</span>
+                            </h1>
+                            <p className="text-[#5a6358] mt-3 max-w-md text-[15px]">
+                                Create, edit, and manage your blog posts.
+                            </p>
                         </div>
 
                         <button
                             onClick={() => navigate("/admin/blogs/create")}
-                            className="group relative overflow-hidden px-6 py-3 bg-gradient-to-r from-sage to-forest text-white rounded-2xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 font-medium flex items-center gap-2"
+                            className="group inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#1a2620] text-[#f8f6ef] hover:bg-[#2f5a3d] transition-colors duration-300 text-sm font-medium"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <FaPlus className="text-sm group-hover:rotate-90 transition-transform duration-300" />
-                            Create New Blog
+                            <FaPlus className="text-xs" />
+                            Create blog
                         </button>
                     </div>
                 </div>
 
-                {/* Search and Filter Bar with Glass Effect */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-5 mb-8">
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 relative group">
-                            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-light group-focus-within:text-sage transition-colors duration-200" />
+                {/* SEARCH BAR */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <div className="flex-1 relative">
+                            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
                             <input
                                 type="text"
                                 placeholder="Search by title, author, or tags..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-sage-10 rounded-2xl focus:ring-4 focus:ring-sage/20 focus:border-sage outline-none transition-all duration-300 text-stone placeholder:text-stone-light/70"
+                                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
                             />
                         </div>
-                        {searchTerm && (
-                            <button
-                                onClick={() => setSearchTerm("")}
-                                className="flex items-center gap-2 px-5 py-3 bg-sage-10 text-stone rounded-2xl hover:bg-sage-20 hover:text-forest transition-all duration-300 group"
-                            >
-                                <FaTimes className="text-sm group-hover:rotate-90 transition-transform duration-300" />
-                                Clear
-                            </button>
-                        )}
-                        <button className="flex items-center gap-2 px-5 py-3 border-2 border-sage-10 rounded-2xl text-stone hover:bg-sage-5 hover:border-sage transition-all duration-300 group">
-                            <FaFilter className="text-sm text-sage group-hover:scale-110 transition-transform duration-300" />
-                            Filter
-                        </button>
+                        <div className="flex gap-2">
+                            {searchTerm && (
+                                <button
+                                    onClick={() => setSearchTerm("")}
+                                    className="px-5 py-3 rounded-xl bg-[#efece4] text-[#5a6358] hover:bg-[#e6e1d3] transition-colors flex items-center gap-2 text-sm font-medium"
+                                >
+                                    <FaTimes size={13} />
+                                    Clear
+                                </button>
+                            )}
+                        </div>
                     </div>
                     {searchTerm && (
-                        <div className="mt-4 pt-3 border-t border-sage-10">
-                            <p className="text-sm text-stone">
-                                Found <span className="font-bold text-sage text-base">{filteredBlogs.length}</span> blog(s) matching
-                                <span className="font-semibold text-forest ml-2 px-2 py-1 bg-sage-10 rounded-lg">"{searchTerm}"</span>
-                            </p>
+                        <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
+                            Found <span className="font-semibold text-[#2f5a3d]">{filteredBlogs.length}</span> blog(s) matching
+                            <span className="font-medium ml-2 px-2 py-0.5 bg-[#e8f1ea] rounded-full text-[#2f5a3d]">"{searchTerm}"</span>
                         </div>
                     )}
                 </div>
 
-                {/* Modern Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                {/* STATS CARDS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     {statsCards.map((card, index) => {
                         const Icon = card.icon;
                         return (
                             <div
                                 key={index}
-                                className={`group relative overflow-hidden bg-gradient-to-br ${card.bgGradient} rounded-3xl border ${card.borderColor} p-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
+                                className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
                             >
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
-                                <div className="relative">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                                            <Icon className="text-white text-xl" />
-                                        </div>
-                                        <span className="text-3xl font-black bg-gradient-to-br from-forest to-sage bg-clip-text text-transparent">
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
+                                            {card.title}
+                                        </p>
+                                        <p
+                                            className="text-4xl font-semibold text-[#1a2620] tracking-tight"
+                                            style={{ fontFamily: '"Fraunces", serif' }}
+                                        >
                                             {card.value}
-                                        </span>
+                                        </p>
                                     </div>
-                                    <p className="text-stone font-medium">{card.title}</p>
+                                    <div
+                                        className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+                                        style={{ backgroundColor: card.tint, color: card.accent }}
+                                    >
+                                        <Icon className="text-lg" />
+                                    </div>
                                 </div>
+                                <div
+                                    className="mt-5 h-px w-10"
+                                    style={{ backgroundColor: card.accent, opacity: 0.4 }}
+                                />
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Modern Table Card */}
-                <div className="bg-white rounded-3xl shadow-xl border border-sage-10 overflow-hidden backdrop-blur-sm">
+                {/* BLOG TABLE */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] overflow-hidden">
                     {loading ? (
                         <div className="flex items-center justify-center py-32">
                             <div className="text-center">
-                                <div className="relative">
-                                    <div className="w-20 h-20 border-4 border-sage-20 border-t-sage rounded-full animate-spin"></div>
-                                    <FaSpinner className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sage text-2xl animate-pulse" />
+                                <div className="relative w-16 h-16 mx-auto">
+                                    <div className="absolute inset-0 border-2 border-[#e6e1d3] border-t-[#2f5a3d] rounded-full animate-spin" />
                                 </div>
-                                <p className="text-stone mt-6 font-medium">Loading blogs...</p>
+                                <p className="text-[#5a6358] mt-5 text-sm">Loading blogs…</p>
                             </div>
                         </div>
                     ) : currentBlogs.length === 0 ? (
-                        <div className="text-center py-32">
-                            <div className="w-24 h-24 bg-gradient-to-br from-sage-10 to-sage-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                                <FaTag className="text-sage text-4xl" />
+                        <div className="text-center py-32 px-6">
+                            <div className="w-20 h-20 bg-[#efece4] rounded-2xl flex items-center justify-center mx-auto mb-5">
+                                <FaBookOpen className="text-[#7a8478] text-2xl" />
                             </div>
-                            <p className="text-stone text-xl font-semibold mb-2">No blogs found</p>
-                            <p className="text-stone-light mb-8">
+                            <p
+                                className="text-2xl font-semibold mb-2 text-[#1a2620]"
+                                style={{ fontFamily: '"Fraunces", serif' }}
+                            >
+                                No blogs found
+                            </p>
+                            <p className="text-[#7a8478] mb-7 text-sm">
                                 {searchTerm ? "Try a different search term" : "Create your first blog post"}
                             </p>
                             {!searchTerm && (
                                 <button
                                     onClick={() => navigate("/admin/blogs/create")}
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sage to-forest text-white rounded-2xl hover:shadow-2xl transition-all duration-300"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a2620] text-[#f8f6ef] hover:bg-[#2f5a3d] transition-colors text-sm"
                                 >
-                                    <FaPlus className="text-sm" />
-                                    Create Blog
+                                    <FaPlus className="text-xs" />
+                                    Create blog
                                 </button>
                             )}
                         </div>
@@ -270,107 +272,114 @@ const AdminBlogs = () => {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="bg-gradient-to-r from-sage-5 to-sage-8 border-b-2 border-sage-10">
-                                            <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider rounded-tl-3xl">
-                                                Blog Title
-                                            </th>
-                                            <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                                                Author
-                                            </th>
-                                            <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                                                Date
-                                            </th>
-                                            <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                            <th className="px-6 py-5 text-left text-xs font-semibold text-stone uppercase tracking-wider rounded-tr-3xl">
-                                                Actions
-                                            </th>
+                                        <tr className="bg-[#faf8f2] border-b border-[#e6e1d3]">
+                                            {["Blog Title", "Author", "Date", "Status", "Actions"].map((h) => (
+                                                <th
+                                                    key={h}
+                                                    className="px-6 py-4 text-left text-[11px] font-semibold text-[#7a8478] uppercase tracking-[0.16em]"
+                                                >
+                                                    {h}
+                                                </th>
+                                            ))}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-sage-8">
-                                        {currentBlogs.map((blog, idx) => (
+                                    <tbody className="divide-y divide-[#efece4]">
+                                        {currentBlogs.map((blog) => (
                                             <tr
                                                 key={blog._id}
-                                                className="group hover:bg-gradient-to-r hover:from-sage-5 hover:to-transparent transition-all duration-300 cursor-pointer"
-                                                style={{ animationDelay: `${idx * 50}ms` }}
+                                                className="group hover:bg-[#faf8f2] transition-colors duration-200"
                                             >
                                                 <td className="px-6 py-5">
-                                                    <div className="transform group-hover:translate-x-1 transition-transform duration-300">
-                                                        <div className="font-semibold text-forest text-lg mb-2 line-clamp-1">
+                                                    <div>
+                                                        <div
+                                                            className="font-semibold text-[#1a2620] text-[15px] leading-tight mb-2"
+                                                            style={{ fontFamily: '"Fraunces", serif' }}
+                                                        >
                                                             {blog.title}
                                                         </div>
                                                         {blog.tags && blog.tags.length > 0 && (
                                                             <div className="flex flex-wrap gap-1.5">
-                                                                {blog.tags.slice(0, 3).map((tag, idx) => (
-                                                                    <span key={idx} className="text-xs text-sage bg-sage-10 px-2.5 py-1 rounded-full font-medium">
+                                                                {blog.tags.slice(0, 2).map((tag, idx) => (
+                                                                    <span
+                                                                        key={idx}
+                                                                        className="text-[10px] text-[#2f5a3d] bg-[#e8f1ea] px-2 py-0.5 rounded-full font-medium"
+                                                                    >
                                                                         #{tag}
                                                                     </span>
                                                                 ))}
-                                                                {blog.tags.length > 3 && (
-                                                                    <span className="text-xs text-stone-light">
-                                                                        +{blog.tags.length - 3}
+                                                                {blog.tags.length > 2 && (
+                                                                    <span className="text-[10px] text-[#9aa194]">
+                                                                        +{blog.tags.length - 2}
                                                                     </span>
                                                                 )}
                                                             </div>
                                                         )}
                                                     </div>
                                                 </td>
+
                                                 <td className="px-6 py-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sage to-forest flex items-center justify-center text-white font-semibold shadow-md">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-8 h-8 rounded-lg bg-[#e8f1ea] flex items-center justify-center text-[#2f5a3d] font-semibold text-sm">
                                                             {blog.author?.name?.[0] || "A"}
                                                         </div>
                                                         <div>
-                                                            <p className="text-stone font-medium text-sm">
+                                                            <p className="text-[13.5px] font-medium text-[#1a2620]">
                                                                 {blog.author?.name || "Admin User"}
                                                             </p>
-                                                            <p className="text-stone-light text-xs">
+                                                            <p className="text-[10px] text-[#7a8478]">
                                                                 {blog.author?.role || "Author"}
                                                             </p>
                                                         </div>
                                                     </div>
                                                 </td>
+
                                                 <td className="px-6 py-5">
-                                                    <div className="flex items-center gap-2 text-stone">
-                                                        <FaCalendarAlt className="text-sage text-sm" />
-                                                        <span className="text-sm">
-                                                            {new Date(blog.createdAt).toLocaleDateString('en-US', {
-                                                                year: 'numeric',
-                                                                month: 'short',
-                                                                day: 'numeric'
+                                                    <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
+                                                        <FaCalendarAlt className="text-[#7a8478] text-xs" />
+                                                        <span>
+                                                            {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                                                                year: "numeric",
+                                                                month: "short",
+                                                                day: "numeric",
                                                             })}
                                                         </span>
                                                     </div>
                                                 </td>
+
                                                 <td className="px-6 py-5">
-                                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border ${getStatusColor(blog.status)}`}>
-                                                        {blog.status === 'published' ? <FaCheckCircle size={12} /> : <FaClock size={12} />}
-                                                        {blog.status || "Published"}
+                                                    <span
+                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ${getStatusStyles(
+                                                            blog.status
+                                                        )}`}
+                                                    >
+                                                        {blog.status === "published" ? "Published" : "Draft"}
                                                     </span>
                                                 </td>
+
                                                 <td className="px-6 py-5">
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => navigate(`/admin/blogs/edit/${blog._id}`)}
-                                                            className="group/btn relative overflow-hidden px-4 py-2 bg-sage-10 text-sage rounded-xl hover:bg-sage-15 transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                                            className="w-9 h-9 rounded-lg bg-[#efece4] text-[#5a6358] hover:bg-[#2f5a3d] hover:text-white transition-colors flex items-center justify-center"
+                                                            title="Edit blog"
                                                         >
-                                                            <FaEdit size={14} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-                                                            Edit
+                                                            <FaEdit size={13} />
                                                         </button>
+
                                                         <button
                                                             onClick={() => deleteBlog(blog._id)}
-                                                            className="group/btn px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                                            className="w-9 h-9 rounded-lg bg-[#fdecec] text-[#9b2c2c] hover:bg-[#9b2c2c] hover:text-white transition-colors flex items-center justify-center"
+                                                            title="Delete blog"
                                                         >
-                                                            <FaTrash size={14} className="group-hover/btn:scale-110 transition-transform duration-300" />
-                                                            Delete
+                                                            <FaTrash size={13} />
                                                         </button>
+
                                                         <button
                                                             onClick={() => navigate(`/blog/${blog.slug || blog._id}`)}
-                                                            className="group/btn px-4 py-2 bg-gray-50 text-stone rounded-xl hover:bg-gray-100 transition-all duration-300 text-sm font-medium flex items-center gap-2"
+                                                            className="w-9 h-9 rounded-lg bg-[#eaf1fb] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white transition-colors flex items-center justify-center"
+                                                            title="View blog"
                                                         >
-                                                            <FaEye size={14} className="group-hover/btn:scale-110 transition-transform duration-300" />
-                                                            View
+                                                            <FaEye size={13} />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -380,70 +389,71 @@ const AdminBlogs = () => {
                                 </table>
                             </div>
 
-                            {/* Modern Pagination */}
+                            {/* PAGINATION */}
                             {totalPages > 1 && (
-                                <div className="px-6 py-5 bg-gradient-to-r from-sage-5 to-sage-8 border-t-2 border-sage-10 rounded-b-3xl">
-                                    <div className="flex flex-col sm:flex-row justify-between items-center gap-5">
-                                        <div className="text-sm text-stone font-medium">
-                                            Showing <span className="font-bold text-forest">{indexOfFirstBlog + 1}</span> to{" "}
-                                            <span className="font-bold text-forest">{Math.min(indexOfLastBlog, filteredBlogs.length)}</span> of{" "}
-                                            <span className="font-bold text-sage">{filteredBlogs.length}</span> blogs
+                                <div className="px-6 py-5 bg-[#faf8f2] border-t border-[#e6e1d3]">
+                                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                        <div className="text-sm text-[#5a6358]">
+                                            Showing{" "}
+                                            <span className="font-semibold text-[#1a2620]">{indexOfFirstBlog + 1}</span> to{" "}
+                                            <span className="font-semibold text-[#1a2620]">
+                                                {Math.min(indexOfLastBlog, filteredBlogs.length)}
+                                            </span>{" "}
+                                            of{" "}
+                                            <span className="font-semibold text-[#2f5a3d]">{filteredBlogs.length}</span> blogs
                                         </div>
-                                        <div className="flex gap-2">
+
+                                        <div className="flex items-center gap-1.5">
                                             <button
                                                 onClick={() => paginate(currentPage - 1)}
                                                 disabled={currentPage === 1}
-                                                className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium ${currentPage === 1
-                                                        ? "bg-gray-100 text-stone-light cursor-not-allowed"
-                                                        : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                                                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${currentPage === 1
+                                                        ? "text-[#c8ccc4] cursor-not-allowed"
+                                                        : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                                                     }`}
                                             >
-                                                <FaChevronLeft size={14} />
-                                                Previous
+                                                <FaChevronLeft size={12} />
                                             </button>
-                                            <div className="flex gap-1.5">
-                                                {[...Array(totalPages)].map((_, idx) => {
-                                                    const pageNum = idx + 1;
-                                                    if (
-                                                        pageNum === 1 ||
-                                                        pageNum === totalPages ||
-                                                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                                                    ) {
-                                                        return (
-                                                            <button
-                                                                key={pageNum}
-                                                                onClick={() => paginate(pageNum)}
-                                                                className={`w-11 h-11 rounded-xl font-semibold transition-all duration-300 ${currentPage === pageNum
-                                                                        ? "bg-gradient-to-r from-sage to-forest text-white shadow-lg scale-110"
-                                                                        : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
-                                                                    }`}
-                                                            >
-                                                                {pageNum}
-                                                            </button>
-                                                        );
-                                                    } else if (
-                                                        pageNum === currentPage - 2 ||
-                                                        pageNum === currentPage + 2
-                                                    ) {
-                                                        return (
-                                                            <span key={pageNum} className="w-11 h-11 flex items-center justify-center text-stone font-bold">
-                                                                ...
-                                                            </span>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })}
-                                            </div>
+
+                                            {[...Array(totalPages)].map((_, idx) => {
+                                                const pageNum = idx + 1;
+                                                if (
+                                                    pageNum === 1 ||
+                                                    pageNum === totalPages ||
+                                                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                                ) {
+                                                    const active = currentPage === pageNum;
+                                                    return (
+                                                        <button
+                                                            key={pageNum}
+                                                            onClick={() => paginate(pageNum)}
+                                                            className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${active
+                                                                    ? "bg-[#1a2620] text-white"
+                                                                    : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                                                                }`}
+                                                        >
+                                                            {pageNum}
+                                                        </button>
+                                                    );
+                                                } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                                                    return (
+                                                        <span key={pageNum} className="w-9 h-9 flex items-center justify-center text-[#7a8478] text-sm">
+                                                            …
+                                                        </span>
+                                                    );
+                                                }
+                                                return null;
+                                            })}
+
                                             <button
                                                 onClick={() => paginate(currentPage + 1)}
                                                 disabled={currentPage === totalPages}
-                                                className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium ${currentPage === totalPages
-                                                        ? "bg-gray-100 text-stone-light cursor-not-allowed"
-                                                        : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                                                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${currentPage === totalPages
+                                                        ? "text-[#c8ccc4] cursor-not-allowed"
+                                                        : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                                                     }`}
                                             >
-                                                Next
-                                                <FaChevronRight size={14} />
+                                                <FaChevronRight size={12} />
                                             </button>
                                         </div>
                                     </div>

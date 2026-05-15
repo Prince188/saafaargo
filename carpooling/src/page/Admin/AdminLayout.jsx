@@ -110,22 +110,6 @@ const AdminLayout = () => {
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto">
-                {/* Header bar */}
-                <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4">
-                    <div className="flex items-center justify-end">
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="text-right hidden sm:block">
-                                    <p className="text-sm font-medium text-gray-900">{user?.fullName || "Admin User"}</p>
-                                    <p className="text-xs text-gray-500">{user?.email || "Admin User"}</p>
-                                </div>
-                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                    A
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Page content */}
                 <div className="p-6 lg:p-8">
