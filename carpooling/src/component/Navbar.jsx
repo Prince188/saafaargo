@@ -199,16 +199,16 @@ const Navbar = () => {
                                                 <span>Login</span>
                                             </Link>
 
-                                            <Link to="/register" className="flex items-center gap-md px-lg py-3 text-sm text-sage font-semibold no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white group" onClick={() => setShowDropdown(false)}>
+                                            {/* <Link to="/register" className="flex items-center gap-md px-lg py-3 text-sm text-sage font-semibold no-underline transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter hover:bg-off-white group" onClick={() => setShowDropdown(false)}>
                                                 <FaUserPlus className="text-lg text-sage transition-all duration-base" />
                                                 <span>Create Account</span>
-                                            </Link>
+                                            </Link> */}
                                         </>
                                     )}
                                 </div>
 
                                 {!user && (
-                                    <div className="px-lg py-md border-t border-sage-soft text-center text-xs text-stone">
+                                    <div className="px-lg py-md border-t border-sage-soft text-center text-md text-stone">
                                         <span>New to Safar?</span>
                                         <Link to="/register" className="text-sage no-underline font-semibold ml-xs transition-colors duration-base hover:text-forest" onClick={() => setShowDropdown(false)}>Sign up free</Link>
                                     </div>

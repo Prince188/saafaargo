@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "../../utils/AuthContext";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaBlog, FaDashcube, FaHome, FaRoute, FaUsers } from "react-icons/fa";
 import { IoClose, IoMenu } from "react-icons/io5";
@@ -10,6 +10,9 @@ import { LuLogOut } from "react-icons/lu";
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [users, setUser] = useState(null);
+    const navigate = useNavigate();
+
     const { user } = useAuth();
     console.log("USerrr", user)
 
@@ -20,6 +23,14 @@ const AdminLayout = () => {
         { path: "/admin/blogs", name: "Blogs", icon: <FaBlog /> },
         { path: "/", name: "Home", icon: <FaHome /> },
     ];
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+        window.dispatchEvent(new Event("authChange")); // ✅ notify navbar
+        navigate("/login");
+    };
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -97,7 +108,9 @@ const AdminLayout = () => {
 
                 {/* Footer */}
                 <div className="p-4 border-t border-white/10">
-                    <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 group">
+                    <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 group"
+                        onClick={handleLogout}
+                    >
                         <LuLogOut />
                         <span className="font-medium">Logout</span>
                     </button>
