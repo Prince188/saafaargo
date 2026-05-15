@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
     profilePic: {
         type: String,   // store image URL or file path
         default: ""     // optional default image
+    },
+    status:{
+        type: String,
+        enum: ["active" , "block"],
+        default: "active"
     }
 },
     { timestamps: true }

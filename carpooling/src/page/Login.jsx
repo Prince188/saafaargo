@@ -35,7 +35,16 @@ const LoginPage = () => {
             console.log(res.data);
             navigate("/");
         } catch (err) {
-            alert(err.response?.data?.message || "Error");
+
+            // blocked user
+            if (err.response?.status === 403) {
+                alert("Your account has been blocked by admin");
+                return;
+            }
+
+            alert(
+                err.response?.data?.message || "Login failed"
+            );
         } finally {
             setIsLoading(false);
         }

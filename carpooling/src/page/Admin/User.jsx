@@ -21,6 +21,7 @@ import {
   FaCalendarAlt
 } from "react-icons/fa";
 import { MdVerified, MdAdminPanelSettings } from "react-icons/md";
+import { CgBlock, CgUnblock } from "react-icons/cg";
 import { showSuccess, showError } from "../../utils/toastConfig";
 
 const User = () => {
@@ -118,14 +119,6 @@ const User = () => {
       borderColor: "border-purple-100"
     },
     {
-      title: "Active Today",
-      value: users.filter(u => u.status === 'active').length || 124,
-      icon: FaUserCheck,
-      color: "from-emerald-500 to-green-600",
-      bgGradient: "from-emerald-50 to-green-50",
-      borderColor: "border-emerald-100"
-    },
-    {
       title: "New This Month",
       value: 45,
       icon: FaUserPlus,
@@ -142,6 +135,31 @@ const User = () => {
       borderColor: "border-sky-100"
     }
   ];
+
+  const handleBlockUser = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/users/block/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      showSuccess(res.data.message);
+
+      fetchUsers(page, searchTerm);
+    } catch (err) {
+      console.log(err);
+      showError(
+        err.response?.data?.message || "Failed to update user status"
+      );
+    }
+  };
 
   return (
     <div className="bg-gradient-to-br min-h-screen font-inter">
@@ -222,7 +240,7 @@ const User = () => {
         </div>
 
         {/* Modern Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {statsCards.map((card, index) => {
             const Icon = card.icon;
             return (
@@ -355,9 +373,22 @@ const User = () => {
                           </span>
                         </td>
                         <td className="px-6 py-5">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                            Active
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border
+    ${user.status === "block"
+                                ? "bg-red-50 text-red-700 border-red-200"
+                                : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              }`}
+                          >
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full animate-pulse
+      ${user.status === "block"
+                                  ? "bg-red-500"
+                                  : "bg-emerald-500"
+                                }`}
+                            ></div>
+
+                            {user.status === "block" ? "Blocked" : "Active"}
                           </span>
                         </td>
                         <td className="px-6 py-5">
@@ -374,20 +405,60 @@ const User = () => {
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex gap-2">
+
+                            {/* Edit Button */}
                             <button
                               onClick={() => console.log("Edit user:", user._id)}
                               className="group/btn relative overflow-hidden px-4 py-2 bg-sage-10 text-sage rounded-xl hover:bg-sage-15 transition-all duration-300 text-sm font-medium flex items-center gap-2"
                             >
-                              <FaEdit size={14} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => console.log("Delete user:", user._id)}
-                              className="group/btn px-4 py-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all duration-300 text-sm font-medium flex items-center gap-2"
-                            >
-                              <FaTrash size={14} className="group-hover/btn:scale-110 transition-transform duration-300" />
-                              BLOCK
-                            </button>
+                              <FaEdit size={18} className="group-hover/btn:rotate-12 transition-transform duration-300" />
+                              </button>
+
+                            {/* Block UnBlock Button */}
+
+                            <div className="relative group/tooltip">
+                              <button
+                                onClick={() => handleBlockUser(user._id)}
+                                className={`group/btn px-2 py-2 rounded-xl transition-all duration-300 text-sm font-medium flex items-center gap-2
+      ${user.status === "block"
+                                    ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                    : "bg-red-50 text-red-600 hover:bg-red-100"
+                                  }`}
+                              >
+                                {user.status === "block" ? (
+                                  <CgUnblock
+                                    size={20}
+                                    className="group-hover/btn:scale-110 transition-transform duration-300"
+                                  />
+                                ) : (
+                                  <CgBlock
+                                    size={20}
+                                    className="group-hover/btn:scale-110 transition-transform duration-300"
+                                  />
+                                )}
+                              </button>
+
+                              {/* Tooltip */}
+                              <div
+                                className="
+      absolute left-1/2 -translate-x-1/2 -top-10
+      opacity-0 group-hover/tooltip:opacity-100
+      scale-95 group-hover/tooltip:scale-100
+      transition-all duration-200
+      pointer-events-none
+      bg-gray-900 text-white text-xs
+      px-3 py-1.5 rounded-lg shadow-lg
+      whitespace-nowrap z-50
+    "
+                              >
+                                {user.status === "block"
+                                  ? "Unblock User"
+                                  : "Block User"}
+
+                                {/* Arrow */}
+                                <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                              </div>
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -414,8 +485,8 @@ const User = () => {
                         onClick={() => changePage(page - 1)}
                         disabled={page === 1}
                         className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium ${page === 1
-                            ? "bg-gray-100 text-stone-light cursor-not-allowed"
-                            : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                          ? "bg-gray-100 text-stone-light cursor-not-allowed"
+                          : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
                           }`}
                       >
                         <FaChevronLeft size={14} />
@@ -440,8 +511,8 @@ const User = () => {
                                 key={pageNum}
                                 onClick={() => changePage(pageNum)}
                                 className={`w-11 h-11 rounded-xl font-semibold transition-all duration-300 ${page === pageNum
-                                    ? "bg-gradient-to-r from-sage to-forest text-white shadow-lg scale-110"
-                                    : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                                  ? "bg-gradient-to-r from-sage to-forest text-white shadow-lg scale-110"
+                                  : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
                                   }`}
                               >
                                 {pageNum}
@@ -455,8 +526,8 @@ const User = () => {
                         onClick={() => changePage(page + 1)}
                         disabled={page === totalPages}
                         className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-300 font-medium ${page === totalPages
-                            ? "bg-gray-100 text-stone-light cursor-not-allowed"
-                            : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
+                          ? "bg-gray-100 text-stone-light cursor-not-allowed"
+                          : "bg-white text-stone hover:bg-sage-10 hover:text-forest border-2 border-sage-10"
                           }`}
                       >
                         Next
