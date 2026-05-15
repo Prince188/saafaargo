@@ -21,7 +21,7 @@ import {
 import { MdVerified } from "react-icons/md";
 
 const BlogDetails = () => {
-    const { slug } = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const [blog, setBlog] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -31,11 +31,11 @@ const BlogDetails = () => {
     useEffect(() => {
         fetchBlog();
         window.scrollTo(0, 0);
-    }, [slug]);
+    }, [id]);
 
     const fetchBlog = async () => {
         try {
-            const { data } = await API.get(`/blogs/slug/${slug}`);
+            const { data } = await API.get(`/blogs/id/${id}`);
             setBlog(data);
             setLoading(false);
         } catch (error) {
@@ -89,7 +89,7 @@ const BlogDetails = () => {
                     </div>
                     <h2 className="text-2xl font-semibold text-forest mb-2">Article Not Found</h2>
                     <p className="text-stone mb-6">The article you're looking for doesn't exist or has been moved.</p>
-                    <Link to="/blogs" className="inline-flex items-center gap-2 bg-gradient-primary text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+                    <Link to="/blog" className="inline-flex items-center gap-2 bg-gradient-primary text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all">
                         <FaArrowLeft className="text-sm" />
                         Back to Blogs
                     </Link>
@@ -226,7 +226,7 @@ const BlogDetails = () => {
                                     Join our community of millions of happy travelers sharing rides across India.
                                 </p>
                                 <div className="flex items-center gap-4 mt-3">
-                                    <Link to="/about" className="text-sage text-sm font-medium hover:underline">
+                                    <Link to="/about-us" className="text-sage text-sm font-medium hover:underline">
                                         Learn more about us
                                     </Link>
                                 </div>
@@ -237,7 +237,7 @@ const BlogDetails = () => {
                     {/* Navigation Links */}
                     <div className="mt-8 flex justify-between items-center pt-4">
                         <Link
-                            to="/blogs"
+                            to="/blog"
                             className="flex items-center gap-2 text-sage hover:text-forest transition-colors"
                         >
                             <FaArrowLeft className="text-xs" />

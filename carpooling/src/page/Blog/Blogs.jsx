@@ -107,7 +107,7 @@ const Blogs = () => {
             <div className="max-w-[1280px] mx-auto px-xl py-3xl">
 
                 {/* Category Filters */}
-                <div className="flex flex-wrap gap-3 mb-3xl justify-center">
+                {/* <div className="flex flex-wrap gap-3 mb-3xl justify-center">
                     {categories.map((category) => (
                         <button
                             key={category}
@@ -120,7 +120,7 @@ const Blogs = () => {
                             {category === "all" ? "All Posts" : category}
                         </button>
                     ))}
-                </div>
+                </div> */}
 
                 {/* Blog Grid */}
                 {filteredBlogs.length === 0 ? (
@@ -136,7 +136,7 @@ const Blogs = () => {
                         {filteredBlogs.map((blog) => (
                             <Link
                                 key={blog._id}
-                                to={`/blog/${blog.slug}`}
+                                to={`/blog/${blog._id}`}
                                 className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-sage-15 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                             >
                                 {/* Image Container */}
@@ -203,7 +203,7 @@ const Blogs = () => {
                 )}
 
                 {/* Newsletter Section */}
-                <div className="mt-3xl bg-gradient-primary rounded-2xl p-8 md:p-12 text-center text-white">
+                {/* <div className="mt-3xl bg-gradient-primary rounded-2xl p-8 md:p-12 text-center text-white">
                     <h2 className="font-fraunces text-2xl md:text-3xl font-bold mb-3">
                         Stay Updated
                     </h2>
@@ -220,7 +220,7 @@ const Blogs = () => {
                             Subscribe
                         </button>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

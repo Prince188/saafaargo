@@ -19,7 +19,7 @@ router.get("/", getBlogs);
 // 👇 IMPORTANT: separate paths
 
 // Get by SLUG (public)
-router.get("/slug/:slug", getSingleBlog);
+// router.get("/slug/:slug", getSingleBlog);
 
 // Get by ID (admin edit)
 router.get("/id/:id", getBlogById);

@@ -375,7 +375,7 @@ const AdminBlogs = () => {
                                                         </button>
 
                                                         <button
-                                                            onClick={() => navigate(`/blog/${blog.slug || blog._id}`)}
+                                                            onClick={() => navigate(`/blog/${blog._id}`)}
                                                             className="w-9 h-9 rounded-lg bg-[#eaf1fb] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white transition-colors flex items-center justify-center"
                                                             title="View blog"
                                                         >

@@ -91,7 +91,7 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PribacyPolicy />} />
           <Route path="/blog" element={<Blogs />} />
-          <Route path="/blog/:slug" element={<BlogDetails />} />
+          <Route path="/blog/:id" element={<BlogDetails />} />
           <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
 
           {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}

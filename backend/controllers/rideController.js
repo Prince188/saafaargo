@@ -545,3 +545,24 @@ exports.deleteRide = async (req, res) => {
         });
     }
 };
+
+exports.getAllRides = async (req, res) => {
+    try {
+        const rides = await Ride.find()
+            .populate("user", "firstName lastName email")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            rides
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
