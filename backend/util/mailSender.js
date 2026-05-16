@@ -13,6 +13,7 @@ const transporter = nodemailer.createTransport({
 
 const mailSender = async (email, title, body) => {
     try {
+        console.log("Sent")
         const info = await transporter.sendMail({
             from: `"SafarGO" <${process.env.EMAIL_USER}>`,
             to: email,
