@@ -1,19 +1,26 @@
 const nodemailer = require("nodemailer");
 
-// create transporter once
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // true for 465
+    service: "gmail",
     auth: {
         user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS, // Gmail App Password
+        pass: process.env.MAIL_PASS,
     },
+});
+
+transporter.verify((error, success) => {
+    if (error) {
+        console.log("VERIFY ERROR:", error);
+    } else {
+        console.log("SMTP READY");
+    }
 });
 
 const mailSender = async (email, title, body) => {
     try {
-        console.log("Sent")
+
+        console.log("NEW NODEMAILER CODE RUNNING");
+
         const info = await transporter.sendMail({
             from: `"SafarGO" <${process.env.MAIL_USER}>`,
             to: email,
@@ -22,10 +29,13 @@ const mailSender = async (email, title, body) => {
         });
 
         console.log("MAIL SENT:", info.messageId);
+
         return info;
 
     } catch (error) {
+
         console.log("MAIL ERROR:", error);
+
         throw error;
     }
 };
