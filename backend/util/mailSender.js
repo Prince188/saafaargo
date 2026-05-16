@@ -15,7 +15,7 @@ const mailSender = async (email, title, body) => {
     try {
         console.log("Sent")
         const info = await transporter.sendMail({
-            from: `"SafarGO" <${process.env.EMAIL_USER}>`,
+            from: `"SafarGO" <${process.env.MAIL_USER}>`,
             to: email,
             subject: title,
             html: body,
