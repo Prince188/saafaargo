@@ -107,7 +107,14 @@ exports.login = async (req, res) => {
     // CHECK BLOCK STATUS
     if (user.status === "block") {
       return res.status(403).json({
-        message: "Your account has been blocked by admin"
+        success: false,
+        blocked: true,
+        message: "Your account has been blocked by admin",
+
+        user: {
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+        }
       });
     }
 

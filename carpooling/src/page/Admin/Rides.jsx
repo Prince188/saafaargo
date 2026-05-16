@@ -8,14 +8,14 @@ import {
   FaChair,
   FaUser,
   FaEnvelope,
-  FaMapMarkerAlt,
   FaSpinner,
-  FaArrowDown,
+  FaArrowRight,
   FaRoute,
-  FaGasPump,
-  FaUsers
+  FaUsers,
+  FaInfoCircle
 } from "react-icons/fa";
 import { MdLocationOn, MdOutlineLocationOn } from "react-icons/md";
+import { FiCalendar, FiClock, FiUsers, FiArrowRight, FiInfo, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { showSuccess, showError } from "../../utils/toastConfig";
 
 const Rides = () => {
@@ -56,7 +56,6 @@ const Rides = () => {
       const filtered = rides.filter((ride) => {
         const fullName =
           `${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.toLowerCase();
-
         return fullName.includes(searchTerm.toLowerCase());
       });
       setFilteredRides(filtered);
@@ -92,6 +91,38 @@ const Rides = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date not set";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const getStatusBadge = (status) => {
+    if (status === 'completed') {
+      return {
+        containerClass: 'bg-emerald-50 text-emerald-700',
+        icon: <FiCheckCircle className="w-3 h-3" />,
+        text: 'Completed'
+      };
+    } else if (status === 'cancelled') {
+      return {
+        containerClass: 'bg-red-50 text-red-700',
+        icon: <FiAlertCircle className="w-3 h-3" />,
+        text: 'Cancelled'
+      };
+    } else {
+      return {
+        containerClass: 'bg-[#e8f1ea] text-[#2f5a3d]',
+        icon: <FiInfo className="w-3 h-3" />,
+        text: 'Active'
+      };
+    }
+  };
+
   const statsCards = [
     {
       title: "Total Rides",
@@ -102,7 +133,7 @@ const Rides = () => {
     },
     {
       title: "Active Rides",
-      value: rides.filter(r => r.status === 'active').length,
+      value: rides.filter(r => r.status !== 'cancelled' && r.status !== 'completed').length,
       icon: FaRoute,
       accent: "#1e3a8a",
       tint: "#eaf1fb",
@@ -138,7 +169,7 @@ const Rides = () => {
   }
 
   return (
-    <div className="min-h-screen  font-inter text-[#1a2620]">
+    <div className="min-h-screen font-inter text-[#1a2620]">
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
@@ -166,7 +197,7 @@ const Rides = () => {
         <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
-              <MdLocationOn className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
+              <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
               <input
                 type="text"
                 placeholder="Search by driver name..."
@@ -221,7 +252,7 @@ const Rides = () => {
           })}
         </div>
 
-        {/* RIDES GRID */}
+        {/* RIDES GRID - Beautiful Card Design */}
         {filteredRides.length === 0 ? (
           <div className="bg-white rounded-2xl border border-[#e6e1d3] text-center py-32 px-6">
             <div className="w-20 h-20 bg-[#efece4] rounded-2xl flex items-center justify-center mx-auto mb-5">
@@ -238,149 +269,133 @@ const Rides = () => {
             </p>
           </div>
         ) : (
-          <div className="grid gap-5">
-            {filteredRides.map((ride) => (
-              <div
-                key={ride._id}
-                className="bg-white rounded-2xl border border-[#e6e1d3] overflow-hidden hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
-              >
-                {/* Route Header */}
-                <div className="p-6 border-b border-[#efece4]">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start gap-4">
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="w-8 h-8 rounded-full bg-[#e8f1ea] flex items-center justify-center">
-                            <MdLocationOn className="text-[#2f5a3d] text-sm" />
-                          </div>
-                          <div className="w-px h-6 bg-[#e6e1d3]" />
-                          <div className="w-8 h-8 rounded-full bg-[#fdecec] flex items-center justify-center">
-                            <MdOutlineLocationOn className="text-[#9b2c2c] text-sm" />
-                          </div>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div>
-                            <p className="text-xs text-[#7a8478] uppercase tracking-wide">From</p>
-                            <p className="font-semibold text-[#1a2620] text-lg">
-                              {ride.pickup?.displayName}
-                            </p>
-                          </div>
-                          <div className="my-3">
-                            <FaArrowDown className="text-[#9aa194] text-xs" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-[#7a8478] uppercase tracking-wide">To</p>
-                            <p className="font-semibold text-[#1a2620] text-lg">
-                              {ride.destination?.displayName}
-                            </p>
-                          </div>
-                        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredRides.map((ride, index) => {
+              const statusBadge = getStatusBadge(ride.status);
+              return (
+                <div
+                  key={ride._id}
+                  className="bg-white rounded-2xl p-5 shadow-sm transition-all duration-300 relative border border-[#e6e1d3] hover:-translate-y-1 hover:shadow-lg hover:border-[#2f5a3d]/40"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  {/* Status Badge */}
+                  {/* <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold w-fit mb-4 ${statusBadge.containerClass}`}>
+                    {statusBadge.icon}
+                    <span>{statusBadge.text}</span>
+                  </div> */}
+
+                  {/* Route Section */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 p-3 bg-[#faf8f2] rounded-xl">
+                    {/* Pickup */}
+                    <div className="flex-1 flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.2)] flex-shrink-0"></div>
+                      <div className="flex-1">
+                        <span className="block text-[10px] font-bold tracking-[0.1em] text-[#7a8478] uppercase mb-0.5">PICKUP</span>
+                        <span className="text-[13px] font-semibold text-[#1a2620] truncate block">
+                          {ride.pickup?.displayName?.split(",").slice(-3, -2)[0] || ride.pickup?.city || "N/A"}
+                        </span>
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleDelete(ride._id)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#fdecec] text-[#9b2c2c] hover:bg-[#9b2c2c] hover:text-white transition-all duration-300 text-sm font-medium"
-                    >
-                      <FaTrash size={14} />
-                      Delete ride
-                    </button>
-                  </div>
-                </div>
-
-                {/* Ride Details */}
-                <div className="p-6 bg-[#faf8f2]">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-[#e6e1d3] flex items-center justify-center">
-                        <FaCalendarAlt className="text-[#2f5a3d] text-sm" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-[#7a8478] uppercase tracking-wide">Date</p>
-                        <p className="font-medium text-[#1a2620] text-sm">{ride.date}</p>
-                      </div>
+                    {/* Arrow */}
+                    <div className="text-[#9aa194] text-sm flex-shrink-0 hidden sm:block">
+                      <FiArrowRight />
+                    </div>
+                    <div className="text-[#9aa194] text-sm flex-shrink-0 block sm:hidden rotate-90 self-center">
+                      <FiArrowRight />
                     </div>
 
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-[#e6e1d3] flex items-center justify-center">
-                        <FaClock className="text-[#2f5a3d] text-sm" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-[#7a8478] uppercase tracking-wide">Time</p>
-                        <p className="font-medium text-[#1a2620] text-sm">{ride.time}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-[#e6e1d3] flex items-center justify-center">
-                        <FaChair className="text-[#2f5a3d] text-sm" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-[#7a8478] uppercase tracking-wide">Seats</p>
-                        <p className="font-medium text-[#1a2620] text-sm">{ride.seatsAvailable} available</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-[#e6e1d3] flex items-center justify-center">
-                        <FaCar className="text-[#2f5a3d] text-sm" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-[#7a8478] uppercase tracking-wide">Vehicle</p>
-                        <p className="font-medium text-[#1a2620] text-sm">
-                          {ride.car ? `${ride.car.brand} ${ride.car.model}` : "N/A"}
-                        </p>
+                    {/* Destination */}
+                    <div className="flex-1 flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#a0522d] shadow-[0_0_0_3px_rgba(160,82,45,0.2)] flex-shrink-0"></div>
+                      <div className="flex-1">
+                        <span className="block text-[10px] font-bold tracking-[0.1em] text-[#7a8478] uppercase mb-0.5">DESTINATION</span>
+                        <span className="text-[13px] font-semibold text-[#1a2620] truncate block">
+                          {ride.destination?.displayName?.split(",").slice(-3, -2)[0] || ride.destination?.city || "N/A"}
+                        </span>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Driver Information */}
-                <div className="p-6 border-t border-[#efece4]">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478] mb-3">Driver Information</p>
-                  <div className="flex flex-wrap items-center gap-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#e8f1ea] flex items-center justify-center">
-                        <FaUser className="text-[#2f5a3d] text-base" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#1a2620]">
-                          {ride.user?.firstName} {ride.user?.lastName}
-                        </p>
-                        <p className="text-xs text-[#7a8478]">ID: {ride.user?._id?.slice(-8)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaEnvelope className="text-[#9aa194] text-sm" />
-                      <span className="text-sm text-[#5a6358]">{ride.user?.email}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Stops */}
-                {ride.stops?.length > 0 && (
-                  <div className="px-6 pb-6">
-                    <div className="bg-[#faf8f2] rounded-xl p-4 border border-[#e6e1d3]">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478] mb-2 flex items-center gap-2">
-                        <FaRoute className="text-[#2f5a3d] text-xs" />
-                        Route Stops
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {ride.stops.map((stop, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] bg-white border border-[#e6e1d3] text-[#5a6358]"
-                          >
-                            <MdLocationOn className="text-[#2f5a3d] text-[10px]" />
-                            {stop.displayName}
+                  {/* Stopovers if any */}
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    <span className="text-[10px] font-bold text-[#7a8478] uppercase">Via:</span>
+                    {ride.stops && ride.stops.length > 0 ? (
+                      <div className="flex gap-1.5 flex-wrap">
+                        {ride.stops.slice(0, 2).map((stop, idx) => (
+                          <span key={idx} className="text-[11px] bg-[#e8f1ea] px-2.5 py-0.5 rounded-full text-[#2f5a3d] font-medium">
+                            {stop.displayName?.split(",")[0]}
                           </span>
                         ))}
+                        {ride.stops.length > 2 && (
+                          <span className="text-[11px] bg-[#e8f1ea] px-2.5 py-0.5 rounded-full text-[#2f5a3d] font-medium">
+                            +{ride.stops.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-[11px] bg-[#e8f1ea] px-2.5 py-0.5 rounded-full text-[#2f5a3d] font-medium">No stops</span>
+                    )}
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="flex justify-between gap-3 py-3 border-t border-b border-[#e6e1d3] mb-4 flex-wrap">
+                    <div className="flex items-center gap-1.5 text-xs text-[#5a6358]">
+                      <FiCalendar className="text-[13px] text-[#2f5a3d]" />
+                      <span>{formatDate(ride.date)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-[#5a6358]">
+                      <FiClock className="text-[13px] text-[#2f5a3d]" />
+                      <span>{ride.time || "N/A"}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-[#5a6358]">
+                      <FiUsers className="text-[13px] text-[#2f5a3d]" />
+                      <span>{ride.seatsAvailable ?? 0} seats</span>
+                    </div>
+                  </div>
+
+                  {/* Driver Section */}
+                  <div className="flex items-center gap-3 mb-4 p-3 bg-[#faf8f2] rounded-xl">
+                    <div className="w-10 h-10 rounded-xl bg-[#e8f1ea] flex items-center justify-center">
+                      <FaUser className="text-[#2f5a3d] text-base" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-[#1a2620] text-sm">
+                        {ride.user?.firstName} {ride.user?.lastName}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <FaEnvelope className="text-[#9aa194] text-[10px]" />
+                        <span className="text-[11px] text-[#7a8478]">{ride.user?.email}</span>
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Vehicle Section */}
+                  <div className="flex items-center gap-2 mb-4 text-xs text-[#5a6358]">
+                    <FaCar className="text-sm text-[#2f5a3d]" />
+                    <span>{ride.car ? `${ride.car.brand} ${ride.car.model}` : "Vehicle not specified"}</span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => window.location.href = `/rides/${ride._id}`}
+                      className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-300 bg-transparent border border-[#2f5a3d] text-[#2f5a3d] hover:bg-[#e8f1ea] hover:-translate-y-0.5"
+                    >
+                      View Details
+                    </button>
+                    {ride.status !== 'cancelled' && (
+                      <button
+                        onClick={() => handleDelete(ride._id)}
+                        className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-300 bg-transparent border border-red-500 text-red-600 hover:bg-red-50 hover:-translate-y-0.5"
+                      >
+                        Delete Ride
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

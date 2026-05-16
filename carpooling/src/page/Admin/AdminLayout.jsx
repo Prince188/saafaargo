@@ -1,11 +1,10 @@
 import { AuthProvider, useAuth } from "../../utils/AuthContext";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { FaBlog, FaDashcube, FaHome, FaRoute, FaUsers } from "react-icons/fa";
+import { FaBlog, FaDashcube, FaHome, FaRoute, FaUserCheck, FaUsers } from "react-icons/fa";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
-
-
+import { RiCustomerService2Line } from "react-icons/ri";
 
 
 const AdminLayout = () => {
@@ -21,6 +20,8 @@ const AdminLayout = () => {
         { path: "/admin/users", name: "Users", icon: <FaUsers /> },
         { path: "/admin/rides", name: "Rides", icon: <FaRoute /> },
         { path: "/admin/blogs", name: "Blogs", icon: <FaBlog /> },
+        { path: "/admin/subscribers", name: "Subscribers", icon: <FaUserCheck /> },
+        { path: "/admin/contacts", name: "Contacts", icon: <RiCustomerService2Line  /> },
         { path: "/", name: "Home", icon: <FaHome /> },
     ];
 

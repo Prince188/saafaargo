@@ -8,10 +8,13 @@ import {
 import { FaEnvelope, FaLock, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
+import { showError } from './../utils/toastConfig';
+import BlockedUserModal from '../component/BlockedUserModal';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showBlockedModal, setShowBlockedModal] = useState(false);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
@@ -38,11 +41,18 @@ const LoginPage = () => {
 
             // blocked user
             if (err.response?.status === 403) {
-                alert("Your account has been blocked by admin");
+
+                localStorage.setItem(
+                    "blockedUser",
+                    JSON.stringify(err.response.data.user)
+                );
+
+                setShowBlockedModal(true);
+
                 return;
             }
 
-            alert(
+            showError(
                 err.response?.data?.message || "Login failed"
             );
         } finally {
@@ -168,6 +178,10 @@ const LoginPage = () => {
                     </div>
                 </div>
             </div>
+            <BlockedUserModal
+                isOpen={showBlockedModal}
+                onClose={() => setShowBlockedModal(false)}
+            />
         </div>
     );
 };

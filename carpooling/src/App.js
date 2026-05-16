@@ -48,6 +48,8 @@ import User from "./page/Admin/User";
 import Rides from "./page/Admin/Rides";
 import AdminBlogs from "./page/Admin/AdminBlogs";
 import AdminEditBlog from "./page/Admin/AdminEditBlog";
+import Subscribers from "./page/Admin/Subscribers";
+import Contacts from "./page/Admin/Contacts";
 
 function App() {
   return (
@@ -120,6 +122,8 @@ function App() {
             <Route path="rides" element={<Rides />} />
             <Route path="blogs" element={<AdminBlogs />} />
             <Route path="blogs/edit/:id" element={<AdminEditBlog />} />
+            <Route path="subscribers" element={<Subscribers />} />
+            <Route path="contacts" element={<Contacts />} />
           </Route>
         </Route>
 

@@ -46,17 +46,35 @@ exports.unsubscribe = async (req, res) => {
         user.subscribed = false;
         await user.save();
 
-    //     await mailSender(
-    //         email,
-    //         "😢 Unsubscribed - SafarGo",
-    //         `
-    //   <h2>You have unsubscribed</h2>
-    //   <p>You will no longer receive updates.</p>
-    //   `
-    //     );
+        //     await mailSender(
+        //         email,
+        //         "😢 Unsubscribed - SafarGo",
+        //         `
+        //   <h2>You have unsubscribed</h2>
+        //   <p>You will no longer receive updates.</p>
+        //   `
+        //     );
 
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getSubscribers = async (req, res) => {
+    try {
+        const subscribers = await Newsletter.find({
+            subscribed: true,
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            subscribers,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
