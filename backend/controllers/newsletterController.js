@@ -46,14 +46,14 @@ exports.unsubscribe = async (req, res) => {
         user.subscribed = false;
         await user.save();
 
-        await mailSender(
-            email,
-            "😢 Unsubscribed - SafarGo",
-            `
-      <h2>You have unsubscribed</h2>
-      <p>You will no longer receive updates.</p>
-      `
-        );
+    //     await mailSender(
+    //         email,
+    //         "😢 Unsubscribed - SafarGo",
+    //         `
+    //   <h2>You have unsubscribed</h2>
+    //   <p>You will no longer receive updates.</p>
+    //   `
+    //     );
 
         res.json({ success: true });
     } catch (err) {

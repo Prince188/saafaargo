@@ -1,16 +1,26 @@
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require("nodemailer");
+
+// create transporter once
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // true for 465
+    auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS, // Gmail App Password
+    },
+});
 
 const mailSender = async (email, title, body) => {
     try {
-        const info = await resend.emails.send({
-            from: 'SafarGO <onboarding@resend.dev>',
+        const info = await transporter.sendMail({
+            from: `"SafarGO" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: title,
-            html: body
+            html: body,
         });
 
-        console.log("MAIL SENT:", info);
+        console.log("MAIL SENT:", info.messageId);
         return info;
 
     } catch (error) {
