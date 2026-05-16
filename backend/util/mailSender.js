@@ -1,45 +1,20 @@
-const nodemailer = require("nodemailer");
-
-
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    tls: {
-        rejectUnauthorized: false,
-    },
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-    },
-});
-
-transporter.verify((error, success) => {
-    if (error) {
-        console.log("VERIFY ERROR:", error);
-    } else {
-        console.log("SMTP READY");
-    }
-});
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const mailSender = async (email, title, body) => {
     try {
-
-        console.log("NEW NODEMAILER CODE RUNNING");
-
-        const info = await transporter.sendMail({
-            from: `"SafarGO" <${process.env.MAIL_USER}>`,
+        const info = await resend.emails.send({
+            from: 'SafarGO <onboarding@resend.dev>',
             to: email,
             subject: title,
-            html: body,
+            html: body
         });
 
-        console.log("MAIL SENT:", info.messageId);
-
+        console.log("MAIL SENT:", info);
         return info;
 
     } catch (error) {
-
         console.log("MAIL ERROR:", error);
-
         throw error;
     }
 };
