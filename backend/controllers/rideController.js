@@ -12,7 +12,7 @@ exports.createRide = async (req, res) => {
             destination,
             stops,
             date,
-            time,
+            time, 
             seatsAvailable,
             car,
             perkmprice

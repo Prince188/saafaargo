@@ -13,7 +13,8 @@ const {
 
 // ─── Driver verification routes ────────────────────────────────────────────
 const driverController = require("../controllers/driverController");
-const driverUpload = require("../middleware/driverDocUpload");   // ← Cloudinary
+
+const { driverUpload, handleDriverDocUpload } = require("../middleware/driverDocUpload");
 
 router.post(
     "/driver/submit-documents",
@@ -22,7 +23,8 @@ router.post(
         { name: "dlImage", maxCount: 1 },
         { name: "rcImage", maxCount: 1 }
     ]),
-    driverController.submitDocuments
+    handleDriverDocUpload,      // ← manually uploads to Cloudinary, sets .path
+    driverController.submitDocuments   // ← controller unchanged, still reads .path
 );
 
 router.get("/driver/verification-status", authMiddleware, driverController.getVerificationStatus);

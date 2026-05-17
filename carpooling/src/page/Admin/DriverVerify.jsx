@@ -26,12 +26,10 @@ import { showSuccess, showError } from "../../utils/toastConfig";
 // Document Preview Modal
 // ─────────────────────────────────────────────────────────────────────────────
 const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }) => {
-    const base = process.env.REACT_APP_API_URL;
 
     const docUrl = (filePath) => {
         if (!filePath) return null;
-        if (filePath.startsWith("http")) return filePath;
-        return `${base}/${filePath.replace(/\\/g, "/")}`;
+        return filePath.replace(/\\/g, "/");
     };
 
     const isPdf = (filePath) => filePath?.toLowerCase().endsWith(".pdf");
@@ -74,14 +72,23 @@ const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }
                             </p>
                             {path ? (
                                 isPdf(path) ? (
-                                    <a
-                                        href={docUrl(path)}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#eaf1fb] text-[#1e3a8a] text-sm font-medium hover:bg-[#dbeafe] transition-colors"
-                                    >
-                                        <FaIdCard size={13} /> View PDF Document
-                                    </a>
+                                    <div className="w-full rounded-2xl border border-[#e6e1d3] overflow-hidden bg-[#faf8f2]">
+                                        <iframe
+                                            src={docUrl(path)}
+                                            title={label}
+                                            className="w-full h-[500px]"
+                                        />
+                                        <div className="px-4 py-3 border-t border-[#e6e1d3] flex justify-end">
+                                            <a
+                                                href={docUrl(path)}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2f5a3d] text-white text-sm font-medium hover:bg-[#244730] transition-colors"
+                                            >
+                                                Open in new tab →
+                                            </a>
+                                        </div>
+                                    </div>
                                 ) : (
                                     <a href={docUrl(path)} target="_blank" rel="noreferrer">
                                         <img
@@ -130,7 +137,7 @@ const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -174,7 +181,7 @@ const DriverVerify = () => {
     const [searchInput, setSearchInput] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [previewDriver, setPreviewDriver] = useState(null);
-    const [actionLoading, setActionLoading] = useState(null); // "approve" | "reject" | null
+    const [actionLoading, setActionLoading] = useState(null);
     const [page, setPage] = useState(1);
 
     const LIMIT = 8;
