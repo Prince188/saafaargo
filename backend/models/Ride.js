@@ -32,12 +32,22 @@ const rideSchema = new mongoose.Schema({
         numberPlate: String,
         seats: Number
     },
- 
+
     perkmprice: {
         type: Number,
         required: true,
         default: 9
     },
+
+    // ─── Ride Visibility Status (NEW) ──────────────────────────────────────
+    status: {
+        type: String,
+        enum: ["pending", "published", "cancelled", "completed"],
+        default: "pending"
+        // "pending"   → driver not yet verified; ride hidden from passenger search
+        // "published" → driver verified; ride visible to everyone
+    },
+    // ──────────────────────────────────────────────────────────────────────
 
     passengers: [
         {
@@ -45,25 +55,20 @@ const rideSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User"
             },
-
             name: String,
             phone: String,
             email: String,
-
             from: {
                 lat: Number,
                 lng: Number,
                 displayName: String
             },
-
             to: {
                 lat: Number,
                 lng: Number,
                 displayName: String
             },
-
             amountPaid: Number,
-
             seatsBooked: {
                 type: Number,
                 default: 1

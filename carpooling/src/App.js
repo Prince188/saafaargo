@@ -50,6 +50,8 @@ import AdminBlogs from "./page/Admin/AdminBlogs";
 import AdminEditBlog from "./page/Admin/AdminEditBlog";
 import Subscribers from "./page/Admin/Subscribers";
 import Contacts from "./page/Admin/Contacts";
+import Help from "./page/Help";
+import ContactUs from "./page/ContactUs";
 
 function App() {
   return (
@@ -95,6 +97,8 @@ function App() {
           <Route path="/blog" element={<Blogs />} />
           <Route path="/blog/:id" element={<BlogDetails />} />
           <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
+          <Route path="/help" element={<Help/>}/>
+          <Route path="/contact" element={<ContactUs/>}/>
 
           {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 

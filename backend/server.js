@@ -58,6 +58,7 @@ app.use("/api/newsletter", newsletterRoutes);
 
 app.use("/api/contact", contactRoutes)
 
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

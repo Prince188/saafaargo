@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import GoogleRouteMap from "../../component/GoogleRouteMap";
 import { FiArrowLeft, FiMapPin, FiClock } from "react-icons/fi";
 import { BsFuelPump } from "react-icons/bs";
-import { FaArrowRight } from "react-icons/fa";
+import { FaArrowRight, FaRupeeSign } from "react-icons/fa";
 
 const RoutePreviewPage = () => {
     const location = useLocation();
@@ -129,14 +129,15 @@ const RoutePreviewPage = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 md:gap-md p-2 md:p-md bg-off-white rounded-md">
-                            <BsFuelPump className="text-xl md:text-2xl text-sage" />
+                            <FaRupeeSign className="text-xl md:text-2xl text-sage" />
                             <div>
                                 <span className="block text-sm md:text-base font-bold text-forest">
-                                    {routeInfo?.fuelCost != null ? `₹${routeInfo.fuelCost}` : "Calculating..."} <span className="text-xs text-stone">(approx.)</span>
+                                    {routeInfo?.fuelCost != null ? `${routeInfo.fuelCost}` : "Calculating..."} 
                                 </span>
-                                {/* <span className="block text-[9px] md:text-[10px] text-stone">
-                                    {routeInfo?.litresUsed != null ? `~${routeInfo.litresUsed}L fuel` : "Est. Fuel Cost"}
-                                </span> */}
+                                <span className="block text-[9px] md:text-[10px] text-stone">
+                                    {/* {routeInfo?.litresUsed != null ? `~${routeInfo.litresUsed}L fuel` : "Est. Fuel Cost"} */}
+                                    Approx.
+                                </span>
                             </div>
                         </div>
                     </div>

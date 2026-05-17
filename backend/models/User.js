@@ -32,14 +32,31 @@ const userSchema = new mongoose.Schema({
         default: "user"
     },
     profilePic: {
-        type: String,   // store image URL or file path
-        default: ""     // optional default image
-    },
-    status:{
         type: String,
-        enum: ["active" , "block"],
+        default: ""
+    },
+    status: {
+        type: String,
+        enum: ["active", "block"],
         default: "active"
+    },
+
+    // ─── Driver Verification ───────────────────────────────────────────────
+    driverVerified: {
+        type: Boolean,
+        default: false                        // becomes true once admin approves
+    },
+    driverVerificationStatus: {
+        type: String,
+        enum: ["none", "pending", "verified", "rejected"],
+        default: "none"                       // "none" = never submitted docs yet
+    },
+    driverDocuments: {
+        dlImage: { type: String, default: "" },  // stored file path / URL
+        rcImage: { type: String, default: "" },
+        submittedAt: { type: Date }
     }
+    // ──────────────────────────────────────────────────────────────────────
 },
     { timestamps: true }
 );
