@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import L from "leaflet";
 import { FiSearch, FiX, FiMapPin, FiNavigation, FiCheck } from "react-icons/fi";
 import "leaflet/dist/leaflet.css";
+import { showError } from "../utils/toastConfig";
 
 // Fix marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -171,10 +172,10 @@ const MapPicker = ({ onSelect, initialLocation, isInline = false }) => {
                 onSelect(location);
             }, (error) => {
                 console.error("Geolocation error:", error);
-                alert("Unable to get your location. Please check your permissions.");
+                showError("Unable to get your location. Please check your permissions.");
             });
         } else {
-            alert("Geolocation is not supported by your browser");
+            showError("Geolocation is not supported by your browser");
         }
     };
 

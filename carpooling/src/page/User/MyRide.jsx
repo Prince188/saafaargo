@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import { FaCar } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { showError, showSuccess } from "../../utils/toastConfig";
 
 const MyRide = () => {
     const [rides, setRides] = useState([]);
@@ -113,14 +114,14 @@ const MyRide = () => {
                 // Remove deleted ride from UI
                 setRides((prev) => prev.filter((ride) => ride._id !== rideId));
 
-                alert("Ride deleted successfully");
+                showSuccess("Ride deleted successfully");
             } else {
-                alert(data.message || "Failed to delete ride");
+                showError(data.message || "Failed to delete ride");
             }
 
         } catch (error) {
             console.log(error);
-            alert("Something went wrong");
+            showError("Something went wrong");
         }
     };
 

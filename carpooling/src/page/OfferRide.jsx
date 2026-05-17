@@ -15,6 +15,7 @@ import { TfiCar } from "react-icons/tfi";
 import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import LocationInput from "../component/LocationInput";
+import { showWarning } from "../utils/toastConfig";
 
 const OfferRide = () => {
     const [formData, setFormData] = useState({
@@ -42,12 +43,12 @@ const OfferRide = () => {
             !formData.fromCoords ||
             !formData.toCoords
         ) {
-            alert("Please fill all fields and select valid locations");
+            showWarning("Please fill all fields and select valid locations");
             return;
         }
 
         if (Number(formData.passengers) <= 0) {
-            alert("Passengers must be at least 1");
+            showWarning("Passengers must be at least 1");
             return;
         }
 

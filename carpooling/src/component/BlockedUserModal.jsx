@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import API from "../api/api";
-import { showError } from "../utils/toastConfig";
+import { showError, showSuccess } from "../utils/toastConfig";
 
 const BlockedUserModal = ({ isOpen, onClose }) => {
     const [showContactModal, setShowContactModal] = useState(false);
@@ -35,7 +35,7 @@ const BlockedUserModal = ({ isOpen, onClose }) => {
                 message,
             });
 
-            alert("Message sent to admin successfully");
+            showSuccess("Message sent to admin successfully");
 
             setMessage("");
             setShowContactModal(false);

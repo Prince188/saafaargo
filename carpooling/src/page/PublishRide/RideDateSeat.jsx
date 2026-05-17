@@ -10,6 +10,7 @@ import {
     FiClock,
 } from "react-icons/fi";
 import { FaArrowRight, FaCar } from "react-icons/fa";
+import { showWarning } from "../../utils/toastConfig";
 
 const RideDateSeat = () => {
     const location = useLocation();
@@ -27,7 +28,7 @@ const RideDateSeat = () => {
 
     const handleNext = () => {
         if (!selectedDate || !selectedTime) {
-            alert("Please select date and time");
+            showWarning("Please select date and time");
             return;
         }
 

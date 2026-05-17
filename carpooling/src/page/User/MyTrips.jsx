@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { FaCar, FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { showError, showSuccess } from "../../utils/toastConfig";
 
 const MyTrips = () => {
     const [trips, setTrips] = useState([]);
@@ -125,13 +126,13 @@ const MyTrips = () => {
                     )
                 );
 
-                alert("Trip cancelled successfully");
+                showSuccess("Trip cancelled successfully");
             } else {
-                alert(data.message || "Failed to cancel trip");
+                showError(data.message || "Failed to cancel trip");
             }
         } catch (error) {
             console.log(error);
-            alert("Something went wrong");
+            showError("Something went wrong");
         }
     };
 

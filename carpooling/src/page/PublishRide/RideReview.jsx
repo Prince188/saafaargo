@@ -6,6 +6,7 @@ import {
   FiAlertCircle, FiX, FiFileText, FiShield
 } from "react-icons/fi";
 import { FaCar, FaArrowRight, FaIdCard } from "react-icons/fa";
+import { showError, showSuccess } from "../../utils/toastConfig";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DocumentUploadModal
@@ -203,11 +204,11 @@ const RideReview = () => {
 
       const data = await res.json();
       
-      if (!res.ok) { alert(data.message || "Failed to save ride"); return false; }
+      if (!res.ok) { showError(data.message || "Failed to save ride"); return false; }
       return true;
     } catch (err) {
       console.error("publishRide error:", err);
-      alert("Something went wrong");
+      showError("Something went wrong");
       return false;
     } finally {
       setIsPublishing(false);
@@ -226,7 +227,7 @@ const RideReview = () => {
       if (data.driverVerified) {
         // ✅ Already verified → publish immediately, go to my-rides
         const ok = await publishRide();
-        if (ok) { alert("Ride published successfully 🚀"); navigate("/my-rides"); }
+        if (ok) { showSuccess("Ride published successfully 🚀"); navigate("/my-rides"); }
 
       } else if (data.driverVerificationStatus === "pending") {
         // ⏳ Docs submitted but not yet approved → save ride as pending, show banner
@@ -240,7 +241,7 @@ const RideReview = () => {
 
     } catch (err) {
       console.error("Verification check failed:", err);
-      alert("Something went wrong. Please try again.");
+      showError("Something went wrong. Please try again.");
     }
   };
 
@@ -260,7 +261,7 @@ const RideReview = () => {
       });
 
       const docData = await docRes.json();
-      if (!docRes.ok) { alert(docData.message || "Failed to upload documents"); return; }
+      if (!docRes.ok) { showError(docData.message || "Failed to upload documents"); return; }
 
       // Now save the ride (backend will assign status:"pending" since not verified yet)
       const ok = await publishRide();
@@ -271,7 +272,7 @@ const RideReview = () => {
 
     } catch (err) {
       console.error("Doc submit error:", err);
-      alert("Something went wrong uploading documents");
+      showError("Something went wrong uploading documents");
     } finally {
       setIsSubmittingDocs(false);
     }

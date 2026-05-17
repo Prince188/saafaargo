@@ -13,6 +13,7 @@ import {
     FaHeadset
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { showError, showSuccess } from "../utils/toastConfig";
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -29,9 +30,9 @@ const Footer = () => {
             });
 
             setSubscribed(true);
-            alert("Subscribed successfully!");
+            showSuccess("Subscribed successfully!");
         } catch (err) {
-            alert(err.response?.data?.message || "Error");
+            showError(err.response?.data?.message || "Error");
         } finally {
             setLoading(false);
         }
@@ -47,9 +48,9 @@ const Footer = () => {
 
             setSubscribed(false);
             setEmail("");
-            alert("Unsubscribed successfully!");
+            showSuccess("Unsubscribed successfully!");
         } catch (err) {
-            alert("Error");
+            showError("Error");
         } finally {
             setLoading(false);
         }

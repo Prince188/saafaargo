@@ -8,6 +8,7 @@ import {
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaArrowRight, FaShieldAlt, FaCar } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
+import { showError, showWarning } from '../utils/toastConfig';
 
 const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -46,10 +47,10 @@ const RegisterPage = () => {
 
     const handleSendOtp = async () => {
         if (!formData.email) {
-            return alert("Please enter email");
+            return showWarning("Please enter email");
         }
         if (!agreeTerms) {
-            return alert("Please agree to the Terms & Conditions");
+            return showWarning("Please agree to the Terms & Conditions");
         }
 
         try {
@@ -67,7 +68,7 @@ const RegisterPage = () => {
             });
 
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to send OTP");
+            showError(err.response?.data?.message || "Failed to send OTP");
         } finally {
             setOtpLoading(false);
         }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FaSearch, FaMapMarkerAlt, FaCrosshairs, FaCheck } from "react-icons/fa";
+import { showError } from "../utils/toastConfig";
 
 const GoogleMapPicker = ({ onSelect, initialLocation }) => {
     const mapRef = useRef(null);
@@ -195,11 +196,11 @@ const GoogleMapPicker = ({ onSelect, initialLocation }) => {
                 },
                 (error) => {
                     console.error("Error getting location:", error);
-                    alert("Unable to get your current location. Please check your permissions.");
+                    showError("Unable to get your current location. Please check your permissions.");
                 }
             );
         } else {
-            alert("Geolocation is not supported by your browser.");
+            showError("Geolocation is not supported by your browser.");
         }
     };
 
