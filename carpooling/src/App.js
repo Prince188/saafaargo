@@ -2,7 +2,7 @@
 import "leaflet/dist/leaflet.css";
 import { LoadScript } from "@react-google-maps/api";
 
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import ScrollToTop from './component/ScrollToTop';
 
@@ -52,6 +52,7 @@ import Subscribers from "./page/Admin/Subscribers";
 import Contacts from "./page/Admin/Contacts";
 import Help from "./page/Help";
 import ContactUs from "./page/ContactUs";
+import DriverVerify from "./page/Admin/DriverVerify";
 
 function App() {
   return (
@@ -97,8 +98,8 @@ function App() {
           <Route path="/blog" element={<Blogs />} />
           <Route path="/blog/:id" element={<BlogDetails />} />
           <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
-          <Route path="/help" element={<Help/>}/>
-          <Route path="/contact" element={<ContactUs/>}/>
+          <Route path="/help" element={<Help />} />
+          <Route path="/contact" element={<ContactUs />} />
 
           {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 
@@ -119,6 +120,8 @@ function App() {
           <Route path='/offer-ride/date-seat' element={<RideDateSeat />} />
           <Route path='/offer-ride/ride-review' element={<RideReview />} />
 
+          {/* Admin Routes */}
+
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<Navigate to="dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
@@ -128,6 +131,7 @@ function App() {
             <Route path="blogs/edit/:id" element={<AdminEditBlog />} />
             <Route path="subscribers" element={<Subscribers />} />
             <Route path="contacts" element={<Contacts />} />
+            <Route path="verify" element={<DriverVerify />} />
           </Route>
         </Route>
 

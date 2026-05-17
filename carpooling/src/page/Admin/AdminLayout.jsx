@@ -1,15 +1,15 @@
-import { AuthProvider, useAuth } from "../../utils/AuthContext";
+import {  useAuth } from "../../utils/AuthContext";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaBlog, FaDashcube, FaHome, FaRoute, FaUserCheck, FaUsers } from "react-icons/fa";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
-import { RiCustomerService2Line } from "react-icons/ri";
+import { RiCustomerService2Line, RiSteeringFill } from "react-icons/ri";
 
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [users, setUser] = useState(null);
+    // const [users, setUser] = useState(null);
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -18,17 +18,18 @@ const AdminLayout = () => {
     const navItems = [
         { path: "/admin/dashboard", name: "Dashboard", icon: <FaDashcube /> },
         { path: "/admin/users", name: "Users", icon: <FaUsers /> },
+        { path: "/admin/verify", name: "Driver Verify", icon: <RiSteeringFill /> },
         { path: "/admin/rides", name: "Rides", icon: <FaRoute /> },
         { path: "/admin/blogs", name: "Blogs", icon: <FaBlog /> },
         { path: "/admin/subscribers", name: "Subscribers", icon: <FaUserCheck /> },
-        { path: "/admin/contacts", name: "Contacts", icon: <RiCustomerService2Line  /> },
+        { path: "/admin/contacts", name: "Contacts", icon: <RiCustomerService2Line /> },
         { path: "/", name: "Home", icon: <FaHome /> },
     ];
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        setUser(null);
+        // setUser(null);
         window.dispatchEvent(new Event("authChange")); // ✅ notify navbar
         navigate("/login");
     };
@@ -77,7 +78,7 @@ const AdminLayout = () => {
                 {/* Navigation */}
                 <nav className="flex-1 px-4 py-6 space-y-1">
                     {navItems.map((item) => {
-                        const Icon = item.icon;
+                        // const Icon = item.icon;
                         return (
                             <NavLink
                                 key={item.path}

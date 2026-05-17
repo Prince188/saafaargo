@@ -202,6 +202,7 @@ const RideReview = () => {
       });
 
       const data = await res.json();
+      
       if (!res.ok) { alert(data.message || "Failed to save ride"); return false; }
       return true;
     } catch (err) {

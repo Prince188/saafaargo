@@ -11,6 +11,7 @@ const bookingRoutes = require("./routes/bookingRoutes");
 const blogRoutes = require("./routes/blogRoutes");
 const newsletterRoutes = require("./routes/newsletterRoutes");
 const contactRoutes = require("./routes/contactRoutes")
+const adminRoutes = require("./routes/adminRoutes")
 
 connectDB();
 
@@ -25,8 +26,8 @@ const app = express();
 
 app.use(cors({
     origin: [
-        // "http://localhost:3000",              // local frontend
-        "https://saafaargo.vercel.app"    // deployed frontend
+        "http://localhost:3000",              // local frontend
+        // "https://saafaargo.vercel.app"    // deployed frontend
     ],
     credentials: true
 }));
@@ -58,6 +59,7 @@ app.use("/api/newsletter", newsletterRoutes);
 
 app.use("/api/contact", contactRoutes)
 
+app.use("/api/admin" , adminRoutes)
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,9 +1,15 @@
 // ─── Add these 3 routes to your existing adminRoutes.js ───────────────────
 // (import driverController at the top of that file alongside your other imports)
+const express = require("express");
+const router = express.Router();
 
 const driverController = require("../controllers/driverController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/drivers", authMiddleware, adminOnly, driverController.getAllDrivers);
-router.patch("/drivers/:userId/approve", authMiddleware, adminOnly, driverController.approveDriver);
-router.patch("/drivers/:userId/reject", authMiddleware, adminOnly, driverController.rejectDriver);
+router.get("/drivers", authMiddleware, driverController.getAllDrivers);
+router.patch("/drivers/:userId/approve", authMiddleware, driverController.approveDriver);
+router.patch("/drivers/:userId/reject", authMiddleware, driverController.rejectDriver);
+
+module.exports = router;
+
 // ──────────────────────────────────────────────────────────────────────────

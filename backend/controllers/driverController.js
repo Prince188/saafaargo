@@ -3,18 +3,18 @@ const Ride = require("../models/Ride");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/rides/driver/submit-documents
-// User uploads DL + RC for the first time (or after rejection)
+// multer-storage-cloudinary puts the full Cloudinary URL in req.files[x][0].path
 // ─────────────────────────────────────────────────────────────────────────────
 exports.submitDocuments = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Already fully verified — nothing to do
         if (user.driverVerified) {
             return res.status(400).json({ message: "Driver already verified" });
         }
 
+        // multer-storage-cloudinary stores the secure URL in .path
         const dlImage = req.files?.dlImage?.[0]?.path || "";
         const rcImage = req.files?.rcImage?.[0]?.path || "";
 
@@ -33,13 +33,12 @@ exports.submitDocuments = async (req, res) => {
 
     } catch (err) {
         console.error("submitDocuments error:", err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/rides/driver/verification-status
-// Frontend calls this before the publish button to decide what modal to show
 // ─────────────────────────────────────────────────────────────────────────────
 exports.getVerificationStatus = async (req, res) => {
     try {
@@ -62,7 +61,6 @@ exports.getVerificationStatus = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ADMIN: GET /api/admin/drivers?status=pending
-// List drivers filtered by verification status (default: all who submitted docs)
 // ─────────────────────────────────────────────────────────────────────────────
 exports.getAllDrivers = async (req, res) => {
     try {
@@ -85,7 +83,6 @@ exports.getAllDrivers = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ADMIN: PATCH /api/admin/drivers/:userId/approve
-// Approve driver → mark verified → bulk-publish all their pending rides
 // ─────────────────────────────────────────────────────────────────────────────
 exports.approveDriver = async (req, res) => {
     try {
@@ -96,7 +93,7 @@ exports.approveDriver = async (req, res) => {
         user.driverVerificationStatus = "verified";
         await user.save();
 
-        // Publish every ride that was held as pending for this driver
+        // Bulk-publish all rides that were held pending for this driver
         const result = await Ride.updateMany(
             { user: req.params.userId, status: "pending" },
             { $set: { status: "published" } }
@@ -115,7 +112,6 @@ exports.approveDriver = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ADMIN: PATCH /api/admin/drivers/:userId/reject
-// Reject driver — they can re-upload docs and try again
 // ─────────────────────────────────────────────────────────────────────────────
 exports.rejectDriver = async (req, res) => {
     try {
