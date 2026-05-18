@@ -26,14 +26,12 @@ import {
     FaUserCheck,
     FaRegClock,
     FaMapMarkerAlt,
-    FaPercentage,
-    FaRocket,
-    FaArrowRight,
 } from "react-icons/fa";
 import { FaArrowTrendUp } from "react-icons/fa6";
-import { MdVerified, MdPayment, MdRateReview, MdAnalytics } from "react-icons/md";
+import { MdVerified, MdPayment, MdRateReview } from "react-icons/md";
 import API from "../../api/api";
 import { showSuccess, showError } from "../../utils/toastConfig";
+import { formatDistanceToNow } from "date-fns";
 
 const Dashboard = () => {
     const [today, setToday] = useState(0);
@@ -43,6 +41,7 @@ const Dashboard = () => {
     const [monthlyStats, setMonthlyStats] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dateRange, setDateRange] = useState("week");
+    const [recentActivities, setRecentActivities] = useState([]);
     const [userStats, setUserStats] = useState({
         totalUsers: 15420,
         verifiedUsers: 12890,
@@ -67,11 +66,29 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         setLoading(true);
+
         try {
-            const [todayRes, totalRes, statsRes] = await Promise.all([
-                API.get("/visitor/today").catch(() => ({ data: { todayVisitors: 0 } })),
-                API.get("/visitor/total").catch(() => ({ data: { totalVisitors: 0 } })),
-                API.get(`/visitor/stats?range=${dateRange}`).catch(() => ({ data: [] }))
+            const [
+                todayRes,
+                totalRes,
+                statsRes,
+                activityRes
+            ] = await Promise.all([
+                API.get("/visitor/today").catch(() => ({
+                    data: { todayVisitors: 0 }
+                })),
+
+                API.get("/visitor/total").catch(() => ({
+                    data: { totalVisitors: 0 }
+                })),
+
+                API.get(`/visitor/stats?range=${dateRange}`).catch(() => ({
+                    data: []
+                })),
+
+                API.get("/admin/recent-activities").catch(() => ({
+                    data: { activities: [] }
+                }))
             ]);
 
             setToday(todayRes.data?.todayVisitors || 0);
@@ -82,14 +99,19 @@ const Dashboard = () => {
                 visitors: item.count
             }));
 
-            if (dateRange === "week") setWeeklyStats(formatted);
-            else if (dateRange === "month") setMonthlyStats(formatted);
-            else setStats(formatted);
+            if (dateRange === "week") {
+                setWeeklyStats(formatted);
+            } else if (dateRange === "month") {
+                setMonthlyStats(formatted);
+            } else {
+                setStats(formatted);
+            }
 
-            showSuccess("Dashboard data loaded");
+            setRecentActivities(activityRes.data.activities || []);
+
         } catch (err) {
-            console.error(err);
-            showError("Failed to load dashboard data");
+            console.log(err);
+            showError("Failed to load dashboard");
         } finally {
             setLoading(false);
         }
@@ -167,14 +189,6 @@ const Dashboard = () => {
             accent: "#9b2c2c",
             tint: "#fdecec",
         }
-    ];
-
-    const recentActivities = [
-        { user: "Rajesh Kumar", action: "joined SafarGo", time: "2 minutes ago", type: "user", icon: FaUserPlus },
-        { user: "Priya Sharma", action: "created a new ride", time: "15 minutes ago", type: "ride", icon: FaCar },
-        { user: "Amit Patel", action: "completed a booking", time: "1 hour ago", type: "booking", icon: MdPayment },
-        { user: "Neha Gupta", action: "left a 5-star review", time: "2 hours ago", type: "review", icon: FaStar },
-        { user: "Vikram Singh", action: "verified their account", time: "3 hours ago", type: "verification", icon: MdVerified }
     ];
 
     const topCities = [
@@ -466,7 +480,20 @@ const Dashboard = () => {
                         </div>
                         <div className="space-y-3 max-h-[380px] overflow-y-auto">
                             {recentActivities.map((activity, idx) => {
-                                const Icon = activity.icon;
+                                let Icon = FaUsers;
+
+                                if (activity.type === "ride") {
+                                    Icon = FaCar;
+                                }
+                                else if (activity.type === "booking") {
+                                    Icon = MdPayment;
+                                }
+                                else if (activity.type === "review") {
+                                    Icon = FaStar;
+                                }
+                                else if (activity.type === "verification") {
+                                    Icon = MdVerified;
+                                }
                                 const typeStyles = {
                                     user: "bg-[#e8f1ea] text-[#2f5a3d]",
                                     ride: "bg-[#eaf1fb] text-[#1e3a8a]",
@@ -484,7 +511,11 @@ const Dashboard = () => {
                                                 <span className="font-semibold">{activity.user}</span>
                                                 <span className="text-[#5a6358]"> {activity.action}</span>
                                             </p>
-                                            <p className="text-[11px] text-[#9aa194] mt-1">{activity.time}</p>
+                                            <p className="text-[11px] text-[#9aa194] mt-1">
+                                                {formatDistanceToNow(new Date(activity.time), {
+                                                    addSuffix: true
+                                                })}
+                                            </p>
                                         </div>
                                     </div>
                                 );
@@ -531,7 +562,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* QUICK STATS FOOTER */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
                         <FaPercentage className="text-[#2f5a3d] text-xl mx-auto mb-2" />
                         <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
@@ -560,7 +591,7 @@ const Dashboard = () => {
                         </p>
                         <p className="text-[10px] text-[#7a8478] mt-0.5">Average Rating</p>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
