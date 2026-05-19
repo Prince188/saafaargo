@@ -7,7 +7,7 @@ const mailSender = require("../util/mailSender");
 
 exports.register = async (req, res) => {
   try {
-    const {
+    let {
       firstName,
       lastName,
       email,
@@ -15,6 +15,9 @@ exports.register = async (req, res) => {
       password,
       otp
     } = req.body;
+
+    email = email.toLowerCase().trim();
+    mobile = mobile.trim();
 
     // Check existing user
     const existingUser = await User.findOne({
@@ -93,7 +96,9 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    email = email.toLowerCase().trim();
 
     // Find user
     const user = await User.findOne({ email });
@@ -151,7 +156,10 @@ exports.login = async (req, res) => {
 
 exports.sendOtp = async (req, res) => {
   try {
-    const { email } = req.body;
+    let { email } = req.body;
+
+    email = email.toLowerCase().trim();
+
 
     const existingUser = await User.findOne({ email });
 

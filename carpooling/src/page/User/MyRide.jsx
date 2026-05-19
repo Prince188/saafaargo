@@ -90,6 +90,46 @@ const MyRide = () => {
         }
     };
 
+    // Check if ride can still be edited
+    const canEditRide = (rideDate, rideTime) => {
+        if (!rideDate || !rideTime) return false;
+
+        // Get local date parts
+        const dateObj = new Date(rideDate);
+
+        const year = dateObj.getFullYear();
+        const month = dateObj.getMonth();
+        const day = dateObj.getDate();
+
+        // Convert time string
+        const [time, modifier] = rideTime.split(" ");
+        let [hours, minutes] = time.split(":").map(Number);
+
+        if (modifier === "PM" && hours !== 12) {
+            hours += 12;
+        }
+
+        if (modifier === "AM" && hours === 12) {
+            hours = 0;
+        }
+
+        // Create local datetime properly
+        const rideDateTime = new Date(
+            year,
+            month,
+            day,
+            hours,
+            minutes
+        );
+
+        // 1 hour before ride
+        const editDeadline = new Date(
+            rideDateTime.getTime() - 60 * 60 * 1000
+        );
+
+        return new Date() < editDeadline;
+    };
+
     const handleDeleteRide = async (rideId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this ride?");
 
@@ -159,6 +199,7 @@ const MyRide = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
                         {rides.map((ride, index) => {
                             // const statusBadge = getStatusBadge(ride.status);
+                            const isEditable = canEditRide(ride.date, ride.time);
                             return (
                                 <div
                                     className="bg-white rounded-md p-lg shadow-sm transition-all duration-base relative border border-sage-soft hover:-translate-y-1 hover:shadow-md hover:border-sage-light animate-fade-in-up"
@@ -259,13 +300,30 @@ const MyRide = () => {
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex gap-sm">
+                                    <div className="flex gap-sm flex-wrap">
                                         <Link
                                             to={`/rides/${ride._id}`}
                                             className="flex-1 px-4 text-center py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-sage text-sage hover:bg-sage-soft hover:-translate-y-0.5"
                                         // onClick={() => window.location.href = `/rides/${ride._id}`}
                                         >
                                             View Details
+                                        </Link>
+                                        <Link
+                                            to={isEditable ? `/edit-ride/${ride._id}` : "#"}
+                                            title={!isEditable ? "Editing closed 1 hour before departure" : ""}
+                                            onClick={(e) => {
+                                                if (!isEditable) {
+                                                    e.preventDefault();
+                                                    showError("Ride can only be edited till 1 hour before departure");
+                                                }
+                                            }}
+                                            className={`flex-1 px-4 text-center py-2 rounded-full text-xs font-semibold transition-all duration-base
+    ${canEditRide(ride.date, ride.time)
+                                                    ? "bg-sage text-white hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
+                                                    : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-70"
+                                                }`}
+                                        >
+                                            Edit Ride
                                         </Link>
                                         {ride.status !== 'cancelled' && (
                                             <button

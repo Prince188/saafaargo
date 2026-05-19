@@ -49,6 +49,23 @@ const rideSchema = new mongoose.Schema({
     },
     // ──────────────────────────────────────────────────────────────────────
 
+    pricePerSeat: {
+        type: Number,
+        default: 0,
+        // Per-seat price for the full pickup→destination route.
+        // Calculated as: Math.round((distanceKm * perkmprice) / seatsAvailable)
+        // Set on creation (RideReview sends totalPricePerSeat → map it here)
+        // and recalculated on every edit.
+    },
+
+    totalEarning: {
+        type: Number,
+        default: 0,
+        // Total driver earns if ALL seats are filled for the full route.
+        // Calculated as: Math.round(distanceKm * perkmprice)
+        // MyRide.jsx already reads ride.totalEarning — it will now be accurate.
+    },
+
     passengers: [
         {
             user: {

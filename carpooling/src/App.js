@@ -53,6 +53,7 @@ import Contacts from "./page/Admin/Contacts";
 import Help from "./page/Help";
 import ContactUs from "./page/ContactUs";
 import DriverVerify from "./page/Admin/DriverVerify";
+import EditRide from "./page/User/EditRide";
 
 function App() {
   return (
@@ -91,6 +92,7 @@ function App() {
           <Route path='/vehicle/add' element={<AddVehicle />} />
           <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
           <Route path='/my-rides' element={<MyRide />} />
+          <Route path='/edit-ride/:id' element={<EditRide/>}/>
           <Route path="/my-trips" element={<MyTrips />} />
           <Route path="/rides/:id" element={<RideDeatil />} />
           <Route path="/terms" element={<TermsOfService />} />

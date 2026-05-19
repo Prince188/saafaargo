@@ -12,7 +12,7 @@ exports.createRide = async (req, res) => {
             destination,
             stops,
             date,
-            time, 
+            time,
             seatsAvailable,
             car,
             perkmprice
@@ -398,5 +398,136 @@ exports.getAllRides = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUT /api/rides/edit/:id
+// Accepts: pickup, destination, date, time, seatsAvailable, notes, distanceKm
+// Recalculates: totalEarning = distanceKm * perkmprice
+//               (stored so MyRide can display it without re-computing)
+// Edit window: up to 1 hour before departure
+// ─────────────────────────────────────────────────────────────────────────────
+exports.editRide = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const ride = await Ride.findById(id);
+
+        if (!ride) {
+            return res.status(404).json({
+                success: false,
+                message: "Ride not found"
+            });
+        }
+
+        // ── Ownership check ───────────────────────────────────────────────
+        if (ride.user.toString() !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+
+        // ── Determine the departure datetime to enforce the 1-hour window ─
+        // ride.time is stored as "HH:mm" (24-hour, from react-time-picker)
+        // Use the *incoming* date/time if provided, otherwise fall back to
+        // what is already in the DB — so the window is checked against the
+        // NEW departure time the driver is trying to set.
+        const dateStr = req.body.date || ride.date;
+        const timeStr = req.body.time || ride.time;
+
+        let rideDateTime;
+
+        if (timeStr && timeStr.includes(":")) {
+            const timeParts = timeStr.trim().split(" "); // handles both "HH:mm" and "HH:mm AM/PM"
+            const [hhRaw, mmRaw] = timeParts[0].split(":").map(Number);
+            let hours = hhRaw;
+            const modifier = timeParts[1]?.toUpperCase();
+
+            if (modifier === "PM" && hours !== 12) hours += 12;
+            if (modifier === "AM" && hours === 12) hours = 0;
+
+            // dateStr may be "YYYY-MM-DD" or an ISO string
+            const base = new Date(dateStr);
+            rideDateTime = new Date(
+                base.getFullYear(),
+                base.getMonth(),
+                base.getDate(),
+                hours,
+                mmRaw,
+                0,
+                0
+            );
+        } else {
+            rideDateTime = new Date(dateStr);
+        }
+
+        const editDeadline = new Date(rideDateTime.getTime() - 60 * 60 * 1000);
+
+        if (new Date() > editDeadline) {
+            return res.status(400).json({
+                success: false,
+                message: "Ride can no longer be edited (less than 1 hour before departure)"
+            });
+        }
+
+        // ── Build update object ───────────────────────────────────────────
+        const {
+            pickup,
+            destination,
+            date,
+            time,
+            seatsAvailable,
+            notes,
+            distanceKm,   // optional hint from frontend (haversine estimate)
+        } = req.body;
+
+        const updateFields = {};
+
+        if (pickup) updateFields.pickup = pickup;
+        if (destination) updateFields.destination = destination;
+        if (date) updateFields.date = date;
+        if (time) updateFields.time = time;
+        if (seatsAvailable) updateFields.seatsAvailable = Number(seatsAvailable);
+        if (notes !== undefined) updateFields.notes = notes;
+
+        // ── Recalculate price fields ──────────────────────────────────────
+        // We use:
+        //   distanceKm  → from frontend haversine (pickup→destination straight line)
+        //   perkmprice  → already on the ride, never changed in edit
+        //   seatsAvailable → the (possibly updated) seat count
+
+        const km = parseFloat(distanceKm) || null;
+        const rate = Number(ride.perkmprice); // preserved from creation
+        const seats = Number(seatsAvailable || ride.seatsAvailable) || 1;
+
+        if (km && rate) {
+            const totalRoutePrice = Math.round(km * rate);
+            const calculatedPerSeat = Math.round(totalRoutePrice / seats);
+
+            updateFields.pricePerSeat = calculatedPerSeat; // per-seat price for full route
+            updateFields.totalEarning = totalRoutePrice;   // what driver earns if all seats fill
+        }
+
+        // ── Persist ───────────────────────────────────────────────────────
+        const updatedRide = await Ride.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Ride updated successfully",
+            data: updatedRide
+        });
+
+    } catch (error) {
+        console.error("editRide error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
     }
 };

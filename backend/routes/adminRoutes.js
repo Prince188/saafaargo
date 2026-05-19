@@ -5,10 +5,13 @@ const router = express.Router();
 
 const driverController = require("../controllers/driverController");
 const authMiddleware = require("../middleware/authMiddleware");
+const { getRecentActivities } = require("../controllers/adminController");
 
 router.get("/drivers", authMiddleware, driverController.getAllDrivers);
 router.patch("/drivers/:userId/approve", authMiddleware, driverController.approveDriver);
 router.patch("/drivers/:userId/reject", authMiddleware, driverController.rejectDriver);
+
+router.get("/recent-activities", authMiddleware, getRecentActivities);
 
 module.exports = router;
 

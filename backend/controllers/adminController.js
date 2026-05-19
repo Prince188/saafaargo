@@ -83,14 +83,14 @@ exports.getAdminDashboard = async (req, res) => {
         const pendingRides = await Ride.find({
             status: "pending"
         })
-        .populate("user", "firstName lastName email")
-        .sort({ createdAt: -1 });
+            .populate("user", "firstName lastName email")
+            .sort({ createdAt: -1 });
 
         const activeRides = await Ride.find({
             status: "active"
         })
-        .populate("user", "firstName lastName email")
-        .sort({ createdAt: -1 });
+            .populate("user", "firstName lastName email")
+            .sort({ createdAt: -1 });
 
         res.json({
             success: true,
@@ -107,4 +107,34 @@ exports.getAdminDashboard = async (req, res) => {
             message: error.message
         });
     }
-};  
+};
+
+exports.getRecentActivities = async (req, res) => {
+    try {
+
+        const recentUsers = await User.find()
+            .sort({ createdAt: -1 })
+            .limit(5);
+
+        const activities = recentUsers.map(user => ({
+            type: "user",
+            user: `${user.firstName} ${user.lastName}`,
+            action: "registered on the platform",
+            time: user.createdAt,
+        }));
+
+        res.status(200).json({
+            success: true,
+            activities
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
