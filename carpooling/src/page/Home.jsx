@@ -33,6 +33,8 @@ export default function Home() {
     const [debouncedTo, setDebouncedTo] = useState("");
     const fromRef = useRef(null);
     const toRef = useRef(null);
+    const pathRef = useRef(null);
+    const carRef = useRef(null);
 
     const navigate = useNavigate(); // add this
 
@@ -85,14 +87,109 @@ export default function Home() {
         });
     }, []);
 
+    // Scroll animation for the car
+    useEffect(() => {
+        let ticking = false;
+
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (!pathRef.current || !carRef.current) {
+                        ticking = false;
+                        return;
+                    }
+
+                    const scrollY = window.scrollY;
+                    const maxScroll = 600; // Car finishes its journey after scrolling 600px
+                    const progress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+
+                    const pathLength = pathRef.current.getTotalLength();
+                    const currentLength = progress * pathLength;
+
+                    const point = pathRef.current.getPointAtLength(currentLength);
+
+                    let angle = 0;
+                    if (currentLength + 1 <= pathLength) {
+                        const nextPoint = pathRef.current.getPointAtLength(currentLength + 1);
+                        angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * (180 / Math.PI);
+                    } else if (currentLength - 1 >= 0) {
+                        const prevPoint = pathRef.current.getPointAtLength(currentLength - 1);
+                        angle = Math.atan2(point.y - prevPoint.y, point.x - prevPoint.x) * (180 / Math.PI);
+                    }
+
+                    carRef.current.style.transform = `translate(${point.x}px, ${point.y}px) rotate(${angle}deg)`;
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        // Initial setup with a slight delay to allow SVG render
+        const timeoutId = setTimeout(handleScroll, 50);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            clearTimeout(timeoutId);
+        };
+    }, []);
+
     return (
         <div className="font-inter bg-off-white text-charcoal overflow-hidden">
             {/* HERO SECTION */}
             <section className="relative min-h-screen flex items-center overflow-visible isolate pb-20">
-                <div className="absolute inset-0 bg-gradient-hero -z-20"></div>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(122,155,122,0.08)_0%,transparent_70%)] -z-10"></div>
-                <div className="absolute w-[300px] h-[300px] rounded-full bg-sage-light blur-[80px] opacity-40 -top-[100px] -right-[100px] animate-float -z-10"></div>
-                <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse -z-10"></div>
+                <div className="absolute inset-0 bg-gradient-hero z-[-20]"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(122,155,122,0.08)_0%,transparent_70%)] z-[-10]"></div>
+                
+                {/* SVG ROAD & CAR BACKGROUND */}
+                <div className="absolute inset-0 overflow-hidden z-[-15] pointer-events-none">
+                    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-60">
+                        {/* The Road */}
+                        <path
+                            ref={pathRef}
+                            d="M 100 150 C 400 150, 400 700, 1100 700"
+                            fill="none"
+                            stroke="#E5E7EB"
+                            strokeWidth="80"
+                            strokeLinecap="round"
+                        />
+                        {/* Road Dashed Line */}
+                        <path
+                            d="M 100 150 C 400 150, 400 700, 1100 700"
+                            fill="none"
+                            stroke="#ffffff"
+                            strokeWidth="4"
+                            strokeDasharray="20 20"
+                        />
+                        {/* The Car */}
+                        <g ref={carRef} style={{ transition: 'transform 0.1s ease-out', transform: 'translate(100px, 150px)' }}>
+                            <g transform="scale(1.5)">
+                                {/* Shadow */}
+                                <rect x="-18" y="-12" width="36" height="24" fill="rgba(0,0,0,0.15)" rx="6" />
+                                {/* Car Body */}
+                                <path d="M-15 -10 h30 a5 5 0 0 1 5 5 v10 a5 5 0 0 1 -5 5 h-30 a5 5 0 0 1 -5 -5 v-10 a5 5 0 0 1 5 -5 z" fill="#1A3A2E" />
+                                {/* Windshield */}
+                                <path d="M-3 -8 h10 a2 2 0 0 1 2 2 v12 a2 2 0 0 1 -2 2 h-10 a2 2 0 0 1 -2 -2 v-12 a2 2 0 0 1 2 -2 z" fill="#A8C5B8" />
+                                {/* Rear Window */}
+                                <path d="M-12 -6 h4 a1 1 0 0 1 1 1 v10 a1 1 0 0 1 -1 1 h-4 a1 1 0 0 1 -1 -1 v-10 a1 1 0 0 1 1 -1 z" fill="#A8C5B8" />
+                                {/* Wheels */}
+                                <rect x="-12" y="-12" width="6" height="3" fill="#111" rx="1" />
+                                <rect x="8" y="-12" width="6" height="3" fill="#111" rx="1" />
+                                <rect x="-12" y="9" width="6" height="3" fill="#111" rx="1" />
+                                <rect x="8" y="9" width="6" height="3" fill="#111" rx="1" />
+                                {/* Headlights */}
+                                <rect x="18" y="-8" width="2" height="4" fill="#FDE047" />
+                                <rect x="18" y="4" width="2" height="4" fill="#FDE047" />
+                                {/* Taillights */}
+                                <rect x="-19" y="-8" width="2" height="3" fill="#EF4444" />
+                                <rect x="-19" y="5" width="2" height="3" fill="#EF4444" />
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+
+                <div className="absolute w-[300px] h-[300px] rounded-full bg-sage-light blur-[80px] opacity-40 -top-[100px] -right-[100px] animate-float z-[-10]"></div>
+                <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse z-[-10]"></div>
 
                 <div className="relative z-20 max-w-[1280px] mx-auto px-xl w-full">
                     <div className="max-w-[900px] mx-auto text-center py-3xl">
