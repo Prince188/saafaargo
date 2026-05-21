@@ -383,7 +383,11 @@ const Search = () => {
                                                 Per seat
                                             </div>
                                             <div className="font-fraunces text-3xl font-bold text-forest leading-none mt-1">
-                                                {ride.segmentPrice != null ? `₹${ride.segmentPrice}` : "—"}
+                                                {ride.segmentPrice != null
+                                                    ? `₹${Math.ceil(
+                                                        ride.segmentPrice / (ride.totalSeats || ride.seats || 1)
+                                                    )}`
+                                                    : "—"}
                                             </div>
                                             <div className="flex items-center justify-end gap-1.5 mt-2 text-xs">
                                                 <FiUsers className="text-sage" />
@@ -392,7 +396,7 @@ const Search = () => {
                                                 </span>
                                             </div>
                                         </div>
- 
+
                                         <button
                                             onClick={() =>
                                                 navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })

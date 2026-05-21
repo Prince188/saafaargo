@@ -24,6 +24,10 @@ const rideSchema = new mongoose.Schema({
     time: String,
 
     seatsAvailable: Number,
+    totalSeats: {
+        type: Number,
+        required: true,
+    },
 
     car: {
         brand: String,

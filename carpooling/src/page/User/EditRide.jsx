@@ -8,10 +8,11 @@ import {
     FiMapPin,
     FiNavigation,
     FiInfo,
+    FiArrowLeft
 } from "react-icons/fi";
-import { FaRupeeSign, FaRoad } from "react-icons/fa";
+import { FaRupeeSign, FaRoad, FaCar, FaArrowRight } from "react-icons/fa";
 import { showError, showSuccess } from "../../utils/toastConfig";
-import LocationInput from "../../component/LocationInput"; // adjust path if needed
+import LocationInput from "../../component/LocationInput";
 
 // ─── Haversine distance ───────────────────────────────────────────────────────
 const getDistanceKm = (lat1, lng1, lat2, lng2) => {
@@ -44,7 +45,7 @@ const EditRide = () => {
     });
 
     // ── Location state (objects with lat, lng, displayName) ──────────────────
-    const [pickup, setPickup] = useState(null);   // { lat, lng, displayName, address }
+    const [pickup, setPickup] = useState(null);
     const [destination, setDestination] = useState(null);
 
     // ── Computed price preview ────────────────────────────────────────────────
@@ -151,7 +152,6 @@ const EditRide = () => {
                 ...formData,
                 pickup,
                 destination,
-                // Let backend recalculate totalEarning; send distanceKm as hint
                 distanceKm,
             };
 
@@ -183,153 +183,160 @@ const EditRide = () => {
         }
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-off-white">
-                <div className="flex flex-col items-center gap-md">
-                    <div className="w-[50px] h-[50px] border-3 border-sage-soft border-t-forest rounded-full animate-spin" />
-                    <p className="text-sm text-stone">Loading ride...</p>
+            <div className="min-h-screen bg-[#f8f6ef] font-inter flex items-center justify-center">
+                <div className="text-center">
+                    <div className="relative w-16 h-16 mx-auto">
+                        <div className="absolute inset-0 border-2 border-[#e6e1d3] border-t-[#2f5a3d] rounded-full animate-spin" />
+                    </div>
+                    <p className="text-[#5a6358] mt-5 text-sm">Loading ride details…</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-off-white font-inter">
-            <div className="max-w-[700px] mx-auto px-xl py-2xl">
+        <div className="min-h-screen bg-[#f8f6ef] font-inter text-[#1a2620]">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
 
                 {/* Header */}
-                <div className="text-center mb-2xl">
-                    <h1 className="font-fraunces text-4xl font-semibold text-forest mb-sm">
-                        Edit Ride
-                    </h1>
-                    <p className="text-stone text-sm">Update your ride details</p>
+                <div className="mb-10">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-[#e6e1d3]">
+                        <div>
+                            <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#7a8478] mb-3">
+                                <span className="w-6 h-px bg-[#7a8478]" />
+                                Ride Management
+                            </div>
+                            <h1 
+                                className="text-3xl lg:text-4xl font-semibold text-[#1a2620]"
+                                style={{ fontFamily: '"Fraunces", serif' }}
+                            >
+                                Edit <span className="italic text-[#2f5a3d]">Ride</span>
+                            </h1>
+                            <p className="text-[#5a6358] mt-2 text-sm">
+                                Update your ride details and preferences
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => navigate("/my-rides")}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#e6e1d3] text-[#5a6358] hover:border-[#2f5a3d] hover:text-[#2f5a3d] transition-all duration-300 text-sm font-medium"
+                        >
+                            <FiArrowLeft size={14} />
+                            Back to Rides
+                        </button>
+                    </div>
                 </div>
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="bg-white rounded-md shadow-sm p-xl border border-sage-soft space-y-lg"
-                >
+                <form onSubmit={handleSubmit} className="space-y-6">
                     {/* ── PICKUP ─────────────────────────────────────────── */}
-                    <div>
-                        <label className="text-sm font-semibold text-forest mb-sm block">
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <label className="text-sm font-semibold text-[#1a2620] mb-3 block flex items-center gap-2">
+                            <FiNavigation className="text-[#2f5a3d] text-sm" />
                             Pickup Location
                         </label>
-                        <div className="flex items-center gap-md p-3 bg-off-white rounded-md border border-sage-soft transition-all duration-base focus-within:border-sage focus-within:bg-white">
-                            <FiNavigation className="text-sage flex-shrink-0" />
-                            <div className="flex-1">
-                                <LocationInput
-                                    value={pickup?.displayName || pickup?.address || ""}
-                                    placeholder="Search pickup location"
-                                    onChange={(data) =>
-                                        setPickup({
-                                            lat: data.lat,
-                                            lng: data.lng,
-                                            address: data.address,
-                                            displayName: data.address,
-                                        })
-                                    }
-                                />
-                            </div>
+                        <div className="bg-[#faf8f2] rounded-xs px-2 border border-[#e6e1d3] transition-all duration-300 focus-within:border-[#2f5a3d] focus-within:ring-2 focus-within:ring-[#2f5a3d]/15">
+                            <LocationInput
+                                value={pickup?.displayName || pickup?.address || ""}
+                                placeholder="Search pickup location"
+                                onChange={(data) =>
+                                    setPickup({
+                                        lat: data.lat,
+                                        lng: data.lng,
+                                        address: data.address,
+                                        displayName: data.address,
+                                    })
+                                }
+                            />
                         </div>
                     </div>
 
                     {/* ── DESTINATION ────────────────────────────────────── */}
-                    <div>
-                        <label className="text-sm font-semibold text-forest mb-sm block">
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <label className="text-sm font-semibold text-[#1a2620] mb-3 block flex items-center gap-2">
+                            <FiMapPin className="text-[#2f5a3d] text-sm" />
                             Destination
                         </label>
-                        <div className="flex items-center gap-md p-3 bg-off-white rounded-md border border-sage-soft transition-all duration-base focus-within:border-sage focus-within:bg-white">
-                            <FiMapPin className="text-sage flex-shrink-0" />
-                            <div className="flex-1">
-                                <LocationInput
-                                    value={destination?.displayName || destination?.address || ""}
-                                    placeholder="Search destination"
-                                    onChange={(data) =>
-                                        setDestination({
-                                            lat: data.lat,
-                                            lng: data.lng,
-                                            address: data.address,
-                                            displayName: data.address,
-                                        })
-                                    }
-                                />
-                            </div>
+                        <div className="bg-[#faf8f2] rounded-xs px-2 border border-[#e6e1d3] transition-all duration-300 focus-within:border-[#2f5a3d] focus-within:ring-2 focus-within:ring-[#2f5a3d]/15">
+                            <LocationInput
+                                value={destination?.displayName || destination?.address || ""}
+                                placeholder="Search destination"
+                                onChange={(data) =>
+                                    setDestination({
+                                        lat: data.lat,
+                                        lng: data.lng,
+                                        address: data.address,
+                                        displayName: data.address,
+                                    })
+                                }
+                            />
                         </div>
                     </div>
 
                     {/* ── PRICE PREVIEW ──────────────────────────────────── */}
                     {distanceKm !== null && pricePerSeat !== null && (
-                        <div className="flex gap-md p-md bg-sage-soft rounded-md border border-sage/20">
-                            <div className="flex items-center gap-sm flex-1">
-                                <FaRoad className="text-sage text-base" />
-                                <div>
-                                    <span className="block text-[10px] font-bold text-stone uppercase tracking-wide">Distance</span>
-                                    <span className="text-sm font-semibold text-forest">{distanceKm} km</span>
+                        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="bg-[#e8f1ea] rounded-xs p-4 text-center">
+                                    <FaRoad className="text-[#2f5a3d] text-xl mx-auto mb-2" />
+                                    <p className="text-[10px] font-bold text-[#7a8478] uppercase tracking-wide">Distance</p>
+                                    <p className="text-xl font-semibold text-[#1a2620]">{distanceKm} km</p>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-sm flex-1">
-                                <FaRupeeSign className="text-sage text-base" />
-                                <div>
-                                    <span className="block text-[10px] font-bold text-stone uppercase tracking-wide">Price / Seat</span>
-                                    <span className="text-sm font-semibold text-forest">₹{pricePerSeat}</span>
+                                <div className="bg-[#eaf1fb] rounded-xs p-4 text-center">
+                                    <FaRupeeSign className="text-[#1e3a8a] text-xl mx-auto mb-2" />
+                                    <p className="text-[10px] font-bold text-[#7a8478] uppercase tracking-wide">Price / Seat</p>
+                                    <p className="text-xl font-semibold text-[#1a2620]">₹{pricePerSeat}</p>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-sm flex-1">
-                                <FiInfo className="text-sage text-base" />
-                                <div>
-                                    <span className="block text-[10px] font-bold text-stone uppercase tracking-wide">Rate</span>
-                                    <span className="text-sm font-semibold text-forest">₹{rideData?.perkmprice}/km</span>
+                                <div className="bg-[#f5e9df] rounded-xs p-4 text-center">
+                                    <FiInfo className="text-[#a0522d] text-xl mx-auto mb-2" />
+                                    <p className="text-[10px] font-bold text-[#7a8478] uppercase tracking-wide">Rate</p>
+                                    <p className="text-xl font-semibold text-[#1a2620]">₹{rideData?.perkmprice}/km</p>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* ── DATE ───────────────────────────────────────────── */}
-                    <div>
-                        <label className="text-sm font-semibold text-forest mb-sm block">
-                            Ride Date
-                        </label>
-                        <div className="relative">
-                            <FiCalendar className="absolute left-4 top-1/2 -translate-y-1/2 text-sage" />
+                    {/* ── DATE & TIME GRID ───────────────────────────────── */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                            <label className="text-sm font-semibold text-[#1a2620] mb-3 block flex items-center gap-2">
+                                <FiCalendar className="text-[#2f5a3d] text-sm" />
+                                Ride Date
+                            </label>
                             <input
                                 type="date"
                                 name="date"
                                 value={formData.date}
                                 onChange={handleChange}
                                 min={new Date().toISOString().split("T")[0]}
-                                className="w-full pl-12 pr-4 py-3 rounded-md border border-sage-soft outline-none focus:border-sage"
+                                className="w-full px-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xs focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620]"
                                 required
                             />
                         </div>
-                    </div>
 
-                    {/* ── TIME ───────────────────────────────────────────── */}
-                    <div>
-                        <label className="text-sm font-semibold text-forest mb-sm block">
-                            Ride Time
-                        </label>
-                        <div className="relative">
-                            <FiClock className="absolute left-4 top-1/2 -translate-y-1/2 text-sage" />
+                        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                            <label className="text-sm font-semibold text-[#1a2620] mb-3 block flex items-center gap-2">
+                                <FiClock className="text-[#2f5a3d] text-sm" />
+                                Ride Time
+                            </label>
                             <input
                                 type="time"
                                 name="time"
                                 value={formData.time}
                                 onChange={handleChange}
-                                className="w-full pl-12 pr-4 py-3 rounded-md border border-sage-soft outline-none focus:border-sage"
+                                className="w-full px-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xs focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620]"
                                 required
                             />
                         </div>
                     </div>
 
                     {/* ── SEATS ──────────────────────────────────────────── */}
-                    <div>
-                        <label className="text-sm font-semibold text-forest mb-sm block">
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <label className="text-sm font-semibold text-[#1a2620] mb-3 block flex items-center gap-2">
+                            <FiUsers className="text-[#2f5a3d] text-sm" />
                             Available Seats
                         </label>
                         <div className="relative">
-                            <FiUsers className="absolute left-4 top-1/2 -translate-y-1/2 text-sage" />
                             <input
                                 type="number"
                                 name="seatsAvailable"
@@ -337,15 +344,19 @@ const EditRide = () => {
                                 onChange={handleChange}
                                 min="1"
                                 max="8"
-                                className="w-full pl-12 pr-4 py-3 rounded-md border border-sage-soft outline-none focus:border-sage"
+                                className="w-full px-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xs focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620]"
                                 required
                             />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-[#7a8478]">
+                                Max 8 seats
+                            </div>
                         </div>
                     </div>
 
                     {/* ── NOTES ──────────────────────────────────────────── */}
-                    <div>
-                        <label className="text-sm font-semibold text-forest mb-sm block">
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <label className="text-sm font-semibold text-[#1a2620] mb-3 block flex items-center gap-2">
+                            <FiInfo className="text-[#2f5a3d] text-sm" />
                             Additional Notes
                         </label>
                         <textarea
@@ -353,30 +364,49 @@ const EditRide = () => {
                             value={formData.notes}
                             onChange={handleChange}
                             rows="4"
-                            placeholder="Any additional details..."
-                            className="w-full px-4 py-3 rounded-md border border-sage-soft outline-none focus:border-sage resize-none"
+                            placeholder="Any additional details about your ride..."
+                            className="w-full px-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xs focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all resize-none text-[#1a2620] placeholder:text-[#9aa194]"
                         />
                     </div>
 
                     {/* ── BUTTONS ────────────────────────────────────────── */}
-                    <div className="flex gap-md pt-md">
+                    <div className="flex gap-4 pt-4">
                         <button
                             type="button"
                             onClick={() => navigate("/my-rides")}
-                            className="flex-1 py-3 rounded-full border border-sage text-sage font-semibold hover:bg-sage-soft transition-all duration-base"
+                            className="flex-1 py-3 rounded-xl border-2 border-[#e6e1d3] text-[#5a6358] font-semibold hover:bg-[#faf8f2] hover:border-[#2f5a3d]/30 transition-all duration-300 text-sm"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="flex-1 py-3 rounded-full bg-gradient-primary text-white font-semibold hover:-translate-y-0.5 transition-all duration-base disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-sm"
+                            className="group flex-1 py-3 rounded-xl bg-gradient-to-r from-[#1a2620] to-[#2f5a3d] text-white font-semibold hover:from-[#2f5a3d] hover:to-[#1a2620] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm relative overflow-hidden"
                         >
-                            <FiSave />
-                            {submitting ? "Updating..." : "Save Changes"}
+                            <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-500 group-hover:left-full"></span>
+                            <FiSave className="relative z-10" />
+                            <span className="relative z-10">{submitting ? "Updating..." : "Save Changes"}</span>
+                            {!submitting && <FaArrowRight className="relative z-10 text-xs group-hover:translate-x-1 transition-transform" />}
                         </button>
                     </div>
                 </form>
+
+                {/* Vehicle Info Footer */}
+                {rideData?.car && (
+                    <div className="mt-6 bg-white rounded-2xl border border-[#e6e1d3] p-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-[#e8f1ea] flex items-center justify-center">
+                                <FaCar className="text-[#2f5a3d] text-lg" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-[#7a8478] uppercase tracking-wide">Vehicle</p>
+                                <p className="text-sm font-medium text-[#1a2620]">
+                                    {rideData.car.brand} {rideData.car.model} • {rideData.car.numberPlate}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

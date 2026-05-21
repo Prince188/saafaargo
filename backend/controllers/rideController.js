@@ -31,6 +31,7 @@ exports.createRide = async (req, res) => {
             date: req.body.date,
             time: req.body.time,
             seatsAvailable: req.body.seatsAvailable,
+            totalSeats : req.body.seatsAvailable,
             car: req.body.car,
             perkmprice,
             status: rideStatus,               // ← NEW

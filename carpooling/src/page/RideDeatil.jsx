@@ -63,7 +63,12 @@ const RideDetail = () => {
     // From My Rides page (driver):  full ride distance × perkmprice (computed after fetch)
     // null = still loading, renders "—" to avoid flash of ₹0
     const [pricePerSeat, setPricePerSeat] = useState(
-        rideFromSearch?.segmentPrice ?? null
+        rideFromSearch?.segmentPrice != null
+            ? Math.ceil(
+                rideFromSearch.segmentPrice /
+                (rideFromSearch.totalSeats || 1)
+            )
+            : null
     );
 
     // Track whether user arrived from Search (has segment context) or My Rides
