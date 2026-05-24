@@ -117,7 +117,7 @@ const RegisterPage = () => {
                                 <input
                                     type="text"
                                     name="firstName"
-                                    placeholder="Jane"
+                                    // placeholder="Jane"
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
@@ -133,7 +133,7 @@ const RegisterPage = () => {
                                 <input
                                     type="text"
                                     name="lastName"
-                                    placeholder="Doe"
+                                    // placeholder="Doe"
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
@@ -151,7 +151,7 @@ const RegisterPage = () => {
                             <input
                                 type="email"
                                 name="email"
-                                placeholder="jane@example.com"
+                                // placeholder="jane@example.com"
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
@@ -168,7 +168,7 @@ const RegisterPage = () => {
                             <input
                                 type="tel"
                                 name="mobile"
-                                placeholder="+91 98765 43210"
+                                // placeholder="+91 98765 43210"
                                 value={formData.mobile}
                                 onChange={handleChange}
                                 required
@@ -186,7 +186,7 @@ const RegisterPage = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     name="password"
-                                    placeholder="At least 8 characters"
+                                    // placeholder="At least 8 characters"
                                     value={formData.password}
                                     onChange={handleChange}
                                     minLength={8}
