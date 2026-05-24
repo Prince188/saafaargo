@@ -375,3 +375,129 @@ exports.sendOtp = async (req, res) => {
     });
   }
 };
+
+exports.forgotPasswordOtp = async (req, res) => {
+  try {
+
+    let { email } = req.body;
+
+    email = email.toLowerCase().trim();
+
+    // Check user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Remove old OTPs
+    await Otp.deleteMany({ email });
+
+    // Generate OTP
+    const otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false
+    });
+
+    // Save OTP
+    await Otp.create({
+      email,
+      otp
+    });
+
+    // Email Template
+    const htmlTemplate = `
+      <div style="font-family:Arial;padding:20px">
+        <h2>Reset Password</h2>
+
+        <p>Your password reset OTP is:</p>
+
+        <h1>${otp}</h1>
+
+        <p>This OTP expires in 10 minutes.</p>
+      </div>
+    `;
+
+    await mailSender(
+      email,
+      "Reset Password OTP",
+      htmlTemplate
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Reset OTP sent successfully"
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+
+    let {
+      email,
+      otp,
+      password
+    } = req.body;
+
+    email = email.toLowerCase().trim();
+
+    // Find latest OTP
+    const recentOtp = await Otp.findOne({ email })
+      .sort({ createdAt: -1 });
+
+    if (!recentOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired"
+      });
+    }
+
+    // Verify OTP
+    if (recentOtp.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP"
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update password
+    await User.findOneAndUpdate(
+      { email },
+      {
+        password: hashedPassword
+      }
+    );
+
+    // Delete OTP
+    await Otp.deleteMany({ email });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successful"
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};

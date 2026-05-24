@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { register, login, sendOtp } = require("../controllers/authController");
+const { register, login, sendOtp, forgotPasswordOtp, resetPassword } = require("../controllers/authController");
 
 const upload = require("../middleware/upload");
 
@@ -17,5 +17,18 @@ router.post(
 
 // Login
 router.post("/login", login);
+
+// forgot password otp
+router.post(
+    "/forgot-password-otp",
+    forgotPasswordOtp
+);
+
+// reset password
+router.post(
+    "/reset-password",
+    resetPassword
+);
+
 
 module.exports = router;

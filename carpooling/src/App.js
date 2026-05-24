@@ -54,6 +54,8 @@ import Help from "./page/Help";
 import ContactUs from "./page/ContactUs";
 import DriverVerify from "./page/Admin/DriverVerify";
 import EditRide from "./page/User/EditRide";
+import ForgotPasswordPage from "./page/ForgotPasswordPage";
+import ResetPasswordPage from "./page/ResetPasswordPage";
 
 function App() {
   return (
@@ -102,6 +104,8 @@ function App() {
           <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
           <Route path="/help" element={<Help />} />
           <Route path="/contact" element={<ContactUs />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+          <Route path="/reset-password" element={<ResetPasswordPage/>}/>
 
           {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 
