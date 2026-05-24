@@ -26,8 +26,10 @@ const app = express();
 
 app.use(cors({
     origin: [
-        // "http://localhost:3000",              // local frontend
-        "https://saafaargo.vercel.app"    // deployed frontend
+        "http://localhost:3000",
+        "https://safargo.co.in",
+        "https://www.safargo.co.in",
+        "https://saafaargo-three.vercel.app"
     ],
     credentials: true
 }));
