@@ -25,7 +25,7 @@ const Footer = () => {
         try {
             setLoading(true);
 
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/newsletter/subscribe`, {
+            await axios.post(`${process.env.REACT_APP_API_URL}/newsletter/subscribe`, {
                 email,
             });
 
@@ -42,7 +42,7 @@ const Footer = () => {
         try {
             setLoading(true);
 
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/newsletter/unsubscribe`, {
+            await axios.post(`${process.env.REACT_APP_API_URL}/newsletter/unsubscribe`, {
                 email,
             });
 

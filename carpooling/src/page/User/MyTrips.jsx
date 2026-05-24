@@ -23,7 +23,7 @@ const MyTrips = () => {
                 const token = localStorage.getItem("token");
 
                 const res = await fetch(
-                    `${process.env.REACT_APP_API_URL}/api/bookings/my-trips`,
+                    `${process.env.REACT_APP_API_URL}/bookings/my-trips`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -106,7 +106,7 @@ const MyTrips = () => {
             const token = localStorage.getItem("token");
 
             const res = await fetch(
-                `${process.env.REACT_APP_API_URL}/api/bookings/cancel/${tripId}`,
+                `${process.env.REACT_APP_API_URL}/bookings/cancel/${tripId}`,
                 {
                     method: "PUT",
                     headers: {

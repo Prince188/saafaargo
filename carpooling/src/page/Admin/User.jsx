@@ -36,7 +36,7 @@ const User = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      let url = `${process.env.REACT_APP_API_URL}/api/users?page=${pageNumber}&limit=${limit}`;
+      let url = `${process.env.REACT_APP_API_URL}/users?page=${pageNumber}&limit=${limit}`;
       if (search.trim()) {
         url += `&search=${encodeURIComponent(search.trim())}`;
       }
@@ -134,7 +134,7 @@ const User = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/users/block/${id}`,
+        `${process.env.REACT_APP_API_URL}/users/block/${id}`,
         {},
         {
           headers: {

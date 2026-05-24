@@ -21,7 +21,7 @@ const MyRide = () => {
             try {
                 const token = localStorage.getItem("token");
 
-                const res = await fetch(`${process.env.REACT_APP_API_URL}/api/rides/my-rides`, {
+                const res = await fetch(`${process.env.REACT_APP_API_URL}/rides/my-rides`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -139,7 +139,7 @@ const MyRide = () => {
             const token = localStorage.getItem("token");
 
             const res = await fetch(
-                `${process.env.REACT_APP_API_URL}/api/rides/delete/${rideId}`,
+                `${process.env.REACT_APP_API_URL}/rides/delete/${rideId}`,
                 {
                     method: "DELETE",
                     headers: {

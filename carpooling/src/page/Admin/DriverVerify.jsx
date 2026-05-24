@@ -192,7 +192,7 @@ const DriverVerify = () => {
         try {
             setLoading(true);
             const res = await axios.get(
-                `${process.env.REACT_APP_API_URL}/api/admin/drivers`,
+                `${process.env.REACT_APP_API_URL}/admin/drivers`,
                 { headers: { Authorization: `Bearer ${token()}` } }
             );
             setAllDrivers(res.data.drivers || []);
@@ -253,7 +253,7 @@ const DriverVerify = () => {
         try {
             setActionLoading("approve");
             const res = await axios.patch(
-                `${process.env.REACT_APP_API_URL}/api/admin/drivers/${userId}/approve`,
+                `${process.env.REACT_APP_API_URL}/admin/drivers/${userId}/approve`,
                 {},
                 { headers: { Authorization: `Bearer ${token()}` } }
             );
@@ -272,7 +272,7 @@ const DriverVerify = () => {
         try {
             setActionLoading("reject");
             const res = await axios.patch(
-                `${process.env.REACT_APP_API_URL}/api/admin/drivers/${userId}/reject`,
+                `${process.env.REACT_APP_API_URL}/admin/drivers/${userId}/reject`,
                 {},
                 { headers: { Authorization: `Bearer ${token()}` } }
             );

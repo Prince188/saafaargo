@@ -29,7 +29,7 @@ const Rides = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/rides/admin/all`,
+        `${process.env.REACT_APP_API_URL}/rides/admin/all`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -75,7 +75,7 @@ const Rides = () => {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/rides/delete/${id}`,
+        `${process.env.REACT_APP_API_URL}/rides/delete/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

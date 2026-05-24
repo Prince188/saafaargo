@@ -196,7 +196,7 @@ const RideReview = () => {
         city: s.city, displayName: s.displayName, price: s.price
       }));
 
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/rides`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/rides`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ pickup, destination, stops: formattedStops, date, time, seatsAvailable: seats, perkmprice: ratePerKm, car: selectedCar })
@@ -219,7 +219,7 @@ const RideReview = () => {
   const handlePublishClick = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/rides/driver/verification-status`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/rides/driver/verification-status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -254,7 +254,7 @@ const RideReview = () => {
       formData.append("dlImage", dlFile);
       formData.append("rcImage", rcFile);
 
-      const docRes = await fetch(`${process.env.REACT_APP_API_URL}/api/rides/driver/submit-documents`, {
+      const docRes = await fetch(`${process.env.REACT_APP_API_URL}/rides/driver/submit-documents`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData

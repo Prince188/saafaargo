@@ -28,7 +28,7 @@ const Subscribers = () => {
         try {
             setLoading(true);
             const res = await axios.get(
-                `${process.env.REACT_APP_API_URL}/api/newsletter`
+                `${process.env.REACT_APP_API_URL}/newsletter`
             );
             setSubscribers(res.data.subscribers);
             setFilteredSubscribers(res.data.subscribers);
@@ -64,7 +64,7 @@ const Subscribers = () => {
 
         try {
             await axios.delete(
-                `${process.env.REACT_APP_API_URL}/api/newsletter/${id}`
+                `${process.env.REACT_APP_API_URL}/newsletter/${id}`
             );
             setSubscribers(subscribers.filter(sub => sub._id !== id));
             showSuccess("Subscriber removed successfully!");

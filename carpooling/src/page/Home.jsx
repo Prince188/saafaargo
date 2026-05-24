@@ -82,7 +82,7 @@ export default function Home() {
 
     //Count the visitor
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL}/api/visitor/track-visitor`, {
+        fetch(`${process.env.REACT_APP_API_URL}/visitor/track-visitor`, {
             method: "POST"
         });
     }, []);

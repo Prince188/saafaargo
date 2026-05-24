@@ -78,7 +78,7 @@ const EditRide = () => {
             try {
                 const token = localStorage.getItem("token");
                 const res = await fetch(
-                    `${process.env.REACT_APP_API_URL}/api/rides/${id}`,
+                    `${process.env.REACT_APP_API_URL}/rides/${id}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 const data = await res.json();
@@ -156,7 +156,7 @@ const EditRide = () => {
             };
 
             const res = await fetch(
-                `${process.env.REACT_APP_API_URL}/api/rides/edit/${id}`,
+                `${process.env.REACT_APP_API_URL}/rides/edit/${id}`,
                 {
                     method: "PUT",
                     headers: {
