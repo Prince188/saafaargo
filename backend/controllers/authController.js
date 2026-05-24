@@ -20,13 +20,23 @@ exports.register = async (req, res) => {
     mobile = mobile.trim();
 
     // Check existing user
-    const existingUser = await User.findOne({
-      $or: [{ email }, { mobile }]
-    });
+    const existingEmail = await User.findOne({ email });
 
-    if (existingUser) {
+    if (existingEmail) {
       return res.status(400).json({
-        message: "User already exists"
+        success: false,
+        field: "email",
+        message: "Email already exists"
+      });
+    }
+
+    const existingMobile = await User.findOne({ mobile });
+
+    if (existingMobile) {
+      return res.status(400).json({
+        success: false,
+        field: "mobile",
+        message: "Mobile number already exists"
       });
     }
 
