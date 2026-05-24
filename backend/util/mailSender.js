@@ -6,7 +6,7 @@ const mailSender = async (email, title, body) => {
     try {
 
         const response = await resend.emails.send({
-            from: "SafarGO <onboarding@resend.dev>",
+            from: "SafarGO <noreply@safargo.co.in>",
             to: email,
             subject: title,
             html: body,
