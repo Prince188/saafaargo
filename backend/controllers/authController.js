@@ -93,8 +93,20 @@ exports.register = async (req, res) => {
     if (err.code === 11000) {
       const field = Object.keys(err.keyValue)[0];
 
+      let message = "User already exists";
+
+      if (field === "email") {
+        message = "Email already exists";
+      }
+
+      if (field === "mobile") {
+        message = "Mobile number already exists";
+      }
+
       return res.status(400).json({
-        message: `${field} already exists`
+        success: false,
+        field,
+        message
       });
     }
 
