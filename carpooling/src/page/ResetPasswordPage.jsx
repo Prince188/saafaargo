@@ -11,7 +11,7 @@ import {
     FaEyeSlash,
     FaCheckCircle
 } from "react-icons/fa";
-import { MdOtp, MdSecurity, MdPassword } from "react-icons/md";
+import { MdSecurity, MdPassword, MdOutlinePassword } from "react-icons/md";
 
 const ResetPasswordPage = () => {
     const location = useLocation();
@@ -110,7 +110,7 @@ const ResetPasswordPage = () => {
                         {/* OTP Field */}
                         <div>
                             <label className="block text-sm font-semibold text-[#1a2620] mb-2 flex items-center gap-2">
-                                <MdOtp className="text-[#2f5a3d] text-lg" />
+                                <MdOutlinePassword className="text-[#2f5a3d] text-lg" />
                                 Verification Code
                             </label>
                             <div className="relative">
