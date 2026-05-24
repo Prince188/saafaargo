@@ -140,7 +140,7 @@ export default function Home() {
             <section className="relative min-h-screen flex items-center overflow-visible isolate pb-20">
                 <div className="absolute inset-0 bg-gradient-hero z-[-20]"></div>
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(122,155,122,0.08)_0%,transparent_70%)] z-[-10]"></div>
-                
+
                 {/* SVG ROAD & CAR BACKGROUND */}
                 <div className="absolute inset-0 overflow-hidden z-[-15] pointer-events-none">
                     <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-60">
