@@ -101,7 +101,7 @@ const BlogDetails = () => {
     return (
         <div className="min-h-screen bg-off-white font-inter">
             {/* Hero Section with Featured Image */}
-            <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
+            <div className="relative w-full aspect-[1440/522] overflow-hidden">
                 {blog.image ? (
                     <img
                         src={blog.image}
