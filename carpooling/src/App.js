@@ -70,12 +70,66 @@ const EditRide = lazy(() => import('./page/User/EditRide'));
 const ForgotPasswordPage = lazy(() => import('./page/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./page/ResetPasswordPage'));
 
+// Helper to resolve the correct skeleton loader on reload based on active window path
+function getSkeletonForPath(path) {
+  if (!path || path === "/" || path === "") {
+    return <HomeSkeleton />;
+  }
+  if (path.startsWith("/search") || path.startsWith("/my-rides") || path.startsWith("/my-trips")) {
+    return <SearchSkeleton />;
+  }
+  if (path.startsWith("/blog/")) {
+    return <BlogDetailSkeleton />;
+  }
+  if (path.startsWith("/blog")) {
+    return <BlogsSkeleton />;
+  }
+  if (path.startsWith("/admin/dashboard")) {
+    return <DashboardSkeleton />;
+  }
+  if (path.startsWith("/admin")) {
+    return <AdminTableSkeleton />;
+  }
+  if (path.startsWith("/offer-ride")) {
+    return <PublishRideSkeleton />;
+  }
+  if (
+    path.startsWith("/login") ||
+    path.startsWith("/register") ||
+    path.startsWith("/forgot-password") ||
+    path.startsWith("/reset-password") ||
+    path.startsWith("/verify-otp")
+  ) {
+    return <AuthFormSkeleton />;
+  }
+  if (
+    path.startsWith("/profile") ||
+    path.startsWith("/vehicle") ||
+    path.startsWith("/edit-ride")
+  ) {
+    return <ProfilePanelSkeleton />;
+  }
+  if (path.startsWith("/rides/")) {
+    return <RideDetailSkeleton />;
+  }
+  if (
+    path.startsWith("/About-us") ||
+    path.startsWith("/terms") ||
+    path.startsWith("/privacy") ||
+    path.startsWith("/help") ||
+    path.startsWith("/contact")
+  ) {
+    return <ContentPageSkeleton />;
+  }
+  return <PageSkeleton />;
+}
+
 function App() {
   return (
     <LoadScript
       googleMapsApiKey={process.env.REACT_APP_GOOGLE_API_KEY}
       libraries={["places", "routes"]}
-      loadingElement={<HomeSkeleton />}
+      loadingElement={getSkeletonForPath(window.location.pathname)}
     >
       {/* <BrowserRouter> */}
       <ScrollToTop />
