@@ -82,6 +82,17 @@ export default function Home() {
 
     //Count the visitor
     useEffect(() => {
+        // Skip tracking if running on localhost to avoid polluting production stats
+        const isLocalhost = 
+            window.location.hostname === "localhost" || 
+            window.location.hostname === "127.0.0.1" || 
+            window.location.hostname.startsWith("192.168.");
+
+        if (isLocalhost) {
+            console.log("Localhost detected - skipping visitor tracking to preserve stats.");
+            return;
+        }
+
         const getOrGenerateVisitorId = () => {
             let visitorId = localStorage.getItem("safar_visitor_id");
             if (!visitorId) {
