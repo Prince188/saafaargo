@@ -22,26 +22,44 @@ exports.trackUniqueVisitor = async (req, res) => {
             createdNewId = true;
         }
 
-        // Set up the upsert query and update actions
-        const query = { visitorId, date: today };
-        const update = {
-            $inc: { count: 1 }
-        };
+        let record;
 
-        // If user is logged in, store/update their email and userId.
-        // If guest, we do not store these fields at all (no "guest" string is stored).
+        // If user is logged in, check if a record for this email already exists today
         if (email && email !== "guest") {
-            update.$set = { email };
-            if (userId && userId !== "guest") {
-                update.$set.userId = userId;
-            }
-        }
+            const existingEmailRecord = await Visitor.findOne({ email, date: today });
 
-        const record = await Visitor.findOneAndUpdate(
-            query,
-            update,
-            { upsert: true, new: true }
-        );
+            if (existingEmailRecord) {
+                // If it exists and has a different visitorId, reconcile it
+                const oldVisitorId = visitorId;
+                visitorId = existingEmailRecord.visitorId;
+
+                // Update the existing record (increment count)
+                record = await Visitor.findOneAndUpdate(
+                    { visitorId, date: today },
+                    { $inc: { count: 1 }, $set: { userId, email } },
+                    { new: true }
+                );
+
+                // Reconcile/delete the temporary guest record if it was created earlier today with the other visitorId
+                if (oldVisitorId !== visitorId) {
+                    await Visitor.deleteOne({ visitorId: oldVisitorId, date: today, email: { $exists: false } }).catch(() => {});
+                }
+            } else {
+                // If no record exists for this email today, update/create the record for the current visitorId
+                record = await Visitor.findOneAndUpdate(
+                    { visitorId, date: today },
+                    { $inc: { count: 1 }, $set: { userId, email } },
+                    { upsert: true, new: true }
+                );
+            }
+        } else {
+            // Guest visitor: update/create by visitorId without storing email/userId
+            record = await Visitor.findOneAndUpdate(
+                { visitorId, date: today },
+                { $inc: { count: 1 } },
+                { upsert: true, new: true }
+            );
+        }
 
         res.status(200).json({
             message: "Tracked successfully",
