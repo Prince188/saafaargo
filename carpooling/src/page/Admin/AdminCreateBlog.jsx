@@ -23,7 +23,10 @@ import {
     FaHeading as FaHeadingIcon,
     FaParagraph,
     FaQuoteRight,
-    FaCode
+    FaCode,
+    FaCloudUploadAlt,
+    FaSpinner,
+    FaTimes
 } from "react-icons/fa";
 import { MdPreview } from "react-icons/md";
 
@@ -40,6 +43,60 @@ const AdminCreateBlog = () => {
     const [showHtmlHelp, setShowHtmlHelp] = useState(false);
     const [navbarHeight, setNavbarHeight] = useState(80);
     const previewRef = useRef(null);
+
+    const [imageMode, setImageMode] = useState("upload"); // "upload" or "url"
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            showError("Please select a valid image file (PNG, JPG, JPEG, WEBP)");
+            return;
+        }
+
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showError("File is too large. Maximum size allowed is 5 MB.");
+            return;
+        }
+
+        const uploadData = new FormData();
+        uploadData.append("image", file);
+
+        setUploadingImage(true);
+        try {
+            const response = await API.post("/blogs/upload-image", uploadData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            setFormData(prev => ({
+                ...prev,
+                image: response.data.imageUrl
+            }));
+            showSuccess("Image uploaded successfully!");
+        } catch (error) {
+            console.error("Image upload failed:", error);
+            showError(error.response?.data?.message || "Failed to upload image to Cloudinary");
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setFormData(prev => ({
+            ...prev,
+            image: ""
+        }));
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+        showInfo("Image removed");
+    };
 
     // Get navbar height on mount and window resize
     useEffect(() => {
@@ -146,6 +203,10 @@ const AdminCreateBlog = () => {
                 image: "",
                 content: "",
             });
+            setImageMode("upload");
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
             showInfo("Form cleared");
         }
     };
@@ -276,30 +337,109 @@ const AdminCreateBlog = () => {
                                 </p>
                             </div>
 
-                            {/* Image URL Field */}
+                             {/* Image Section */}
                             <div className="p-6 border-b border-sage-15">
-                                <label className="block text-sm font-semibold text-forest mb-2">
-                                    <FaImage className="inline mr-2 text-sage text-sm" />
-                                    Featured Image URL
-                                </label>
-                                <input
-                                    type="text"
-                                    name="image"
-                                    value={formData.image}
-                                    onChange={handleChange}
-                                    placeholder="https://example.com/image.jpg"
-                                    className="w-full px-4 py-3 border border-sage-15 rounded-xl focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20 transition-all duration-300 text-forest placeholder:text-stone-light"
-                                />
-                                {formData.image && (
-                                    <div className="mt-3 rounded-xl overflow-hidden border border-sage-15">
-                                        <img
-                                            src={formData.image}
-                                            alt="Preview"
-                                            className="w-full h-48 object-cover"
-                                            onError={(e) => {
-                                                e.target.src = "https://via.placeholder.com/800x400?text=Invalid+Image+URL";
-                                            }}
+                                <div className="flex items-center justify-between mb-4">
+                                    <label className="block text-sm font-semibold text-forest">
+                                        <FaImage className="inline mr-2 text-sage text-sm" />
+                                        Featured Image *
+                                    </label>
+                                    
+                                    {/* Toggle between Upload and URL */}
+                                    <div className="flex bg-sage-5 p-1 rounded-lg border border-sage-15">
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageMode("upload")}
+                                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${
+                                                imageMode === "upload"
+                                                    ? "bg-white text-forest shadow-sm"
+                                                    : "text-stone hover:text-forest"
+                                            }`}
+                                        >
+                                            Upload File
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageMode("url")}
+                                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${
+                                                imageMode === "url"
+                                                    ? "bg-white text-forest shadow-sm"
+                                                    : "text-stone hover:text-forest"
+                                            }`}
+                                        >
+                                            Image URL
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {imageMode === "url" ? (
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="image"
+                                            value={formData.image}
+                                            onChange={handleChange}
+                                            placeholder="https://example.com/image.jpg"
+                                            className="w-full px-4 py-3 border border-sage-15 rounded-xl focus:border-sage focus:outline-none focus:ring-2 focus:ring-sage/20 transition-all duration-300 text-forest placeholder:text-stone-light"
                                         />
+                                        <p className="text-xs text-stone-light mt-1.5">
+                                            Provide a direct web link to an image.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            accept="image/*"
+                                            className="hidden"
+                                        />
+                                        
+                                        {!formData.image && !uploadingImage ? (
+                                            <div 
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="border-2 border-dashed border-sage-15 rounded-xl p-8 text-center cursor-pointer hover:border-sage hover:bg-sage-5 transition-all duration-300"
+                                            >
+                                                <FaCloudUploadAlt className="text-4xl text-sage mx-auto mb-3" />
+                                                <p className="font-semibold text-forest text-sm">Click to upload featured image</p>
+                                                <p className="text-xs text-stone-light mt-1">PNG, JPG, JPEG, WEBP up to 5 MB</p>
+                                            </div>
+                                        ) : uploadingImage ? (
+                                            <div className="border border-sage-15 rounded-xl p-8 text-center bg-sage-5">
+                                                <FaSpinner className="text-3xl text-sage animate-spin mx-auto mb-3" />
+                                                <p className="font-semibold text-forest text-sm">Uploading your image to Cloudinary...</p>
+                                                <p className="text-xs text-stone-light mt-1">Applying low size optimizations</p>
+                                            </div>
+                                        ) : (
+                                            <div className="relative rounded-xl overflow-hidden border border-sage-15 group">
+                                                <img
+                                                    src={formData.image}
+                                                    alt="Preview"
+                                                    className="w-full h-56 object-cover"
+                                                    onError={(e) => {
+                                                        e.target.src = "https://via.placeholder.com/800x400?text=Invalid+Image+URL";
+                                                    }}
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                        className="bg-white text-forest px-4 py-2 rounded-lg text-sm font-semibold hover:bg-sage-5 transition-all duration-300"
+                                                    >
+                                                        Change Image
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleRemoveImage}
+                                                        className="bg-red-600 text-white p-2 rounded-lg text-sm hover:bg-red-700 transition-all duration-300"
+                                                        title="Remove Image"
+                                                    >
+                                                        <FaTimes className="text-sm" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

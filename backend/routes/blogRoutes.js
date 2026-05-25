@@ -8,7 +8,13 @@ const {
     deleteBlog,
     updateBlog,
     getBlogById,
+    uploadBlogImage,
 } = require("../controllers/blogController");
+
+const uploadBlogImageMiddleware = require("../middleware/blogUpload");
+
+// Upload Image
+router.post("/upload-image", uploadBlogImageMiddleware, uploadBlogImage);
 
 // Create
 router.post("/", createBlog);
