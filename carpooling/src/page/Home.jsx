@@ -82,9 +82,42 @@ export default function Home() {
 
     //Count the visitor
     useEffect(() => {
+        const getOrGenerateVisitorId = () => {
+            let visitorId = localStorage.getItem("safar_visitor_id");
+            if (!visitorId) {
+                if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+                    visitorId = crypto.randomUUID();
+                } else {
+                    visitorId = "visitor_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                }
+                localStorage.setItem("safar_visitor_id", visitorId);
+            }
+            return visitorId;
+        };
+
+        const visitorId = getOrGenerateVisitorId();
+        const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+
+        const payload = {
+            visitorId,
+            userId: storedUser ? (storedUser._id || storedUser.id) : "guest",
+            email: storedUser ? storedUser.email : "guest"
+        };
+
         fetch(`${process.env.REACT_APP_API_URL}/visitor/track-visitor`, {
-            method: "POST"
-        });
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.visitorId && data.visitorId !== visitorId) {
+                localStorage.setItem("safar_visitor_id", data.visitorId);
+            }
+        })
+        .catch(err => console.error("Visitor tracking failed", err));
     }, []);
 
     // Scroll animation for the car

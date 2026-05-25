@@ -3,6 +3,10 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://api.safargo.co.in/api";
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
@@ -10,10 +14,15 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("/api/users/me", {
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const res = await axios.get(`${API_URL}/users/me`, {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setUser(res.data.user);
@@ -28,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, fetchMe }}>
       {children}
     </AuthContext.Provider>
   );

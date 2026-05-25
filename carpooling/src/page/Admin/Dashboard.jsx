@@ -36,12 +36,14 @@ import { formatDistanceToNow } from "date-fns";
 const Dashboard = () => {
     const [today, setToday] = useState(0);
     const [total, setTotal] = useState(0);
+    const [totalVisits, setTotalVisits] = useState(0);
     const [stats, setStats] = useState([]);
     const [weeklyStats, setWeeklyStats] = useState([]);
     const [monthlyStats, setMonthlyStats] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dateRange, setDateRange] = useState("week");
     const [recentActivities, setRecentActivities] = useState([]);
+    const [recentVisitors, setRecentVisitors] = useState([]);
     const [userStats, setUserStats] = useState({
         totalUsers: 15420,
         verifiedUsers: 12890,
@@ -72,7 +74,8 @@ const Dashboard = () => {
                 todayRes,
                 totalRes,
                 statsRes,
-                activityRes
+                activityRes,
+                recentVisitorsRes
             ] = await Promise.all([
                 API.get("/visitor/today").catch(() => ({
                     data: { todayVisitors: 0 }
@@ -88,11 +91,16 @@ const Dashboard = () => {
 
                 API.get("/admin/recent-activities").catch(() => ({
                     data: { activities: [] }
+                })),
+
+                API.get("/visitor/recent").catch(() => ({
+                    data: []
                 }))
             ]);
 
-            setToday(todayRes.data?.todayVisitors || 0);
-            setTotal(totalRes.data?.totalVisitors || 0);
+            setToday(todayRes.data?.dailyUnique || todayRes.data?.todayVisitors || 0);
+            setTotal(totalRes.data?.totalUnique || totalRes.data?.totalVisitors || 0);
+            setTotalVisits(totalRes.data?.totalVisits || 0);
 
             const formatted = (statsRes.data || []).map(item => ({
                 date: item._id,
@@ -108,6 +116,7 @@ const Dashboard = () => {
             }
 
             setRecentActivities(activityRes.data.activities || []);
+            setRecentVisitors(recentVisitorsRes.data || []);
 
         } catch (err) {
             console.log(err);
@@ -154,7 +163,7 @@ const Dashboard = () => {
 
     const statsCards = [
         {
-            title: "Today's Visitors",
+            title: "Daily Unique Visits",
             value: today.toLocaleString(),
             icon: FaEye,
             trend: "+12%",
@@ -163,13 +172,22 @@ const Dashboard = () => {
             tint: "#e8f1ea",
         },
         {
-            title: "Total Visitors",
+            title: "Total Unique Visits",
             value: total.toLocaleString(),
             icon: FaUsers,
             trend: "+8%",
             trendUp: true,
             accent: "#1e3a8a",
             tint: "#eaf1fb",
+        },
+        {
+            title: "Total Visits",
+            value: totalVisits.toLocaleString(),
+            icon: FaChartLine,
+            trend: "+15%",
+            trendUp: true,
+            accent: "#10b981",
+            tint: "#ecfdf5",
         },
         {
             title: "Total Users",
@@ -276,7 +294,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* STATS CARDS */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
                     {statsCards.map((card, index) => {
                         const Icon = card.icon;
                         return (
@@ -558,6 +576,74 @@ const Dashboard = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </div>
+
+                {/* RECENT VISITORS LOG */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-10 overflow-hidden">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <FaUsers className="text-[#2f5a3d] text-sm" />
+                            <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                Recent Visitors Log
+                            </h3>
+                        </div>
+                        <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live Logs</span>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-[#e6e1d3] text-[11px] uppercase tracking-wider text-[#7a8478]">
+                                    <th className="pb-3 font-semibold">Visitor UUID / IP</th>
+                                    <th className="pb-3 font-semibold">User Type</th>
+                                    <th className="pb-3 font-semibold">User Email</th>
+                                    <th className="pb-3 font-semibold text-center">Visits Today</th>
+                                    <th className="pb-3 font-semibold">Last Active</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#efece4]">
+                                {recentVisitors.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="py-6 text-center text-[#7a8478] text-sm">
+                                            No recent visitors tracked.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    recentVisitors.map((visitor, idx) => {
+                                        const isGuest = !visitor.userId || visitor.userId === "guest";
+                                        return (
+                                            <tr key={idx} className="hover:bg-[#faf8f2]/60 transition-colors duration-150">
+                                                <td className="py-4 font-mono text-xs text-[#1a2620]">
+                                                    <div className="font-semibold">{visitor.visitorId ? `${visitor.visitorId.slice(0, 18)}...` : "N/A"}</div>
+                                                    <div className="text-[10px] text-[#7a8478] mt-0.5">{visitor.ip || "Unknown IP"}</div>
+                                                </td>
+                                                <td className="py-4">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                                                        isGuest 
+                                                            ? "bg-amber-50 text-amber-700" 
+                                                            : "bg-emerald-50 text-emerald-700"
+                                                    }`}>
+                                                        {isGuest ? "Guest" : "Registered User"}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 text-sm text-[#1a2620]">
+                                                    {visitor.email || "guest"}
+                                                </td>
+                                                <td className="py-4 text-sm font-semibold text-[#2f5a3d] text-center">
+                                                    {visitor.count || 1}
+                                                </td>
+                                                <td className="py-4 text-xs text-[#7a8478]">
+                                                    {visitor.updatedAt 
+                                                        ? formatDistanceToNow(new Date(visitor.updatedAt), { addSuffix: true }) 
+                                                        : "Just now"}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
