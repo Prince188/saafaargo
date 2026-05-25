@@ -12,6 +12,7 @@ import {
 import { FaCar, FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { showError, showSuccess } from "../../utils/toastConfig";
+import { RideCardSkeleton } from "../../component/Skeleton";
 
 const MyTrips = () => {
     const [trips, setTrips] = useState([]);
@@ -138,9 +139,19 @@ const MyTrips = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-off-white font-inter flex flex-col items-center justify-center gap-md">
-                <div className="w-[50px] h-[50px] border-3 border-sage-soft border-t-forest rounded-full animate-spin"></div>
-                <p className="text-sm text-stone">Loading your trips...</p>
+            <div className="min-h-screen bg-off-white font-inter">
+                <div className="max-w-[1100px] mx-auto px-xl py-xl">
+                    {/* Header */}
+                    <div className="text-center mb-2xl">
+                        <h1 className="font-fraunces text-4xl font-semibold text-forest mb-sm animate-pulse">My Trips</h1>
+                        <p className="text-[15px] text-stone animate-pulse">View all rides you have booked</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
+                        {[1, 2, 3, 4].map((i) => (
+                            <RideCardSkeleton key={i} />
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }

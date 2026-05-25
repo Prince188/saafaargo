@@ -32,6 +32,7 @@ import { MdVerified, MdPayment, MdRateReview } from "react-icons/md";
 import API from "../../api/api";
 import { showSuccess, showError } from "../../utils/toastConfig";
 import { formatDistanceToNow } from "date-fns";
+import { StatsCardSkeleton } from "../../component/Skeleton";
 
 const Dashboard = () => {
     const [today, setToday] = useState(0);
@@ -217,18 +218,7 @@ const Dashboard = () => {
         { city: "Kolkata", rides: 760, percentage: 56, growth: "+8%", revenue: "₹1.4M" }
     ];
 
-    if (loading) {
-        return (
-            <div className="min-h-[400px] bg-[#f8f6ef] font-inter flex items-center justify-center">
-                <div className="text-center">
-                    <div className="relative w-16 h-16 mx-auto">
-                        <div className="absolute inset-0 border-2 border-[#e6e1d3] border-t-[#2f5a3d] rounded-full animate-spin" />
-                    </div>
-                    <p className="text-[#5a6358] mt-5 text-sm">Loading dashboard…</p>
-                </div>
-            </div>
-        );
-    }
+    // Removed early spinner return to support premium in-place skeleton loading
 
     return (
         <div className="min-h-screen font-inter text-[#1a2620]">
@@ -295,46 +285,52 @@ const Dashboard = () => {
 
                 {/* STATS CARDS */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
-                    {statsCards.map((card, index) => {
-                        const Icon = card.icon;
-                        return (
-                            <div
-                                key={index}
-                                className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
-                            >
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
-                                            {card.title}
-                                        </p>
-                                        <p
-                                            className="text-4xl font-semibold text-[#1a2620] tracking-tight"
-                                            style={{ fontFamily: '"Fraunces", serif' }}
+                    {loading ? (
+                        Array.from({ length: 5 }).map((_, idx) => (
+                            <StatsCardSkeleton key={idx} />
+                        ))
+                    ) : (
+                        statsCards.map((card, index) => {
+                            const Icon = card.icon;
+                            return (
+                                <div
+                                    key={index}
+                                    className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
+                                                {card.title}
+                                            </p>
+                                            <p
+                                                className="text-4xl font-semibold text-[#1a2620] tracking-tight"
+                                                style={{ fontFamily: '"Fraunces", serif' }}
+                                            >
+                                                {card.value}
+                                            </p>
+                                        </div>
+                                        <div
+                                            className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+                                            style={{ backgroundColor: card.tint, color: card.accent }}
                                         >
-                                            {card.value}
-                                        </p>
+                                            <Icon className="text-lg" />
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 flex items-center gap-1.5">
+                                        <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
+                                            {card.trendUp ? <FaArrowUp className="inline text-[10px] mr-0.5" /> : <FaArrowDown className="inline text-[10px] mr-0.5" />}
+                                            {card.trend}
+                                        </span>
+                                        <span className="text-[11px] text-[#9aa194]">vs last period</span>
                                     </div>
                                     <div
-                                        className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
-                                        style={{ backgroundColor: card.tint, color: card.accent }}
-                                    >
-                                        <Icon className="text-lg" />
-                                    </div>
+                                        className="mt-5 h-px w-10"
+                                        style={{ backgroundColor: card.accent, opacity: 0.4 }}
+                                    />
                                 </div>
-                                <div className="mt-4 flex items-center gap-1.5">
-                                    <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-                                        {card.trendUp ? <FaArrowUp className="inline text-[10px] mr-0.5" /> : <FaArrowDown className="inline text-[10px] mr-0.5" />}
-                                        {card.trend}
-                                    </span>
-                                    <span className="text-[11px] text-[#9aa194]">vs last period</span>
-                                </div>
-                                <div
-                                    className="mt-5 h-px w-10"
-                                    style={{ backgroundColor: card.accent, opacity: 0.4 }}
-                                />
-                            </div>
-                        );
-                    })}
+                            );
+                        })
+                    )}
                 </div>
 
                 {/* DETAILED STATS ROW */}
@@ -445,42 +441,46 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    <ResponsiveContainer width="100%" height={380}>
-                        <AreaChart
-                            data={dateRange === "week" ? weeklyStats : dateRange === "month" ? monthlyStats : stats}
-                            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                        >
-                            <defs>
-                                <linearGradient id="visitorGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#2f5a3d" stopOpacity={0.1} />
-                                    <stop offset="95%" stopColor="#2f5a3d" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#efece4" vertical={false} />
-                            <XAxis
-                                dataKey="date"
-                                stroke="#9aa194"
-                                tick={{ fontSize: 11 }}
-                                axisLine={false}
-                                tickLine={false}
-                            />
-                            <YAxis
-                                stroke="#9aa194"
-                                tick={{ fontSize: 11 }}
-                                axisLine={false}
-                                tickLine={false}
-                            />
-                            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2f5a3d', strokeWidth: 1.5, strokeDasharray: "4 4" }} />
-                            <Area
-                                type="monotone"
-                                dataKey="visitors"
-                                stroke="#2f5a3d"
-                                strokeWidth={2}
-                                fill="url(#visitorGradient)"
-                                activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#2f5a3d' }}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    {loading ? (
+                        <div className="skeleton w-full h-[380px] rounded-2xl"></div>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={380}>
+                            <AreaChart
+                                data={dateRange === "week" ? weeklyStats : dateRange === "month" ? monthlyStats : stats}
+                                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                            >
+                                <defs>
+                                    <linearGradient id="visitorGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#2f5a3d" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="#2f5a3d" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#efece4" vertical={false} />
+                                <XAxis
+                                    dataKey="date"
+                                    stroke="#9aa194"
+                                    tick={{ fontSize: 11 }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    stroke="#9aa194"
+                                    tick={{ fontSize: 11 }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2f5a3d', strokeWidth: 1.5, strokeDasharray: "4 4" }} />
+                                <Area
+                                    type="monotone"
+                                    dataKey="visitors"
+                                    stroke="#2f5a3d"
+                                    strokeWidth={2}
+                                    fill="url(#visitorGradient)"
+                                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#2f5a3d' }}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    )}
                 </div>
 
                 {/* BOTTOM SECTIONS */}

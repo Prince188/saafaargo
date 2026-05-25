@@ -12,6 +12,7 @@ import {
     FaSpinner
 } from "react-icons/fa";
 import { MdReadMore } from "react-icons/md";
+import { BlogCardSkeleton } from "../../component/Skeleton";
 
 const Blogs = () => {
     const [blogs, setBlogs] = useState([]);
@@ -56,17 +57,6 @@ const Blogs = () => {
         if (text.length <= maxLength) return text;
         return text.substring(0, maxLength) + "...";
     };
-
-    if (loading) {
-        return (
-            <div className="min-h-[60vh] bg-off-white font-inter flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-sage-soft border-t-forest rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-stone font-medium">Loading amazing stories...</p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-off-white font-inter">
@@ -123,7 +113,13 @@ const Blogs = () => {
                 </div> */}
 
                 {/* Blog Grid */}
-                {filteredBlogs.length === 0 ? (
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[1, 2, 3].map((i) => (
+                            <BlogCardSkeleton key={i} />
+                        ))}
+                    </div>
+                ) : filteredBlogs.length === 0 ? (
                     <div className="text-center py-3xl">
                         <div className="w-24 h-24 bg-sage-10 rounded-full flex items-center justify-center mx-auto mb-4">
                             <FaNewspaper className="text-sage text-3xl" />
