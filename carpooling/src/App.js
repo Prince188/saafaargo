@@ -16,7 +16,13 @@ import {
   SearchSkeleton, 
   BlogsSkeleton, 
   DashboardSkeleton, 
-  PublishRideSkeleton 
+  PublishRideSkeleton,
+  AuthFormSkeleton,
+  ProfilePanelSkeleton,
+  ContentPageSkeleton,
+  RideDetailSkeleton,
+  BlogDetailSkeleton,
+  AdminTableSkeleton
 } from "./component/Skeleton";
 
 // Dynamic Lazy Imports
@@ -85,7 +91,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
-      <Suspense fallback={<PageSkeleton />}>
+      <Suspense fallback={null}>
         <Routes>
 
           {/* ✅ WITH Navbar + Footer */}
@@ -93,28 +99,28 @@ function App() {
             <Route path='/' element={<Suspense fallback={<HomeSkeleton />}><Home /></Suspense>} />
             <Route path='/offer-ride' element={<Suspense fallback={<PublishRideSkeleton />}><OfferRide /></Suspense>} />
             <Route path='/search' element={<Suspense fallback={<SearchSkeleton />}><Search /></Suspense>} />
-            <Route path='/About-us' element={<AboutUs />} />
-            <Route path='/login' element={<LoginPage />} />
-            <Route path='/register' element={<RegisterPage />} />
-            <Route path="/verify-otp" element={<VerifyOtpPage />} />
-            <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path='/profile/edit' element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-            <Route path="/profile/manage-car" element={<ManageCar />} />
-            <Route path='/vehicle/add' element={<AddVehicle />} />
-            <Route path='/vehicle/edit/:id' element={<EditVehicle />} />
-            <Route path='/my-rides' element={<MyRide />} />
-            <Route path='/edit-ride/:id' element={<EditRide/>}/>
-            <Route path="/my-trips" element={<MyTrips />} />
-            <Route path="/rides/:id" element={<RideDeatil />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PribacyPolicy />} />
+            <Route path='/About-us' element={<Suspense fallback={<ContentPageSkeleton />}><AboutUs /></Suspense>} />
+            <Route path='/login' element={<Suspense fallback={<AuthFormSkeleton />}><LoginPage /></Suspense>} />
+            <Route path='/register' element={<Suspense fallback={<AuthFormSkeleton />}><RegisterPage /></Suspense>} />
+            <Route path="/verify-otp" element={<Suspense fallback={<AuthFormSkeleton />}><VerifyOtpPage /></Suspense>} />
+            <Route path='/profile' element={<ProtectedRoute><Suspense fallback={<ProfilePanelSkeleton />}><ProfilePage /></Suspense></ProtectedRoute>} />
+            <Route path='/profile/edit' element={<ProtectedRoute><Suspense fallback={<ProfilePanelSkeleton />}><EditProfile /></Suspense></ProtectedRoute>} />
+            <Route path="/profile/manage-car" element={<Suspense fallback={<ProfilePanelSkeleton />}><ManageCar /></Suspense>} />
+            <Route path='/vehicle/add' element={<Suspense fallback={<ProfilePanelSkeleton />}><AddVehicle /></Suspense>} />
+            <Route path='/vehicle/edit/:id' element={<Suspense fallback={<ProfilePanelSkeleton />}><EditVehicle /></Suspense>} />
+            <Route path='/my-rides' element={<Suspense fallback={<SearchSkeleton />}><MyRide /></Suspense>} />
+            <Route path='/edit-ride/:id' element={<Suspense fallback={<ProfilePanelSkeleton />}><EditRide /></Suspense>}/>
+            <Route path="/my-trips" element={<Suspense fallback={<SearchSkeleton />}><MyTrips /></Suspense>} />
+            <Route path="/rides/:id" element={<Suspense fallback={<RideDetailSkeleton />}><RideDeatil /></Suspense>} />
+            <Route path="/terms" element={<Suspense fallback={<ContentPageSkeleton />}><TermsOfService /></Suspense>} />
+            <Route path="/privacy" element={<Suspense fallback={<ContentPageSkeleton />}><PribacyPolicy /></Suspense>} />
             <Route path="/blog" element={<Suspense fallback={<BlogsSkeleton />}><Blogs /></Suspense>} />
-            <Route path="/blog/:id" element={<BlogDetails />} />
-            <Route path="/admin/blogs/create" element={<AdminCreateBlog />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
-            <Route path="/reset-password" element={<ResetPasswordPage/>}/>
+            <Route path="/blog/:id" element={<Suspense fallback={<BlogDetailSkeleton />}><BlogDetails /></Suspense>} />
+            <Route path="/admin/blogs/create" element={<Suspense fallback={<AdminTableSkeleton />}><AdminCreateBlog /></Suspense>} />
+            <Route path="/help" element={<Suspense fallback={<ContentPageSkeleton />}><Help /></Suspense>} />
+            <Route path="/contact" element={<Suspense fallback={<ContentPageSkeleton />}><ContactUs /></Suspense>} />
+            <Route path="/forgot-password" element={<Suspense fallback={<AuthFormSkeleton />}><ForgotPasswordPage /></Suspense>}/>
+            <Route path="/reset-password" element={<Suspense fallback={<AuthFormSkeleton />}><ResetPasswordPage /></Suspense>}/>
 
             {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 
@@ -140,13 +146,13 @@ function App() {
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<Navigate to="dashboard" />} />
               <Route path="dashboard" element={<Suspense fallback={<DashboardSkeleton />}><Dashboard /></Suspense>} />
-              <Route path="users" element={<User />} />
-              <Route path="rides" element={<Rides />} />
-              <Route path="blogs" element={<AdminBlogs />} />
-              <Route path="blogs/edit/:id" element={<AdminEditBlog />} />
-              <Route path="subscribers" element={<Subscribers />} />
-              <Route path="contacts" element={<Contacts />} />
-              <Route path="verify" element={<DriverVerify />} />
+              <Route path="users" element={<Suspense fallback={<AdminTableSkeleton />}><User /></Suspense>} />
+              <Route path="rides" element={<Suspense fallback={<AdminTableSkeleton />}><Rides /></Suspense>} />
+              <Route path="blogs" element={<Suspense fallback={<AdminTableSkeleton />}><AdminBlogs /></Suspense>} />
+              <Route path="blogs/edit/:id" element={<Suspense fallback={<AdminTableSkeleton />}><AdminEditBlog /></Suspense>} />
+              <Route path="subscribers" element={<Suspense fallback={<AdminTableSkeleton />}><Subscribers /></Suspense>} />
+              <Route path="contacts" element={<Suspense fallback={<AdminTableSkeleton />}><Contacts /></Suspense>} />
+              <Route path="verify" element={<Suspense fallback={<AdminTableSkeleton />}><DriverVerify /></Suspense>} />
             </Route>
           </Route>
 
