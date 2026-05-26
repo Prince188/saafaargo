@@ -27,7 +27,7 @@ import {
     FaRegClock,
     FaMapMarkerAlt,
 } from "react-icons/fa";
-import { FaArrowTrendUp } from "react-icons/fa6";
+import { FaArrowTrendUp, FaEnvelope, FaPaperPlane } from "react-icons/fa6";
 import { MdVerified, MdPayment, MdRateReview } from "react-icons/md";
 import API from "../../api/api";
 import { showSuccess, showError } from "../../utils/toastConfig";
@@ -46,22 +46,23 @@ const Dashboard = () => {
     const [recentActivities, setRecentActivities] = useState([]);
     const [recentVisitors, setRecentVisitors] = useState([]);
     const [userStats, setUserStats] = useState({
-        totalUsers: 15420,
-        verifiedUsers: 12890,
-        activeUsers: 8765,
-        newUsersToday: 143
+        totalUsers: 0,
+        verifiedUsers: 0,
+        activeUsers: 0,
+        newUsersToday: 0
     });
     const [rideStats, setRideStats] = useState({
-        totalRides: 8920,
-        completedRides: 7650,
-        cancelledRides: 1270,
-        seatsBooked: 25430
+        totalRides: 0,
+        completedRides: 0,
+        cancelledRides: 0,
+        seatsBooked: 0
     });
     const [feedback, setFeedback] = useState({
-        averageRating: 4.6,
-        totalReviews: 5432,
-        positiveReviews: 4890
+        averageRating: 0,
+        totalReviews: 0,
+        positiveReviews: 0
     });
+    const [topCities, setTopCities] = useState([]);
 
     useEffect(() => {
         fetchDashboardData();
@@ -76,7 +77,8 @@ const Dashboard = () => {
                 totalRes,
                 statsRes,
                 activityRes,
-                recentVisitorsRes
+                recentVisitorsRes,
+                dashboardRes
             ] = await Promise.all([
                 API.get("/visitor/today").catch(() => ({
                     data: { todayVisitors: 0 }
@@ -96,6 +98,10 @@ const Dashboard = () => {
 
                 API.get("/visitor/recent").catch(() => ({
                     data: []
+                })),
+
+                API.get("/admin/dashboard").catch(() => ({
+                    data: { data: {} }
                 }))
             ]);
 
@@ -118,6 +124,12 @@ const Dashboard = () => {
 
             setRecentActivities(activityRes.data.activities || []);
             setRecentVisitors(recentVisitorsRes.data || []);
+
+            const dashData = dashboardRes.data?.data || {};
+            if (dashData.userStats) setUserStats(dashData.userStats);
+            if (dashData.rideStats) setRideStats(dashData.rideStats);
+            if (dashData.feedback) setFeedback(dashData.feedback);
+            if (dashData.topCities) setTopCities(dashData.topCities);
 
         } catch (err) {
             console.log(err);
@@ -208,14 +220,6 @@ const Dashboard = () => {
             accent: "#9b2c2c",
             tint: "#fdecec",
         }
-    ];
-
-    const topCities = [
-        { city: "Mumbai", rides: 1250, percentage: 92, growth: "+15%", revenue: "₹2.5M" },
-        { city: "Delhi", rides: 1120, percentage: 82, growth: "+12%", revenue: "₹2.2M" },
-        { city: "Bangalore", rides: 980, percentage: 72, growth: "+18%", revenue: "₹1.9M" },
-        { city: "Chennai", rides: 890, percentage: 65, growth: "+10%", revenue: "₹1.7M" },
-        { city: "Kolkata", rides: 760, percentage: 56, growth: "+8%", revenue: "₹1.4M" }
     ];
 
     // Removed early spinner return to support premium in-place skeleton loading
@@ -351,7 +355,7 @@ const Dashboard = () => {
                             </div>
                             <div className="text-right">
                                 <p className="text-xl font-bold text-[#2f5a3d]">
-                                    {((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0)}%
+                                    {userStats.totalUsers > 0 ? ((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0) : 0}%
                                 </p>
                                 <p className="text-[10px] text-[#7a8478]">of total</p>
                             </div>
@@ -359,7 +363,7 @@ const Dashboard = () => {
                         <div className="w-full bg-[#e6e1d3] rounded-full h-2">
                             <div
                                 className="bg-[#2f5a3d] rounded-full h-2 transition-all duration-1000"
-                                style={{ width: `${(userStats.verifiedUsers / userStats.totalUsers) * 100}%` }}
+                                style={{ width: `${userStats.totalUsers > 0 ? (userStats.verifiedUsers / userStats.totalUsers) * 100 : 0}%` }}
                             />
                         </div>
                     </div>
@@ -377,20 +381,7 @@ const Dashboard = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#efece4]">
-                            <div className="text-center">
-                                <p className="text-base font-bold text-emerald-600">{rideStats.completedRides.toLocaleString()}</p>
-                                <p className="text-[10px] text-[#7a8478] mt-0.5">Completed</p>
-                            </div>
-                            <div className="text-center">
-                                <p className="text-base font-bold text-amber-600">{rideStats.cancelledRides.toLocaleString()}</p>
-                                <p className="text-[10px] text-[#7a8478] mt-0.5">Cancelled</p>
-                            </div>
-                            <div className="text-center">
-                                <p className="text-base font-bold text-[#2f5a3d]">{rideStats.seatsBooked.toLocaleString()}</p>
-                                <p className="text-[10px] text-[#7a8478] mt-0.5">Seats Booked</p>
-                            </div>
-                        </div>
+                        
                     </div>
 
                     {/* Positive Feedback */}
@@ -402,14 +393,14 @@ const Dashboard = () => {
                             <div>
                                 <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Positive Feedback</p>
                                 <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    {((feedback.positiveReviews / feedback.totalReviews) * 100).toFixed(0)}%
+                                    {feedback.totalReviews > 0 ? ((feedback.positiveReviews / feedback.totalReviews) * 100).toFixed(0) : 0}%
                                 </p>
                             </div>
                         </div>
                         <div className="w-full bg-[#e6e1d3] rounded-full h-2 mb-3">
                             <div
                                 className="bg-[#2f5a3d] rounded-full h-2 transition-all duration-1000"
-                                style={{ width: `${(feedback.positiveReviews / feedback.totalReviews) * 100}%` }}
+                                style={{ width: `${feedback.totalReviews > 0 ? (feedback.positiveReviews / feedback.totalReviews) * 100 : 0}%` }}
                             />
                         </div>
                         <div className="flex justify-between">
@@ -512,12 +503,20 @@ const Dashboard = () => {
                                 else if (activity.type === "verification") {
                                     Icon = MdVerified;
                                 }
+                                else if (activity.type === "subscription") {
+                                    Icon = FaEnvelope;
+                                }
+                                else if (activity.type === "contact") {
+                                    Icon = FaPaperPlane;
+                                }
                                 const typeStyles = {
                                     user: "bg-[#e8f1ea] text-[#2f5a3d]",
                                     ride: "bg-[#eaf1fb] text-[#1e3a8a]",
                                     booking: "bg-[#f5e9df] text-[#a0522d]",
                                     review: "bg-[#fdecec] text-[#9b2c2c]",
-                                    verification: "bg-[#e8f1ea] text-[#2f5a3d]"
+                                    verification: "bg-[#e8f1ea] text-[#2f5a3d]",
+                                    subscription: "bg-[#f0fdf4] text-[#16a34a]",
+                                    contact: "bg-[#fef3c7] text-[#d97706]"
                                 };
                                 return (
                                     <div key={idx} className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#faf8f2] transition-all duration-200">
@@ -553,28 +552,24 @@ const Dashboard = () => {
                             <FaArrowTrendUp className="text-[#2f5a3d] text-sm opacity-60" />
                         </div>
                         <div className="space-y-4">
-                            {topCities.map((city, idx) => (
-                                <div key={idx} className="group">
-                                    <div className="flex justify-between items-center mb-1.5">
-                                        <div className="flex items-center gap-2.5">
+                            {topCities.length === 0 ? (
+                                <p className="text-sm text-[#7a8478] text-center py-4">No ride data yet</p>
+                            ) : (
+                                topCities.map((city, idx) => (
+                                    <div key={idx} className="group">
+                                        <div className="flex justify-between items-center mb-1.5">
                                             <span className="text-sm font-medium text-[#1a2620]">{city.city}</span>
-                                            <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                                                {city.growth}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-xs text-[#5a6358]">{city.revenue}</span>
                                             <span className="text-sm font-semibold text-[#2f5a3d]">{city.rides} rides</span>
                                         </div>
+                                        <div className="w-full bg-[#e6e1d3] rounded-full h-1.5">
+                                            <div
+                                                className="bg-[#2f5a3d] rounded-full h-1.5 transition-all duration-1000"
+                                                style={{ width: `${city.percentage}%` }}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="w-full bg-[#e6e1d3] rounded-full h-1.5">
-                                        <div
-                                            className="bg-[#2f5a3d] rounded-full h-1.5 transition-all duration-1000"
-                                            style={{ width: `${city.percentage}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
