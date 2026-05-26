@@ -28,6 +28,11 @@ const blogSchema = new mongoose.Schema(
     },
 
     tags: [String],
+
+    views: {
+        type: Number,
+        default: 0,
+    },
 },
 {
     timestamps: true,

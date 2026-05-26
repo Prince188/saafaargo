@@ -16,7 +16,8 @@ import {
     FaBookmark,
     FaSpinner,
     FaNewspaper,
-    FaQuoteLeft
+    FaQuoteLeft,
+    FaEye
 } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 
@@ -141,6 +142,10 @@ const BlogDetails = () => {
                             <div className="flex items-center gap-2 text-stone">
                                 <FaClock className="text-sage" />
                                 <span>{Math.ceil(blog.content?.length / 1000) || 5} min read</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-stone">
+                                <FaEye className="text-sage" />
+                                <span>{(blog.views || 0).toLocaleString()} views</span>
                             </div>
                             <div className="flex items-center gap-2 text-stone">
                                 <FaUser className="text-sage" />

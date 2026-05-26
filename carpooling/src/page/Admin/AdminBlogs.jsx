@@ -87,17 +87,6 @@ const AdminBlogs = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    const getStatusStyles = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'published':
-                return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
-            case 'draft':
-                return "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
-            default:
-                return "bg-[#e8f1ea] text-[#2f5a3d] ring-1 ring-[#c5dccb]";
-        }
-    };
-
     const statsCards = [
         {
             title: "Total Blogs",
@@ -275,7 +264,7 @@ const AdminBlogs = () => {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="bg-[#faf8f2] border-b border-[#e6e1d3]">
-                                            {["Blog Title", "Author", "Date", "Status", "Actions"].map((h) => (
+                                            {["Blog Title", "Author", "Date", "Views", "Actions"].map((h) => (
                                                 <th
                                                     key={h}
                                                     className="px-6 py-4 text-left text-[11px] font-semibold text-[#7a8478] uppercase tracking-[0.16em]"
@@ -349,13 +338,12 @@ const AdminBlogs = () => {
                                                 </td>
 
                                                 <td className="px-6 py-5">
-                                                    <span
-                                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ${getStatusStyles(
-                                                            blog.status
-                                                        )}`}
-                                                    >
-                                                        {blog.status === "published" ? "Published" : "Draft"}
-                                                    </span>
+                                                    <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
+                                                        <FaEye className="text-[#7a8478] text-xs" />
+                                                        <span className="font-semibold text-[#1a2620]">
+                                                            {(blog.views || 0).toLocaleString()}
+                                                        </span>
+                                                    </div>
                                                 </td>
 
                                                 <td className="px-6 py-5">

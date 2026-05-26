@@ -9,7 +9,8 @@ import {
     FaSearch,
     FaArrowRight,
     FaNewspaper,
-    FaSpinner
+    FaSpinner,
+    FaEye
 } from "react-icons/fa";
 import { MdReadMore } from "react-icons/md";
 import { BlogCardSkeleton } from "../../component/Skeleton";
@@ -171,6 +172,10 @@ const Blogs = () => {
                                         <div className="flex items-center gap-1">
                                             <FaClock className="text-sage text-xs" />
                                             <span>5 min read</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <FaEye className="text-sage text-xs" />
+                                            <span>{(blog.views || 0).toLocaleString()} views</span>
                                         </div>
                                     </div>
 

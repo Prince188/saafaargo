@@ -70,7 +70,11 @@ exports.deleteBlog = async (req, res) => {
 
 exports.getBlogById = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id);
+        const blog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } },
+            { new: true }
+        );
 
         if (!blog) {
             return res.status(404).json({
