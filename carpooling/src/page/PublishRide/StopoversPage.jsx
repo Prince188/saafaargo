@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
 import { FaArrowRight, FaLocationArrow, FaMapPin as FaMapPinSolid } from "react-icons/fa";
+import CITY_CENTERS from "../../constants/cityCenters";
+
+const allCities = Object.entries(CITY_CENTERS).map(([key, coords]) => ({
+    name: key.charAt(0).toUpperCase() + key.slice(1),
+    ...coords,
+}));
 
 // ✅ Decode Google's encoded polyline into [{lat, lng}] array
 const decodePolyline = (encoded) => {
@@ -29,20 +35,6 @@ const StopoversPage = () => {
     const [formData, setFormData] = useState({});
     const [routeCoords, setRouteCoords] = useState([]);
     const [loadingRoute, setLoadingRoute] = useState(false);
-
-    const allCities = [
-        { name: "Ahmedabad", lat: 23.0225, lng: 72.5714 },
-        { name: "Surat", lat: 21.1702, lng: 72.8311 },
-        { name: "Vadodara", lat: 22.3072, lng: 73.1812 },
-        { name: "Anand", lat: 22.5645, lng: 72.9289 },
-        { name: "Nadiad", lat: 22.6916, lng: 72.8634 },
-        { name: "Bharuch", lat: 21.7051, lng: 72.9959 },
-        { name: "Vapi", lat: 20.3893, lng: 72.9106 },
-        { name: "Navsari", lat: 20.9467, lng: 72.9520 },
-        { name: "Rajkot", lat: 22.3039, lng: 70.8022 },
-        { name: "Gandhinagar", lat: 23.2156, lng: 72.6369 },
-        { name: "Mehsana", lat: 23.5880, lng: 72.3693 },
-    ];
 
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
         const R = 6371;

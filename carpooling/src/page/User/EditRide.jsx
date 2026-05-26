@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     FiCalendar,
@@ -13,18 +13,7 @@ import {
 import { FaRupeeSign, FaRoad, FaCar, FaArrowRight } from "react-icons/fa";
 import { showError, showSuccess } from "../../utils/toastConfig";
 import LocationInput from "../../component/LocationInput";
-
-// ─── Haversine distance ───────────────────────────────────────────────────────
-const getDistanceKm = (lat1, lng1, lat2, lng2) => {
-    const toRad = (v) => (v * Math.PI) / 180;
-    const R = 6371;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-};
+import { getCityRouteInfo } from "../../utils/routeUtils";
 
 const EditRide = () => {
     const { id } = useParams();
@@ -48,29 +37,41 @@ const EditRide = () => {
     const [pickup, setPickup] = useState(null);
     const [destination, setDestination] = useState(null);
 
-    // ── Computed price preview ────────────────────────────────────────────────
+    // ── Computed price preview (road distance, not Haversine) ─────────────────
     const [distanceKm, setDistanceKm] = useState(null);
     const [pricePerSeat, setPricePerSeat] = useState(null);
 
-    // Recalculate whenever pickup / destination / seats / perkmprice change
+    // On initial load, use stored road distance from ride
     useEffect(() => {
-        if (
-            pickup?.lat && pickup?.lng &&
-            destination?.lat && destination?.lng &&
-            rideData?.perkmprice &&
-            formData.seatsAvailable
-        ) {
-            const km = getDistanceKm(pickup.lat, pickup.lng, destination.lat, destination.lng);
+        if (rideData?.totalDistanceKm) {
+            setDistanceKm(rideData.totalDistanceKm);
+        }
+    }, [rideData]);
+
+    // Fetch road distance via Google Directions API when pickup/destination are set
+    useEffect(() => {
+        let cancelled = false;
+        if (pickup?.lat && destination?.lat) {
+            getCityRouteInfo(pickup, destination).then(result => {
+                if (!cancelled && result?.distanceKm) {
+                    setDistanceKm(result.distanceKm);
+                }
+            });
+        }
+        return () => { cancelled = true; };
+    }, [pickup, destination]);
+
+    // Recalculate price preview when distance / seats / perkmprice change
+    useEffect(() => {
+        if (distanceKm && rideData?.perkmprice && formData.seatsAvailable) {
             const seats = parseInt(formData.seatsAvailable) || 1;
-            const total = km * Number(rideData.perkmprice);
-            const perSeat = Math.round(total / seats);
-            setDistanceKm(Math.round(km * 10) / 10);
+            const total = distanceKm * Number(rideData.perkmprice);
+            const perSeat = Math.round(total / (seats + 1));
             setPricePerSeat(perSeat);
         } else {
-            setDistanceKm(null);
             setPricePerSeat(null);
         }
-    }, [pickup, destination, formData.seatsAvailable, rideData?.perkmprice]);
+    }, [distanceKm, formData.seatsAvailable, rideData?.perkmprice]);
 
     // ── Fetch existing ride ───────────────────────────────────────────────────
     useEffect(() => {

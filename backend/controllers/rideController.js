@@ -141,24 +141,42 @@ const getSegmentDistance = (ride, from, to) => {
 
     if (fromIndex === -1 || toIndex === -1 || fromIndex >= toIndex) return 0;
 
-    // Compute Haversine distance for each leg of the full route
-    const legDistances = [];
-    for (let i = 0; i < route.length - 1; i++) {
-        const a = route[i];
-        const b = route[i + 1];
-        const coordsA = getCityCoordinates(a);
-        const coordsB = getCityCoordinates(b);
-        legDistances.push(getDistanceInKm(coordsA.lat, coordsA.lng, coordsB.lat, coordsB.lng));
+    // Try stored distanceFromPickup on the matched stops first
+    const getDist = (idx) => {
+        if (idx === 0) return 0;                              // pickup
+        if (idx === route.length - 1) return ride.totalDistanceKm; // destination
+        return route[idx]?.distanceFromPickup;                  // stop
+    };
+
+    const fromDist = getDist(fromIndex);
+    const toDist = getDist(toIndex);
+
+    if (fromDist != null && toDist != null && toDist > fromDist) {
+        return toDist - fromDist;
     }
 
-    const totalHaversine = legDistances.reduce((s, d) => s + d, 0);
+    // Fallback: proportion of total Haversine, scaled to road distance
+    const totalHaversine = (() => {
+        let sum = 0;
+        for (let i = 0; i < route.length - 1; i++) {
+            const a = route[i];
+            const b = route[i + 1];
+            const ca = getCityCoordinates(a);
+            const cb = getCityCoordinates(b);
+            sum += getDistanceInKm(ca.lat, ca.lng, cb.lat, cb.lng);
+        }
+        return sum;
+    })();
 
     let segmentHaversine = 0;
     for (let i = fromIndex; i < toIndex; i++) {
-        segmentHaversine += legDistances[i];
+        const a = route[i];
+        const b = route[i + 1];
+        const ca = getCityCoordinates(a);
+        const cb = getCityCoordinates(b);
+        segmentHaversine += getDistanceInKm(ca.lat, ca.lng, cb.lat, cb.lng);
     }
 
-    // Scale proportionally to stored road distance if available
     if (ride.totalDistanceKm && totalHaversine > 0) {
         return (segmentHaversine / totalHaversine) * ride.totalDistanceKm;
     }

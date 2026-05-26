@@ -196,7 +196,8 @@ const RideReview = () => {
       const token = localStorage.getItem("token");
       const formattedStops = stops.slice(0, -1).map(s => ({
         lat: s.lat, lng: s.lng, address: s.address,
-        city: s.city, displayName: s.displayName, price: s.price
+        city: s.city, displayName: s.displayName, price: s.price,
+        distanceFromPickup: s.distanceKm,
       }));
 
       const res = await fetch(`${process.env.REACT_APP_API_URL}/rides`, {

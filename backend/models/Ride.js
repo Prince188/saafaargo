@@ -16,7 +16,8 @@ const rideSchema = new mongoose.Schema({
             address: String,
             city: String,
             displayName: String,
-            price: Number
+            price: Number,
+            distanceFromPickup: Number,
         }
     ],
 
