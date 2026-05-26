@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,9 +12,44 @@ const RoutePreviewPage = () => {
     const navigate = useNavigate();
     const { pickup, destination } = location.state || {};
     const [routeInfo, setRouteInfo] = useState(null);
+    const [cityDistance, setCityDistance] = useState(null);
     const incomingFormData = location.state?.formData || {};
 
     const shortCity = (addr) => addr?.split(",")[0]?.trim() || "";
+
+    // Fetch road distance between city centers (not exact pickup/dropoff)
+    useEffect(() => {
+        const fc = incomingFormData.fromCoords;
+        const tc = incomingFormData.toCoords;
+        if (!fc?.lat || !fc?.lng || !tc?.lat || !tc?.lng) return;
+
+        const fetchCityDistance = () => {
+            const service = new window.google.maps.DirectionsService();
+            service.route(
+                {
+                    origin: { lat: fc.lat, lng: fc.lng },
+                    destination: { lat: tc.lat, lng: tc.lng },
+                    travelMode: window.google.maps.TravelMode.DRIVING,
+                },
+                (result, status) => {
+                    if (status === "OK" && result.routes[0]?.legs[0]) {
+                        const km = result.routes[0].legs[0].distance.value / 1000;
+                        setCityDistance(Number(km.toFixed(1)));
+                    }
+                }
+            );
+        };
+
+        if (window.google?.maps?.DirectionsService) {
+            fetchCityDistance();
+        } else {
+            const script = document.createElement("script");
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`;
+            script.async = true;
+            script.onload = fetchCityDistance;
+            document.body.appendChild(script);
+        }
+    }, [incomingFormData.fromCoords?.lat, incomingFormData.fromCoords?.lng, incomingFormData.toCoords?.lat, incomingFormData.toCoords?.lng]);
 
 
     if (!pickup || !destination) {
@@ -36,15 +71,16 @@ const RoutePreviewPage = () => {
     }
 
     const handlePublishRide = () => {
+        const finalDistance = cityDistance || routeInfo?.distance || null;
         navigate("/offer-ride/stop-over", {
             state: {
                 pickup,
                 destination,
                 routeCoords: routeInfo?.coordinates || [],
-                totalDistanceKm: routeInfo?.distance || null, // ✅ pass real road distance
+                totalDistanceKm: finalDistance,
                 formData: {
-                    ...incomingFormData,                          // ✅ forward it
-                    totalDistanceKm: routeInfo?.distance || null,
+                    ...incomingFormData,
+                    totalDistanceKm: finalDistance,
                 },
             },
         });
@@ -116,10 +152,10 @@ const RoutePreviewPage = () => {
                             <FiMapPin className="text-xl md:text-2xl text-sage" />
                             <div>
                                 <span className="block text-sm md:text-base font-bold text-forest">
-                                    {routeInfo ? `${routeInfo.distance} km` : "Calculating..."}
+                                    {cityDistance ? `${cityDistance} km` : routeInfo ? `${routeInfo.distance} km` : "Calculating..."}
                                 </span>
                                 <span className="block text-[9px] md:text-[10px] text-stone">
-                                    {routeInfo ? `${shortCity(incomingFormData.from)} → ${shortCity(incomingFormData.to)}` : "Distance"}
+                                    {shortCity(incomingFormData.from) && shortCity(incomingFormData.to) ? `${shortCity(incomingFormData.from)} → ${shortCity(incomingFormData.to)}` : "Distance"}
                                 </span>
                             </div>
                         </div>
