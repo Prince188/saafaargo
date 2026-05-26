@@ -12,7 +12,9 @@ const RoutePreviewPage = () => {
     const navigate = useNavigate();
     const { pickup, destination } = location.state || {};
     const [routeInfo, setRouteInfo] = useState(null);
-    const incomingFormData = location.state?.formData || {}; // ✅ read it
+    const incomingFormData = location.state?.formData || {};
+
+    const shortCity = (addr) => addr?.split(",")[0]?.trim() || "";
 
 
     if (!pickup || !destination) {
@@ -116,7 +118,9 @@ const RoutePreviewPage = () => {
                                 <span className="block text-sm md:text-base font-bold text-forest">
                                     {routeInfo ? `${routeInfo.distance} km` : "Calculating..."}
                                 </span>
-                                <span className="block text-[9px] md:text-[10px] text-stone">Distance</span>
+                                <span className="block text-[9px] md:text-[10px] text-stone">
+                                    {routeInfo ? `${shortCity(incomingFormData.from)} → ${shortCity(incomingFormData.to)}` : "Distance"}
+                                </span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 md:gap-md p-2 md:p-md bg-off-white rounded-md">

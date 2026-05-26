@@ -57,7 +57,8 @@ const rideSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         // Per-seat price for the full pickup→destination route.
-        // Calculated as: Math.round((distanceKm * perkmprice) / seatsAvailable)
+        // Calculated as: Math.round((distanceKm * perkmprice) / (seatsAvailable + 1))
+        // (+1 accounts for the driver — cost split among all occupants)
         // Set on creation (RideReview sends totalPricePerSeat → map it here)
         // and recalculated on every edit.
     },

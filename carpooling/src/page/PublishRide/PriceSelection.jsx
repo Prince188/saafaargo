@@ -50,7 +50,7 @@ const PriceSelection = () => {
         destination,
         stops = [],
         formData: rideFormData = {},
-        totalDistanceKm: roadDistanceKm, // ✅ rename on destructure to avoid collision
+        totalDistanceKm: roadDistanceKm,
     } = location.state || {};
 
     const seats = parseInt(rideFormData?.passengers || 1);
@@ -74,6 +74,7 @@ const PriceSelection = () => {
         (a, b) => (a.routeIndex ?? 0) - (b.routeIndex ?? 0)
     );
 
+    // Use Haversine to get distance proportions, then scale to Google road distance
     const segments = [
         ...orderedStops,
         {
@@ -98,19 +99,24 @@ const PriceSelection = () => {
         })
         .sort((a, b) => a.distanceKm - b.distanceKm);
 
-    const segmentPrices = segments.map((stop) => ({
-        ...stop,
-        // ✅ total cost of that segment divided by seats = price per passenger
-        pricePerSeat: Math.round((stop.distanceKm * ratePerKm) / seats),
-        totalRoutePrice: Math.round(stop.distanceKm * ratePerKm),
-    }));
+    const totalHaversineDist = segments[segments.length - 1]?.distanceKm || 0;
+    const scaleFactor = roadDistanceKm && totalHaversineDist > 0 ? roadDistanceKm / totalHaversineDist : 1;
 
-    // ✅ Use city-center based distance
-    const totalDistanceDisplay = segments[segments.length - 1]?.distanceKm || 0;
+    const segmentPrices = segments.map((stop) => {
+        const scaledKm = parseFloat((stop.distanceKm * scaleFactor).toFixed(1));
+        return {
+            ...stop,
+            distanceKm: scaledKm,
+            pricePerSeat: Math.round((scaledKm * ratePerKm) / (seats + 1)),
+            totalRoutePrice: Math.round(scaledKm * ratePerKm),
+        };
+    });
+
+    const totalDistanceDisplay = roadDistanceKm || totalHaversineDist;
 
     const totalPriceFullRoute = Math.round(totalDistanceDisplay * ratePerKm);
-    const totalPricePerSeat = Math.round(totalPriceFullRoute / seats);
-    const totalPriceAllSeats = totalPriceFullRoute; // full route cost (all seats combined)
+    const totalPricePerSeat = Math.round(totalPriceFullRoute / (seats + 1));
+    const totalPriceAllSeats = totalPriceFullRoute;
 
     const handleContinue = () => {
         navigate("/offer-ride/car", {
@@ -195,7 +201,7 @@ const PriceSelection = () => {
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <span className="block text-xs font-extrabold tracking-[0.08em] text-stone uppercase mb-0.5">Rate per km</span>
-                                <span className="text-[11px] text-stone-light">Applied to all stops · split by {seats} seat{seats > 1 ? 's' : ''}</span>
+                                <span className="text-[11px] text-stone-light">Applied to all stops · split by {seats + 1} (driver + {seats} passenger{seats > 1 ? 's' : ''})</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
@@ -313,7 +319,7 @@ const PriceSelection = () => {
 
                             <div className="flex items-center justify-center gap-1 text-[9px] md:text-[10px] text-stone-light">
                                 <FiInfo className="text-[9px] md:text-[10px]" />
-                                <span>₹{Math.round((stop.distanceKm * 6) / seats)} recommended / seat</span>
+                                <span>₹{Math.round((stop.distanceKm * 6) / (seats + 1))} recommended / seat</span>
                             </div>
                         </div>
                     ))}

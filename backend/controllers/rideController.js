@@ -534,10 +534,10 @@ exports.editRide = async (req, res) => {
 
         if (km && rate) {
             const totalRoutePrice = Math.round(km * rate);
-            const calculatedPerSeat = Math.round(totalRoutePrice / seats);
+            const calculatedPerSeat = Math.round(totalRoutePrice / (seats + 1));
 
-            updateFields.pricePerSeat = calculatedPerSeat; // per-seat price for full route
-            updateFields.totalEarning = totalRoutePrice;   // what driver earns if all seats fill
+            updateFields.pricePerSeat = calculatedPerSeat;
+            updateFields.totalEarning = totalRoutePrice;
         }
 
         // ── Persist ───────────────────────────────────────────────────────
