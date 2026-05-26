@@ -124,7 +124,7 @@ const RideDetail = () => {
         rideFromSearch?.segmentPrice != null
             ? Math.ceil(
                 rideFromSearch.segmentPrice /
-                (rideFromSearch.totalSeats || 1)
+                ((rideFromSearch.totalSeats || 1) + 1)
             )
             : null
     );
@@ -149,7 +149,7 @@ const RideDetail = () => {
             coordsB.lng
         );
         const totalPrice = dist * Number(rideData.perkmprice || 0);
-        return Math.ceil(totalPrice / (rideData.totalSeats || 1));
+        return Math.ceil(totalPrice / ((rideData.totalSeats || 1) + 1));
     }, []);
 
     // ── Fetch logged-in user ──────────────────────────────────────────────────
@@ -490,6 +490,7 @@ const RideDetail = () => {
                                         <div className="flex items-center gap-2 text-xs text-stone-light">
                                             <FaClock />
                                             <span>{ride.time}{ride.duration && ` • ${ride.duration}`}</span>
+                                            {ride.totalDistanceKm ? <><span className="w-1 h-1 rounded-full bg-stone-light mx-0.5" /><span>{ride.totalDistanceKm} km</span></> : null}
                                         </div>
                                     </div>
 

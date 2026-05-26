@@ -170,6 +170,9 @@ const RideReview = () => {
     seats: seatsFromState,
     ratePerKm,
     formData,
+    totalDistanceKm,
+    totalPriceFullRoute,
+    totalPricePerSeat,
   } = location.state || {};
 
   const seats = seatsFromState || parseInt(formData?.passengers) || 1;
@@ -199,7 +202,7 @@ const RideReview = () => {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/rides`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ pickup, destination, stops: formattedStops, date, time, seatsAvailable: seats, perkmprice: ratePerKm, car: selectedCar })
+        body: JSON.stringify({ pickup, destination, stops: formattedStops, date, time, seatsAvailable: seats, perkmprice: ratePerKm, car: selectedCar, totalDistanceKm, totalPriceFullRoute, totalPricePerSeat })
       });
 
       const data = await res.json();

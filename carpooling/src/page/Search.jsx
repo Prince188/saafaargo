@@ -8,11 +8,11 @@ import {
     FaCheck,
 } from "react-icons/fa";
 import {
-    getRouteInfo,
+    getCityRouteInfo,
     calculatePrice,
     calculateArrivalTime
 } from "../utils/routeUtils";
-import { FiUsers } from "react-icons/fi";
+import { FiUsers, FiMapPin } from "react-icons/fi";
 
 const Search = () => {
     const location = useLocation();
@@ -84,41 +84,35 @@ const Search = () => {
 
             const updated = await Promise.all(
                 rides.map(async (ride) => {
+                    // Use DB-stored city-center road distance if available
+                    // Otherwise fetch from Google Directions API between city centers
+                    let roadDistance = ride.totalDistanceKm;
+                    let durationSec = null;
 
-                    const route = await getRouteInfo(
-                        { lat: ride.pickup?.lat, lng: ride.pickup?.lng },
-                        { lat: ride.destination?.lat, lng: ride.destination?.lng },
-                        ride.stops || []
-                    );
-
-                    // 🛑 handle API fail
-                    if (!route) {
-                        return {
-                            ...ride,
-                            calculatedPrice: 0,
-                            arrivalTime: "--",
-                            distanceKm: 0,
-                        };
+                    if (!roadDistance) {
+                        const route = await getCityRouteInfo(ride.pickup, ride.destination);
+                        if (route) {
+                            roadDistance = route.distanceKm;
+                            durationSec = route.durationSec;
+                        }
                     }
-
-                    const price = calculatePrice(route.distanceKm, ride.perkmprice);
 
                     const arrival = calculateArrivalTime(
                         ride.date,
                         ride.time,
-                        route.durationSec
+                        durationSec
                     );
 
                     return {
                         ...ride,
-                        calculatedPrice: price,
+                        calculatedPrice: roadDistance ? calculatePrice(roadDistance, ride.perkmprice) : 0,
                         arrivalTime: arrival
                             ? arrival.toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
                             })
                             : "--",
-                        distanceKm: route.distanceKm,
+                        distanceKm: roadDistance || 0,
                     };
                 })
             );
@@ -372,6 +366,12 @@ const Search = () => {
                                                 <div className="mt-1 text-[11px] text-stone-light font-mono tracking-wider">
                                                     {ride.car.numberPlate}
                                                 </div>
+                                                {(ride.totalDistanceKm || ride.distanceKm) && (
+                                                    <div className="mt-2 text-[11px] text-stone-light">
+                                                        <FiMapPin className="inline mr-1 text-sage" />
+                                                        {ride.totalDistanceKm || ride.distanceKm} km
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -385,7 +385,7 @@ const Search = () => {
                                             <div className="font-fraunces text-3xl font-bold text-forest leading-none mt-1">
                                                 {ride.segmentPrice != null
                                                     ? `₹${Math.ceil(
-                                                        ride.segmentPrice / (ride.totalSeats || ride.seats || 1)
+                                                        ride.segmentPrice / ((ride.totalSeats || ride.seats || 1) + 1)
                                                     )}`
                                                     : "—"}
                                             </div>

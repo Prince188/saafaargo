@@ -43,6 +43,11 @@ const rideSchema = new mongoose.Schema({
         default: 9
     },
 
+    totalDistanceKm: {
+        type: Number,
+        default: 0,
+    },
+
     // ─── Ride Visibility Status (NEW) ──────────────────────────────────────
     status: {
         type: String,

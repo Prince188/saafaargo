@@ -11,7 +11,7 @@ const CarSelection = () => {
     const [loading, setLoading] = useState(true);
     const [selectedCarId, setSelectedCarId] = useState(null);
 
-    const { pickup, destination, stops = [], ratePerKm, seats, formData } = location.state || {};
+    const { pickup, destination, stops = [], ratePerKm, seats, formData, totalDistanceKm, totalPriceFullRoute, totalPricePerSeat } = location.state || {};
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -66,9 +66,12 @@ const CarSelection = () => {
                     destination,
                     stops,
                     selectedCar: car,
-                    ratePerKm,      // ✅
-                    seats,          // ✅
-                    formData,       // ✅
+                    ratePerKm,
+                    seats,
+                    formData,
+                    totalDistanceKm,
+                    totalPriceFullRoute,
+                    totalPricePerSeat,
                 },
             });
         }, 300);

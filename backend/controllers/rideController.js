@@ -15,7 +15,10 @@ exports.createRide = async (req, res) => {
             time,
             seatsAvailable,
             car,
-            perkmprice
+            perkmprice,
+            totalDistanceKm,
+            totalPricePerSeat,
+            totalPriceFullRoute,
         } = req.body;
 
         // ── Check if driver is already verified ───────────────────────────
@@ -34,7 +37,10 @@ exports.createRide = async (req, res) => {
             totalSeats : req.body.seatsAvailable,
             car: req.body.car,
             perkmprice,
-            status: rideStatus,               // ← NEW
+            status: rideStatus,
+            totalDistanceKm: Number(totalDistanceKm) || 0,
+            pricePerSeat: Number(totalPricePerSeat) || 0,
+            totalEarning: Number(totalPriceFullRoute) || 0,
         });
 
         await ride.save();
@@ -135,15 +141,29 @@ const getSegmentDistance = (ride, from, to) => {
 
     if (fromIndex === -1 || toIndex === -1 || fromIndex >= toIndex) return 0;
 
-    let totalKm = 0;
-    for (let i = fromIndex; i < toIndex; i++) {
+    // Compute Haversine distance for each leg of the full route
+    const legDistances = [];
+    for (let i = 0; i < route.length - 1; i++) {
         const a = route[i];
         const b = route[i + 1];
         const coordsA = getCityCoordinates(a);
         const coordsB = getCityCoordinates(b);
-        totalKm += getDistanceInKm(coordsA.lat, coordsA.lng, coordsB.lat, coordsB.lng);
+        legDistances.push(getDistanceInKm(coordsA.lat, coordsA.lng, coordsB.lat, coordsB.lng));
     }
-    return totalKm;
+
+    const totalHaversine = legDistances.reduce((s, d) => s + d, 0);
+
+    let segmentHaversine = 0;
+    for (let i = fromIndex; i < toIndex; i++) {
+        segmentHaversine += legDistances[i];
+    }
+
+    // Scale proportionally to stored road distance if available
+    if (ride.totalDistanceKm && totalHaversine > 0) {
+        return (segmentHaversine / totalHaversine) * ride.totalDistanceKm;
+    }
+
+    return segmentHaversine;
 };
 
 const getDynamicPrice = (ride, from, to) => {
@@ -510,7 +530,7 @@ exports.editRide = async (req, res) => {
             time,
             seatsAvailable,
             notes,
-            distanceKm,   // optional hint from frontend (haversine estimate)
+            distanceKm,
         } = req.body;
 
         const updateFields = {};
@@ -521,15 +541,10 @@ exports.editRide = async (req, res) => {
         if (time) updateFields.time = time;
         if (seatsAvailable) updateFields.seatsAvailable = Number(seatsAvailable);
         if (notes !== undefined) updateFields.notes = notes;
-
-        // ── Recalculate price fields ──────────────────────────────────────
-        // We use:
-        //   distanceKm  → from frontend haversine (pickup→destination straight line)
-        //   perkmprice  → already on the ride, never changed in edit
-        //   seatsAvailable → the (possibly updated) seat count
+        if (distanceKm) updateFields.totalDistanceKm = Number(distanceKm);
 
         const km = parseFloat(distanceKm) || null;
-        const rate = Number(ride.perkmprice); // preserved from creation
+        const rate = Number(ride.perkmprice);
         const seats = Number(seatsAvailable || ride.seatsAvailable) || 1;
 
         if (km && rate) {
