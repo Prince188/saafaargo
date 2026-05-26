@@ -7,6 +7,40 @@ import { FiUsers } from "react-icons/fi";
 const MAX_RECOMMENDED_RATE = 9;
 const MIN_RATE = 1;
 
+const CITY_CENTERS = {
+    "ahmedabad": { lat: 23.0225, lng: 72.5714 },
+    "surat": { lat: 21.1702, lng: 72.8311 },
+    "vadodara": { lat: 22.3072, lng: 73.1812 },
+    "anand": { lat: 22.5645, lng: 72.9289 },
+    "nadiad": { lat: 22.6916, lng: 72.8634 },
+    "bharuch": { lat: 21.7051, lng: 72.9959 },
+    "vapi": { lat: 20.3893, lng: 72.9106 },
+    "navsari": { lat: 20.9467, lng: 72.9520 },
+    "rajkot": { lat: 22.3039, lng: 70.8022 },
+    "gandhinagar": { lat: 23.2156, lng: 72.6369 },
+    "mehsana": { lat: 23.5880, lng: 72.3693 },
+};
+
+const extractCity = (value) => {
+    if (!value) return "";
+    if (typeof value === "object" && value.city) return value.city;
+    const parts = value.split(",").map((p) => p.trim());
+    return parts.length >= 3 ? parts[parts.length - 3] : value;
+};
+
+const getCityCoordinates = (location) => {
+    if (!location) return null;
+    const name = location.displayName || location.address || (typeof location === 'string' ? location : "");
+    const cleanName = name.toLowerCase();
+
+    for (const [city, coords] of Object.entries(CITY_CENTERS)) {
+        if (cleanName.includes(city)) {
+            return coords;
+        }
+    }
+    return { lat: Number(location.lat), lng: Number(location.lng) };
+};
+
 const PriceSelection = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -50,19 +84,16 @@ const PriceSelection = () => {
         },
     ]
         .map((stop) => {
-            const isDestination = stop.id === "destination";
-            // ✅ real road distance for destination, haversine for stops
-            const distanceKm =
-                isDestination && roadDistanceKm
-                    ? parseFloat(roadDistanceKm)
-                    : parseFloat(
-                        calculateDistance(
-                            pickup.lat,
-                            pickup.lng,
-                            stop.lat,
-                            stop.lng
-                        ).toFixed(1)
-                    );
+            const pCoords = getCityCoordinates(pickup);
+            const sCoords = getCityCoordinates(stop);
+            const distanceKm = parseFloat(
+                calculateDistance(
+                    pCoords.lat,
+                    pCoords.lng,
+                    sCoords.lat,
+                    sCoords.lng
+                ).toFixed(1)
+            );
             return { ...stop, distanceKm };
         })
         .sort((a, b) => a.distanceKm - b.distanceKm);
@@ -74,10 +105,8 @@ const PriceSelection = () => {
         totalRoutePrice: Math.round(stop.distanceKm * ratePerKm),
     }));
 
-    // ✅ Use roadDistanceKm for stats, fall back to last segment
-    const totalDistanceDisplay = roadDistanceKm
-        ? parseFloat(roadDistanceKm)
-        : segments[segments.length - 1]?.distanceKm || 0;
+    // ✅ Use city-center based distance
+    const totalDistanceDisplay = segments[segments.length - 1]?.distanceKm || 0;
 
     const totalPriceFullRoute = Math.round(totalDistanceDisplay * ratePerKm);
     const totalPricePerSeat = Math.round(totalPriceFullRoute / seats);

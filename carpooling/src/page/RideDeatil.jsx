@@ -39,6 +39,64 @@ const extractCity = (value) => {
     return parts.length >= 3 ? parts[parts.length - 3] : value;
 };
 
+// ── Match searched city to exact driver location (pickup, destination, or stops) ──
+const getExactLocation = (searchCity, ride, type) => {
+    if (!ride) return searchCity || "";
+    if (!searchCity) {
+        return type === "pickup" ? ride.pickup?.displayName : ride.destination?.displayName;
+    }
+    const cleanSearch = searchCity.toLowerCase().trim();
+
+    if (type === "pickup") {
+        if (ride.pickup?.displayName?.toLowerCase().includes(cleanSearch)) {
+            return ride.pickup.displayName;
+        }
+        const matchedStop = ride.stops?.find(stop =>
+            stop.displayName?.toLowerCase().includes(cleanSearch) ||
+            stop.city?.toLowerCase().includes(cleanSearch)
+        );
+        if (matchedStop) return matchedStop.displayName;
+        return ride.pickup?.displayName || searchCity;
+    } else {
+        if (ride.destination?.displayName?.toLowerCase().includes(cleanSearch)) {
+            return ride.destination.displayName;
+        }
+        const matchedStop = ride.stops?.find(stop =>
+            stop.displayName?.toLowerCase().includes(cleanSearch) ||
+            stop.city?.toLowerCase().includes(cleanSearch)
+        );
+        if (matchedStop) return matchedStop.displayName;
+        return ride.destination?.displayName || searchCity;
+    }
+};
+
+const CITY_CENTERS = {
+    "ahmedabad": { lat: 23.0225, lng: 72.5714 },
+    "surat": { lat: 21.1702, lng: 72.8311 },
+    "vadodara": { lat: 22.3072, lng: 73.1812 },
+    "anand": { lat: 22.5645, lng: 72.9289 },
+    "nadiad": { lat: 22.6916, lng: 72.8634 },
+    "bharuch": { lat: 21.7051, lng: 72.9959 },
+    "vapi": { lat: 20.3893, lng: 72.9106 },
+    "navsari": { lat: 20.9467, lng: 72.9520 },
+    "rajkot": { lat: 22.3039, lng: 70.8022 },
+    "gandhinagar": { lat: 23.2156, lng: 72.6369 },
+    "mehsana": { lat: 23.5880, lng: 72.3693 },
+};
+
+const getCityCoordinates = (location) => {
+    if (!location) return null;
+    const name = location.displayName || location.address || (typeof location === 'string' ? location : "");
+    const cleanName = name.toLowerCase();
+
+    for (const [city, coords] of Object.entries(CITY_CENTERS)) {
+        if (cleanName.includes(city)) {
+            return coords;
+        }
+    }
+    return { lat: Number(location.lat), lng: Number(location.lng) };
+};
+
 const RideDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -82,13 +140,16 @@ const RideDetail = () => {
     // ── Compute local price from ride data ────────────────────────────────────
     // Called once ride is loaded and segmentPrice was NOT passed via state.
     const computeLocalPrice = useCallback((rideData) => {
+        const coordsA = getCityCoordinates(rideData.pickup);
+        const coordsB = getCityCoordinates(rideData.destination);
         const dist = calculateDistance(
-            Number(rideData.pickup?.lat),
-            Number(rideData.pickup?.lng),
-            Number(rideData.destination?.lat),
-            Number(rideData.destination?.lng)
+            coordsA.lat,
+            coordsA.lng,
+            coordsB.lat,
+            coordsB.lng
         );
-        return Math.round(dist * Number(rideData.perkmprice || 0));
+        const totalPrice = dist * Number(rideData.perkmprice || 0);
+        return Math.ceil(totalPrice / (rideData.totalSeats || 1));
     }, []);
 
     // ── Fetch logged-in user ──────────────────────────────────────────────────
@@ -139,13 +200,20 @@ const RideDetail = () => {
         }
         setBooking(true);
         try {
+            const exactPickup = getExactLocation(fromCity, ride, "pickup");
+            const exactDrop = getExactLocation(toCity, ride, "destination");
+
             const passengerFrom = {
-                displayName: from?.displayName || from?.city || fromCity,
+                displayName: (from?.displayName && from.displayName.toLowerCase() !== fromCity?.toLowerCase())
+                    ? from.displayName
+                    : exactPickup,
                 lat: from?.lat ?? ride?.pickup?.lat,
                 lng: from?.lng ?? ride?.pickup?.lng,
             };
             const passengerTo = {
-                displayName: to?.displayName || to?.city || toCity,
+                displayName: (to?.displayName && to.displayName.toLowerCase() !== toCity?.toLowerCase())
+                    ? to.displayName
+                    : exactDrop,
                 lat: to?.lat ?? ride?.destination?.lat,
                 lng: to?.lng ?? ride?.destination?.lng,
             };
@@ -229,7 +297,7 @@ const RideDetail = () => {
         {
             key: "my-pickup",
             label: fromCity ? "Your pickup" : "From",
-            name: fromCity || ride.pickup?.displayName,
+            name: getExactLocation(fromCity, ride, "pickup"),
             time: ride.time,
             dot: "bg-sage ring-4 ring-sage/20",
             nameClass: "text-lg text-forest",
@@ -238,7 +306,7 @@ const RideDetail = () => {
         {
             key: "my-drop",
             label: toCity ? "Your drop" : "To",
-            name: toCity || ride.destination?.displayName,
+            name: getExactLocation(toCity, ride, "destination"),
             time: ride.arrivalTime || null,
             dot: "bg-clay ring-4 ring-clay/20",
             nameClass: "text-lg text-forest",
@@ -411,12 +479,12 @@ const RideDetail = () => {
                                     {/* Route summary */}
                                     <div className="mb-4 pb-4 border-b border-sage-15">
                                         <div className="flex justify-between items-center gap-2 mb-1">
-                                            <span className="text-stone text-sm font-medium truncate">
-                                                {fromCity || ride.pickup?.displayName}
+                                            <span className="text-stone text-sm font-medium truncate" title={getExactLocation(fromCity, ride, "pickup")}>
+                                                {getExactLocation(fromCity, ride, "pickup")}
                                             </span>
                                             <FaArrowRight className="text-clay text-xs shrink-0" />
-                                            <span className="text-stone text-sm font-medium truncate text-right">
-                                                {toCity || ride.destination?.displayName}
+                                            <span className="text-stone text-sm font-medium truncate text-right" title={getExactLocation(toCity, ride, "destination")}>
+                                                {getExactLocation(toCity, ride, "destination")}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-stone-light">

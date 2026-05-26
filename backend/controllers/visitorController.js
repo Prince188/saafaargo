@@ -24,38 +24,47 @@ exports.trackUniqueVisitor = async (req, res) => {
 
         let record;
 
-        // If user is logged in, check if a record for this email already exists today
+        // If user is logged in
         if (email && email !== "guest") {
             const existingEmailRecord = await Visitor.findOne({ email, date: today });
 
             if (existingEmailRecord) {
-                // If it exists and has a different visitorId, reconcile it
+                // If a record with this email already exists today, update it and synchronize its visitorId
                 const oldVisitorId = visitorId;
-                visitorId = existingEmailRecord.visitorId;
+                visitorId = existingEmailRecord.visitorId || visitorId;
 
-                // Update the existing record (increment count)
                 record = await Visitor.findOneAndUpdate(
-                    { visitorId, date: today },
-                    { $inc: { count: 1 }, $set: { userId, email } },
+                    { email, date: today },
+                    { $inc: { count: 1 }, $set: { userId, visitorId } },
                     { new: true }
                 );
 
-                // Reconcile/delete the temporary guest record if it was created earlier today with the other visitorId
-                if (oldVisitorId !== visitorId) {
-                    await Visitor.deleteOne({ visitorId: oldVisitorId, date: today, email: { $exists: false } }).catch(() => {});
-                }
+                // Clean up the temporary guest record if any
+                await Visitor.deleteOne({ visitorId: oldVisitorId, date: today, email: { $exists: false } }).catch(() => {});
             } else {
-                // If no record exists for this email today, update/create the record for the current visitorId
-                record = await Visitor.findOneAndUpdate(
-                    { visitorId, date: today },
-                    { $inc: { count: 1 }, $set: { userId, email } },
-                    { upsert: true, new: true }
-                );
+                // Check if a temporary guest record exists today for this browser/visitorId
+                const guestRecord = await Visitor.findOne({ visitorId, date: today, email: { $exists: false } });
+
+                if (guestRecord) {
+                    // Convert the guest record to the registered user record
+                    record = await Visitor.findOneAndUpdate(
+                        { visitorId, date: today, email: { $exists: false } },
+                        { $inc: { count: 1 }, $set: { userId, email } },
+                        { new: true }
+                    );
+                } else {
+                    // Create new registered record
+                    record = await Visitor.findOneAndUpdate(
+                        { visitorId, date: today, email },
+                        { $inc: { count: 1 }, $set: { userId } },
+                        { upsert: true, new: true }
+                    );
+                }
             }
         } else {
-            // Guest visitor: update/create by visitorId without storing email/userId
+            // Guest visitor: update/create guest record (where email does not exist)
             record = await Visitor.findOneAndUpdate(
-                { visitorId, date: today },
+                { visitorId, date: today, email: { $exists: false } },
                 { $inc: { count: 1 } },
                 { upsert: true, new: true }
             );

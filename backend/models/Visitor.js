@@ -10,12 +10,15 @@ const visitorSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // 👇 IMPORTANT LINE
-visitorSchema.index({ visitorId: 1, date: 1 }, { unique: true });
+visitorSchema.index({ visitorId: 1, date: 1, email: 1 }, { unique: true });
 
 const Visitor = mongoose.model("Visitor", visitorSchema);
 
 // Drop the old index if it exists to avoid MongoDB key constraints on duplicate IP / empty values
 Visitor.collection.dropIndex("ip_1_date_1").catch(err => {
+    // Silent fail if index doesn't exist
+});
+Visitor.collection.dropIndex("visitorId_1_date_1").catch(err => {
     // Silent fail if index doesn't exist
 });
 
