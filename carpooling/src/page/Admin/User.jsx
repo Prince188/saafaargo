@@ -185,6 +185,45 @@ const User = () => {
           </div>
         </div>
 
+
+
+        {/* STATS */}
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-4 mb-10">
+          {statsCards.map((card, index) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={index}
+                className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
+                      {card.title}
+                    </p>
+                    <p
+                      className="text-4xl font-semibold text-[#1a2620] tracking-tight"
+                      style={{ fontFamily: '"Fraunces", serif' }}
+                    >
+                      {card.value}
+                    </p>
+                  </div>
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+                    style={{ backgroundColor: card.tint, color: card.accent }}
+                  >
+                    <Icon className="text-lg" />
+                  </div>
+                </div>
+                <div
+                  className="mt-5 h-px w-10"
+                  style={{ backgroundColor: card.accent, opacity: 0.4 }}
+                />
+              </div>
+            );
+          })}
+        </div>
+
         {/* SEARCH */}
         <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
           <form
@@ -230,43 +269,6 @@ const User = () => {
               </span>
             </div>
           )}
-        </div>
-
-        {/* STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {statsCards.map((card, index) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={index}
-                className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
-                      {card.title}
-                    </p>
-                    <p
-                      className="text-4xl font-semibold text-[#1a2620] tracking-tight"
-                      style={{ fontFamily: '"Fraunces", serif' }}
-                    >
-                      {card.value}
-                    </p>
-                  </div>
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
-                    style={{ backgroundColor: card.tint, color: card.accent }}
-                  >
-                    <Icon className="text-lg" />
-                  </div>
-                </div>
-                <div
-                  className="mt-5 h-px w-10"
-                  style={{ backgroundColor: card.accent, opacity: 0.4 }}
-                />
-              </div>
-            );
-          })}
         </div>
 
         {/* TABLE */}
@@ -388,14 +390,14 @@ const User = () => {
                         <td className="px-6 py-5">
                           <span
                             className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ring-1 ${user.status === "block"
-                                ? "bg-[#fdecec] text-[#9b2c2c] ring-[#f5c2c2]"
-                                : "bg-[#e8f1ea] text-[#2f5a3d] ring-[#c5dccb]"
+                              ? "bg-[#fdecec] text-[#9b2c2c] ring-[#f5c2c2]"
+                              : "bg-[#e8f1ea] text-[#2f5a3d] ring-[#c5dccb]"
                               }`}
                           >
                             <span
                               className={`w-1.5 h-1.5 rounded-full animate-pulse ${user.status === "block"
-                                  ? "bg-[#9b2c2c]"
-                                  : "bg-[#2f5a3d]"
+                                ? "bg-[#9b2c2c]"
+                                : "bg-[#2f5a3d]"
                                 }`}
                             />
                             {user.status === "block" ? "Blocked" : "Active"}
@@ -434,8 +436,8 @@ const User = () => {
                               <button
                                 onClick={() => handleBlockUser(user._id)}
                                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${user.status === "block"
-                                    ? "bg-[#e8f1ea] text-[#2f5a3d] hover:bg-[#2f5a3d] hover:text-white"
-                                    : "bg-[#fdecec] text-[#9b2c2c] hover:bg-[#9b2c2c] hover:text-white"
+                                  ? "bg-[#e8f1ea] text-[#2f5a3d] hover:bg-[#2f5a3d] hover:text-white"
+                                  : "bg-[#fdecec] text-[#9b2c2c] hover:bg-[#9b2c2c] hover:text-white"
                                   }`}
                               >
                                 {user.status === "block" ? (
@@ -484,8 +486,8 @@ const User = () => {
                         onClick={() => changePage(page - 1)}
                         disabled={page === 1}
                         className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${page === 1
-                            ? "text-[#c8ccc4] cursor-not-allowed"
-                            : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                          ? "text-[#c8ccc4] cursor-not-allowed"
+                          : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                           }`}
                       >
                         <FaChevronLeft size={12} />
@@ -506,8 +508,8 @@ const User = () => {
                               key={pageNum}
                               onClick={() => changePage(pageNum)}
                               className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${active
-                                  ? "bg-[#1a2620] text-white"
-                                  : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                                ? "bg-[#1a2620] text-white"
+                                : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                                 }`}
                             >
                               {pageNum}
@@ -521,8 +523,8 @@ const User = () => {
                         onClick={() => changePage(page + 1)}
                         disabled={page === totalPages}
                         className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${page === totalPages
-                            ? "text-[#c8ccc4] cursor-not-allowed"
-                            : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                          ? "text-[#c8ccc4] cursor-not-allowed"
+                          : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                           }`}
                       >
                         <FaChevronRight size={12} />

@@ -193,30 +193,10 @@ const Rides = () => {
           </div>
         </div>
 
-        {/* SEARCH BAR */}
-        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1 relative">
-              <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
-              <input
-                type="text"
-                placeholder="Search by driver name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
-              />
-            </div>
-          </div>
-          {searchTerm && (
-            <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
-              Found <span className="font-semibold text-[#2f5a3d]">{filteredRides.length}</span> ride(s) matching
-              <span className="font-medium ml-2 px-2 py-0.5 bg-[#e8f1ea] rounded-full text-[#2f5a3d]">"{searchTerm}"</span>
-            </div>
-          )}
-        </div>
+
 
         {/* STATS CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-4 mb-10">
           {statsCards.map((card, index) => {
             const Icon = card.icon;
             return (
@@ -250,6 +230,28 @@ const Rides = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* SEARCH BAR */}
+        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="flex-1 relative">
+              <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
+              <input
+                type="text"
+                placeholder="Search by driver name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
+              />
+            </div>
+          </div>
+          {searchTerm && (
+            <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
+              Found <span className="font-semibold text-[#2f5a3d]">{filteredRides.length}</span> ride(s) matching
+              <span className="font-medium ml-2 px-2 py-0.5 bg-[#e8f1ea] rounded-full text-[#2f5a3d]">"{searchTerm}"</span>
+            </div>
+          )}
         </div>
 
         {/* RIDES GRID - Beautiful Card Design */}

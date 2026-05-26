@@ -330,7 +330,7 @@ const DriverVerify = () => {
                 </div>
 
                 {/* ── STATS ──────────────────────────────────────────────────────── */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
                     {statsCards.map(({ title, value, accent, tint, Icon }) => (
                         <div
                             key={title}

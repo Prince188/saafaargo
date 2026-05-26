@@ -106,20 +106,20 @@ const AdminBlogs = () => {
             accent: "#2f5a3d",
             tint: "#e8f1ea",
         },
-        {
-            title: "Published",
-            value: blogs.filter(b => b.status === 'published').length,
-            icon: MdOutlinePublishedWithChanges,
-            accent: "#1e3a8a",
-            tint: "#eaf1fb",
-        },
-        {
-            title: "Drafts",
-            value: blogs.filter(b => b.status === 'draft').length,
-            icon: FaTag,
-            accent: "#a0522d",
-            tint: "#f5e9df",
-        },
+        // {
+        //     title: "Published",
+        //     value: blogs.filter(b => b.status === 'published').length,
+        //     icon: MdOutlinePublishedWithChanges,
+        //     accent: "#1e3a8a",
+        //     tint: "#eaf1fb",
+        // },
+        // {
+        //     title: "Drafts",
+        //     value: blogs.filter(b => b.status === 'draft').length,
+        //     icon: FaTag,
+        //     accent: "#a0522d",
+        //     tint: "#f5e9df",
+        // },
         {
             title: "Total Views",
             value: blogs.reduce((sum, blog) => sum + (blog.views || 0), 0).toLocaleString(),
@@ -162,41 +162,10 @@ const AdminBlogs = () => {
                     </div>
                 </div>
 
-                {/* SEARCH BAR */}
-                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
-                    <div className="flex flex-col md:flex-row gap-3">
-                        <div className="flex-1 relative">
-                            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
-                            <input
-                                type="text"
-                                placeholder="Search by title, author, or tags..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            {searchTerm && (
-                                <button
-                                    onClick={() => setSearchTerm("")}
-                                    className="px-5 py-3 rounded-xl bg-[#efece4] text-[#5a6358] hover:bg-[#e6e1d3] transition-colors flex items-center gap-2 text-sm font-medium"
-                                >
-                                    <FaTimes size={13} />
-                                    Clear
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    {searchTerm && (
-                        <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
-                            Found <span className="font-semibold text-[#2f5a3d]">{filteredBlogs.length}</span> blog(s) matching
-                            <span className="font-medium ml-2 px-2 py-0.5 bg-[#e8f1ea] rounded-full text-[#2f5a3d]">"{searchTerm}"</span>
-                        </div>
-                    )}
-                </div>
+
 
                 {/* STATS CARDS */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
                     {statsCards.map((card, index) => {
                         const Icon = card.icon;
                         return (
@@ -230,6 +199,39 @@ const AdminBlogs = () => {
                             </div>
                         );
                     })}
+                </div>
+
+                {/* SEARCH BAR */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <div className="flex-1 relative">
+                            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
+                            <input
+                                type="text"
+                                placeholder="Search by title, author, or tags..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            {searchTerm && (
+                                <button
+                                    onClick={() => setSearchTerm("")}
+                                    className="px-5 py-3 rounded-xl bg-[#efece4] text-[#5a6358] hover:bg-[#e6e1d3] transition-colors flex items-center gap-2 text-sm font-medium"
+                                >
+                                    <FaTimes size={13} />
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    {searchTerm && (
+                        <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
+                            Found <span className="font-semibold text-[#2f5a3d]">{filteredBlogs.length}</span> blog(s) matching
+                            <span className="font-medium ml-2 px-2 py-0.5 bg-[#e8f1ea] rounded-full text-[#2f5a3d]">"{searchTerm}"</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* BLOG TABLE */}
@@ -408,8 +410,8 @@ const AdminBlogs = () => {
                                                 onClick={() => paginate(currentPage - 1)}
                                                 disabled={currentPage === 1}
                                                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${currentPage === 1
-                                                        ? "text-[#c8ccc4] cursor-not-allowed"
-                                                        : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                                                    ? "text-[#c8ccc4] cursor-not-allowed"
+                                                    : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                                                     }`}
                                             >
                                                 <FaChevronLeft size={12} />
@@ -428,8 +430,8 @@ const AdminBlogs = () => {
                                                             key={pageNum}
                                                             onClick={() => paginate(pageNum)}
                                                             className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${active
-                                                                    ? "bg-[#1a2620] text-white"
-                                                                    : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                                                                ? "bg-[#1a2620] text-white"
+                                                                : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                                                                 }`}
                                                         >
                                                             {pageNum}
@@ -449,8 +451,8 @@ const AdminBlogs = () => {
                                                 onClick={() => paginate(currentPage + 1)}
                                                 disabled={currentPage === totalPages}
                                                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${currentPage === totalPages
-                                                        ? "text-[#c8ccc4] cursor-not-allowed"
-                                                        : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
+                                                    ? "text-[#c8ccc4] cursor-not-allowed"
+                                                    : "text-[#5a6358] hover:bg-white hover:text-[#2f5a3d] border border-transparent hover:border-[#e6e1d3]"
                                                     }`}
                                             >
                                                 <FaChevronRight size={12} />
