@@ -114,10 +114,11 @@ exports.getAdminDashboard = async (req, res) => {
             User.countDocuments({ createdAt: { $gte: todayStart } })
         ]);
 
-        const [totalRides, completedRides, cancelledRides] = await Promise.all([
+        const [totalRides, completedRides, cancelledRides, contactsCount] = await Promise.all([
             Ride.countDocuments(),
             Ride.countDocuments({ status: "completed" }),
-            Ride.countDocuments({ status: "cancelled" })
+            Ride.countDocuments({ status: "cancelled" }),
+            Contact.countDocuments()
         ]);
 
         const seatsBookedResult = await Booking.aggregate([
@@ -169,7 +170,8 @@ exports.getAdminDashboard = async (req, res) => {
                 feedback: {
                     averageRating: 0,
                     totalReviews: 0,
-                    positiveReviews: 0
+                    positiveReviews: 0,
+                    contactsCount
                 },
                 topCities
             }

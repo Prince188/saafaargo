@@ -60,7 +60,8 @@ const Dashboard = () => {
     const [feedback, setFeedback] = useState({
         averageRating: 0,
         totalReviews: 0,
-        positiveReviews: 0
+        positiveReviews: 0,
+        contactsCount: 0
     });
     const [topCities, setTopCities] = useState([]);
 
@@ -211,15 +212,15 @@ const Dashboard = () => {
             accent: "#a0522d",
             tint: "#f5e9df",
         },
-        {
-            title: "Avg Rating",
-            value: feedback.averageRating.toFixed(1),
-            icon: FaStar,
-            trend: "+0.2",
-            trendUp: true,
-            accent: "#9b2c2c",
-            tint: "#fdecec",
-        }
+        // {
+        //     title: "Avg Rating",
+        //     value: feedback.averageRating.toFixed(1),
+        //     icon: FaStar,
+        //     trend: "+0.2",
+        //     trendUp: true,
+        //     accent: "#9b2c2c",
+        //     tint: "#fdecec",
+        // }
     ];
 
     // Removed early spinner return to support premium in-place skeleton loading
@@ -288,7 +289,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* STATS CARDS */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-10">
                     {loading ? (
                         Array.from({ length: 5 }).map((_, idx) => (
                             <StatsCardSkeleton key={idx} />
@@ -320,17 +321,17 @@ const Dashboard = () => {
                                             <Icon className="text-lg" />
                                         </div>
                                     </div>
-                                    <div className="mt-4 flex items-center gap-1.5">
+                                    {/* <div className="mt-4 flex items-center gap-1.5">
                                         <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
                                             {card.trendUp ? <FaArrowUp className="inline text-[10px] mr-0.5" /> : <FaArrowDown className="inline text-[10px] mr-0.5" />}
                                             {card.trend}
                                         </span>
                                         <span className="text-[11px] text-[#9aa194]">vs last period</span>
-                                    </div>
-                                    <div
+                                    </div> */}
+                                    {/* <div
                                         className="mt-5 h-px w-10"
                                         style={{ backgroundColor: card.accent, opacity: 0.4 }}
-                                    />
+                                    /> */}
                                 </div>
                             );
                         })
@@ -360,12 +361,6 @@ const Dashboard = () => {
                                 <p className="text-[10px] text-[#7a8478]">of total</p>
                             </div>
                         </div>
-                        <div className="w-full bg-[#e6e1d3] rounded-full h-2">
-                            <div
-                                className="bg-[#2f5a3d] rounded-full h-2 transition-all duration-1000"
-                                style={{ width: `${userStats.totalUsers > 0 ? (userStats.verifiedUsers / userStats.totalUsers) * 100 : 0}%` }}
-                            />
-                        </div>
                     </div>
 
                     {/* Total Rides */}
@@ -384,28 +379,18 @@ const Dashboard = () => {
                         
                     </div>
 
-                    {/* Positive Feedback */}
+                    {/* Contacts */}
                     <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-11 h-11 rounded-xl bg-[#fdecec] flex items-center justify-center">
-                                <MdRateReview className="text-[#9b2c2c] text-lg" />
+                            <div className="w-11 h-11 rounded-xl bg-[#fef3c7] flex items-center justify-center">
+                                <FaPaperPlane className="text-[#d97706] text-lg" />
                             </div>
                             <div>
-                                <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Positive Feedback</p>
+                                <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Total Contacts</p>
                                 <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    {feedback.totalReviews > 0 ? ((feedback.positiveReviews / feedback.totalReviews) * 100).toFixed(0) : 0}%
+                                    {feedback.contactsCount.toLocaleString()}
                                 </p>
                             </div>
-                        </div>
-                        <div className="w-full bg-[#e6e1d3] rounded-full h-2 mb-3">
-                            <div
-                                className="bg-[#2f5a3d] rounded-full h-2 transition-all duration-1000"
-                                style={{ width: `${feedback.totalReviews > 0 ? (feedback.positiveReviews / feedback.totalReviews) * 100 : 0}%` }}
-                            />
-                        </div>
-                        <div className="flex justify-between">
-                            <p className="text-xs font-medium text-[#1a2620]">{feedback.positiveReviews.toLocaleString()} positive</p>
-                            <p className="text-[11px] text-[#7a8478]">out of {feedback.totalReviews.toLocaleString()}</p>
                         </div>
                     </div>
                 </div>
