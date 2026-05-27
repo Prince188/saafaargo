@@ -99,6 +99,7 @@ const Search = () => {
                             ? arrival.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
                             : "--",
                         distanceKm: roadDistance || 0,
+                        segmentDistanceKm: ride.segmentPrice && ride.perkmprice ? Math.round(ride.segmentPrice / ride.perkmprice) : 0,
                     };
                 })
             );
@@ -347,12 +348,15 @@ const Search = () => {
                                                         <span>{ride.car?.color}</span>
                                                     </div>
 
-                                                    {(ride.totalDistanceKm || ride.distanceKm) && (
-                                                        <div className="mt-2 text-[10px] text-[#7a8478] flex items-center gap-1">
-                                                            <MdRoute className="text-[#2f5a3d] text-[10px]" />
-                                                            <span>{Math.round(ride.totalDistanceKm || ride.distanceKm)} km journey</span>
-                                                        </div>
-                                                    )}
+                                                    {(() => {
+                                                        const km = ride.segmentDistanceKm || ride.totalDistanceKm || ride.distanceKm;
+                                                        return km ? (
+                                                            <div className="mt-2 text-[10px] text-[#7a8478] flex items-center gap-1">
+                                                                <MdRoute className="text-[#2f5a3d] text-[10px]" />
+                                                                <span>{Math.round(km)} km journey</span>
+                                                            </div>
+                                                        ) : null;
+                                                    })()}
                                                 </div>
                                             </div>
                                         </div>

@@ -15,6 +15,7 @@ import API from "../api/api";
 import { showSuccess, showError, showInfo } from "../utils/toastConfig";
 import { BsFillTelephoneFill } from "react-icons/bs";
 import { getCityCenter } from "../constants/cityCenters";
+import useRoadDistance from "../hooks/useRoadDistance";
 
 // ── Haversine distance (km) ───────────────────────────────────────────────────
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -110,20 +111,34 @@ const RideDetail = () => {
     const fromCity = from?.city || extractCity(from);
     const toCity = to?.city || extractCity(to);
 
-    // ── Compute local price from ride data ────────────────────────────────────
-    // Called once ride is loaded and segmentPrice was NOT passed via state.
-    const computeLocalPrice = useCallback((rideData) => {
-        const coordsA = getCityCenter(rideData.pickup);
-        const coordsB = getCityCenter(rideData.destination);
-        const dist = calculateDistance(
-            coordsA.lat,
-            coordsA.lng,
-            coordsB.lat,
-            coordsB.lng
-        );
-        const totalPrice = dist * Number(rideData.perkmprice || 0);
-        return Math.ceil(totalPrice / ((rideData.totalSeats || 1) + 1));
+    // ── Shared road distance hook (city-center Google Directions) ────────────
+    const origin = ride?.pickup || rideFromSearch?.pickup;
+    const dest = ride?.destination || rideFromSearch?.destination;
+    const { distanceKm: hookDistanceKm } = useRoadDistance(origin, dest);
+
+    // ── Compute price from ride data ────────────────────────────────────────
+    // Preferred: stored totalDistanceKm (road distance from ride creation)
+    // Fallback: hookDistanceKm (live Google Directions for old rides without it)
+    // Last resort: Haversine between city centers
+    const computePrice = useCallback((rideData, hookKm) => {
+        let dist = rideData?.totalDistanceKm || hookKm;
+        if (!dist) {
+            const ca = getCityCenter(rideData?.pickup);
+            const cb = getCityCenter(rideData?.destination);
+            dist = calculateDistance(ca?.lat, ca?.lng, cb?.lat, cb?.lng);
+        }
+        if (!dist) return null;
+        const totalPrice = dist * Number(rideData?.perkmprice || 0);
+        return Math.ceil(totalPrice / ((rideData?.totalSeats || 1) + 1));
     }, []);
+
+    // ── Update price when ride data arrives or hook resolves ─────────────────
+    useEffect(() => {
+        if (ride && !hasSegmentContext) {
+            const price = computePrice(ride, hookDistanceKm);
+            if (price != null) setPricePerSeat(price);
+        }
+    }, [ride, hookDistanceKm, hasSegmentContext, computePrice]);
 
     // ── Fetch logged-in user ──────────────────────────────────────────────────
     useEffect(() => {
@@ -148,12 +163,6 @@ const RideDetail = () => {
                 const res = await API.get(`/rides/${id}`);
                 const rideData = res.data.ride;
                 setRide(rideData);
-
-                // Passenger from Search → segmentPrice already set from state, skip
-                // Driver from My Rides → no state, compute full ride price
-                if (!hasSegmentContext) {
-                    setPricePerSeat(computeLocalPrice(rideData));
-                }
             } catch (err) {
                 console.log(err);
                 showError("Failed to load ride details");
@@ -162,7 +171,7 @@ const RideDetail = () => {
             }
         };
         fetchRide();
-    }, [id, hasSegmentContext, computeLocalPrice]);
+    }, [id, hasSegmentContext]);
 
     // ── Booking ───────────────────────────────────────────────────────────────
     const handleBooking = async () => {
@@ -463,7 +472,12 @@ const RideDetail = () => {
                                         <div className="flex items-center gap-2 text-xs text-stone-light">
                                             <FaClock />
                                             <span>{ride.time}{ride.duration && ` • ${ride.duration}`}</span>
-                                            {ride.totalDistanceKm ? <><span className="w-1 h-1 rounded-full bg-stone-light mx-0.5" /><span>{ride.totalDistanceKm} km</span></> : null}
+                                            {(() => {
+                                                const km = hasSegmentContext && rideFromSearch?.segmentPrice && rideFromSearch?.perkmprice
+                                                    ? Math.round(rideFromSearch.segmentPrice / rideFromSearch.perkmprice)
+                                                    : ride.totalDistanceKm;
+                                                return km ? <><span className="w-1 h-1 rounded-full bg-stone-light mx-0.5" /><span>{km} km</span></> : null;
+                                            })()}
                                         </div>
                                     </div>
 

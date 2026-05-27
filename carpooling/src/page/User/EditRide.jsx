@@ -13,7 +13,7 @@ import {
 import { FaRupeeSign, FaRoad, FaCar, FaArrowRight } from "react-icons/fa";
 import { showError, showSuccess } from "../../utils/toastConfig";
 import LocationInput from "../../component/LocationInput";
-import { getCityRouteInfo } from "../../utils/routeUtils";
+import useRoadDistance from "../../hooks/useRoadDistance";
 
 const EditRide = () => {
     const { id } = useParams();
@@ -37,7 +37,10 @@ const EditRide = () => {
     const [pickup, setPickup] = useState(null);
     const [destination, setDestination] = useState(null);
 
-    // ── Computed price preview (road distance, not Haversine) ─────────────────
+    // ── Shared road distance hook ─────────────────────────────────────────────
+    const { distanceKm: hookDistanceKm } = useRoadDistance(pickup, destination);
+
+    // ── Computed price preview ────────────────────────────────────────────────
     const [distanceKm, setDistanceKm] = useState(null);
     const [pricePerSeat, setPricePerSeat] = useState(null);
 
@@ -48,18 +51,12 @@ const EditRide = () => {
         }
     }, [rideData]);
 
-    // Fetch road distance via Google Directions API when pickup/destination are set
+    // When hook resolves, update distance (handles pickup/destination changes)
     useEffect(() => {
-        let cancelled = false;
-        if (pickup?.lat && destination?.lat) {
-            getCityRouteInfo(pickup, destination).then(result => {
-                if (!cancelled && result?.distanceKm) {
-                    setDistanceKm(result.distanceKm);
-                }
-            });
+        if (hookDistanceKm != null) {
+            setDistanceKm(hookDistanceKm);
         }
-        return () => { cancelled = true; };
-    }, [pickup, destination]);
+    }, [hookDistanceKm]);
 
     // Recalculate price preview when distance / seats / perkmprice change
     useEffect(() => {
