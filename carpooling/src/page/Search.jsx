@@ -6,15 +6,9 @@ import {
     FaCalendar,
     FaChevronLeft,
     FaCheck,
-    FaUser,
-    FaRupeeSign,
-    FaClock,
-    FaCar,
-    FaMapMarkerAlt,
-    FaChair
 } from "react-icons/fa";
-import { FiUsers, FiMapPin, FiClock, FiNavigation } from "react-icons/fi";
-import { MdVerified, MdLocationOn, MdRoute } from "react-icons/md";
+import { FiUsers } from "react-icons/fi";
+import { MdRoute } from "react-icons/md";
 import {
     getCityRouteInfo,
     calculatePrice,
@@ -118,60 +112,57 @@ const Search = () => {
         : "";
 
     const SkeletonCard = () => (
-        <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 w-full shadow-sm animate-pulse">
+        <div className="bg-white rounded-3xl border border-slate-100 p-6 w-full shadow-sm animate-pulse">
             <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 space-y-3">
-                    <div className="h-4 bg-[#e6e1d3] rounded w-1/2"></div>
-                    <div className="h-3 bg-[#e6e1d3] rounded w-1/3"></div>
-                    <div className="h-4 bg-[#e6e1d3] rounded w-1/2"></div>
+                <div className="flex-1 space-y-4">
+                    <div className="h-4 bg-slate-100 rounded w-1/2"></div>
+                    <div className="h-3 bg-slate-100 rounded w-1/3"></div>
+                    <div className="h-4 bg-slate-100 rounded w-1/2"></div>
                 </div>
                 <div className="flex-1 flex items-center gap-4">
-                    <div className="w-14 h-14 bg-[#e6e1d3] rounded-full"></div>
+                    <div className="w-14 h-14 bg-slate-100 rounded-2xl"></div>
                     <div className="space-y-2 flex-1">
-                        <div className="h-4 bg-[#e6e1d3] rounded w-2/3"></div>
-                        <div className="h-3 bg-[#e6e1d3] rounded w-1/2"></div>
+                        <div className="h-4 bg-slate-100 rounded w-2/3"></div>
+                        <div className="h-3 bg-slate-100 rounded w-1/2"></div>
                     </div>
                 </div>
                 <div className="flex flex-col items-end gap-3 min-w-[140px]">
-                    <div className="h-6 bg-[#e6e1d3] rounded w-20"></div>
-                    <div className="h-10 bg-[#e6e1d3] rounded-full w-24"></div>
+                    <div className="h-6 bg-slate-100 rounded w-20"></div>
+                    <div className="h-12 bg-slate-100 rounded-2xl w-28"></div>
                 </div>
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[#f8f6ef] font-inter">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        <div className="min-h-screen bg-gray-50 font-['Plus_Jakarta_Sans']">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
 
                 {/* Back Button */}
                 <button
                     onClick={() => navigate(-1)}
-                    className="group inline-flex items-center gap-2 text-sm text-[#5a6358] hover:text-[#2f5a3d] transition-all duration-300 mb-8 font-medium"
+                    className="group inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-all duration-300 mb-6 font-semibold"
                 >
                     <FaChevronLeft className="text-xs group-hover:-translate-x-1 transition-transform" />
                     Back to search
                 </button>
 
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full mb-4 border border-[#2f5a3d]/10 shadow-sm">
-                        <FaCalendar className="text-[#2f5a3d] text-sm" />
-                        <span className="text-[11px] font-extrabold tracking-[0.15em] text-[#2f5a3d] uppercase">
+                <div className="text-center mb-10">
+                    <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full mb-4 border border-slate-100 shadow-sm">
+                        <FaCalendar className="text-emerald-500 text-sm" />
+                        <span className="text-[11px] font-extrabold tracking-[0.15em] text-slate-600 uppercase">
                             {formattedDate}
                         </span>
                     </div>
 
-                    <h1
-                        className="font-fraunces text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#1a2620] mb-3"
-                        style={{ fontFamily: '"Fraunces", serif' }}
-                    >
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">
                         {from?.city || extractCity(from)}
-                        <span className="text-[#a0522d] mx-3">→</span>
+                        <span className="text-slate-300 mx-2">→</span>
                         {to?.city || extractCity(to)}
                     </h1>
 
-                    <p className="text-sm text-[#5a6358]">
+                    <p className="text-sm text-slate-500">
                         {loading
                             ? "Finding the best rides for you..."
                             : `${rides.length} ride${rides.length !== 1 ? "s" : ""} available · ${seats ?? 1} seat${(seats ?? 1) > 1 ? "s" : ""}`}
@@ -195,11 +186,11 @@ const Search = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <p className="text-[#a0522d] font-semibold text-lg mb-2">Something went wrong</p>
-                        <p className="text-[#5a6358] text-sm">{error}</p>
+                        <p className="text-rose-600 font-bold text-lg mb-2">Something went wrong</p>
+                        <p className="text-slate-500 text-sm">{error}</p>
                         <button
                             onClick={() => navigate(-1)}
-                            className="mt-6 px-6 py-2.5 border-2 border-[#2f5a3d] rounded-full text-[#2f5a3d] text-sm font-semibold hover:bg-[#2f5a3d] hover:text-white transition-all duration-300"
+                            className="mt-6 px-6 py-2.5 border-2 border-slate-800 rounded-full text-slate-800 text-sm font-bold hover:bg-slate-800 hover:text-white transition-all duration-300"
                         >
                             Try again
                         </button>
@@ -209,17 +200,17 @@ const Search = () => {
                 {/* No Results */}
                 {!loading && !error && rides.length === 0 && (
                     <div className="text-center py-16">
-                        <div className="w-24 h-24 bg-[#e8f1ea] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <MdRoute className="text-[#2f5a3d] text-4xl" />
+                        <div className="w-24 h-24 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <MdRoute className="text-emerald-600 text-4xl" />
                         </div>
-                        <p className="font-fraunces text-2xl font-semibold text-[#1a2620] mb-3">No rides found</p>
-                        <p className="text-[#5a6358] text-sm max-w-md mx-auto leading-relaxed">
-                            No rides match <strong className="text-[#1a2620]">{from?.city || from} → {to?.city || to}</strong> on {formattedDate} for {seats ?? 1} seat{(seats ?? 1) > 1 ? "s" : ""}.
+                        <p className="text-2xl font-extrabold text-slate-800 mb-3">No rides found</p>
+                        <p className="text-slate-500 text-sm max-w-md mx-auto leading-relaxed">
+                            No rides match <strong className="text-slate-800">{from?.city || from} → {to?.city || to}</strong> on {formattedDate} for {seats ?? 1} seat{(seats ?? 1) > 1 ? "s" : ""}.
                             Try a different date or nearby city.
                         </p>
                         <button
                             onClick={() => navigate(-1)}
-                            className="mt-8 inline-flex items-center gap-2 px-8 py-3 border-2 border-[#2f5a3d] rounded-full text-[#2f5a3d] text-sm font-semibold hover:bg-[#2f5a3d] hover:text-white transition-all duration-300"
+                            className="mt-8 inline-flex items-center gap-2 px-8 py-3 border-2 border-slate-800 rounded-full text-slate-800 text-sm font-bold hover:bg-slate-800 hover:text-white transition-all duration-300"
                         >
                             ← Modify search
                         </button>
@@ -228,168 +219,159 @@ const Search = () => {
 
                 {/* Ride Cards */}
                 {!loading && !error && rides.length > 0 && (
-                    <div className="space-y-5">
+                    <div className="space-y-4">
                         {enrichedRides.map((ride, idx) => (
                             <div
                                 key={ride._id}
-                                className="group bg-white rounded-2xl border border-[#e6e1d3] shadow-sm hover:shadow-xl hover:border-[#2f5a3d]/30 transition-all duration-300 overflow-hidden animate-fade-in-up"
-                                style={{ animationDelay: `${idx * 0.05}s` }}
+                                className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.04),0_8px_10px_-6px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col lg:flex-row"
                             >
-                                {/* Accent Strip */}
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#2f5a3d] via-[#2f5a3d] to-[#a0522d] opacity-60 group-hover:opacity-100 transition-opacity" />
+                                {/* Section 1: Route Details */}
+                                <div className="lg:w-1/3 p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-slate-50">
+                                    <div className="flex flex-row lg:flex-col gap-6 relative overflow-x-auto justify-between">
+                                        {/* Vertical Dashed Line */}
+                                        <div
+                                            className="
+    absolute 
+    top-[7px] left-2 right-2 h-[1.5px]
+    lg:left-[7px] lg:top-2 lg:bottom-2 lg:w-[1.5px] lg:h-auto
+  "
+                                            style={{
+                                                backgroundImage:
+                                                    window.innerWidth >= 1024
+                                                        ? "repeating-linear-gradient(to bottom, #cbd5e1 0, #cbd5e1 4px, transparent 4px, transparent 8px)"
+                                                        : "repeating-linear-gradient(to right, #cbd5e1 0, #cbd5e1 4px, transparent 4px, transparent 8px)"
+                                            }}
+                                        ></div>
 
-                                <div className="p-5 lg:p-6">
-                                    <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_auto] gap-6 lg:gap-8">
+                                        {/* Origin */}
+                                        {/* <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
+                                            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm z-10 mt-0.5"></div>
+                                            <div>
+                                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em] block mb-1">Origin</span>
+                                                <h4 className="text-base font-bold text-slate-800">
+                                                    {extractCity(ride.pickup.displayName)}
+                                                </h4>
+                                            </div>
+                                        </div> */}
 
-                                        {/* Trip Timeline */}
-                                        <div className="relative">
-                                            <div className="absolute left-[5px] top-2 bottom-2 w-px bg-gradient-to-b from-[#2f5a3d] via-[#2f5a3d]/40 to-[#a0522d]" />
-
-                                            <div className="space-y-5">
-                                                {/* Origin */}
-                                                <div className="flex items-start gap-4">
-                                                    <div className="relative z-10 mt-1">
-                                                        <div className="w-3 h-3 rounded-full bg-[#2f5a3d] ring-4 ring-[#2f5a3d]/15" />
-                                                    </div>
+                                        {/* Pickup */}
+                                        <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
+                                            <div className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 shadow-sm z-10 mt-0.5"></div>
+                                            <div>
+                                                <span className="text-[10px] font-extrabold text-blue-600 uppercase tracking-[0.15em] block mb-1">Pickup</span>
+                                                <div className="flex items-center gap-3 sm:flex-row">
                                                     <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#2f5a3d] mb-0.5">ORIGIN</p>
-                                                        <p className="font-semibold text-[#1a2620] text-base">
-                                                            {extractCity(ride.pickup.displayName)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {/* User Pickup */}
-                                                <div className="flex items-start gap-4">
-                                                    <div className="relative z-10 mt-1">
-                                                        <div className="w-3 h-3 rounded-full bg-white border-2 border-[#2f5a3d]" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#2f5a3d] mb-0.5">YOUR PICKUP</p>
-                                                        <p className="font-medium text-[#1a2620] text-sm">
+                                                        <h4 className="text-base font-bold text-slate-800">
                                                             {from?.city || extractCity(from)}
-                                                        </p>
-                                                        <p className="text-xs text-[#7a8478] mt-0.5">
-                                                            {ride.userPickupTime || "Flexible"}
-                                                        </p>
+                                                        </h4>
                                                     </div>
-                                                </div>
-
-                                                {/* User Drop */}
-                                                <div className="flex items-start gap-4">
-                                                    <div className="relative z-10 mt-1">
-                                                        <div className="w-3 h-3 rounded-full bg-white border-2 border-[#a0522d]" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0522d] mb-0.5">YOUR DROP</p>
-                                                        <p className="font-medium text-[#1a2620] text-sm">
-                                                            {to?.city || extractCity(to)}
-                                                        </p>
-                                                        <p className="text-xs text-[#7a8478] mt-0.5">
-                                                            {ride.userDropTime || "Flexible"}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {/* Destination */}
-                                                <div className="flex items-start gap-4">
-                                                    <div className="relative z-10 mt-1">
-                                                        <div className="w-3 h-3 rounded-full bg-[#a0522d] ring-4 ring-[#a0522d]/15" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0522d] mb-0.5">DESTINATION</p>
-                                                        <p className="font-semibold text-[#1a2620]/70 text-sm">
-                                                            {extractCity(ride.destination.displayName)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Driver Info */}
-                                        <div className="flex items-center lg:border-l lg:border-[#e6e1d3] lg:pl-8">
-                                            <div className="flex items-start gap-4">
-                                                <div className="relative shrink-0">
-                                                    <img
-                                                        src={ride.user?.profilePic || `https://ui-avatars.com/api/?name=${ride.user?.firstName}+${ride.user?.lastName}&background=2f5a3d&color=fff&rounded=true&size=64`}
-                                                        alt={ride.user?.name || "Driver"}
-                                                        className="w-14 h-14 rounded-xl object-cover border-2 border-[#2f5a3d]/20"
-                                                    />
-                                                    {ride.user?.verified && (
-                                                        <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
-                                                            <FaCheck className="text-white text-[8px]" />
+                                                    <div className="">
+                                                        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+                                                            {ride.userPickupTime || "10:10 AM"}
                                                         </span>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <h4 className="font-fraunces text-lg font-semibold text-[#1a2620] leading-tight">
-                                                        {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.trim() || "Driver"}
-                                                    </h4>
-
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <div className="flex items-center gap-1">
-                                                            <FaStar className="text-[#f59e0b] text-xs" />
-                                                            <span className="text-sm font-medium text-[#1a2620]">
-                                                                {ride.user?.rating || "4.8"}
-                                                            </span>
-                                                        </div>
-                                                        {ride.user?.verified && (
-                                                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full">
-                                                                Verified
-                                                            </span>
-                                                        )}
                                                     </div>
-
-                                                    <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-[#5a6358] bg-[#faf8f2] px-2.5 py-1 rounded-lg">
-                                                        <FaCar className="text-[#2f5a3d] text-[10px]" />
-                                                        <span className="font-medium">{ride.car?.brand} {ride.car?.model}</span>
-                                                        <span className="w-1 h-1 rounded-full bg-[#7a8478]" />
-                                                        <span>{ride.car?.color}</span>
-                                                    </div>
-
-                                                    {(() => {
-                                                        const km = ride.segmentDistanceKm || ride.totalDistanceKm || ride.distanceKm;
-                                                        return km ? (
-                                                            <div className="mt-2 text-[10px] text-[#7a8478] flex items-center gap-1">
-                                                                <MdRoute className="text-[#2f5a3d] text-[10px]" />
-                                                                <span>{Math.round(km)} km journey</span>
-                                                            </div>
-                                                        ) : null;
-                                                    })()}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Price & Action */}
-                                        <div className="flex flex-row lg:flex-col items-center justify-between lg:justify-center gap-4 lg:border-l lg:border-[#e6e1d3] lg:pl-8">
-                                            <div className="text-center lg:text-right">
-                                                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7a8478]">Per Seat</p>
-                                                <p className="font-fraunces text-3xl font-bold text-[#1a2620] leading-none mt-1">
-                                                    {ride.segmentPrice != null
-                                                        ? `₹${Math.ceil(ride.segmentPrice / ((ride.totalSeats || ride.seats || 1) + 1))}`
-                                                        : "—"}
-                                                </p>
-                                                <div className="flex items-center justify-center lg:justify-end gap-1.5 mt-2">
-                                                    <FaChair className="text-[#2f5a3d] text-xs" />
-                                                    <span className="text-xs text-[#5a6358] font-medium">
-                                                        {ride.seatsAvailable} seat{ride.seatsAvailable !== 1 ? "s" : ""} left
+                                        {/* Drop-off */}
+                                        <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
+                                            <div className="w-4 h-4 rounded-full bg-white border-2 border-amber-500 shadow-sm z-10 mt-0.5"></div>
+                                            <div>
+                                                <span className="text-[10px] font-extrabold text-amber-600 uppercase tracking-[0.15em] block mb-1">Drop-off</span>
+                                                <div className="flex items-center gap-3 flex-wrap">
+                                                    <h4 className="text-base font-bold text-slate-800">
+                                                        {to?.city || extractCity(to)}
+                                                    </h4>
+                                                    <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">
+                                                        {ride.userDropTime || "01:05 PM"}
                                                     </span>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <button
-                                                onClick={() =>
-                                                    navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })
-                                                }
-                                                className="group/btn inline-flex items-center gap-2 bg-gradient-to-r from-[#1a2620] to-[#2f5a3d] text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-sm hover:shadow-lg hover:gap-3 hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden"
-                                            >
-                                                <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-500 group-hover/btn:left-full"></span>
-                                                <span className="relative z-10">Select Ride</span>
-                                                <FaArrowRight className="relative z-10 text-xs group-hover/btn:translate-x-1 transition-transform" />
-                                            </button>
+                                        {/* Destination */}
+                                        {/* <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
+                                            <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-sm z-10 mt-0.5"></div>
+                                            <div>
+                                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em] block mb-1">Destination</span>
+                                                <h4 className="text-base font-bold text-slate-800">
+                                                    {extractCity(ride.destination.displayName)}
+                                                </h4>
+                                            </div>
+                                        </div> */}
+                                    </div>
+                                </div>
+
+                                {/* Section 2: Driver & Vehicle */}
+                                <div className="lg:w-5/12 p-6 md:p-8 flex flex-col justify-center bg-slate-50/40">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                                            <img
+                                                src={ride.user?.profilePic || `https://ui-avatars.com/api/?name=${ride.user?.firstName}+${ride.user?.lastName}&background=1e293b&color=fff&rounded=true&size=64&bold=true`}
+                                                alt="Driver"
+                                                className="relative w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm"
+                                            />
+                                            <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-5 h-5 rounded-full border-4 border-white shadow-sm"></div>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                                                {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.trim() || "Driver"}
+                                            </h3>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <div className="flex text-amber-400">
+                                                    <FaStar className="w-3.5 h-3.5 fill-current" />
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-700">{ride.user?.rating || "4.8"}</span>
+                                                <span className="text-xs font-medium text-slate-400">• Verified Driver</span>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Vehicle</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                                                <p className="text-xs font-bold text-slate-700">{ride.car?.brand} {ride.car?.model}</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white p-3 rounded-md border border-slate-100 shadow-sm">
+                                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Journey</span>
+                                            <p className="text-xs font-bold text-slate-700">
+                                                {ride.segmentDistanceKm || ride.totalDistanceKm || ride.distanceKm || 79} km
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Section 3: Pricing & Action */}
+                                <div className="lg:w-1/4 p-6 md:p-8 flex md:flex-row lg:flex-col items-center lg:items-end lg:justify-center justify-between">
+                                    <div className="text-center  lg:text-right mb-6 md:min-w-[50%]">
+                                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block mb-1">Total per seat</span>
+                                        <div className="flex items-baseline justify-center lg:justify-end">
+                                            <span className="text-4xl font-black text-slate-900 tracking-tighter">
+                                                {ride.segmentPrice != null
+                                                    ? `₹${Math.ceil(ride.segmentPrice / ((ride.totalSeats || ride.seats || 1) + 1))}`
+                                                    : "₹119"}
+                                            </span>
+                                        </div>
+                                        <div className="mt-2 flex items-center lg:w-full md:w-[50%] mx-auto justify-center lg:justify-end gap-2 px-3 py-1 bg-rose-50 rounded-full border border-rose-100">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+                                            <span className="text-xs font-bold text-rose-600">{ride.seatsAvailable} seats left</span>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })
+                                        }
+                                        className="md:w-[30%] lg:w-full bg-slate-900 hover:bg-black text-white font-extrabold py-3.5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 shadow-xl shadow-slate-200 hover:-translate-y-0.5 group"
+                                    >
+                                        Select Ride
+                                        <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    </button>
                                 </div>
                             </div>
                         ))}
