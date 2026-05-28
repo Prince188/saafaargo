@@ -76,7 +76,8 @@ const Help = () => {
     return (
         <div className="font-inter bg-off-white text-charcoal">
             {/* Hero Section */}
-            <section className="relative min-h-[70vh] flex items-center overflow-hidden isolate">
+            {/* Hero Section */}
+            <section className="relative min-h-screen flex items-center overflow-hidden isolate">
                 {/* Background elements */}
                 <div className="absolute inset-0 bg-gradient-hero -z-20"></div>
                 <div className="absolute inset-0 bg-radial-gradient-custom -z-10"></div>

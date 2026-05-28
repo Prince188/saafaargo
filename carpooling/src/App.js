@@ -69,6 +69,7 @@ const DriverVerify = lazy(() => import('./page/Admin/DriverVerify'));
 const EditRide = lazy(() => import('./page/User/EditRide'));
 const ForgotPasswordPage = lazy(() => import('./page/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./page/ResetPasswordPage'));
+const HowWeWork = lazy(() => import('./page/HowWeWork'));
 
 // Helper to resolve the correct skeleton loader on reload based on active window path
 function getSkeletonForPath(path) {
@@ -171,6 +172,7 @@ function App() {
             <Route path="/blog" element={<Suspense fallback={<BlogsSkeleton />}><Blogs /></Suspense>} />
             <Route path="/blog/:id" element={<Suspense fallback={<BlogDetailSkeleton />}><BlogDetails /></Suspense>} />
             <Route path="/admin/blogs/create" element={<Suspense fallback={<AdminTableSkeleton />}><AdminCreateBlog /></Suspense>} />
+            <Route path="/how-it-works" element={<Suspense fallback={<ContentPageSkeleton />}><HowWeWork /></Suspense>} />
             <Route path="/help" element={<Suspense fallback={<ContentPageSkeleton />}><Help /></Suspense>} />
             <Route path="/contact" element={<Suspense fallback={<ContentPageSkeleton />}><ContactUs /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<AuthFormSkeleton />}><ForgotPasswordPage /></Suspense>}/>
