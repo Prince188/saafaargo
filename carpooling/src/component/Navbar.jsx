@@ -75,14 +75,12 @@ const Navbar = () => {
 
                 {/* LOGO */}
                 <div className="flex-shrink-0">
-                    <Link to="/" className="flex items-center gap-sm no-underline transition-transform duration-fast hover:scale-102" aria-label="Safar home">
-                        <div className="w-9 h-9 lg:w-[36px] lg:h-[36px] bg-gradient-primary rounded-sm flex items-center justify-center text-white text-base lg:text-lg">
-                            <FaCar />
-                        </div>
-                        <div className="flex items-baseline gap-[2px]">
-                            <span className="font-fraunces text-base lg:text-[22px] font-semibold tracking-[-0.02em] text-forest">safar</span>
-                            <span className="font-fraunces text-base lg:text-[22px] font-semibold text-clay">go</span>
-                        </div>
+                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
+                        <img 
+                            src="/logo.png" 
+                            alt="SafarGo Logo" 
+                            className="h-10 lg:h-12 w-auto object-contain" 
+                        />
                     </Link>
                 </div>
 

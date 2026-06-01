@@ -33,6 +33,13 @@ const OfferRide = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        const token = localStorage.getItem("token");
+        if (!token) {
+            showWarning("Please log in first to publish a ride");
+            navigate("/login");
+            return;
+        }
+
         console.log("Publishing ride:", formData);
 
         // Validation

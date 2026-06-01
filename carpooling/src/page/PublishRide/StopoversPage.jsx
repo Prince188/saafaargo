@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { FiArrowLeft, FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
 import { FaArrowRight, FaLocationArrow, FaMapPin as FaMapPinSolid } from "react-icons/fa";
 import CITY_CENTERS from "../../constants/cityCenters";
@@ -206,15 +206,13 @@ const StopoversPage = () => {
                     <button className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5" onClick={() => navigate(-1)}>
                         <FiArrowLeft className="text-sm md:text-base" />
                     </button>
-                    <div className="flex items-center gap-1 md:gap-sm">
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">1</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">2</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">3</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">4</div>
-                    </div>
+                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
+                        <img 
+                            src="/logo.png" 
+                            alt="SafarGo Logo" 
+                            className="h-7 lg:h-9 w-auto object-contain" 
+                        />
+                    </Link>
                 </div>
 
                 {/* Content */}

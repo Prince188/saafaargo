@@ -67,15 +67,13 @@ const Footer = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3xl mb-xl">
                     {/* Brand Section */}
                     <div className="animate-fade-in-up">
-                        <div className="flex items-center gap-md mb-lg">
-                            <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center transition-all duration-base hover:bg-white/20">
-                                <FaCar className="text-2xl text-sage-light" />
-                            </div>
-                            <div className="flex items-baseline gap-xs">
-                                <span className="font-fraunces text-[28px] font-semibold tracking-[-0.02em] text-white">safar</span>
-                                <span className="font-fraunces text-[28px] font-semibold text-clay">go</span>
-                            </div>
-                        </div>
+                        <Link to="/" className="inline-block mb-lg bg-white/95 px-4 py-2.5 rounded-xl shadow-md transition-all duration-base hover:bg-white hover:scale-102 hover:shadow-lg">
+                            <img 
+                                src="/logo.png" 
+                                alt="SafarGo Logo" 
+                                className="h-10 w-auto object-contain" 
+                            />
+                        </Link>
                         <p className="text-lg leading-tight mb-lg text-white/90">
                             Don't travel alone. Ride smarter.
                         </p>

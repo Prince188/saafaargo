@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { FiArrowLeft, FiCheck, FiUsers, FiHash, FiPlus } from "react-icons/fi";
 import { FaCar, FaPalette } from "react-icons/fa";
 
@@ -92,17 +92,13 @@ const CarSelection = () => {
                     >
                         <FiArrowLeft className="text-sm md:text-base" />
                     </button>
-                    <div className="flex items-center gap-1 md:gap-sm">
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">1</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">2</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">3</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-gradient-primary border-none rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-white">4</div>
-                        <div className="w-4 md:w-8 h-px bg-sage-soft"></div>
-                        <div className="w-6 h-6 md:w-8 md:h-8 bg-off-white border border-sage-soft rounded-full flex items-center justify-center text-xs md:text-sm font-semibold text-stone">5</div>
-                    </div>
+                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
+                        <img 
+                            src="/logo.png" 
+                            alt="SafarGo Logo" 
+                            className="h-7 lg:h-9 w-auto object-contain" 
+                        />
+                    </Link>
                 </div>
 
                 {/* Title Section */}

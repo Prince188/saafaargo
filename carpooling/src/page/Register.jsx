@@ -83,11 +83,14 @@ const RegisterPage = () => {
             <div className="relative z-10 w-full max-w-[650px] my-3xl mx-auto px-xl">
                 <div className="bg-white rounded-xl sm:py-3xl px-xl py-xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
                     {/* Header */}
-                    <div className="text-center mb-2xl">
-                        <div className="inline-flex items-center gap-2.5 bg-sage/10 px-[18px] py-2 rounded-full mb-lg border border-sage/20">
-                            <FaCar className="text-sage text-lg" />
-                            <span className="text-[11px] font-extrabold tracking-[0.15em] text-sage uppercase">JOIN SAFAR GO</span>
-                        </div>
+                    <div className="text-center mb-xl">
+                        <Link to="/" className="inline-block mb-lg transition-transform duration-fast hover:scale-102">
+                            <img 
+                                src="/logo.png" 
+                                alt="SafarGo Logo" 
+                                className="h-12 sm:h-14 w-auto object-contain" 
+                            />
+                        </Link>
                         <h1 className="font-fraunces text-[clamp(32px,5vw,42px)] font-semibold leading-[1.2] mb-sm text-forest">
                             Create{' '}
                             <span

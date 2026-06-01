@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { FaShieldAlt } from "react-icons/fa";
 import { IoArrowForwardOutline } from "react-icons/io5";
 import API from "../api/api";
@@ -61,11 +61,14 @@ const VerifyOtpPage = () => {
                 <div className="bg-white rounded-xl sm:px-3xl px-xl py-xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
 
                     {/* Header */}
-                    <div className="text-center mb-2xl">
-                        <div className="inline-flex items-center gap-2.5 bg-sage/10 px-[18px] py-2 rounded-full mb-lg border border-sage/20">
-                            <FaShieldAlt className="text-sage text-lg" />
-                            <span className="text-[11px] font-extrabold tracking-[0.15em] text-sage uppercase">OTP VERIFICATION</span>
-                        </div>
+                    <div className="text-center mb-xl">
+                        <Link to="/" className="inline-block mb-lg transition-transform duration-fast hover:scale-102">
+                            <img 
+                                src="/logo.png" 
+                                alt="SafarGo Logo" 
+                                className="h-12 w-auto object-contain" 
+                            />
+                        </Link>
                         <h1 className="font-fraunces text-[clamp(28px,5vw,38px)] font-semibold leading-[1.2] mb-sm text-forest">
                             Verify{' '}
                             <span

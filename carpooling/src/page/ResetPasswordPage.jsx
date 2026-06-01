@@ -79,11 +79,14 @@ const ResetPasswordPage = () => {
 
             <div className="max-w-md w-full mx-auto relative z-10">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-md px-5 py-2 rounded-full mb-6 border border-[#2f5a3d]/10 shadow-sm">
-                        <span className="w-2 h-2 bg-[#2f5a3d] rounded-full animate-pulse"></span>
-                        <span className="text-[11px] font-bold tracking-[0.15em] text-[#2f5a3d] uppercase">RESET PASSWORD</span>
-                    </div>
+                <div className="text-center mb-6">
+                    <Link to="/" className="inline-block mb-4 transition-transform duration-fast hover:scale-102">
+                        <img 
+                            src="/logo.png" 
+                            alt="SafarGo Logo" 
+                            className="h-12 w-auto object-contain" 
+                        />
+                    </Link>
                     <h1
                         className="font-fraunces text-3xl sm:text-4xl font-semibold text-[#1a2620] mb-3"
                         style={{ fontFamily: '"Fraunces", serif' }}

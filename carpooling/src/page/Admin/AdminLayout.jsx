@@ -1,5 +1,5 @@
 import {  useAuth } from "../../utils/AuthContext";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { FaBlog, FaDashcube, FaHome, FaRoute, FaUserCheck, FaUsers } from "react-icons/fa";
 import { IoClose, IoMenu } from "react-icons/io5";
@@ -63,16 +63,15 @@ const AdminLayout = () => {
                 `}
             >
                 {/* Logo/Brand */}
-                <div className="p-6 border-b border-white/10">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                            <FaRoute />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight">Admin Panel</h1>
-                            <p className="text-xs text-white/60 mt-1">Manage your platform</p>
-                        </div>
-                    </div>
+                <div className="p-6 border-b border-white/10 flex flex-col items-center">
+                    <Link to="/" className="bg-white/95 px-4 py-2.5 rounded-xl shadow-md transition-all duration-base hover:bg-white hover:scale-102">
+                        <img 
+                            src="/logo.png" 
+                            alt="SafarGo Logo" 
+                            className="h-8 w-auto object-contain" 
+                        />
+                    </Link>
+                    <p className="text-xs text-white/60 mt-2 font-medium tracking-wider uppercase">Admin Control Center</p>
                 </div>
 
                 {/* Navigation */}
