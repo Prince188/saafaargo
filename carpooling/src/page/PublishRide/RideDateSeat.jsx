@@ -16,7 +16,7 @@ const RideDateSeat = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { pickup, destination, stops, selectedCar, ratePerKm, formData, totalDistanceKm, totalPriceFullRoute, totalPricePerSeat } = location.state || {};
+    const { pickup, destination, stops, selectedCar, ratePerKm, formData, totalDistanceKm, totalPriceFullRoute, totalPricePerSeat, preferences } = location.state || {};
     const [seats, setSeats] = useState(parseInt(formData?.passengers) || 1);
 
     const [selectedDate, setSelectedDate] = useState(null);
@@ -48,6 +48,7 @@ const RideDateSeat = () => {
                 totalDistanceKm,
                 totalPriceFullRoute,
                 totalPricePerSeat,
+                preferences: preferences || {},
             },
         });
     };

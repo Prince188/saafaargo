@@ -19,6 +19,7 @@ exports.createRide = async (req, res) => {
             totalDistanceKm,
             totalPricePerSeat,
             totalPriceFullRoute,
+            preferences,
         } = req.body;
 
         // ── Check if driver is already verified ───────────────────────────
@@ -41,6 +42,7 @@ exports.createRide = async (req, res) => {
             totalDistanceKm: Number(totalDistanceKm) || 0,
             pricePerSeat: Number(totalPricePerSeat) || 0,
             totalEarning: Number(totalPriceFullRoute) || 0,
+            preferences: preferences || {},
         });
 
         await ride.save();
@@ -549,6 +551,7 @@ exports.editRide = async (req, res) => {
             seatsAvailable,
             notes,
             distanceKm,
+            preferences,
         } = req.body;
 
         const updateFields = {};
@@ -560,6 +563,7 @@ exports.editRide = async (req, res) => {
         if (seatsAvailable) updateFields.seatsAvailable = Number(seatsAvailable);
         if (notes !== undefined) updateFields.notes = notes;
         if (distanceKm) updateFields.totalDistanceKm = Number(distanceKm);
+        if (preferences) updateFields.preferences = preferences;
 
         const km = parseFloat(distanceKm) || null;
         const rate = Number(ride.perkmprice);

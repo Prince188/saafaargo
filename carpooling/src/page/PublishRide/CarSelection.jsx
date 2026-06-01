@@ -60,7 +60,7 @@ const CarSelection = () => {
     const handleSelectCar = (car) => {
         setSelectedCarId(car._id);
         setTimeout(() => {
-            navigate("/offer-ride/date-seat", {
+            navigate("/offer-ride/preferences", {
                 state: {
                     pickup,
                     destination,

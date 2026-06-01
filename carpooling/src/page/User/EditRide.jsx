@@ -26,6 +26,8 @@ const EditRide = () => {
     const [rideData, setRideData] = useState(null);
 
     // ── Form state ────────────────────────────────────────────────────────────
+    const [preferences, setPreferences] = useState({});
+
     const [formData, setFormData] = useState({
         date: "",
         time: "",
@@ -85,6 +87,7 @@ const EditRide = () => {
                     const ride = data.ride;
                     setRideData(ride);
 
+                    setPreferences(ride.preferences || {});
                     setFormData({
                         date: ride.date
                             ? new Date(ride.date).toISOString().split("T")[0]
@@ -151,6 +154,7 @@ const EditRide = () => {
                 pickup,
                 destination,
                 distanceKm,
+                preferences,
             };
 
             const res = await fetch(
@@ -348,6 +352,46 @@ const EditRide = () => {
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-[#7a8478]">
                                 Max 8 seats
                             </div>
+                        </div>
+                    </div>
+
+                    {/* ── PREFERENCES ──────────────────────────────────────── */}
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                        <label className="text-sm font-semibold text-[#1a2620] mb-4 block flex items-center gap-2">
+                            <FiInfo className="text-[#2f5a3d] text-sm" />
+                            Ride Preferences
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {[
+                                { key: "womenOnly", label: "Women only" },
+                                { key: "noPets", label: "No pets" },
+                                { key: "noSmoking", label: "No smoking" },
+                                { key: "noFood", label: "No food" },
+                                { key: "musicFriendly", label: "Music friendly" },
+                                { key: "talkFriendly", label: "Talk friendly" },
+                            ].map(({ key, label }) => (
+                                <label
+                                    key={key}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xs border cursor-pointer transition-all ${
+                                        preferences[key]
+                                            ? "bg-[#e8f1ea] border-[#2f5a3d]"
+                                            : "bg-[#faf8f2] border-[#e6e1d3] hover:border-[#2f5a3d]/30"
+                                    }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={!!preferences[key]}
+                                        onChange={() =>
+                                            setPreferences((prev) => ({
+                                                ...prev,
+                                                [key]: !prev[key],
+                                            }))
+                                        }
+                                        className="w-4 h-4 accent-[#2f5a3d]"
+                                    />
+                                    <span className="text-sm text-[#1a2620]">{label}</span>
+                                </label>
+                            ))}
                         </div>
                     </div>
 

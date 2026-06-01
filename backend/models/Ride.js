@@ -44,6 +44,15 @@ const rideSchema = new mongoose.Schema({
         default: 9
     },
 
+    preferences: {
+        womenOnly: { type: Boolean, default: false },
+        noPets: { type: Boolean, default: false },
+        noSmoking: { type: Boolean, default: false },
+        noFood: { type: Boolean, default: false },
+        musicFriendly: { type: Boolean, default: false },
+        talkFriendly: { type: Boolean, default: false },
+    },
+
     totalDistanceKm: {
         type: Number,
         default: 0,

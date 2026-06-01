@@ -45,6 +45,7 @@ const CarSelection = lazy(() => import('./page/PublishRide/CarSelection'));
 const PriceSelection = lazy(() => import('./page/PublishRide/PriceSelection'));
 const RideReview = lazy(() => import('./page/PublishRide/RideReview'));
 const RideDateSeat = lazy(() => import('./page/PublishRide/RideDateSeat'));
+const RidePreferences = lazy(() => import('./page/PublishRide/RidePreferences'));
 const MyRide = lazy(() => import('./page/User/MyRide'));
 const ManageCar = lazy(() => import('./page/ManageCar').then(module => ({ default: module.ManageCar })));
 const RideDeatil = lazy(() => import('./page/RideDeatil'));
@@ -194,6 +195,7 @@ function App() {
             <Route path='/offer-ride/stop-over' element={<Suspense fallback={<PublishRideSkeleton />}><StopoversPage /></Suspense>} />
             <Route path='/offer-ride/prices' element={<Suspense fallback={<PublishRideSkeleton />}><PriceSelection /></Suspense>} />
             <Route path='/offer-ride/car' element={<Suspense fallback={<PublishRideSkeleton />}><CarSelection /></Suspense>} />
+            <Route path='/offer-ride/preferences' element={<Suspense fallback={<PublishRideSkeleton />}><RidePreferences /></Suspense>} />
             <Route path='/offer-ride/date-seat' element={<Suspense fallback={<PublishRideSkeleton />}><RideDateSeat /></Suspense>} />
             <Route path='/offer-ride/ride-review' element={<Suspense fallback={<PublishRideSkeleton />}><RideReview /></Suspense>} />
 

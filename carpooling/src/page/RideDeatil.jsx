@@ -360,6 +360,45 @@ const RideDetail = () => {
                             </div>
                         </div>
 
+                        {/* Preferences */}
+                        {ride.preferences && Object.values(ride.preferences).some(Boolean) && (
+                            <div className="bg-white rounded-md shadow-sm border border-sage-15 p-6">
+                                <h3 className="text-md font-semibold text-forest mb-4">Ride Preferences</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {ride.preferences.womenOnly && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 text-pink-700 text-xs font-semibold rounded-full border border-pink-200">
+                                            <span>👩</span> Women only
+                                        </span>
+                                    )}
+                                    {ride.preferences.noPets && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full border border-amber-200">
+                                            <span>🐾</span> No pets
+                                        </span>
+                                    )}
+                                    {ride.preferences.noSmoking && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-700 text-xs font-semibold rounded-full border border-gray-200">
+                                            <span>🚭</span> No smoking
+                                        </span>
+                                    )}
+                                    {ride.preferences.noFood && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-700 text-xs font-semibold rounded-full border border-orange-200">
+                                            <span>🍽️</span> No food
+                                        </span>
+                                    )}
+                                    {ride.preferences.musicFriendly && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-200">
+                                            <span>🎵</span> Music friendly
+                                        </span>
+                                    )}
+                                    {ride.preferences.talkFriendly && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 text-xs font-semibold rounded-full border border-green-200">
+                                            <span>💬</span> Talk friendly
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Route */}
                         <div className="bg-white rounded-md shadow-sm border border-sage-15 p-6">
                             <h3 className="text-md font-semibold text-forest mb-5">Route Details</h3>
