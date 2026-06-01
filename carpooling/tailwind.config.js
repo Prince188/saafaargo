@@ -96,12 +96,22 @@ module.exports = {
           '0%': { backgroundPosition: '-1000px 0' },
           '100%': { backgroundPosition: '1000px 0' },
         },
+        slideDown: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideLeft: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.6s ease-out',
         'fade-in-up-delay': 'fadeInUp 0.6s ease-out 0.1s both',
         'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
         'shimmer': 'shimmer 2s infinite',
+        'slide-down': 'slideDown 0.2s ease-out',
+        'slide-left': 'slideLeft 0.3s ease-out',
       },
 
       // Custom transition duration
