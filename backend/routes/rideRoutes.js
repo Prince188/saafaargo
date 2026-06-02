@@ -9,7 +9,9 @@ const {
     bookRide,
     deleteRide,
     getAllRides,
-    editRide
+    editRide,
+    completeRide,
+    cancelRide
 } = require("../controllers/rideController");
 
 // ─── Driver verification routes ────────────────────────────────────────────
@@ -47,6 +49,10 @@ router.post("/:id/book", authMiddleware, bookRide);
 router.delete("/delete/:id", authMiddleware, deleteRide);
 
 router.put("/edit/:id", authMiddleware, editRide);
+
+router.put("/complete/:id", authMiddleware, completeRide);
+
+router.put("/cancel/:id", authMiddleware, cancelRide);
 // ──────────────────────────────────────────────────────────────────────────
 
 module.exports = router;

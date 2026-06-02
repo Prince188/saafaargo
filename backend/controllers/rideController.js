@@ -248,28 +248,36 @@ const getSegmentTime = (ride, from, to) => {
 // ─────────────────────────────────────────────────────────────────────────────
 exports.getRides = async (req, res) => {
     try {
-        const { from, to, date, seats } = req.query;
+        const { from, to, date, seats, minPrice, maxPrice, minTime, maxTime, womenOnly, noPets, noSmoking, sortBy } = req.query;
         const requestedSeats = parseInt(seats) || 1;
 
         let dbQuery = {
-            status: "published",              // ← NEW: hide pending rides
+            status: "published",
             seatsAvailable: { $gte: requestedSeats }
         };
 
         if (date) dbQuery.date = date;
+        if (minTime && maxTime) {
+            dbQuery.time = { $gte: minTime, $lte: maxTime };
+        } else if (minTime) {
+            dbQuery.time = { $gte: minTime };
+        } else if (maxTime) {
+            dbQuery.time = { $lte: maxTime };
+        }
 
-        console.log("FROM:", from);
-        console.log("TO:", to);
+        if (womenOnly === "true") dbQuery["preferences.womenOnly"] = true;
+        if (noPets === "true") dbQuery["preferences.noPets"] = true;
+        if (noSmoking === "true") dbQuery["preferences.noSmoking"] = true;
+
+        let sortOption = { time: 1 };
+        if (sortBy === "price_asc") sortOption = { pricePerSeat: 1 };
+        else if (sortBy === "price_desc") sortOption = { pricePerSeat: -1 };
+        else if (sortBy === "seats_desc") sortOption = { seatsAvailable: -1 };
 
         const candidates = await Ride.find(dbQuery)
             .populate("user", "firstName lastName email profilePic")
-            .sort({ time: 1 })
+            .sort(sortOption)
             .lean();
-
-        console.log("SAMPLE RIDE USER:", candidates[0]?.user);
-        console.log("DEBUG FROM:", from);
-        console.log("DEBUG TO:", to);
-        console.log("CANDIDATES:", candidates.length);
 
         let rides = candidates;
 
@@ -279,7 +287,6 @@ exports.getRides = async (req, res) => {
                     try {
                         return isRouteMatch(ride, from, to);
                     } catch (e) {
-                        console.log("isRouteMatch error:", e);
                         return false;
                     }
                 })
@@ -290,7 +297,6 @@ exports.getRides = async (req, res) => {
                         price = getDynamicPrice(ride, from, to);
                         timeData = getSegmentTime(ride, from, to);
                     } catch (e) {
-                        console.log("error:", e);
                         price = 0;
                     }
                     return {
@@ -300,6 +306,21 @@ exports.getRides = async (req, res) => {
                         userDropTime: timeData?.dropTime,
                     };
                 });
+        }
+
+        if (minPrice || maxPrice) {
+            rides = rides.filter((ride) => {
+                const p = ride.segmentPrice || ride.pricePerSeat || 0;
+                if (minPrice && p < Number(minPrice)) return false;
+                if (maxPrice && p > Number(maxPrice)) return false;
+                return true;
+            });
+        }
+
+        if (sortBy === "price_asc") {
+            rides.sort((a, b) => (a.segmentPrice || 0) - (b.segmentPrice || 0));
+        } else if (sortBy === "price_desc") {
+            rides.sort((a, b) => (b.segmentPrice || 0) - (a.segmentPrice || 0));
         }
 
         res.json({ success: true, count: rides.length, rides });
@@ -337,7 +358,7 @@ exports.getRideById = async (req, res) => {
     try {
         const ride = await Ride.findById(req.params.id)
             .populate("user", "_id firstName lastName email profilePic")
-            .populate("passengers.user", "_id firstName lastName email");
+            .populate("passengers.user", "_id firstName lastName email profilePic");
 
         if (!ride) {
             return res.status(404).json({ error: "Ride not found" });
@@ -596,5 +617,56 @@ exports.editRide = async (req, res) => {
             success: false,
             message: "Server error"
         });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUT /api/rides/complete/:id  — Mark ride as completed
+// ─────────────────────────────────────────────────────────────────────────────
+exports.completeRide = async (req, res) => {
+    try {
+        const ride = await Ride.findById(req.params.id);
+        if (!ride) return res.status(404).json({ message: "Ride not found" });
+        if (ride.user.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
+        if (ride.status !== "published") return res.status(400).json({ message: "Ride must be published to complete" });
+
+        ride.status = "completed";
+        await ride.save();
+
+        await Booking.updateMany(
+            { ride: ride._id, status: "confirmed" },
+            { $set: { status: "completed" } }
+        );
+
+        res.json({ success: true, message: "Ride marked as completed" });
+    } catch (error) {
+        console.error("completeRide error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUT /api/rides/cancel/:id  — Soft-cancel a ride (keeps record)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.cancelRide = async (req, res) => {
+    try {
+        const ride = await Ride.findById(req.params.id);
+        if (!ride) return res.status(404).json({ message: "Ride not found" });
+        if (ride.user.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
+        if (ride.status !== "published") return res.status(400).json({ message: "Ride is not published" });
+
+        ride.status = "cancelled";
+        ride.seatsAvailable = 0;
+        await ride.save();
+
+        await Booking.updateMany(
+            { ride: ride._id, status: "confirmed" },
+            { $set: { status: "cancelled" } }
+        );
+
+        res.json({ success: true, message: "Ride cancelled successfully" });
+    } catch (error) {
+        console.error("cancelRide error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };

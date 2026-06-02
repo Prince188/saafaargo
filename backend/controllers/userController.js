@@ -1,4 +1,7 @@
 const User = require("../models/User");
+const Ride = require("../models/Ride");
+const Booking = require("../models/Booking");
+const Report = require("../models/Report");
 
 // Get logged-in user
 exports.getMe = async (req, res) => {
@@ -96,6 +99,37 @@ exports.getAllUsers = async (req, res) => {
             totalUsers,
         });
     } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Get user stats (bookings, rides, reports)
+exports.getUserStats = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        const [
+            totalBookings,
+            cancelledBookings, completedBookings,
+            cancelledRidesAsDriver, completedRidesAsDriver,
+            totalReports
+        ] = await Promise.all([
+            Booking.countDocuments({ user: userId }),
+            Booking.countDocuments({ user: userId, status: "cancelled" }),
+            Booking.countDocuments({ user: userId, status: "completed" }),
+            Ride.countDocuments({ user: userId, status: "cancelled" }),
+            Ride.countDocuments({ user: userId, status: "completed" }),
+            Report.countDocuments({ reportedUser: userId }),
+        ]);
+
+        res.json({
+            totalBookings,
+            totalCancelled: cancelledBookings + cancelledRidesAsDriver,
+            totalCompleted: completedBookings + completedRidesAsDriver,
+            totalReports,
+        });
+    } catch (err) {
+        console.error("[getUserStats] Error:", err);
         res.status(500).json({ message: "Server error" });
     }
 };

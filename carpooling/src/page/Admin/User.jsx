@@ -19,6 +19,7 @@ import {
 import { MdVerified, MdAdminPanelSettings } from "react-icons/md";
 import { CgBlock, CgUnblock } from "react-icons/cg";
 import { showSuccess, showError } from "../../utils/toastConfig";
+import UserDetailModal from "../../component/UserDetailModal";
 
 const User = () => {
   const [users, setUsers] = useState([]);
@@ -28,6 +29,8 @@ const User = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userStats, setUserStats] = useState(null);
 
   const limit = 8;
 
@@ -128,6 +131,25 @@ const User = () => {
       tint: "#eaf1fb",
     },
   ];
+
+  const fetchUserStats = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/users/${userId}/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserStats(res.data);
+    } catch (err) {
+      console.log("Error fetching user stats:", err);
+      setUserStats(null);
+    }
+  };
+
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setUserStats(null);
+    fetchUserStats(user._id);
+  };
 
   const handleBlockUser = async (id) => {
     try {
@@ -335,14 +357,18 @@ const User = () => {
                       >
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3.5">
-                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5a3d] to-[#1a2620] flex items-center justify-center text-white font-semibold text-[15px] shadow-sm">
+                            <div
+                              className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5a3d] to-[#1a2620] flex items-center justify-center text-white font-semibold text-[15px] shadow-sm cursor-pointer"
+                              onClick={() => handleUserClick(user)}
+                            >
                               {user.firstName?.[0]}
                               {user.lastName?.[0]}
                             </div>
                             <div>
                               <div
-                                className="font-semibold text-[#1a2620] text-[15px] leading-tight"
+                                className="font-semibold text-[#1a2620] text-[15px] leading-tight cursor-pointer hover:underline"
                                 style={{ fontFamily: '"Fraunces", serif' }}
+                                onClick={() => handleUserClick(user)}
                               >
                                 {user.firstName} {user.lastName}
                               </div>
@@ -536,6 +562,12 @@ const User = () => {
             </>
           )}
         </div>
+        {/* User Detail Modal */}
+        <UserDetailModal
+          user={selectedUser}
+          stats={userStats}
+          onClose={() => setSelectedUser(null)}
+        />
       </div>
     </div>
   );

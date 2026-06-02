@@ -209,12 +209,15 @@ const MyTrips = () => {
                                 >
 
                                     {/* Status Badge */}
-                                    {/* <div
-                                        className={`inline-flex items-center gap-xs px-3.5 py-1 rounded-full text-xs font-semibold w-fit mb-md ${statusBadge.containerClass}`}
-                                    >
-                                        {statusBadge.icon}
-                                        <span>{statusBadge.text}</span>
-                                    </div> */}
+                                    {(() => {
+                                        const badge = getStatusBadge(trip.status);
+                                        return (
+                                            <div className={`inline-flex items-center gap-xs px-3.5 py-1 rounded-full text-xs font-semibold w-fit mb-md ${badge.containerClass}`}>
+                                                {badge.icon}
+                                                <span>{badge.text}</span>
+                                            </div>
+                                        );
+                                    })()}
 
                                     {/* Route */}
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-md mb-md p-sm px-md bg-off-white rounded-sm">
@@ -320,7 +323,7 @@ const MyTrips = () => {
                                             View Ride
                                         </Link>
 
-                                        {trip.status !== "cancelled" && (
+                                        {trip.status === "confirmed" && (
                                             <button
                                                 className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-error text-error hover:bg-error/5 hover:-translate-y-0.5"
                                                 onClick={() =>

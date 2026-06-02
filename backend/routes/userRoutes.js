@@ -9,6 +9,7 @@ const {
     removeProfilePic,
     getMe,
     getAllUsers,
+    getUserStats,
     toggleBlockUser,
 } = require("../controllers/userController");
 
@@ -31,5 +32,8 @@ router.put("/remove-profile-pic", authMiddleware, removeProfilePic);
 
 // BLOCK / UNBLOCK USER
 router.put("/block/:id", authMiddleware, toggleBlockUser);
+
+// USER STATS
+router.get("/:id/stats", authMiddleware, getUserStats);
 
 module.exports = router;

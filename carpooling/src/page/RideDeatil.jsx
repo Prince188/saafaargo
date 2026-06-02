@@ -1,21 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import {
-    FaUser,
-    FaStar,
-    FaArrowLeft,
-    FaCar,
-    FaClock,
-    FaUsers,
-    FaArrowRight,
-    FaUserPlus,
-} from "react-icons/fa";
+import { FaStar, FaArrowLeft, FaCar, FaClock, FaUsers, FaArrowRight, FaUserPlus, FaExclamationTriangle } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import API from "../api/api";
 import { showSuccess, showError, showInfo } from "../utils/toastConfig";
 import { BsFillTelephoneFill } from "react-icons/bs";
 import { getCityCenter } from "../constants/cityCenters";
 import useRoadDistance from "../hooks/useRoadDistance";
+import PassengerDetailModal from "../component/PassengerDetailModal";
+import ReportModal from "../component/ReportModal";
 
 // ── Haversine distance (km) ───────────────────────────────────────────────────
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -89,6 +82,8 @@ const RideDetail = () => {
     const [selectedSeats, setSelectedSeats] = useState(requestedSeats ?? 1);
     const [booking, setBooking] = useState(false);
     const [user, setUser] = useState(null);
+    const [selectedPassenger, setSelectedPassenger] = useState(null);
+    const [reportTarget, setReportTarget] = useState(null);
 
     // ── Price state — single source of truth ──────────────────────────────────
     // From Search page (passenger): segmentPrice from location.state
@@ -250,6 +245,7 @@ const RideDetail = () => {
 
     // ── Derived values ────────────────────────────────────────────────────────
     const isDriver = user?._id === ride.user?._id;
+    const isPassenger = ride.passengers?.some(p => p.user?._id === user?._id || p.user === user?._id);
     const isFullyBooked = ride.seatsAvailable === 0;
     const hasPassengers = ride.passengers?.length > 0;
 
@@ -356,6 +352,15 @@ const RideDetail = () => {
                                         <span className="text-stone-light">•</span>
                                         <span>{ride.car?.numberPlate}</span>
                                     </div>
+                                    {isPassenger && (
+                                        <button
+                                            onClick={() => setReportTarget({ type: "driver", _id: ride.user?._id, name: ride.user?.firstName })}
+                                            className="mt-3 inline-flex items-center gap-1.5 text-xs text-red-400 hover:text-red-600 transition-colors font-medium"
+                                        >
+                                            <FaExclamationTriangle className="text-[10px]" />
+                                            Report Driver
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -446,14 +451,36 @@ const RideDetail = () => {
                                 ride.passengers.map((passenger, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-center justify-between py-3 border-t border-sage-15 first:border-t-0"
+                                        className="flex items-center justify-between py-3 border-t border-sage-15 first:border-t-0 transition-all duration-base hover:bg-off-white rounded-sm px-1"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-sage-10 rounded-full flex items-center justify-center">
-                                                <FaUser className="text-sage text-sm" />
-                                            </div>
+                                            <img
+                                                src={
+                                                    passenger.user?.profilePic ||
+                                                    `https://ui-avatars.com/api/?background=7A9B7A&color=fff&bold=true&size=40&name=${(passenger.name || "?")[0]}`
+                                                }
+                                                alt={passenger.name}
+                                                className="w-10 h-10 rounded-full object-cover border border-sage-soft cursor-pointer"
+                                                onClick={() => setSelectedPassenger(passenger)}
+                                            />
                                             <div>
-                                                <p className="font-medium text-forest">{passenger.name}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p
+                                                        className="font-medium text-forest cursor-pointer hover:underline"
+                                                        onClick={() => setSelectedPassenger(passenger)}
+                                                    >
+                                                        {passenger.name}
+                                                    </p>
+                                                    {isDriver && (
+                                                        <button
+                                                            onClick={() => setReportTarget({ ...passenger, type: "passenger" })}
+                                                            className="text-red-400 hover:text-red-600 transition-colors text-xs p-0.5"
+                                                            title="Report this passenger"
+                                                        >
+                                                            <FaExclamationTriangle />
+                                                        </button>
+                                                    )}
+                                                </div>
                                                 {isDriver && passenger.phone ? (
                                                     <p className="text-xs text-sage font-medium flex gap-2">
                                                         <BsFillTelephoneFill /> {passenger.phone}
@@ -476,6 +503,20 @@ const RideDetail = () => {
                                 ))
                             )}
                         </div>
+
+                        <PassengerDetailModal
+                            passenger={selectedPassenger}
+                            isDriver={isDriver}
+                            onClose={() => setSelectedPassenger(null)}
+                        />
+                        {reportTarget && (
+                            <ReportModal
+                                target={reportTarget}
+                                targetType={reportTarget.type}
+                                rideId={ride?._id}
+                                onClose={() => setReportTarget(null)}
+                            />
+                        )}
                     </div>
 
                     {/* ── Right column — Booking card ───────────────────────── */}

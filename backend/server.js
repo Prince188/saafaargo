@@ -63,6 +63,8 @@ app.use("/api/contact", contactRoutes)
 
 app.use("/api/admin" , adminRoutes)
 
+app.use("/api/reports", require("./routes/reportRoutes"));
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

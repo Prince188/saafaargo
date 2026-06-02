@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
     FaArrowRight,
@@ -6,14 +6,30 @@ import {
     FaCalendar,
     FaChevronLeft,
     FaCheck,
+    FaSlidersH,
+    FaTimes,
+    FaSortAmountDown,
 } from "react-icons/fa";
-import { FiUsers } from "react-icons/fi";
+
 import { MdRoute } from "react-icons/md";
 import {
     getCityRouteInfo,
     calculatePrice,
     calculateArrivalTime
 } from "../utils/routeUtils";
+
+const preferencesList = [
+    { key: "womenOnly", label: "Women only" },
+    { key: "noPets", label: "No pets" },
+    { key: "noSmoking", label: "No smoking" },
+];
+
+const sortOptions = [
+    { value: "time", label: "Departure time" },
+    { value: "price_asc", label: "Price: Low to High" },
+    { value: "price_desc", label: "Price: High to Low" },
+    { value: "seats_desc", label: "Most seats" },
+];
 
 const Search = () => {
     const location = useLocation();
@@ -25,6 +41,18 @@ const Search = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [enrichedRides, setEnrichedRides] = useState([]);
+
+    const [showFilters, setShowFilters] = useState(false);
+    const [filters, setFilters] = useState({
+        priceMin: "",
+        priceMax: "",
+        timeFrom: "",
+        timeTo: "",
+        womenOnly: false,
+        noPets: false,
+        noSmoking: false,
+    });
+    const [sortBy, setSortBy] = useState("time");
 
     const extractCity = (value) => {
         if (!value) return "";
@@ -47,7 +75,7 @@ const Search = () => {
                     from: extractCity(from),
                     to: extractCity(to),
                     date,
-                    seats: seats ?? 1
+                    seats: seats ?? 1,
                 });
 
                 const res = await fetch(
@@ -103,6 +131,83 @@ const Search = () => {
         if (rides.length > 0) enrichRides();
     }, [rides]);
 
+    const filteredRides = useMemo(() => {
+        let result = [...enrichedRides];
+
+        if (filters.priceMin) {
+            const min = Number(filters.priceMin);
+            result = result.filter((r) => {
+                const p = r.segmentPrice || r.pricePerSeat || 0;
+                return Math.ceil(p / ((r.totalSeats || r.seats || 1) + 1)) >= min;
+            });
+        }
+        if (filters.priceMax) {
+            const max = Number(filters.priceMax);
+            result = result.filter((r) => {
+                const p = r.segmentPrice || r.pricePerSeat || 0;
+                return Math.ceil(p / ((r.totalSeats || r.seats || 1) + 1)) <= max;
+            });
+        }
+
+        if (filters.timeFrom) {
+            result = result.filter((r) => r.time >= filters.timeFrom);
+        }
+        if (filters.timeTo) {
+            result = result.filter((r) => r.time <= filters.timeTo);
+        }
+
+        if (filters.womenOnly) {
+            result = result.filter((r) => r.preferences?.womenOnly);
+        }
+        if (filters.noPets) {
+            result = result.filter((r) => r.preferences?.noPets);
+        }
+        if (filters.noSmoking) {
+            result = result.filter((r) => r.preferences?.noSmoking);
+        }
+
+        if (sortBy === "price_asc") {
+            result.sort((a, b) => {
+                const pa = a.segmentPrice || a.pricePerSeat || 0;
+                const pb = b.segmentPrice || b.pricePerSeat || 0;
+                return pa - pb;
+            });
+        } else if (sortBy === "price_desc") {
+            result.sort((a, b) => {
+                const pa = a.segmentPrice || a.pricePerSeat || 0;
+                const pb = b.segmentPrice || b.pricePerSeat || 0;
+                return pb - pa;
+            });
+        } else if (sortBy === "seats_desc") {
+            result.sort((a, b) => (b.seatsAvailable || 0) - (a.seatsAvailable || 0));
+        } else {
+            result.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+        }
+
+        return result;
+    }, [enrichedRides, filters, sortBy]);
+
+    const activeFilterCount = useMemo(() => {
+        let count = 0;
+        if (filters.priceMin) count++;
+        if (filters.priceMax) count++;
+        if (filters.timeFrom) count++;
+        if (filters.timeTo) count++;
+        if (filters.womenOnly) count++;
+        if (filters.noPets) count++;
+        if (filters.noSmoking) count++;
+        return count;
+    }, [filters]);
+
+    const clearFilters = () => {
+        setFilters({ priceMin: "", priceMax: "", timeFrom: "", timeTo: "", womenOnly: false, noPets: false, noSmoking: false });
+        setSortBy("time");
+    };
+
+    const toggleFilter = (key) => {
+        setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
+
     const formattedDate = date
         ? new Date(date).toLocaleDateString("en-IN", {
             weekday: "long",
@@ -148,7 +253,7 @@ const Search = () => {
                 </button>
 
                 {/* Header */}
-                <div className="text-center mb-10">
+                <div className="text-center mb-6">
                     <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full mb-4 border border-slate-100 shadow-sm">
                         <FaCalendar className="text-emerald-500 text-sm" />
                         <span className="text-[11px] font-extrabold tracking-[0.15em] text-slate-600 uppercase">
@@ -165,9 +270,136 @@ const Search = () => {
                     <p className="text-sm text-slate-500">
                         {loading
                             ? "Finding the best rides for you..."
-                            : `${rides.length} ride${rides.length !== 1 ? "s" : ""} available · ${seats ?? 1} seat${(seats ?? 1) > 1 ? "s" : ""}`}
+                            : `${filteredRides.length} ride${filteredRides.length !== 1 ? "s" : ""} available`}
                     </p>
                 </div>
+
+                {/* Filter Bar */}
+                {!loading && !error && rides.length > 0 && (
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border transition-all duration-300 ${
+                                    showFilters || activeFilterCount > 0
+                                        ? "bg-slate-900 text-white border-slate-900"
+                                        : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
+                                }`}
+                            >
+                                <FaSlidersH className="text-xs" />
+                                Filters
+                                {activeFilterCount > 0 && (
+                                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-slate-900 text-[10px] font-extrabold">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs text-slate-400 font-semibold">
+                                    {filteredRides.length} of {enrichedRides.length} rides
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <FaSortAmountDown className="text-slate-400 text-xs" />
+                                    <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="text-sm font-bold text-slate-700 bg-transparent border-none outline-none cursor-pointer pr-6 py-1 appearance-none"
+                                    >
+                                        {sortOptions.map((opt) => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Filter Panel */}
+                        {showFilters && (
+                            <div className="mt-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                    {/* Price Range */}
+                                    <div>
+                                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-2">Price range</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="number"
+                                                placeholder="Min"
+                                                value={filters.priceMin}
+                                                onChange={(e) => setFilters((prev) => ({ ...prev, priceMin: e.target.value }))}
+                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 outline-none focus:border-slate-400 transition-colors"
+                                                min="0"
+                                            />
+                                            <span className="text-slate-300 text-xs">—</span>
+                                            <input
+                                                type="number"
+                                                placeholder="Max"
+                                                value={filters.priceMax}
+                                                onChange={(e) => setFilters((prev) => ({ ...prev, priceMax: e.target.value }))}
+                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 outline-none focus:border-slate-400 transition-colors"
+                                                min="0"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Time Range */}
+                                    <div>
+                                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-2">Departure time</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="time"
+                                                value={filters.timeFrom}
+                                                onChange={(e) => setFilters((prev) => ({ ...prev, timeFrom: e.target.value }))}
+                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 outline-none focus:border-slate-400 transition-colors"
+                                            />
+                                            <span className="text-slate-300 text-xs">—</span>
+                                            <input
+                                                type="time"
+                                                value={filters.timeTo}
+                                                onChange={(e) => setFilters((prev) => ({ ...prev, timeTo: e.target.value }))}
+                                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 outline-none focus:border-slate-400 transition-colors"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Preferences */}
+                                    <div>
+                                        <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-2">Ride preferences</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {preferencesList.map(({ key, label }) => (
+                                                <button
+                                                    key={key}
+                                                    onClick={() => toggleFilter(key)}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                                                        filters[key]
+                                                            ? "bg-slate-900 text-white border-slate-900"
+                                                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                                                    }`}
+                                                >
+                                                    {filters[key] && <FaCheck className="text-[9px]" />}
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Clear */}
+                                    <div className="flex items-end">
+                                        {activeFilterCount > 0 && (
+                                            <button
+                                                onClick={clearFilters}
+                                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all border border-slate-200"
+                                            >
+                                                <FaTimes />
+                                                Clear all
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Loading Skeletons */}
                 {loading && (
@@ -217,10 +449,28 @@ const Search = () => {
                     </div>
                 )}
 
+                {/* No Filter Results */}
+                {!loading && !error && rides.length > 0 && filteredRides.length === 0 && (
+                    <div className="text-center py-16">
+                        <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                            <FaSlidersH className="text-slate-400 text-2xl" />
+                        </div>
+                        <p className="text-xl font-extrabold text-slate-800 mb-2">No matching rides</p>
+                        <p className="text-slate-500 text-sm mb-6">Try adjusting your filters</p>
+                        <button
+                            onClick={clearFilters}
+                            className="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-black transition-all"
+                        >
+                            <FaTimes />
+                            Clear filters
+                        </button>
+                    </div>
+                )}
+
                 {/* Ride Cards */}
-                {!loading && !error && rides.length > 0 && (
+                {!loading && !error && filteredRides.length > 0 && (
                     <div className="space-y-4">
-                        {enrichedRides.map((ride, idx) => (
+                        {filteredRides.map((ride) => (
                             <div
                                 key={ride._id}
                                 className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.04),0_8px_10px_-6px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col lg:flex-row"
@@ -228,31 +478,14 @@ const Search = () => {
                                 {/* Section 1: Route Details */}
                                 <div className="lg:w-1/3 p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-slate-50">
                                     <div className="flex flex-row lg:flex-col gap-6 relative overflow-x-auto justify-between">
-                                        {/* Vertical Dashed Line */}
                                         <div
-                                            className="
-    absolute 
-    top-[7px] left-2 right-2 h-[1.5px]
-    lg:left-[7px] lg:top-2 lg:bottom-2 lg:w-[1.5px] lg:h-auto
-  "
+                                            className="absolute top-[7px] left-2 right-2 h-[1.5px] lg:left-[7px] lg:top-2 lg:bottom-2 lg:w-[1.5px] lg:h-auto"
                                             style={{
-                                                backgroundImage:
-                                                    window.innerWidth >= 1024
-                                                        ? "repeating-linear-gradient(to bottom, #cbd5e1 0, #cbd5e1 4px, transparent 4px, transparent 8px)"
-                                                        : "repeating-linear-gradient(to right, #cbd5e1 0, #cbd5e1 4px, transparent 4px, transparent 8px)"
+                                                backgroundImage: window.innerWidth >= 1024
+                                                    ? "repeating-linear-gradient(to bottom, #cbd5e1 0, #cbd5e1 4px, transparent 4px, transparent 8px)"
+                                                    : "repeating-linear-gradient(to right, #cbd5e1 0, #cbd5e1 4px, transparent 4px, transparent 8px)"
                                             }}
                                         ></div>
-
-                                        {/* Origin */}
-                                        {/* <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
-                                            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm z-10 mt-0.5"></div>
-                                            <div>
-                                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em] block mb-1">Origin</span>
-                                                <h4 className="text-base font-bold text-slate-800">
-                                                    {extractCity(ride.pickup.displayName)}
-                                                </h4>
-                                            </div>
-                                        </div> */}
 
                                         {/* Pickup */}
                                         <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
@@ -289,17 +522,6 @@ const Search = () => {
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Destination */}
-                                        {/* <div className="flex flex-col sm:flex-row items-center gap-3 min-w-max">
-                                            <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-white shadow-sm z-10 mt-0.5"></div>
-                                            <div>
-                                                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em] block mb-1">Destination</span>
-                                                <h4 className="text-base font-bold text-slate-800">
-                                                    {extractCity(ride.destination.displayName)}
-                                                </h4>
-                                            </div>
-                                        </div> */}
                                     </div>
                                 </div>
 
@@ -348,7 +570,7 @@ const Search = () => {
 
                                 {/* Section 3: Pricing & Action */}
                                 <div className="lg:w-1/4 p-6 md:p-8 flex md:flex-row lg:flex-col items-center lg:items-end lg:justify-center justify-between">
-                                    <div className="text-center  lg:text-right mb-6 md:min-w-[50%]">
+                                    <div className="text-center lg:text-right mb-6 md:min-w-[50%]">
                                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] block mb-1">Total per seat</span>
                                         <div className="flex items-baseline justify-center lg:justify-end">
                                             <span className="text-4xl font-black text-slate-900 tracking-tighter">

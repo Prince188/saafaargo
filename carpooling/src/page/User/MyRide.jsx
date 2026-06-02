@@ -132,37 +132,46 @@ const MyRide = () => {
         return new Date() < editDeadline;
     };
 
-    const handleDeleteRide = async (rideId) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this ride?");
-
-        if (!confirmDelete) return;
+    const handleCompleteRide = async (rideId) => {
+        const confirmed = window.confirm("Mark this ride as completed?");
+        if (!confirmed) return;
 
         try {
             const token = localStorage.getItem("token");
-
-            const res = await fetch(
-                `${process.env.REACT_APP_API_URL}/rides/delete/${rideId}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/rides/complete/${rideId}`, {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+            });
             const data = await res.json();
-
             if (res.ok) {
-                // Remove deleted ride from UI
-                setRides((prev) => prev.filter((ride) => ride._id !== rideId));
-
-                showSuccess("Ride deleted successfully");
+                setRides((prev) => prev.map((r) => r._id === rideId ? { ...r, status: "completed" } : r));
+                showSuccess(data.message || "Ride marked as completed");
             } else {
-                showError(data.message || "Failed to delete ride");
+                showError(data.message || "Failed to complete ride");
             }
-
         } catch (error) {
-            console.log(error);
+            showError("Something went wrong");
+        }
+    };
+
+    const handleCancelRide = async (rideId) => {
+        const confirmed = window.confirm("Are you sure you want to cancel this ride? Passengers will be notified.");
+        if (!confirmed) return;
+
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/rides/cancel/${rideId}`, {
+                method: "PUT",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setRides((prev) => prev.map((r) => r._id === rideId ? { ...r, status: "cancelled", seatsAvailable: 0 } : r));
+                showSuccess(data.message || "Ride cancelled successfully");
+            } else {
+                showError(data.message || "Failed to cancel ride");
+            }
+        } catch (error) {
             showError("Something went wrong");
         }
     };
@@ -219,10 +228,15 @@ const MyRide = () => {
                                     style={{ animationDelay: `${index * 0.05}s` }}
                                 >
                                     {/* Status Badge */}
-                                    {/* <div className={`inline-flex items-center gap-xs px-3.5 py-1 rounded-full text-xs font-semibold w-fit mb-md ${statusBadge.containerClass}`}>
-                                        {statusBadge.icon}
-                                        <span>{statusBadge.text}</span>
-                                    </div> */}
+                                    {(() => {
+                                        const badge = getStatusBadge(ride.status);
+                                        return (
+                                            <div className={`inline-flex items-center gap-xs px-3.5 py-1 rounded-full text-xs font-semibold w-fit mb-md ${badge.containerClass}`}>
+                                                {badge.icon}
+                                                <span>{badge.text}</span>
+                                            </div>
+                                        );
+                                    })()}
 
                                     {/* Route Section */}
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-md mb-md p-sm px-md bg-off-white rounded-sm">
@@ -337,12 +351,20 @@ const MyRide = () => {
                                         >
                                             Edit Ride
                                         </Link>
-                                        {ride.status !== 'cancelled' && (
+                                        {ride.status === 'published' && (
+                                            <button
+                                                className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-success text-white hover:opacity-90 hover:-translate-y-0.5"
+                                                onClick={() => handleCompleteRide(ride._id)}
+                                            >
+                                                Mark Complete
+                                            </button>
+                                        )}
+                                        {ride.status === 'published' && (
                                             <button
                                                 className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-error text-error hover:bg-error/5 hover:-translate-y-0.5"
-                                                onClick={() => handleDeleteRide(ride._id)}
+                                                onClick={() => handleCancelRide(ride._id)}
                                             >
-                                                Cancel
+                                                Cancel Ride
                                             </button>
                                         )}
                                     </div>
