@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { FaStar, FaArrowLeft, FaCar, FaClock, FaUsers, FaArrowRight, FaUserPlus, FaExclamationTriangle } from "react-icons/fa";
+import { FaStar, FaArrowLeft, FaCar, FaClock, FaUsers, FaArrowRight, FaUserPlus, FaExclamationTriangle, FaRegMap } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import API from "../api/api";
 import { showSuccess, showError, showInfo } from "../utils/toastConfig";
@@ -262,12 +262,20 @@ const RideDetail = () => {
     const showRideFrom = fromCity && rideFromCity.toLowerCase() !== fromCity.toLowerCase();
     const showRideTo = toCity && rideTocity.toLowerCase() !== toCity.toLowerCase();
 
+    const getGoogleMapsUrl = (stop) => {
+        if (stop.lat && stop.lng) return `https://www.google.com/maps?q=${stop.lat},${stop.lng}`;
+        if (stop.name) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.name)}`;
+        return null;
+    };
+
     const routeStops = [
         showRideFrom && {
             key: "ride-from",
             label: "Ride from",
             name: ride.pickup?.displayName,
             time: ride.time,
+            lat: ride.pickup?.lat,
+            lng: ride.pickup?.lng,
             dot: "bg-sage/30 ring-4 ring-sage/10",
             nameClass: "text-base text-forest/50",
             badgeClass: "text-stone-light",
@@ -277,6 +285,8 @@ const RideDetail = () => {
             label: fromCity ? "Your pickup" : "From",
             name: getExactLocation(fromCity, ride, "pickup"),
             time: ride.time,
+            lat: from?.lat || ride.pickup?.lat,
+            lng: from?.lng || ride.pickup?.lng,
             dot: "bg-sage ring-4 ring-sage/20",
             nameClass: "text-lg text-forest",
             badgeClass: "text-sage",
@@ -286,6 +296,8 @@ const RideDetail = () => {
             label: toCity ? "Your drop" : "To",
             name: getExactLocation(toCity, ride, "destination"),
             time: ride.arrivalTime || null,
+            lat: to?.lat || ride.destination?.lat,
+            lng: to?.lng || ride.destination?.lng,
             dot: "bg-clay ring-4 ring-clay/20",
             nameClass: "text-lg text-forest",
             badgeClass: "text-clay",
@@ -295,6 +307,8 @@ const RideDetail = () => {
             label: "Ride to",
             name: ride.destination?.displayName,
             time: null,
+            lat: ride.destination?.lat,
+            lng: ride.destination?.lng,
             dot: "bg-clay/30 ring-4 ring-clay/10",
             nameClass: "text-base text-forest/50",
             badgeClass: "text-stone-light",
@@ -419,9 +433,25 @@ const RideDetail = () => {
                                             <span className={`text-[10px] uppercase tracking-wider font-semibold ${stop.badgeClass}`}>
                                                 {stop.label}
                                             </span>
-                                            <p className={`font-fraunces font-semibold leading-tight mt-0.5 ${stop.nameClass}`}>
-                                                {stop.name}
-                                            </p>
+                                            <br />
+                                            {(() => {
+                                                const url = getGoogleMapsUrl(stop);
+                                                return url ? (
+                                                    <a
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className={`font-fraunces font-semibold leading-tight mt-0.5 hover:underline inline ${stop.nameClass}`}
+                                                    >
+                                                        {stop.name}
+                                                        <FaRegMap className="inline ml-1.5 text-[14px]" />
+                                                    </a>
+                                                ) : (
+                                                    <p className={`font-fraunces font-semibold leading-tight mt-0.5 ${stop.nameClass}`}>
+                                                        {stop.name}
+                                                    </p>
+                                                );
+                                            })()}
                                             {stop.time && (
                                                 <div className="flex items-center gap-1.5 text-xs text-stone mt-1">
                                                     <FaClock className="text-[10px]" />
