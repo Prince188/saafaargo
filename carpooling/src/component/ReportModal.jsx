@@ -26,8 +26,11 @@ const ReportModal = ({ target, targetType, rideId, onClose }) => {
             setSubmitting(true);
             const token = localStorage.getItem("token");
 
+            const reportedUserId = target.user?._id || target.user || target._id;
+            console.log("[Report] target:", target, "reportedUserId:", reportedUserId);
+
             const body = {
-                reportedUserId: targetType === "passenger" ? target.user?._id || target._id : null,
+                reportedUserId,
                 rideId,
                 reason,
                 description,

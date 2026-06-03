@@ -368,7 +368,7 @@ const RideDetail = () => {
                                     </div>
                                     {isPassenger && (
                                         <button
-                                            onClick={() => setReportTarget({ type: "driver", _id: ride.user?._id, name: ride.user?.firstName })}
+                                            onClick={() => setReportTarget({ type: "driver", _id: ride.user?._id || ride.user, name: ride.user?.firstName })}
                                             className="mt-3 inline-flex items-center gap-1.5 text-xs text-red-400 hover:text-red-600 transition-colors font-medium"
                                         >
                                             <FaExclamationTriangle className="text-[10px]" />
