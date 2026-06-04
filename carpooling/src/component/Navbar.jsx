@@ -43,7 +43,7 @@ const Navbar = () => {
         try {
             const token = localStorage.getItem("token");
             if (!token) return;
-            const res = await fetch("/api/notifications", {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/notifications`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();

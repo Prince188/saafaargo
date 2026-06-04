@@ -15,7 +15,7 @@ const Notifications = () => {
     const fetchNotifications = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch("/api/notifications", {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/notifications`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -33,7 +33,7 @@ const Notifications = () => {
     const markAllAsRead = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch("/api/notifications/read-all", {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/notifications/read-all`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -50,7 +50,7 @@ const Notifications = () => {
     const markAsRead = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            await fetch(`/api/notifications/read/${id}`, {
+            await fetch(`${process.env.REACT_APP_API_URL}/notifications/read/${id}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${token}` },
             });

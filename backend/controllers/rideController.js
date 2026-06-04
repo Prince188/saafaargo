@@ -450,13 +450,15 @@ exports.bookRide = async (req, res) => {
         await ride.save();
 
         try {
+            const driverId = ride.user._id || ride.user;
             await Notification.create({
-                user: ride.user,
+                user: driverId,
                 type: "ride_booked",
                 title: "New Booking",
                 message: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${ride.pickup} to ${ride.destination}.`,
                 rideId: ride._id,
             });
+            console.log("Notification created for driver:", driverId);
         } catch (notifErr) {
             console.error("Failed to create notification:", notifErr);
         }
