@@ -6,7 +6,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import ScrollToTop from './component/ScrollToTop';
 import MainLayout from '../src/component/MainLayout';
 import PlainLayout from '../src/component/PlainLayout';
-import PublicRoute from './component/PublicRoute';
 import ProtectedRoute from './component/ProtectedRoute';
 import AdminRoute from './component/AdminRoute';
 import { ToastContainer } from "react-toastify";
@@ -71,6 +70,7 @@ const EditRide = lazy(() => import('./page/User/EditRide'));
 const ForgotPasswordPage = lazy(() => import('./page/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./page/ResetPasswordPage'));
 const HowWeWork = lazy(() => import('./page/HowWeWork'));
+const Notifications = lazy(() => import('./page/Notifications'));
 
 // Helper to resolve the correct skeleton loader on reload based on active window path
 function getSkeletonForPath(path) {
@@ -178,6 +178,7 @@ function App() {
             <Route path="/contact" element={<Suspense fallback={<ContentPageSkeleton />}><ContactUs /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={<AuthFormSkeleton />}><ForgotPasswordPage /></Suspense>}/>
             <Route path="/reset-password" element={<Suspense fallback={<AuthFormSkeleton />}><ResetPasswordPage /></Suspense>}/>
+            <Route path="/notifications" element={<ProtectedRoute><Suspense fallback={<ProfilePanelSkeleton />}><Notifications /></Suspense></ProtectedRoute>} />
 
             {/* <Route path="/admin/dashboard" element={<Dashboard /> } /> */}
 

@@ -9,11 +9,11 @@ import {
     FaUserPlus,
     FaCar,
     FaHome,
-    FaHeart,
     FaCompass,
     FaRoute,
     FaBars,
-    FaTimes
+    FaTimes,
+    FaBell
 } from "react-icons/fa";
 
 const Navbar = () => {
@@ -21,6 +21,7 @@ const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [user, setUser] = useState(null);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -37,6 +38,28 @@ const Navbar = () => {
         window.addEventListener("authChange", loadUser);
         return () => window.removeEventListener("authChange", loadUser);
     }, [location]);
+
+    const fetchUnreadCount = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            const res = await fetch("/api/notifications", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (res.ok) setUnreadCount(data.unreadCount);
+        } catch (err) {
+            // silent
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            fetchUnreadCount();
+            const interval = setInterval(fetchUnreadCount, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [user]);
 
     const isAdmin = user?.role === "admin";
 
@@ -163,9 +186,14 @@ const Navbar = () => {
                                                     <span>My Trips</span>
                                                 </Link>
 
-                                                <Link to="/favorites" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <FaHeart className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                    <span>Favorites</span>
+                                                <Link to="/notifications" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
+                                                    <div className="relative">
+                                                        <FaBell className="text-lg text-sage transition-transform group-hover:scale-110" />
+                                                        {unreadCount > 0 && (
+                                                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">{unreadCount > 9 ? '9+' : unreadCount}</span>
+                                                        )}
+                                                    </div>
+                                                    <span>Notifications</span>
                                                 </Link>
 
                                                 {isAdmin && (

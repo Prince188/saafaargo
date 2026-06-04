@@ -1,6 +1,7 @@
 const Booking = require("../models/Booking");
 const Ride = require("../models/Ride");
 const User = require("../models/User");
+const Notification = require("../models/Notification");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/rides  — PATCHED: sets status based on driver verification
@@ -448,6 +449,18 @@ exports.bookRide = async (req, res) => {
         ride.seatsAvailable -= seatsCount;
         await ride.save();
 
+        try {
+            await Notification.create({
+                user: ride.user,
+                type: "ride_booked",
+                title: "New Booking",
+                message: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${ride.pickup} to ${ride.destination}.`,
+                rideId: ride._id,
+            });
+        } catch (notifErr) {
+            console.error("Failed to create notification:", notifErr);
+        }
+
         return res.status(201).json({ message: "Ride booked successfully", booking });
 
     } catch (err) {
@@ -605,6 +618,21 @@ exports.editRide = async (req, res) => {
             { new: true }
         );
 
+        try {
+            const passengers = await Booking.find({ ride: id, status: "confirmed" }).populate("user", "firstName lastName");
+            for (const p of passengers) {
+                await Notification.create({
+                    user: p.user._id,
+                    type: "ride_modified",
+                    title: "Ride Modified",
+                    message: `Your ride from ${ride.pickup} to ${ride.destination} has been updated by the driver.`,
+                    rideId: id,
+                });
+            }
+        } catch (notifErr) {
+            console.error("Notification error:", notifErr);
+        }
+
         return res.status(200).json({
             success: true,
             message: "Ride updated successfully",
@@ -638,6 +666,21 @@ exports.completeRide = async (req, res) => {
             { $set: { status: "completed" } }
         );
 
+        try {
+            const bookings = await Booking.find({ ride: ride._id, status: "completed" }).populate("user", "firstName lastName");
+            for (const b of bookings) {
+                await Notification.create({
+                    user: b.user._id,
+                    type: "ride_completed",
+                    title: "Ride Completed",
+                    message: `Your ride from ${ride.pickup} to ${ride.destination} has been marked as completed.`,
+                    rideId: ride._id,
+                });
+            }
+        } catch (notifErr) {
+            console.error("Notification error:", notifErr);
+        }
+
         res.json({ success: true, message: "Ride marked as completed" });
     } catch (error) {
         console.error("completeRide error:", error);
@@ -663,6 +706,21 @@ exports.cancelRide = async (req, res) => {
             { ride: ride._id, status: "confirmed" },
             { $set: { status: "cancelled" } }
         );
+
+        try {
+            const bookings = await Booking.find({ ride: ride._id, status: "cancelled" }).populate("user", "firstName lastName");
+            for (const b of bookings) {
+                await Notification.create({
+                    user: b.user._id,
+                    type: "ride_cancelled",
+                    title: "Ride Cancelled",
+                    message: `Your ride from ${ride.pickup} to ${ride.destination} has been cancelled.`,
+                    rideId: ride._id,
+                });
+            }
+        } catch (notifErr) {
+            console.error("Notification error:", notifErr);
+        }
 
         res.json({ success: true, message: "Ride cancelled successfully" });
     } catch (error) {

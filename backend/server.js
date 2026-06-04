@@ -65,6 +65,8 @@ app.use("/api/admin" , adminRoutes)
 
 app.use("/api/reports", require("./routes/reportRoutes"));
 
+app.use("/api/notifications", require("./routes/notificationRoutes"));
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
