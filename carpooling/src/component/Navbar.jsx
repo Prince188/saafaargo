@@ -53,11 +53,23 @@ const Navbar = () => {
         }
     };
 
+    const handleUnreadCountChange = (e) => {
+        if (e.detail && typeof e.detail.unreadCount === "number") {
+            setUnreadCount(e.detail.unreadCount);
+        } else {
+            fetchUnreadCount();
+        }
+    };
+
     useEffect(() => {
         if (user) {
             fetchUnreadCount();
             const interval = setInterval(fetchUnreadCount, 30000);
-            return () => clearInterval(interval);
+            window.addEventListener("unreadCountChange", handleUnreadCountChange);
+            return () => {
+                clearInterval(interval);
+                window.removeEventListener("unreadCountChange", handleUnreadCountChange);
+            };
         }
     }, [user]);
 

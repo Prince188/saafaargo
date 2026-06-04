@@ -33,6 +33,7 @@ const Notifications = () => {
             if (res.ok) {
                 setNotifications(data.notifications);
                 setUnreadCount(data.unreadCount);
+                window.dispatchEvent(new CustomEvent("unreadCountChange", { detail: { unreadCount: data.unreadCount } }));
             }
         } catch (err) {
             console.error("Failed to fetch notifications:", err);
@@ -51,6 +52,7 @@ const Notifications = () => {
             if (res.ok) {
                 setNotifications(notifications.map(n => ({ ...n, read: true })));
                 setUnreadCount(0);
+                window.dispatchEvent(new CustomEvent("unreadCountChange", { detail: { unreadCount: 0 } }));
                 toast.success("All notifications marked as read");
             }
         } catch (err) {
@@ -66,7 +68,11 @@ const Notifications = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setNotifications(notifications.map(n => n._id === id ? { ...n, read: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
+            setUnreadCount(prev => {
+                const nextCount = Math.max(0, prev - 1);
+                window.dispatchEvent(new CustomEvent("unreadCountChange", { detail: { unreadCount: nextCount } }));
+                return nextCount;
+            });
         } catch (err) {
             console.error("Failed to mark as read:", err);
         }

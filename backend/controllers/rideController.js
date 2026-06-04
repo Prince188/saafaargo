@@ -3,7 +3,11 @@ const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 
-const placeName = (p) => (p && typeof p === "object" ? (p.displayName || p.address || p.name || "") : String(p || ""));
+const placeName = (p) => {
+    if (!p) return "";
+    const obj = (typeof p.toObject === "function") ? p.toObject() : p;
+    return (obj && typeof obj === "object") ? (obj.displayName || obj.address || obj.name || "") : String(obj || "");
+};
 
 const debugPlace = (label, p) => {
     const r = placeName(p);
@@ -466,9 +470,7 @@ exports.bookRide = async (req, res) => {
                 user: driverId,
                 type: "ride_booked",
                 title: "New Booking",
-                message: rpickup && typeof rpickup === "object"
-                    ? `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${rpickup.displayName || rpickup.address || rpickup.name || ""} to ${rdest?.displayName || rdest?.address || rdest?.name || ""}.`
-                    : `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${String(rpickup || "")} to ${String(rdest || "")}.`,
+                message: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${placeName(rpickup)} to ${placeName(rdest)}.`,
                 rideId: ride._id,
             });
         } catch (notifErr) {
@@ -634,11 +636,11 @@ exports.editRide = async (req, res) => {
 
         try {
             const passengers = await Booking.find({ ride: id, status: "confirmed" }).populate("user", "firstName lastName");
-            const rpickup = ride.pickup, rdest = ride.destination;
+            const rpickup = updatedRide.pickup, rdest = updatedRide.destination;
             const pu = debugPlace("editRide", rpickup);
             const de = debugPlace("editRide", rdest);
-            const puStr = rpickup && typeof rpickup === "object" ? (rpickup.displayName || rpickup.address || rpickup.name || "") : String(rpickup || "");
-            const deStr = rdest && typeof rdest === "object" ? (rdest.displayName || rdest.address || rdest.name || "") : String(rdest || "");
+            const puStr = placeName(rpickup);
+            const deStr = placeName(rdest);
             for (const p of passengers) {
                 await Notification.create({
                     user: p.user._id,
@@ -688,8 +690,8 @@ exports.completeRide = async (req, res) => {
         try {
             const bookings = await Booking.find({ ride: ride._id, status: "completed" }).populate("user", "firstName lastName");
             const rpickup = ride.pickup, rdest = ride.destination;
-            const puStr = rpickup && typeof rpickup === "object" ? (rpickup.displayName || rpickup.address || rpickup.name || "") : String(rpickup || "");
-            const deStr = rdest && typeof rdest === "object" ? (rdest.displayName || rdest.address || rdest.name || "") : String(rdest || "");
+            const puStr = placeName(rpickup);
+            const deStr = placeName(rdest);
             for (const b of bookings) {
                 await Notification.create({
                     user: b.user._id,
@@ -732,8 +734,8 @@ exports.cancelRide = async (req, res) => {
         try {
             const bookings = await Booking.find({ ride: ride._id, status: "cancelled" }).populate("user", "firstName lastName");
             const rpickup = ride.pickup, rdest = ride.destination;
-            const puStr = rpickup && typeof rpickup === "object" ? (rpickup.displayName || rpickup.address || rpickup.name || "") : String(rpickup || "");
-            const deStr = rdest && typeof rdest === "object" ? (rdest.displayName || rdest.address || rdest.name || "") : String(rdest || "");
+            const puStr = placeName(rpickup);
+            const deStr = placeName(rdest);
             for (const b of bookings) {
                 await Notification.create({
                     user: b.user._id,
