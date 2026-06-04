@@ -205,9 +205,8 @@ const RideDetail = () => {
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            showSuccess("Ride booked successfully!");
-            const updated = await API.get(`/rides/${id}`);
-            setRide(updated.data.ride);
+            showSuccess("Your trip planned successfully. 🎉🚗");
+            navigate("/my-trips");
         } catch (err) {
             showError(err.response?.data?.message || "Failed to book ride");
         } finally {
@@ -657,7 +656,7 @@ const RideDetail = () => {
                                                 "Fully Booked"
                                             ) : (
                                                 <>
-                                                    Book Now
+                                                    {isPassenger ? "Book Another Seat" : "Book Now"}
                                                     <FaArrowRight className="text-sm" />
                                                 </>
                                             )}

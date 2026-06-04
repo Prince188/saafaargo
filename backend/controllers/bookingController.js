@@ -24,44 +24,66 @@ exports.bookRide = async (req, res) => {
             return res.status(400).json({ message: "Not enough seats available" });
         }
 
-        // ❌ Prevent duplicate booking (optional but good)
-        const alreadyBooked = await Booking.findOne({
+
+
+        // ✅ Calculate price
+        const amount = ride.perkmprice * seats;
+
+        let booking = await Booking.findOne({
             ride: rideId,
             user: userId,
             status: "confirmed"
         });
 
-        if (alreadyBooked) {
-            return res.status(400).json({ message: "You already booked this ride" });
+        if (booking) {
+            booking.seatsBooked += seats;
+            booking.amountPaid += amount;
+            await booking.save();
+
+            if (!ride.passengers) ride.passengers = [];
+            const passenger = ride.passengers.find(
+                (p) => p.user.toString() === userId
+            );
+            if (passenger) {
+                passenger.seatsBooked += seats;
+                passenger.amountPaid += amount;
+            } else {
+                ride.passengers.push({
+                    user: userId,
+                    name: booking.name,
+                    phone: booking.phone,
+                    email: booking.email,
+                    from: booking.from,
+                    to: booking.to,
+                    amountPaid: booking.amountPaid,
+                    seatsBooked: booking.seatsBooked
+                });
+            }
+        } else {
+            booking = await Booking.create({
+                ride: rideId,
+                user: userId,
+                name: req.user.firstName + " " + req.user.lastName,
+                phone: req.user.phone,
+                email: req.user.email,
+                seatsBooked: seats,
+                amountPaid: amount,
+                from: ride.pickup,
+                to: ride.destination
+            });
+
+            if (!ride.passengers) ride.passengers = [];
+            ride.passengers.push({
+                user: userId,
+                name: booking.name,
+                phone: booking.phone,
+                email: booking.email,
+                from: booking.from,
+                to: booking.to,
+                amountPaid: amount,
+                seatsBooked: seats
+            });
         }
-
-        // ✅ Calculate price
-        const amount = ride.perkmprice * seats;
-
-        // ✅ Create booking record
-        const booking = await Booking.create({
-            ride: rideId,
-            user: userId,
-            name: req.user.firstName + " " + req.user.lastName,
-            phone: req.user.phone,
-            email: req.user.email,
-            seatsBooked: seats,
-            amountPaid: amount,
-            from: ride.pickup,
-            to: ride.destination
-        });
-
-        // ✅ ALSO push into Ride.passengers (your requirement)
-        ride.passengers.push({
-            user: userId,
-            name: booking.name,
-            phone: booking.phone,
-            email: booking.email,
-            from: booking.from,
-            to: booking.to,
-            amountPaid: amount,
-            seatsBooked: seats
-        });
 
         // ✅ Reduce seats
         ride.seatsAvailable -= seats;
@@ -112,52 +134,66 @@ exports.bookRide = async (req, res) => {
             });
         }
 
-        // Prevent duplicate booking
-        const alreadyBooked = await Booking.findOne({
+
+
+        // Calculate amount
+        const amount = ride.perkmprice * seats;
+
+        let booking = await Booking.findOne({
             ride: rideId,
             user: userId,
             status: "confirmed"
         });
 
-        if (alreadyBooked) {
-            return res.status(400).json({
-                message: "You already booked this ride"
+        if (booking) {
+            booking.seatsBooked += seats;
+            booking.amountPaid += amount;
+            await booking.save();
+
+            if (!ride.passengers) ride.passengers = [];
+            const passenger = ride.passengers.find(
+                (p) => p.user.toString() === userId
+            );
+            if (passenger) {
+                passenger.seatsBooked += seats;
+                passenger.amountPaid += amount;
+            } else {
+                ride.passengers.push({
+                    user: userId,
+                    name: booking.name,
+                    phone: booking.phone,
+                    email: booking.email,
+                    from: booking.from,
+                    to: booking.to,
+                    amountPaid: booking.amountPaid,
+                    seatsBooked: booking.seatsBooked
+                });
+            }
+        } else {
+            booking = await Booking.create({
+                ride: rideId,
+                user: userId,
+                name: req.user.firstName + " " + req.user.lastName,
+                phone: req.user.phone,
+                email: req.user.email,
+                seatsBooked: seats,
+                amountPaid: amount,
+                from: ride.pickup,
+                to: ride.destination
+            });
+
+            if (!ride.passengers) ride.passengers = [];
+            ride.passengers.push({
+                user: userId,
+                name: booking.name,
+                phone: booking.phone,
+                email: booking.email,
+                from: booking.from,
+                to: booking.to,
+                amountPaid: amount,
+                seatsBooked: seats
             });
         }
-
-        // Calculate amount
-        const amount = ride.perkmprice * seats;
-
-        // Create booking
-        const booking = await Booking.create({
-            ride: rideId,
-            user: userId,
-
-            name: req.user.firstName + " " + req.user.lastName,
-            phone: req.user.phone,
-            email: req.user.email,
-
-            seatsBooked: seats,
-            amountPaid: amount,
-
-            from: ride.pickup,
-            to: ride.destination
-        });
-
-        // Push into passengers
-        ride.passengers.push({
-            user: userId,
-
-            name: booking.name,
-            phone: booking.phone,
-            email: booking.email,
-
-            from: booking.from,
-            to: booking.to,
-
-            amountPaid: amount,
-            seatsBooked: seats
-        });
 
         // Reduce seats
         ride.seatsAvailable -= seats;
@@ -224,6 +260,7 @@ exports.cancelTrip = async (req, res) => {
     try {
         const userId = req.user.id;
         const tripId = req.params.id;
+        const seatsToCancelInput = Number(req.body.seatsToCancel);
 
         // Find booking
         const booking = await Booking.findById(tripId);
@@ -248,8 +285,21 @@ exports.cancelTrip = async (req, res) => {
             });
         }
 
-        // Update booking
-        booking.status = "cancelled";
+        const maxSeats = booking.seatsBooked;
+        const cancelAll = !seatsToCancelInput || seatsToCancelInput >= maxSeats;
+        const actualCancelCount = cancelAll ? maxSeats : seatsToCancelInput;
+
+        if (actualCancelCount <= 0) {
+            return res.status(400).json({ message: "Invalid cancel count" });
+        }
+
+        if (cancelAll) {
+            booking.status = "cancelled";
+        } else {
+            const pricePerSeat = booking.amountPaid / maxSeats;
+            booking.seatsBooked -= actualCancelCount;
+            booking.amountPaid -= Math.round(pricePerSeat * actualCancelCount);
+        }
 
         await booking.save();
 
@@ -257,26 +307,43 @@ exports.cancelTrip = async (req, res) => {
         const ride = await Ride.findById(booking.ride);
 
         if (ride) {
+            ride.seatsAvailable += actualCancelCount;
 
-            ride.seatsAvailable += booking.seatsBooked;
-
-            // Remove passenger from ride.passengers
-            ride.passengers = ride.passengers.filter(
-                (passenger) =>
-                    passenger.user.toString() !== userId
-            );
+            if (cancelAll) {
+                // Remove matching passenger from ride.passengers
+                const pIndex = ride.passengers.findIndex(
+                    (p) => p.user.toString() === userId && p.seatsBooked === maxSeats && p.amountPaid === booking.amountPaid
+                );
+                if (pIndex !== -1) {
+                    ride.passengers.splice(pIndex, 1);
+                } else {
+                    ride.passengers = ride.passengers.filter(
+                        (passenger) => passenger.user.toString() !== userId
+                    );
+                }
+            } else {
+                // Update passenger entry with reduced seats
+                const passenger = ride.passengers.find(
+                    (p) => p.user.toString() === userId && p.seatsBooked >= maxSeats
+                );
+                if (passenger) {
+                    const pricePerSeat = passenger.amountPaid / maxSeats;
+                    passenger.seatsBooked -= actualCancelCount;
+                    passenger.amountPaid -= Math.round(pricePerSeat * actualCancelCount);
+                }
+            }
 
             await ride.save();
         }
 
         res.status(200).json({
             success: true,
-            message: "Trip cancelled successfully"
+            message: cancelAll ? "Trip cancelled successfully" : `Cancelled ${actualCancelCount} seat(s) successfully`,
+            booking
         });
 
     } catch (err) {
         console.error(err);
-
         res.status(500).json({
             message: "Server error"
         });

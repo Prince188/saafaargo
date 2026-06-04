@@ -96,12 +96,28 @@ const MyTrips = () => {
         }
     };
 
-    const handleCancelTrip = async (tripId) => {
-        const confirmCancel = window.confirm(
-            "Are you sure you want to cancel this booking?"
-        );
+    const handleCancelTrip = async (trip) => {
+        const tripId = trip._id;
+        let seatsToCancel = trip.seatsBooked;
 
-        if (!confirmCancel) return;
+        if (trip.seatsBooked > 1) {
+            const promptVal = window.prompt(
+                `This booking has ${trip.seatsBooked} seats. How many seats would you like to cancel? (1 to ${trip.seatsBooked})`,
+                trip.seatsBooked
+            );
+            if (promptVal === null) return; // user cancelled the prompt
+            
+            seatsToCancel = parseInt(promptVal, 10);
+            if (isNaN(seatsToCancel) || seatsToCancel < 1 || seatsToCancel > trip.seatsBooked) {
+                showError(`Please enter a valid number of seats between 1 and ${trip.seatsBooked}.`);
+                return;
+            }
+        } else {
+            const confirmCancel = window.confirm(
+                "Are you sure you want to cancel this booking?"
+            );
+            if (!confirmCancel) return;
+        }
 
         try {
             const token = localStorage.getItem("token");
@@ -111,8 +127,10 @@ const MyTrips = () => {
                 {
                     method: "PUT",
                     headers: {
+                        "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
+                    body: JSON.stringify({ seatsToCancel }),
                 }
             );
 
@@ -120,14 +138,23 @@ const MyTrips = () => {
 
             if (res.ok) {
                 setTrips((prev) =>
-                    prev.map((trip) =>
-                        trip._id === tripId
-                            ? { ...trip, status: "cancelled" }
-                            : trip
+                    prev.map((t) =>
+                        t._id === tripId
+                            ? { 
+                                ...t, 
+                                seatsBooked: data.booking.seatsBooked, 
+                                amountPaid: data.booking.amountPaid, 
+                                status: data.booking.status 
+                              }
+                            : t
                     )
                 );
 
-                showSuccess("Trip cancelled successfully");
+                showSuccess(
+                    seatsToCancel === trip.seatsBooked
+                        ? "Trip cancelled successfully"
+                        : `Successfully cancelled ${seatsToCancel} seat(s)`
+                );
             } else {
                 showError(data.message || "Failed to cancel trip");
             }
@@ -327,7 +354,7 @@ const MyTrips = () => {
                                             <button
                                                 className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-error text-error hover:bg-error/5 hover:-translate-y-0.5"
                                                 onClick={() =>
-                                                    handleCancelTrip(trip._id)
+                                                    handleCancelTrip(trip)
                                                 }
                                             >
                                                 Cancel Trip

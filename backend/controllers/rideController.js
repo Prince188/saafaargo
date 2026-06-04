@@ -416,14 +416,7 @@ exports.bookRide = async (req, res) => {
             return res.status(400).json({ message: "Not enough seats available" });
         }
 
-        const alreadyBooked = await Booking.findOne({
-            ride: rideId,
-            user: userId,
-            status: "confirmed"
-        });
-        if (alreadyBooked) {
-            return res.status(400).json({ message: "You already booked this ride" });
-        }
+
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
@@ -433,30 +426,65 @@ exports.bookRide = async (req, res) => {
             : ride.perkmprice;
         const amount = pricePerSeat * seatsCount;
 
-        const booking = await Booking.create({
+        let booking = await Booking.findOne({
             ride: rideId,
             user: userId,
-            name: user.firstName + " " + user.lastName,
-            phone: user.mobile,
-            email: user.email,
-            seatsBooked: seatsCount,
-            amountPaid: amount,
-            from: from || ride.pickup,
-            to: to || ride.destination
+            status: "confirmed"
         });
 
-        if (!ride.passengers) ride.passengers = [];
+        if (booking) {
+            booking.seatsBooked += seatsCount;
+            booking.amountPaid += amount;
+            if (from) booking.from = from;
+            if (to) booking.to = to;
+            await booking.save();
 
-        ride.passengers.push({
-            user: userId,
-            name: booking.name,
-            phone: booking.phone,
-            email: booking.email,
-            from: booking.from,
-            to: booking.to,
-            amountPaid: amount,
-            seatsBooked: seatsCount
-        });
+            if (!ride.passengers) ride.passengers = [];
+            const passenger = ride.passengers.find(
+                (p) => p.user.toString() === userId
+            );
+            if (passenger) {
+                passenger.seatsBooked += seatsCount;
+                passenger.amountPaid += amount;
+                if (from) passenger.from = from;
+                if (to) passenger.to = to;
+            } else {
+                ride.passengers.push({
+                    user: userId,
+                    name: booking.name,
+                    phone: booking.phone,
+                    email: booking.email,
+                    from: booking.from,
+                    to: booking.to,
+                    amountPaid: booking.amountPaid,
+                    seatsBooked: booking.seatsBooked
+                });
+            }
+        } else {
+            booking = await Booking.create({
+                ride: rideId,
+                user: userId,
+                name: user.firstName + " " + user.lastName,
+                phone: user.mobile,
+                email: user.email,
+                seatsBooked: seatsCount,
+                amountPaid: amount,
+                from: from || ride.pickup,
+                to: to || ride.destination
+            });
+
+            if (!ride.passengers) ride.passengers = [];
+            ride.passengers.push({
+                user: userId,
+                name: booking.name,
+                phone: booking.phone,
+                email: booking.email,
+                from: booking.from,
+                to: booking.to,
+                amountPaid: amount,
+                seatsBooked: seatsCount
+            });
+        }
 
         ride.seatsAvailable -= seatsCount;
         await ride.save();
