@@ -3,6 +3,14 @@ const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 
+const placeName = (p) => (p && typeof p === "object" ? (p.displayName || p.address || p.name || "") : String(p || ""));
+
+const debugPlace = (label, p) => {
+    const r = placeName(p);
+    console.log(`[DEBUG placeName] ${label} type=${typeof p} isObj=${p && typeof p === "object"} displayName=${p?.displayName} address=${p?.address} keys=${p ? Object.keys(p).join(",") : "null"} result="${r}"`);
+    return r;
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/rides  — PATCHED: sets status based on driver verification
 // ─────────────────────────────────────────────────────────────────────────────
@@ -451,14 +459,18 @@ exports.bookRide = async (req, res) => {
 
         try {
             const driverId = ride.user._id || ride.user;
+            const rpickup = ride.pickup, rdest = ride.destination;
+            const pu = debugPlace("bookRide", rpickup);
+            const de = debugPlace("bookRide", rdest);
             await Notification.create({
                 user: driverId,
                 type: "ride_booked",
                 title: "New Booking",
-                message: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${ride.pickup} to ${ride.destination}.`,
+                message: rpickup && typeof rpickup === "object"
+                    ? `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${rpickup.displayName || rpickup.address || rpickup.name || ""} to ${rdest?.displayName || rdest?.address || rdest?.name || ""}.`
+                    : `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${String(rpickup || "")} to ${String(rdest || "")}.`,
                 rideId: ride._id,
             });
-            console.log("Notification created for driver:", driverId);
         } catch (notifErr) {
             console.error("Failed to create notification:", notifErr);
         }
@@ -622,12 +634,17 @@ exports.editRide = async (req, res) => {
 
         try {
             const passengers = await Booking.find({ ride: id, status: "confirmed" }).populate("user", "firstName lastName");
+            const rpickup = ride.pickup, rdest = ride.destination;
+            const pu = debugPlace("editRide", rpickup);
+            const de = debugPlace("editRide", rdest);
+            const puStr = rpickup && typeof rpickup === "object" ? (rpickup.displayName || rpickup.address || rpickup.name || "") : String(rpickup || "");
+            const deStr = rdest && typeof rdest === "object" ? (rdest.displayName || rdest.address || rdest.name || "") : String(rdest || "");
             for (const p of passengers) {
                 await Notification.create({
                     user: p.user._id,
                     type: "ride_modified",
                     title: "Ride Modified",
-                    message: `Your ride from ${ride.pickup} to ${ride.destination} has been updated by the driver.`,
+                    message: `Your ride from ${puStr} to ${deStr} has been updated by the driver.`,
                     rideId: id,
                 });
             }
@@ -670,12 +687,15 @@ exports.completeRide = async (req, res) => {
 
         try {
             const bookings = await Booking.find({ ride: ride._id, status: "completed" }).populate("user", "firstName lastName");
+            const rpickup = ride.pickup, rdest = ride.destination;
+            const puStr = rpickup && typeof rpickup === "object" ? (rpickup.displayName || rpickup.address || rpickup.name || "") : String(rpickup || "");
+            const deStr = rdest && typeof rdest === "object" ? (rdest.displayName || rdest.address || rdest.name || "") : String(rdest || "");
             for (const b of bookings) {
                 await Notification.create({
                     user: b.user._id,
                     type: "ride_completed",
                     title: "Ride Completed",
-                    message: `Your ride from ${ride.pickup} to ${ride.destination} has been marked as completed.`,
+                    message: `Your ride from ${puStr} to ${deStr} has been marked as completed.`,
                     rideId: ride._id,
                 });
             }
@@ -711,12 +731,15 @@ exports.cancelRide = async (req, res) => {
 
         try {
             const bookings = await Booking.find({ ride: ride._id, status: "cancelled" }).populate("user", "firstName lastName");
+            const rpickup = ride.pickup, rdest = ride.destination;
+            const puStr = rpickup && typeof rpickup === "object" ? (rpickup.displayName || rpickup.address || rpickup.name || "") : String(rpickup || "");
+            const deStr = rdest && typeof rdest === "object" ? (rdest.displayName || rdest.address || rdest.name || "") : String(rdest || "");
             for (const b of bookings) {
                 await Notification.create({
                     user: b.user._id,
                     type: "ride_cancelled",
                     title: "Ride Cancelled",
-                    message: `Your ride from ${ride.pickup} to ${ride.destination} has been cancelled.`,
+                    message: `Your ride from ${puStr} to ${deStr} has been cancelled.`,
                     rideId: ride._id,
                 });
             }

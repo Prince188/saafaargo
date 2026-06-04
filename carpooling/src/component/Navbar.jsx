@@ -163,6 +163,11 @@ const Navbar = () => {
                             >
                                 <FaUser className="text-base lg:text-lg text-forest" />
                                 {user && <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-success rounded-full border-2 border-white" />}
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none border-2 border-white shadow-sm">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
                             </button>
 
                             {showDropdown && (
@@ -317,6 +322,29 @@ const Navbar = () => {
                                 <FaRoute className={`text-lg transition-transform group-hover:scale-110 ${isActive("/how-it-works") ? 'text-white' : 'text-sage'}`} />
                                 <span>How it works</span>
                             </Link>
+
+                            {user && (
+                                <div className="pt-4 mt-4 border-t border-sage-soft/50">
+                                    <span className="block text-[10px] font-extrabold tracking-[0.12em] text-stone uppercase px-4 mb-3">ACCOUNT</span>
+                                    <Link
+                                        to="/notifications"
+                                        className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-base group no-underline ${
+                                            isActive("/notifications") ? 'bg-gradient-primary text-white shadow-md' : 'text-charcoal hover:bg-sage-soft/20 hover:text-forest'
+                                        }`}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        <div className="relative">
+                                            <FaBell className={`text-lg transition-transform group-hover:scale-110 ${isActive("/notifications") ? 'text-white' : 'text-sage'}`} />
+                                            {unreadCount > 0 && (
+                                                <span className="absolute -top-2 -right-2 min-w-[16px] h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none border-2 border-white">
+                                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span>Notifications</span>
+                                    </Link>
+                                </div>
+                            )}
                         </nav>
                     </div>
                 </div>

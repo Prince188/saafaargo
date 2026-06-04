@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaBell, FaCheckDouble, FaCar, FaTimesCircle, FaCheckCircle, FaUser } from "react-icons/fa";
+import { 
+    FaBell, 
+    FaCheckDouble, 
+    FaCar, 
+    FaTimesCircle, 
+    FaCheckCircle, 
+    FaUser,
+    FaArrowRight,
+    FaClock,
+    FaChevronLeft
+} from "react-icons/fa";
+import { MdVerified, MdNotificationsNone, MdNotificationsActive } from "react-icons/md";
 import { toast } from "react-toastify";
 
 const Notifications = () => {
@@ -61,13 +72,18 @@ const Notifications = () => {
         }
     };
 
-    const typeIcon = (type) => {
+    const getTypeIcon = (type) => {
         switch (type) {
-            case "ride_booked": return <FaUser className="text-blue-500" />;
-            case "ride_modified": return <FaCar className="text-amber-500" />;
-            case "ride_cancelled": return <FaTimesCircle className="text-red-500" />;
-            case "ride_completed": return <FaCheckCircle className="text-green-500" />;
-            default: return <FaBell className="text-sage" />;
+            case "ride_booked": 
+                return { icon: FaUser, color: "#2f5a3d", bg: "#e8f1ea" };
+            case "ride_modified": 
+                return { icon: FaCar, color: "#a0522d", bg: "#f5e9df" };
+            case "ride_cancelled": 
+                return { icon: FaTimesCircle, color: "#dc2626", bg: "#fdecec" };
+            case "ride_completed": 
+                return { icon: FaCheckCircle, color: "#10b981", bg: "#e8f1ea" };
+            default: 
+                return { icon: FaBell, color: "#2f5a3d", bg: "#e8f1ea" };
         }
     };
 
@@ -82,17 +98,30 @@ const Notifications = () => {
         if (diffHrs < 24) return `${diffHrs}h ago`;
         const diffDays = Math.floor(diffHrs / 24);
         if (diffDays < 7) return `${diffDays}d ago`;
-        return date.toLocaleDateString();
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
+
+    const SkeletonCard = () => (
+        <div className="bg-white rounded-xl border border-[#e6e1d3] p-5 animate-pulse">
+            <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#e6e1d3]"></div>
+                <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-[#e6e1d3] rounded w-1/3"></div>
+                    <div className="h-3 bg-[#e6e1d3] rounded w-2/3"></div>
+                    <div className="h-3 bg-[#e6e1d3] rounded w-1/4"></div>
+                </div>
+            </div>
+        </div>
+    );
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-cream pt-32 pb-16 px-4">
-                <div className="max-w-2xl mx-auto">
-                    <div className="animate-pulse space-y-4">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-20 bg-sage-soft/30 rounded-2xl" />
-                        ))}
+            <div className="min-h-screen bg-[#f8f6ef] font-inter">
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+                    <div className="space-y-4">
+                        <SkeletonCard />
+                        <SkeletonCard />
+                        <SkeletonCard />
                     </div>
                 </div>
             </div>
@@ -100,61 +129,116 @@ const Notifications = () => {
     }
 
     return (
-        <div className="min-h-screen bg-cream pt-32 pb-16 px-4">
-            <div className="max-w-2xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-2xl lg:text-3xl font-bold text-forest font-fraunces">Notifications</h1>
+        <div className="min-h-screen bg-[#f8f6ef] font-inter">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+                
+                {/* Header */}
+                <div className="mb-10">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-[#e6e1d3]">
+                        <div>
+                            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full mb-3 border border-[#2f5a3d]/10">
+                                <MdNotificationsActive className="text-[#2f5a3d] text-xs" />
+                                <span className="text-[10px] font-bold tracking-[0.15em] text-[#2f5a3d] uppercase">UPDATES</span>
+                            </div>
+                            <h1 
+                                className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#1a2620] font-fraunces"
+                                style={{ fontFamily: '"Fraunces", serif' }}
+                            >
+                                Notifications
+                            </h1>
+                            {unreadCount > 0 && (
+                                <p className="text-sm text-[#5a6358] mt-1">
+                                    <span className="font-semibold text-[#2f5a3d]">{unreadCount}</span> unread notification{unreadCount !== 1 ? "s" : ""}
+                                </p>
+                            )}
+                        </div>
+                        
                         {unreadCount > 0 && (
-                            <p className="text-sm text-stone mt-1">{unreadCount} unread</p>
+                            <button
+                                onClick={markAllAsRead}
+                                className="group inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#e6e1d3] rounded-xl text-sm text-[#1a2620] font-medium hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300"
+                            >
+                                <FaCheckDouble className="text-[#2f5a3d] text-xs group-hover:scale-110 transition-transform" />
+                                Mark all read
+                            </button>
                         )}
                     </div>
-                    {unreadCount > 0 && (
-                        <button
-                            onClick={markAllAsRead}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-sage-soft rounded-xl text-sm text-forest font-medium hover:bg-sage-soft/20 transition-all duration-base"
-                        >
-                            <FaCheckDouble className="text-sage" />
-                            Mark all as read
-                        </button>
-                    )}
                 </div>
 
+                {/* Empty State */}
                 {notifications.length === 0 ? (
-                    <div className="text-center py-16">
-                        <FaBell className="text-5xl text-sage-soft mx-auto mb-4" />
-                        <p className="text-stone text-lg">No notifications yet</p>
-                        <p className="text-stone/60 text-sm mt-1">When someone books your ride or updates happen, you'll see them here.</p>
+                    <div className="bg-white rounded-md border border-[#e6e1d3] text-center py-16 px-6 shadow-sm">
+                        <div className="w-20 h-20 bg-[#e8f1ea] rounded-2xl flex items-center justify-center mx-auto mb-5">
+                            <MdNotificationsNone className="text-[#2f5a3d] text-3xl" />
+                        </div>
+                        <p 
+                            className="text-xl font-semibold text-[#1a2620] mb-2 font-fraunces"
+                            style={{ fontFamily: '"Fraunces", serif' }}
+                        >
+                            No notifications yet
+                        </p>
+                        <p className="text-[#5a6358] text-sm max-w-sm mx-auto">
+                            When someone books your ride or updates happen, you'll see them here.
+                        </p>
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {notifications.map(n => (
-                            <Link
-                                key={n._id}
-                                to={n.rideId ? `/rides/${n.rideId}` : "#"}
-                                onClick={() => { if (!n.read) markAsRead(n._id); }}
-                                className={`block p-4 rounded-2xl border transition-all duration-base no-underline ${n.read
-                                    ? "bg-white border-sage-soft"
-                                    : "bg-sage-soft/20 border-sage/30 shadow-sm"
+                        {notifications.map((notification) => {
+                            const { icon: Icon, color, bg } = getTypeIcon(notification.type);
+                            return (
+                                <Link
+                                    key={notification._id}
+                                    to={notification.rideId ? `/rides/${notification.rideId}` : "#"}
+                                    onClick={() => { if (!notification.read) markAsRead(notification._id); }}
+                                    className={`group block rounded-md border transition-all duration-300 no-underline ${
+                                        notification.read
+                                            ? "bg-white border-[#e6e1d3] hover:border-[#2f5a3d]/30 hover:shadow-md"
+                                            : "bg-gradient-to-r from-[#e8f1ea] to-white border-[#2f5a3d]/30 shadow-sm"
                                     }`}
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center ${n.read ? "bg-off-white" : "bg-white"}`}>
-                                        {typeIcon(n.type)}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <h3 className={`text-sm font-semibold ${n.read ? "text-charcoal" : "text-forest"}`}>
-                                                {n.title}
-                                            </h3>
-                                            {!n.read && <span className="w-2 h-2 bg-blue-500 rounded-full shrink-0" />}
+                                >
+                                    <div className="p-5">
+                                        <div className="flex items-start gap-4">
+                                            {/* Icon */}
+                                            <div 
+                                                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                                                style={{ backgroundColor: bg }}
+                                            >
+                                                <Icon style={{ color }} className="text-base" />
+                                            </div>
+                                            
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <h3 className={`text-sm font-semibold ${notification.read ? "text-[#5a6358]" : "text-[#1a2620]"}`}>
+                                                        {notification.title}
+                                                    </h3>
+                                                    {!notification.read && (
+                                                        <span className="w-2 h-2 bg-[#2f5a3d] rounded-full animate-pulse" />
+                                                    )}
+                                                </div>
+                                                <p className="text-sm text-[#5a6358] mt-1 leading-relaxed">
+                                                    {notification.message}
+                                                </p>
+                                                <div className="flex items-center gap-4 mt-2">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <FaClock className="text-[#9aa194] text-[10px]" />
+                                                        <span className="text-xs text-[#7a8478]">
+                                                            {timeAgo(notification.createdAt)}
+                                                        </span>
+                                                    </div>
+                                                    {notification.rideId && (
+                                                        <div className="flex items-center gap-1.5 text-xs font-medium text-[#2f5a3d] group-hover:translate-x-0.5 transition-all">
+                                                            <span>View ride</span>
+                                                            <FaArrowRight className="text-[10px]" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p className="text-sm text-stone mt-0.5 line-clamp-2">{n.message}</p>
-                                        <p className="text-xs text-stone/50 mt-1.5">{timeAgo(n.createdAt)}</p>
                                     </div>
-                                </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            );
+                        })}
                     </div>
                 )}
             </div>
