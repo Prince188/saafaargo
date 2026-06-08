@@ -54,7 +54,7 @@ exports.createRide = async (req, res) => {
             status: rideStatus,
             totalDistanceKm: Number(totalDistanceKm) || 0,
             pricePerSeat: Number(totalPricePerSeat) || 0,
-            totalEarning: Number(totalPriceFullRoute) || 0,
+            totalEarning: 0,
             preferences: preferences || {},
         });
 
@@ -487,7 +487,10 @@ exports.bookRide = async (req, res) => {
         }
 
         ride.seatsAvailable -= seatsCount;
+        ride.totalEarning = (ride.totalEarning || 0) + amount;
+        ride.markModified('totalEarning');
         await ride.save();
+        console.log(`[bookRide] totalEarning = ${ride.totalEarning} for ride ${rideId}`);
 
         try {
             const driverId = ride.user._id || ride.user;
@@ -652,7 +655,6 @@ exports.editRide = async (req, res) => {
             const calculatedPerSeat = Math.round(totalRoutePrice / (seats + 1));
 
             updateFields.pricePerSeat = calculatedPerSeat;
-            updateFields.totalEarning = totalRoutePrice;
         }
 
         // ── Persist ───────────────────────────────────────────────────────
@@ -749,6 +751,10 @@ exports.cancelRide = async (req, res) => {
         if (!ride) return res.status(404).json({ message: "Ride not found" });
         if (ride.user.toString() !== req.user.id) return res.status(403).json({ message: "Unauthorized" });
         if (ride.status !== "published") return res.status(400).json({ message: "Ride is not published" });
+
+        // Deduct all passenger amounts from totalEarning
+        const passengerTotal = ride.passengers.reduce((sum, p) => sum + (p.amountPaid || 0), 0);
+        ride.totalEarning = Math.max(0, (ride.totalEarning || 0) - passengerTotal);
 
         ride.status = "cancelled";
         ride.seatsAvailable = 0;

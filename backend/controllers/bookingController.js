@@ -293,12 +293,14 @@ exports.cancelTrip = async (req, res) => {
             return res.status(400).json({ message: "Invalid cancel count" });
         }
 
+        const pricePerSeat = booking.amountPaid / maxSeats;
+        const deductAmount = Math.round(pricePerSeat * actualCancelCount);
+
         if (cancelAll) {
             booking.status = "cancelled";
         } else {
-            const pricePerSeat = booking.amountPaid / maxSeats;
             booking.seatsBooked -= actualCancelCount;
-            booking.amountPaid -= Math.round(pricePerSeat * actualCancelCount);
+            booking.amountPaid -= deductAmount;
         }
 
         await booking.save();
@@ -332,6 +334,8 @@ exports.cancelTrip = async (req, res) => {
                     passenger.amountPaid -= Math.round(pricePerSeat * actualCancelCount);
                 }
             }
+
+            ride.totalEarning = Math.max(0, (ride.totalEarning || 0) - deductAmount);
 
             await ride.save();
         }

@@ -81,9 +81,8 @@ const rideSchema = new mongoose.Schema({
     totalEarning: {
         type: Number,
         default: 0,
-        // Total driver earns if ALL seats are filled for the full route.
-        // Calculated as: Math.round(distanceKm * perkmprice)
-        // MyRide.jsx already reads ride.totalEarning — it will now be accurate.
+        // Accumulated actual earnings from bookings.
+        // Each time a seat is booked, the booking amount is added.
     },
 
     passengers: [

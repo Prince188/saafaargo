@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaWallet, FaMoneyBillWave, FaCar, FaRupeeSign, FaChartLine, FaCalendarCheck } from "react-icons/fa";
+import { FaWallet, FaMoneyBillWave, FaCar, FaRupeeSign, FaChartLine, FaCalendarCheck, FaTimesCircle } from "react-icons/fa";
 import { MdVerified, MdTrendingUp, MdLocalOffer } from "react-icons/md";
 import { FiUsers } from "react-icons/fi";
 
@@ -22,14 +22,23 @@ const Wallet = () => {
                 const rides = Array.isArray(data) ? data : (data.rides || []);
                 const publishedRides = rides.filter(r => r.status === "published");
                 const completedRides = rides.filter(r => r.status === "completed");
-                const totalEarnings = completedRides.reduce((sum, r) => sum + (r.totalEarning || 0), 0);
-                const totalSeatsOffered = completedRides.reduce((sum, r) => sum + (r.seatsAvailable || 0), 0);
+                const cancelledRides = rides.filter(r => r.status === "cancelled");
+
+                const totalEarnings = rides.reduce((sum, r) => sum + (r.totalEarning || 0), 0);
+                const totalSeatsBooked = rides.reduce((sum, r) => {
+                    const passengers = r.passengers || [];
+                    return sum + passengers.reduce((s, p) => s + (p.seatsBooked || 0), 0);
+                }, 0);
+                const totalTrips = rides.filter(r => (r.passengers || []).length > 0).length;
+
                 setStats({
                     totalRides: rides.length,
                     publishedRides: publishedRides.length,
                     completedRides: completedRides.length,
+                    cancelledRides: cancelledRides.length,
                     totalEarnings,
-                    totalSeatsOffered,
+                    totalSeatsBooked,
+                    totalTrips,
                 });
             }
         } catch (err) {
@@ -47,10 +56,10 @@ const Wallet = () => {
             iconBg: "#e8f1ea",
             iconColor: "#2f5a3d",
             gradient: "from-[#e8f1ea] to-white",
-            subtitle: "From completed rides",
+            subtitle: "Net earnings from all rides",
         },
         {
-            title: "Rides Completed",
+            title: "Trips Completed",
             value: stats?.completedRides || 0,
             icon: FaCalendarCheck,
             iconBg: "#eaf1fb",
@@ -68,13 +77,13 @@ const Wallet = () => {
             subtitle: "Currently published",
         },
         {
-            title: "Seats Offered",
-            value: stats?.totalSeatsOffered || 0,
+            title: "Seats Booked",
+            value: stats?.totalSeatsBooked || 0,
             icon: FiUsers,
             iconBg: "#fdecec",
             iconColor: "#dc2626",
             gradient: "from-[#fdecec] to-white",
-            subtitle: "Across completed rides",
+            subtitle: `Across ${stats?.totalTrips || 0} trips`,
         },
     ];
 
@@ -191,11 +200,11 @@ const Wallet = () => {
                                     <span className="text-xs font-bold uppercase tracking-wider text-white/80">YOUR IMPACT</span>
                                 </div>
                                 <p className="text-sm text-white/80 max-w-md">
-                                    You've helped reduce carbon emissions by sharing {stats?.totalSeatsOffered || 0} seats with fellow travelers.
+                                    You've helped reduce carbon emissions by sharing {stats?.totalSeatsBooked || 0} seats with fellow travelers.
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-xs text-white/60 mb-1">Total Earnings</p>
+                                <p className="text-xs text-white/60 mb-1">Net Earnings</p>
                                 <p className="text-2xl font-bold">₹{stats?.totalEarnings?.toLocaleString() || 0}</p>
                             </div>
                         </div>
