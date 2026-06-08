@@ -84,19 +84,43 @@ const normalize = (str) =>
         .trim();
 
 const isRouteMatch = (ride, from, to) => {
-    const route = [
+    const pickupItems = [
         ride.pickup.displayName,
-        ...(ride.stops?.map(s => s.displayName) || []),
-        ride.destination.displayName
-    ].map(normalize);
+        ride.pickup.address,
+    ].filter(Boolean).map(normalize);
+
+    const destItems = [
+        ride.destination.displayName,
+        ride.destination.address,
+    ].filter(Boolean).map(normalize);
+
+    const stopItems = (ride.stops || []).flatMap(s => [s.displayName, s.address]).filter(Boolean).map(normalize);
 
     const fromKey = normalize(from);
     const toKey = normalize(to);
 
-    const fromIdx = route.findIndex(r => r.includes(fromKey));
-    const toIdx = route.findIndex(r => r.includes(toKey));
+    const matches = (routeItem, searchKey) => {
+        if (routeItem.includes(searchKey) || searchKey.includes(routeItem)) return true;
+        const words = searchKey.split(/[\s,]+/).filter(w => w.length > 2);
+        return words.some(word => routeItem.includes(word));
+    };
 
-    return fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx;
+    const fromInPickup = pickupItems.some(r => matches(r, fromKey));
+    const fromInStops = stopItems.some(r => matches(r, fromKey));
+    const toInDest = destItems.some(r => matches(r, toKey));
+    const toInStops = stopItems.some(r => matches(r, toKey));
+
+    if (!fromInPickup && !fromInStops) return false;
+    if (!toInDest && !toInStops) return false;
+
+    // If both match stops, ensure from stop comes before to stop
+    if (fromInStops && toInStops) {
+        const fromStopIdx = stopItems.findIndex(r => matches(r, fromKey));
+        const toStopIdx = stopItems.findIndex(r => matches(r, toKey));
+        if (fromStopIdx >= toStopIdx) return false;
+    }
+
+    return true;
 };
 
 const getDistanceInKm = (lat1, lon1, lat2, lon2) => {
@@ -141,6 +165,22 @@ const getCityCoordinates = (location) => {
     return { lat: Number(location.lat), lng: Number(location.lng) };
 };
 
+// Shared matching: checks if routeItem (pickup/stop/destination) matches searchKey
+// Supports bi-directional includes and word-level matching against both displayName and address
+const routeItemMatches = (routeItem, searchKey) => {
+    const names = [
+        routeItem.displayName,
+        routeItem.address,
+    ].filter(Boolean).map(normalize);
+    const result = names.some(name => {
+        if (name.includes(searchKey) || searchKey.includes(name)) return true;
+        const words = searchKey.split(/[\s,]+/).filter(w => w.length > 2);
+        return words.some(word => name.includes(word));
+    });
+    console.log("[routeItemMatches] result=%s names=%j searchKey=%s", result, names, searchKey);
+    return result;
+};
+
 const getSegmentDistance = (ride, from, to) => {
     const route = [
         ride.pickup,
@@ -151,8 +191,15 @@ const getSegmentDistance = (ride, from, to) => {
     const fromKey = normalize(from);
     const toKey = normalize(to);
 
-    const fromIndex = route.findIndex(r => normalize(r.displayName).includes(fromKey));
-    const toIndex = route.findIndex(r => normalize(r.displayName).includes(toKey));
+    // fromIndex: only search pickup and stops (not destination)
+    const fromIndex = route.slice(0, -1).findIndex(r => routeItemMatches(r, fromKey));
+    // toIndex: only search stops and destination (not pickup)
+    const toIndex = (() => {
+        const idx = route.slice(1).findIndex(r => routeItemMatches(r, toKey));
+        return idx === -1 ? -1 : idx + 1;
+    })();
+
+    console.log("[getSegmentDistance] fromIndex=%d toIndex=%d fromKey=%s toKey=%s %s", fromIndex, toIndex, fromKey, toKey, route.length > 0 ? JSON.stringify(route.map(r => ({ dn: r.displayName, addr: r.address }))) : "");
 
     if (fromIndex === -1 || toIndex === -1 || fromIndex >= toIndex) return 0;
 
@@ -234,16 +281,14 @@ const getSegmentTime = (ride, from, to) => {
     for (let i = 0; i < route.length - 1; i++) {
         const start = route[i];
         const end = route[i + 1];
-        const startName = normalize(start.displayName);
-        const endName = normalize(end.displayName);
         const distance = getDistanceInKm(start.lat, start.lng, end.lat, end.lng);
         const travelMinutes = distance * 2;
 
-        if (!pickupTime && startName.includes(fromKey)) {
+        if (!pickupTime && routeItemMatches(start, fromKey)) {
             pickupTime = minutes;
         }
         minutes += travelMinutes;
-        if (endName.includes(toKey)) {
+        if (routeItemMatches(end, toKey)) {
             dropTime = minutes;
             break;
         }

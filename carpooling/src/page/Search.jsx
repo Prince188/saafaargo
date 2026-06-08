@@ -72,8 +72,8 @@ const Search = () => {
             setError(null);
             try {
                 const params = new URLSearchParams({
-                    from: extractCity(from),
-                    to: extractCity(to),
+                    from: from,
+                    to: to,
                     date,
                     seats: seats ?? 1,
                 });
