@@ -24,8 +24,8 @@ const UserDashboard = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                const hasRide = data.rides && data.rides.length > 0;
-                setShowWallet(hasRide);
+                const rides = Array.isArray(data) ? data : (data.rides || []);
+                setShowWallet(rides.length > 0);
             }
         } catch (err) {}
     };
