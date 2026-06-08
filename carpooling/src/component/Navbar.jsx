@@ -1,33 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
     FaUser,
     FaPlus,
-    FaSignOutAlt,
-    FaUserCircle,
-    FaSignInAlt,
-    FaUserPlus,
-    FaCar,
     FaHome,
     FaCompass,
     FaRoute,
     FaBars,
     FaTimes,
-    FaBell
+    FaSignInAlt,
+    FaUserPlus
 } from "react-icons/fa";
 
 const Navbar = () => {
-    const [showDropdown, setShowDropdown] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [user, setUser] = useState(null);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const navigate = useNavigate();
     const location = useLocation();
-    const dropdownRef = useRef(null);
 
-    // ✅ Load user from localStorage
     const loadUser = () => {
         const storedUser = JSON.parse(localStorage.getItem("user") || "null");
         setUser(storedUser);
@@ -48,63 +40,32 @@ const Navbar = () => {
             });
             const data = await res.json();
             if (res.ok) setUnreadCount(data.unreadCount);
-        } catch (err) {
-            // silent
-        }
-    };
-
-    const handleUnreadCountChange = (e) => {
-        if (e.detail && typeof e.detail.unreadCount === "number") {
-            setUnreadCount(e.detail.unreadCount);
-        } else {
-            fetchUnreadCount();
-        }
+        } catch (err) {}
     };
 
     useEffect(() => {
         if (user) {
             fetchUnreadCount();
             const interval = setInterval(fetchUnreadCount, 30000);
-            window.addEventListener("unreadCountChange", handleUnreadCountChange);
-            return () => {
-                clearInterval(interval);
-                window.removeEventListener("unreadCountChange", handleUnreadCountChange);
-            };
+            return () => clearInterval(interval);
         }
     }, [user]);
 
     const isAdmin = user?.role === "admin";
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setUser(null);
-        window.dispatchEvent(new Event("authChange")); // ✅ notify navbar
-        navigate("/login");
-        setShowDropdown(false);
-    };
-
-    // Close dropdown on outside click
-    useEffect(() => {
-        const handler = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setShowDropdown(false);
-            }
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, []);
-
     // Handle scroll effect
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
+        const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const isActive = (path) => location.pathname === path;
+
+    const getInitials = () => {
+        if (!user) return "";
+        return ((user.firstName?.[0] || "") + (user.lastName?.[0] || "")).toUpperCase() || "?";
+    };
 
     return (
         <>
@@ -162,103 +123,50 @@ const Navbar = () => {
                             <FaBars className="text-base text-forest" />
                         </button>
 
-                        {/* PROFILE DROPDOWN */}
-                        <div className="relative" ref={dropdownRef}>
-                            <button
-                                type="button"
-                                className={`w-9 h-9 lg:w-10 lg:h-10 bg-off-white border border-sage-soft rounded-full flex items-center justify-center cursor-pointer transition-all duration-base relative hover:bg-sage-soft hover:border-sage hover:translate-y-[-2px] ${showDropdown ? 'bg-sage-soft border-sage' : ''
+                        {/* PROFILE / AUTH BUTTONS */}
+                        {user ? (
+                            <Link
+                                to="/dashboard"
+                                className={`w-9 h-9 lg:w-10 lg:h-10 rounded-full flex items-center justify-center overflow-hidden transition-all duration-base relative hover:translate-y-[-2px] hover:shadow-md no-underline ${isActive("/dashboard") ? 'ring-2 ring-sage' : 'ring-1 ring-sage-soft'
                                     }`}
-                                onClick={() => setShowDropdown(!showDropdown)}
-                                aria-haspopup="menu"
-                                aria-expanded={showDropdown}
-                                aria-label="Account menu"
+                                aria-label="Dashboard"
                             >
-                                <FaUser className="text-base lg:text-lg text-forest" />
-                                {user && <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-success rounded-full border-2 border-white" />}
+                                {user.profilePic ? (
+                                    <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-primary flex items-center justify-center">
+                                        <span className="text-sm font-bold text-white">{getInitials()}</span>
+                                    </div>
+                                )}
                                 {unreadCount > 0 && (
                                     <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none border-2 border-white shadow-sm">
                                         {unreadCount > 9 ? '9+' : unreadCount}
                                     </span>
                                 )}
-                            </button>
+                            </Link>
+                        ) : (
+                            <div className="hidden lg:flex items-center gap-2">
+                                <Link to="/login" className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone no-underline rounded-xl hover:bg-sage-soft/20 hover:text-forest transition-all">
+                                    <FaSignInAlt />
+                                    <span>Login</span>
+                                </Link>
+                                <Link to="/register" className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-gradient-primary rounded-xl no-underline hover:translate-y-[-2px] hover:shadow-md transition-all">
+                                    <FaUserPlus />
+                                    <span>Sign Up</span>
+                                </Link>
+                            </div>
+                        )}
 
-                            {showDropdown && (
-                                <div className="absolute top-[calc(100%+12px)] right-0 w-[220px] bg-white rounded-2xl shadow-xl border border-sage-soft animate-slide-down z-[1010] overflow-hidden">
-
-                                    <div className="py-3 px-2 space-y-1 bg-white">
-                                        {user ? (
-                                            <>
-                                                <Link to="/profile" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <FaUserCircle className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                    <span>My Profile</span>
-                                                </Link>
-
-                                                <Link to="/my-rides" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <FaCar className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                    <span>My Rides</span>
-                                                </Link>
-
-                                                <Link to="/my-trips" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <FaRoute className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                    <span>My Trips</span>
-                                                </Link>
-
-                                                <Link to="/notifications" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <div className="relative">
-                                                        <FaBell className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                        {unreadCount > 0 && (
-                                                            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none">{unreadCount > 9 ? '9+' : unreadCount}</span>
-                                                        )}
-                                                    </div>
-                                                    <span>Notifications</span>
-                                                </Link>
-
-                                                {isAdmin && (
-                                                    <Link
-                                                        to="/admin/dashboard"
-                                                        className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline"
-                                                        onClick={() => setShowDropdown(false)}
-                                                    >
-                                                        <FaUser className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                        <span>Admin Dashboard</span>
-                                                    </Link>
-                                                )}
-
-                                                <div className="h-px bg-sage-soft/50 my-2 mx-2" />
-
-                                                <button
-                                                    type="button"
-                                                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-error/90 font-semibold hover:bg-error/5 transition-all duration-base w-full bg-transparent border-none cursor-pointer font-inter text-left group"
-                                                    onClick={handleLogout}
-                                                >
-                                                    <FaSignOutAlt className="text-lg text-error transition-all duration-base" />
-                                                    <span>Logout</span>
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Link to="/login" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-charcoal font-medium hover:bg-sage-soft/20 hover:text-forest transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <FaSignInAlt className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                    <span>Login</span>
-                                                </Link>
-
-                                                <Link to="/register" className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-forest font-bold hover:bg-sage-soft/20 transition-all duration-base group no-underline" onClick={() => setShowDropdown(false)}>
-                                                    <FaUserPlus className="text-lg text-sage transition-transform group-hover:scale-110" />
-                                                    <span>Create Account</span>
-                                                </Link>
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {!user && (
-                                        <div className="px-5 py-4 bg-off-white rounded-b-2xl border-t border-sage-soft text-center text-xs text-stone">
-                                            <span>New to Safar?</span>
-                                            <Link to="/register" className="text-forest font-bold ml-1 transition-colors duration-base hover:text-sage no-underline" onClick={() => setShowDropdown(false)}>Sign up free</Link>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                        {/* Admin Link (mobile-friendly) */}
+                        {isAdmin && (
+                            <Link
+                                to="/admin/dashboard"
+                                className="hidden lg:flex items-center gap-2 px-4 py-2 text-sm font-medium text-stone no-underline rounded-xl hover:bg-sage-soft/20 hover:text-forest transition-all"
+                            >
+                                <FaUser />
+                                <span>Admin</span>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </header>
@@ -335,25 +243,55 @@ const Navbar = () => {
                                 <span>How it works</span>
                             </Link>
 
-                            {user && (
+                            {user ? (
                                 <div className="pt-4 mt-4 border-t border-sage-soft/50">
                                     <span className="block text-[10px] font-extrabold tracking-[0.12em] text-stone uppercase px-4 mb-3">ACCOUNT</span>
                                     <Link
-                                        to="/notifications"
-                                        className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-base group no-underline ${
-                                            isActive("/notifications") ? 'bg-gradient-primary text-white shadow-md' : 'text-charcoal hover:bg-sage-soft/20 hover:text-forest'
-                                        }`}
+                                        to="/dashboard"
+                                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-base group no-underline text-charcoal hover:bg-sage-soft/20 hover:text-forest"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
-                                        <div className="relative">
-                                            <FaBell className={`text-lg transition-transform group-hover:scale-110 ${isActive("/notifications") ? 'text-white' : 'text-sage'}`} />
-                                            {unreadCount > 0 && (
-                                                <span className="absolute -top-2 -right-2 min-w-[16px] h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none border-2 border-white">
-                                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                                </span>
+                                        <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+                                            {user?.profilePic ? (
+                                                <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                                getInitials()
                                             )}
                                         </div>
-                                        <span>Notifications</span>
+                                        <span>Dashboard</span>
+                                    </Link>
+                                </div>
+                            ) : (
+                                <div className="pt-4 mt-4 border-t border-sage-soft/50 space-y-2">
+                                    <span className="block text-[10px] font-extrabold tracking-[0.12em] text-stone uppercase px-4 mb-3">ACCOUNT</span>
+                                    <Link
+                                        to="/login"
+                                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-base group no-underline text-charcoal hover:bg-sage-soft/20 hover:text-forest"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        <FaSignInAlt className="text-lg text-sage" />
+                                        <span>Login</span>
+                                    </Link>
+                                    <Link
+                                        to="/register"
+                                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold transition-all duration-base group no-underline text-forest hover:bg-sage-soft/20"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        <FaUserPlus className="text-lg text-sage" />
+                                        <span>Create Account</span>
+                                    </Link>
+                                </div>
+                            )}
+
+                            {isAdmin && (
+                                <div className="pt-4 mt-4 border-t border-sage-soft/50">
+                                    <Link
+                                        to="/admin/dashboard"
+                                        className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-base group no-underline text-charcoal hover:bg-sage-soft/20 hover:text-forest"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        <FaUser className="text-lg text-sage" />
+                                        <span>Admin Dashboard</span>
                                     </Link>
                                 </div>
                             )}

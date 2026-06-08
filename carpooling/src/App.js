@@ -71,6 +71,8 @@ const ForgotPasswordPage = lazy(() => import('./page/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./page/ResetPasswordPage'));
 const HowWeWork = lazy(() => import('./page/HowWeWork'));
 const Notifications = lazy(() => import('./page/Notifications'));
+const UserDashboard = lazy(() => import('./page/User/UserDashboard'));
+const WalletPage = lazy(() => import('./page/User/Wallet'));
 
 // Helper to resolve the correct skeleton loader on reload based on active window path
 function getSkeletonForPath(path) {
@@ -201,6 +203,15 @@ function App() {
             <Route path='/offer-ride/ride-review' element={<Suspense fallback={<PublishRideSkeleton />}><RideReview /></Suspense>} />
 
             {/* Admin Routes */}
+
+            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>}>
+              <Route index element={<Navigate to="profile" />} />
+              <Route path="profile" element={<Suspense fallback={<ProfilePanelSkeleton />}><ProfilePage /></Suspense>} />
+              <Route path="rides" element={<Suspense fallback={<SearchSkeleton />}><MyRide /></Suspense>} />
+              <Route path="trips" element={<Suspense fallback={<SearchSkeleton />}><MyTrips /></Suspense>} />
+              <Route path="notifications" element={<Suspense fallback={<ProfilePanelSkeleton />}><Notifications /></Suspense>} />
+              <Route path="wallet" element={<Suspense fallback={<ProfilePanelSkeleton />}><WalletPage /></Suspense>} />
+            </Route>
 
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<Navigate to="dashboard" />} />
