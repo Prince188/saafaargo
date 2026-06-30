@@ -49,49 +49,49 @@ const UserDashboard = () => {
     ];
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-16 lg:pt-0">
+        <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Mobile sidebar toggle */}
             <button
-                className="lg:hidden fixed top-20 left-4 z-50 w-10 h-10 bg-white rounded-xl shadow-md flex items-center justify-center border border-gray-200"
+                className="lg:hidden fixed top-4 left-4 z-50 w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center border border-gray-200"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 aria-label="Toggle sidebar"
             >
-                {sidebarOpen ? <FaTimes className="text-forest" /> : <FaBars className="text-forest" />}
+                {sidebarOpen ? <FaTimes className="text-forest text-sm" /> : <FaBars className="text-forest text-sm" />}
             </button>
 
             {/* Overlay for mobile */}
             {sidebarOpen && (
-                <div className="lg:hidden fixed inset-0 bg-black/50 z-30" onClick={() => setSidebarOpen(false)} />
+                <div className="lg:hidden fixed inset-0 bg-black/40 z-30" onClick={() => setSidebarOpen(false)} />
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed lg:relative w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-2xl shrink-0 z-40 transition-all duration-300 h-screen ${sidebarOpen ? 'left-0' : '-left-72 lg:left-0'}`}>
-                <div className="p-6 border-b border-white/10 flex flex-col items-center">
-                    <Link to="/" className="bg-white/95 px-4 py-2.5 rounded-xl shadow-md transition-all duration-base hover:bg-white hover:scale-102 mb-3">
-                        <img src="/logo.png" alt="SafarGo Logo" className="h-8 w-auto object-contain" />
+            <aside className={`fixed lg:relative w-64 lg:w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-2xl shrink-0 z-40 transition-all duration-300 ${sidebarOpen ? 'left-0' : '-left-72 lg:left-0'} top-0 h-screen`}>
+                <div className="p-4 lg:p-6 border-b border-white/10 flex flex-col items-center">
+                    <Link to="/" className="bg-white/95 px-3 lg:px-4 py-2 rounded-xl shadow-md transition-all duration-base hover:bg-white mb-2 lg:mb-3">
+                        <img src="/logo.png" alt="SafarGo Logo" className="h-6 lg:h-8 w-auto object-contain" />
                     </Link>
-                    <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center overflow-hidden ring-2 ring-white/20">
+                    <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-white/10 flex items-center justify-center overflow-hidden ring-2 ring-white/20">
                         {user?.profilePic ? (
                             <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-2xl font-bold text-white">{getInitials()}</span>
+                            <span className="text-xl lg:text-2xl font-bold text-white">{getInitials()}</span>
                         )}
                     </div>
-                    <p className="text-sm font-semibold text-white mt-3">{user?.firstName} {user?.lastName}</p>
-                    <p className="text-xs text-white/60">{user?.email}</p>
+                    <p className="text-xs lg:text-sm font-semibold text-white mt-2 lg:mt-3 truncate max-w-full">{user?.firstName} {user?.lastName}</p>
+                    <p className="text-[10px] lg:text-xs text-white/60 truncate max-w-full hidden lg:block">{user?.email}</p>
                 </div>
 
-                <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                <nav className="flex-1 px-3 lg:px-4 py-4 lg:py-6 space-y-1 overflow-y-auto">
                     {navLinks.map(link => (
                         <Link
                             key={link.to}
                             to={link.to}
                             onClick={() => setSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${
+                            className={`flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl transition-all duration-200 no-underline text-sm lg:text-base ${
                                 isActive(link.to) ? 'bg-white/10 text-white shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
                             }`}
                         >
-                            <span className="text-lg">{link.icon}</span>
+                            <span className="text-base lg:text-lg">{link.icon}</span>
                             <span className="font-medium">{link.label}</span>
                         </Link>
                     ))}
@@ -99,22 +99,22 @@ const UserDashboard = () => {
                         <Link
                             to="/dashboard/wallet"
                             onClick={() => setSidebarOpen(false)}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 no-underline ${
+                            className={`flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl transition-all duration-200 no-underline text-sm lg:text-base ${
                                 isActive("/dashboard/wallet") ? 'bg-white/10 text-white shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
                             }`}
                         >
-                            <FaWallet className="text-lg" />
+                            <FaWallet className="text-base lg:text-lg" />
                             <span className="font-medium">Wallet</span>
                         </Link>
                     )}
-                    <Link to="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 no-underline">
-                        <FaHome className="text-lg" />
+                    <Link to="/" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 no-underline text-sm lg:text-base">
+                        <FaHome className="text-base lg:text-lg" />
                         <span className="font-medium">Home</span>
                     </Link>
                 </nav>
 
-                <div className="p-4 border-t border-white/10">
-                    <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200" onClick={() => { handleLogout(); setSidebarOpen(false); }}>
+                <div className="p-3 lg:p-4 border-t border-white/10">
+                    <button className="flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 w-full rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all duration-200 text-sm lg:text-base" onClick={() => { handleLogout(); setSidebarOpen(false); }}>
                         <FaSignOutAlt />
                         <span className="font-medium">Logout</span>
                     </button>
