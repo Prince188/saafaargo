@@ -133,14 +133,14 @@ const Rides = () => {
     },
     {
       title: "Active Rides",
-      value: rides.filter(r => r.status !== 'cancelled' && r.status !== 'completed').length,
+      value: rides.filter(r => r.status === 'published').length,
       icon: FaRoute,
       accent: "#1e3a8a",
       tint: "#eaf1fb",
     },
     {
       title: "Seats Available",
-      value: rides.reduce((sum, ride) => sum + (ride.seatsAvailable || 0), 0),
+      value: rides.filter(r => r.status === 'published').reduce((sum, ride) => sum + (ride.seatsAvailable || 0), 0),
       icon: FaChair,
       accent: "#a0522d",
       tint: "#f5e9df",

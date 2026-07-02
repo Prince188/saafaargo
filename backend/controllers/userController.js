@@ -92,11 +92,18 @@ exports.getAllUsers = async (req, res) => {
 
         const totalUsers = await User.countDocuments(query);
 
+        const newThisMonth = await User.countDocuments({
+            createdAt: {
+                $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+            }
+        });
+
         res.json({
             users,
             totalPages: Math.ceil(totalUsers / limit),
             currentPage: page,
             totalUsers,
+            newThisMonth,
         });
     } catch (err) {
         res.status(500).json({ message: "Server error" });

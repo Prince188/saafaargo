@@ -41,18 +41,29 @@ const userSchema = new mongoose.Schema({
         default: "active"
     },
 
+    // ─── Account Verification ──────────────────────────────────────────────
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationStatus: {
+        type: String,
+        enum: ["none", "pending", "approved", "rejected"],
+        default: "none"
+    },
+
     // ─── Driver Verification ───────────────────────────────────────────────
     driverVerified: {
         type: Boolean,
-        default: false                        // becomes true once admin approves
+        default: false
     },
     driverVerificationStatus: {
         type: String,
         enum: ["none", "pending", "verified", "rejected"],
-        default: "none"                       // "none" = never submitted docs yet
+        default: "none"
     },
     driverDocuments: {
-        dlImage: { type: String, default: "" },  // stored file path / URL
+        dlImage: { type: String, default: "" },
         rcImage: { type: String, default: "" },
         submittedAt: { type: Date }
     }

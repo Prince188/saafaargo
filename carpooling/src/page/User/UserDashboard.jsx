@@ -65,7 +65,7 @@ const UserDashboard = () => {
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed lg:relative w-64 lg:w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-2xl shrink-0 z-40 transition-all duration-300 ${sidebarOpen ? 'left-0' : '-left-72 lg:left-0'} top-0 h-screen`}>
+            <aside className={`fixed lg:relative w-64 lg:w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-2xl shrink-0 z-40 transition-all duration-300 ${sidebarOpen ? 'left-0' : '-left-72 lg:left-0'} top-0 h-screen overflow-hidden`}>
                 <div className="p-4 lg:p-6 border-b border-white/10 flex flex-col items-center">
                     <Link to="/" className="bg-white/95 px-3 lg:px-4 py-2 rounded-xl shadow-md transition-all duration-base hover:bg-white mb-2 lg:mb-3">
                         <img src="/logo.png" alt="SafarGo Logo" className="h-6 lg:h-8 w-auto object-contain" />

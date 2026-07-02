@@ -15,7 +15,8 @@ const extractCity = (displayName) => {
 exports.getPendingUsers = async (req, res) => {
     try {
         const users = await User.find({
-            verificationStatus: "pending"
+            verificationStatus: "pending",
+            role: { $ne: "admin" }
         });
 
         res.status(200).json({
@@ -85,7 +86,8 @@ exports.rejectUser = async (req, res) => {
 exports.getAdminDashboard = async (req, res) => {
     try {
         const pendingUsers = await User.find({
-            verificationStatus: "pending"
+            verificationStatus: { $in: ["pending", "none"] },
+            role: { $ne: "admin" }
         }).sort({ createdAt: -1 });
 
         const approvedUsers = await User.find({
@@ -99,7 +101,7 @@ exports.getAdminDashboard = async (req, res) => {
             .sort({ createdAt: -1 });
 
         const activeRides = await Ride.find({
-            status: "active"
+            status: "published"
         })
             .populate("user", "firstName lastName email")
             .sort({ createdAt: -1 });
@@ -109,7 +111,7 @@ exports.getAdminDashboard = async (req, res) => {
 
         const [totalUsers, verifiedUsers, activeUsers, newUsersToday] = await Promise.all([
             User.countDocuments(),
-            User.countDocuments({ driverVerificationStatus: "verified" }),
+            User.countDocuments({ isVerified: true }),
             User.countDocuments({ status: "active" }),
             User.countDocuments({ createdAt: { $gte: todayStart } })
         ]);

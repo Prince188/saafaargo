@@ -29,6 +29,7 @@ const User = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
+  const [newThisMonth, setNewThisMonth] = useState(0);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userStats, setUserStats] = useState(null);
 
@@ -52,6 +53,7 @@ const User = () => {
       setTotalPages(res.data.totalPages);
       setPage(res.data.currentPage);
       setTotalUsers(res.data.totalUsers || res.data.users.length);
+      setNewThisMonth(res.data.newThisMonth ?? 0);
       setLoading(false);
     } catch (err) {
       console.log("Error fetching users:", err);
@@ -118,7 +120,7 @@ const User = () => {
     },
     {
       title: "New This Month",
-      value: 45,
+      value: newThisMonth,
       icon: FaUserPlus,
       accent: "#a0522d",
       tint: "#f5e9df",
