@@ -15,6 +15,7 @@ exports.trackUniqueVisitor = async (req, res) => {
     try {
         let { visitorId, userId, email } = req.body;
         const today = new Date().toISOString().slice(0, 10);
+        const ip = getClientIp(req);
 
         let createdNewId = false;
         if (!visitorId) {
@@ -35,7 +36,7 @@ exports.trackUniqueVisitor = async (req, res) => {
 
                 record = await Visitor.findOneAndUpdate(
                     { email, date: today },
-                    { $inc: { count: 1 }, $set: { userId, visitorId } },
+                    { $inc: { count: 1 }, $set: { userId, visitorId, ip } },
                     { new: true }
                 );
 
@@ -49,14 +50,14 @@ exports.trackUniqueVisitor = async (req, res) => {
                     // Convert the guest record to the registered user record
                     record = await Visitor.findOneAndUpdate(
                         { visitorId, date: today, email: { $exists: false } },
-                        { $inc: { count: 1 }, $set: { userId, email } },
+                        { $inc: { count: 1 }, $set: { userId, email, ip } },
                         { new: true }
                     );
                 } else {
                     // Create new registered record
                     record = await Visitor.findOneAndUpdate(
                         { visitorId, date: today, email },
-                        { $inc: { count: 1 }, $set: { userId } },
+                        { $inc: { count: 1 }, $set: { userId, ip } },
                         { upsert: true, new: true }
                     );
                 }
@@ -65,7 +66,7 @@ exports.trackUniqueVisitor = async (req, res) => {
             // Guest visitor: update/create guest record (where email does not exist)
             record = await Visitor.findOneAndUpdate(
                 { visitorId, date: today, email: { $exists: false } },
-                { $inc: { count: 1 } },
+                { $inc: { count: 1 }, $set: { ip } },
                 { upsert: true, new: true }
             );
         }

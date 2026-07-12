@@ -142,23 +142,59 @@ const Dashboard = () => {
 
     const handleDateRangeChange = (range) => setDateRange(range);
 
-    const handleExportData = async () => {
-        try {
-            const response = await API.get("/admin/export/data", { responseType: 'blob' });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `dashboard-data-${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            showSuccess("Data exported successfully");
-        } catch (err) {
-            showError("Export failed");
-        }
+    const handleExportData = () => {
+        const dateStr = new Date().toISOString().split('T')[0];
+        const rows = [
+            ['Section', 'Metric', 'Value'],
+            ['Overview', 'Daily Unique Visits', today],
+            ['Overview', 'Total Unique Visits', total],
+            ['Overview', 'Total Visits', totalVisits],
+            ['Overview', 'Total Users', userStats.totalUsers],
+            ['Overview', 'Verified Users', userStats.verifiedUsers],
+            ['Overview', 'New Users Today', userStats.newUsersToday],
+            ['Rides', 'Total Rides', rideStats.totalRides],
+            ['Rides', 'Completed Rides', rideStats.completedRides],
+            ['Rides', 'Cancelled Rides', rideStats.cancelledRides],
+            ['Rides', 'Seats Booked', rideStats.seatsBooked],
+            ['Feedback', 'Average Rating', feedback.averageRating],
+            ['Feedback', 'Total Reviews', feedback.totalReviews],
+            ['Feedback', 'Contacts Count', feedback.contactsCount],
+            [],
+            ['Date', 'Visitors'],
+            ...(dateRange === 'week' ? weeklyStats : dateRange === 'month' ? monthlyStats : stats).map(s => [s.date, s.visitors]),
+            [],
+            ['City', 'Rides', 'Percentage'],
+            ...topCities.map(c => [c.city, c.rides, `${c.percentage}%`]),
+        ];
+
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `safargo-dashboard-${dateStr}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        showSuccess('Dashboard data exported');
     };
 
-    const handlePrint = () => window.print();
+    const handlePrint = () => {
+        const style = document.createElement('style');
+        style.textContent = `
+            @media print {
+                body * { visibility: hidden; }
+                #dashboard-print-area, #dashboard-print-area * { visibility: visible; }
+                #dashboard-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+                .no-print { display: none !important; }
+                @page { margin: 1.5cm; }
+            }
+        `;
+        document.head.appendChild(style);
+        window.print();
+        setTimeout(() => style.remove(), 100);
+    };
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -227,7 +263,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen font-inter text-[#1a2620]">
-            <div className="max-w-[1400px] mx-auto">
+            <div className="max-w-[1400px] mx-auto" id="dashboard-print-area">
 
                 {/* HEADER */}
                 <div className="mb-10">
@@ -248,7 +284,7 @@ const Dashboard = () => {
                             </p>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 no-print">
                             <button
                                 onClick={handleExportData}
                                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"

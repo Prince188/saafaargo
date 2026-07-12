@@ -15,6 +15,8 @@ import {
   FaPhone,
   FaCalendarAlt,
   FaArrowRight,
+  FaDownload,
+  FaPrint,
 } from "react-icons/fa";
 import { MdVerified, MdAdminPanelSettings } from "react-icons/md";
 import { CgBlock, CgUnblock } from "react-icons/cg";
@@ -176,9 +178,57 @@ const User = () => {
     }
   };
 
+  const handleExportData = () => {
+    const dateStr = new Date().toISOString().split('T')[0];
+    const rows = [
+      ['Section', 'Metric', 'Value'],
+      ['Overview', 'Total Users', totalUsers],
+      ['Overview', 'New This Month', newThisMonth],
+      ['Overview', 'Verified (current page)', users.filter((u) => u.isVerified).length],
+      [],
+      ['User', 'Name', 'Email', 'Role', 'Status', 'Joined', 'Verified'],
+      ...users.map(u => [
+        `${u.firstName} ${u.lastName}`,
+        u.email,
+        u.role,
+        u.status,
+        new Date(u.createdAt).toLocaleDateString(),
+        u.isVerified ? 'Yes' : 'No',
+      ]),
+    ];
+
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `safargo-users-${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    showSuccess('User data exported');
+  };
+
+  const handlePrint = () => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @media print {
+        body * { visibility: hidden; }
+        #user-print-area, #user-print-area * { visibility: visible; }
+        #user-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+        .no-print { display: none !important; }
+        @page { margin: 1.5cm; }
+      }
+    `;
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => style.remove(), 100);
+  };
+
   return (
     <div className="min-h-screen font-inter text-[#1a2620]">
-      <div className="max-w-7xl mx-auto ">
+      <div className="max-w-7xl mx-auto " id="user-print-area">
         {/* HEADER */}
         <div className="mb-10">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-[#e6e1d3]">
@@ -198,14 +248,22 @@ const User = () => {
               </p>
             </div>
 
-            <button
-              onClick={() => console.log("Export users")}
-              className="group inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#1a2620] text-[#f8f6ef] hover:bg-[#2f5a3d] transition-colors duration-300 text-sm font-medium"
-            >
-              <FaUserPlus className="text-xs" />
-              Export users
-              <FaArrowRight className="text-[11px] group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            <div className="flex gap-3 no-print">
+              <button
+                onClick={handleExportData}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
+              >
+                <FaDownload className="text-xs text-[#2f5a3d]" />
+                Export
+              </button>
+              <button
+                onClick={handlePrint}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
+              >
+                <FaPrint className="text-xs text-[#2f5a3d]" />
+                Print
+              </button>
+            </div>
           </div>
         </div>
 
