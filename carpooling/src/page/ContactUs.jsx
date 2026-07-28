@@ -7,9 +7,11 @@ import {
     FaBug,
     FaQuestionCircle,
     FaArrowRight,
-    FaCheckCircle
+    FaCheckCircle,
+    FaUser,
+    FaPhone
 } from "react-icons/fa";
-import { MdMessage, MdCategory } from "react-icons/md";
+import { MdMessage, MdCategory, MdInfo } from "react-icons/md";
 
 const ContactUs = () => {
     const [loading, setLoading] = useState(false);
@@ -18,6 +20,7 @@ const ContactUs = () => {
     const [formData, setFormData] = useState({
         name: `${user?.firstName || ""} ${user?.lastName || ""}`,
         email: user?.email || "",
+        mobile: "",
         category: "general",
         message: "",
     });
@@ -82,6 +85,7 @@ const ContactUs = () => {
             setFormData({
                 name: "",
                 email: "",
+                mobile: "",
                 category: "general",
                 message: "",
             });
@@ -125,18 +129,65 @@ const ContactUs = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
 
-                        {/* Logged In User Info */}
-                        <div className="bg-[#faf8f2] rounded-md border border-[#e6e1d3] p-5">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#7a8478] mb-2 flex items-center gap-2">
-                                <FaEnvelope className="text-[#2f5a3d] text-xs" />
-                                Sending message as
-                            </p>
-                            <h3 className="font-semibold text-[#1a2620] text-lg">
-                                {formData.name || "Guest User"}
-                            </h3>
-                            <p className="text-sm text-[#5a6358] mt-1">
-                                {formData.email || "Not signed in"}
-                            </p>
+                        {/* Your Details */}
+                        <div className="bg-[#faf8f2] rounded-md border border-[#e6e1d3] p-5 space-y-4">
+                            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#7a8478]">
+                                <FaUser className="text-[#2f5a3d] text-xs" />
+                                Your Details
+                            </div>
+
+                            <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                <MdInfo className="text-blue-600 text-sm mt-0.5 shrink-0" />
+                                <p className="text-xs text-blue-700">
+                                    We ask for your name, email, and phone so we can respond back to you.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1a2620] mb-1.5">
+                                        Full Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        placeholder="Your full name"
+                                        required
+                                        className="w-full border border-[#e6e1d3] rounded-md px-4 py-2.5 outline-none focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 transition-all bg-white text-[#1a2620] placeholder:text-[#9aa194] text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1a2620] mb-1.5">
+                                        Email <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        placeholder="your@email.com"
+                                        required
+                                        className="w-full border border-[#e6e1d3] rounded-md px-4 py-2.5 outline-none focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 transition-all bg-white text-[#1a2620] placeholder:text-[#9aa194] text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1a2620] mb-1.5 flex items-center gap-1">
+                                        <FaPhone className="text-[#2f5a3d] text-xs" />
+                                        Mobile Number <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        name="mobile"
+                                        value={formData.mobile}
+                                        onChange={handleChange}
+                                        placeholder="Your phone number"
+                                        required
+                                        className="w-full border border-[#e6e1d3] rounded-md px-4 py-2.5 outline-none focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 transition-all bg-white text-[#1a2620] placeholder:text-[#9aa194] text-sm"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Category Selection - Pills */}

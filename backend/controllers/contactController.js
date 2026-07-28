@@ -2,11 +2,12 @@ const Contact = require("../models/Contact");
 
 exports.createContact = async (req, res) => {
     try {
-        const { name, email, category, message } = req.body;
+        const { name, email, mobile, category, message } = req.body;
 
         const contact = await Contact.create({
             name,
             email,
+            mobile,
             category,
             message,
         });
