@@ -14,11 +14,21 @@ let accessTokenExpiry = 0;
 
 function loadServiceAccount() {
     if (serviceAccount) return serviceAccount;
+
+    // 1) Prefer the raw JSON passed as an env var (best for Render / Vercel,
+    //    where files are awkward). Set FCM_SERVICE_ACCOUNT_JSON to the full
+    //    contents of the service-account JSON.
+    if (process.env.FCM_SERVICE_ACCOUNT_JSON) {
+        serviceAccount = JSON.parse(process.env.FCM_SERVICE_ACCOUNT_JSON);
+        return serviceAccount;
+    }
+
+    // 2) Else read from a file path (FCM_SERVICE_ACCOUNT) or the default path.
     if (!fs.existsSync(SERVICE_ACCOUNT_PATH)) {
         throw new Error(
-            `Firebase service account not found at ${SERVICE_ACCOUNT_PATH}. ` +
-            "Download it from Firebase console > Project settings > Service accounts > Generate new private key, " +
-            "save it as backend/firebase-service-account.json and set FCM_SERVICE_ACCOUNT in .env if needed."
+            `Firebase service account not found at ${SERVICE_ACCOUNT_PATH} and FCM_SERVICE_ACCOUNT_JSON is not set. ` +
+            "Download it from Firebase console > Project settings > Service accounts > Generate new private key. " +
+            "Either set FCM_SERVICE_ACCOUNT_JSON (recommended on Render) or place the file in the backend folder."
         );
     }
     serviceAccount = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_PATH, "utf8"));
