@@ -2,6 +2,7 @@ const Booking = require("../models/Booking");
 const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
+const { notifyUser } = require("../util/fcm");
 
 const placeName = (p) => {
     if (!p) return "";
@@ -553,6 +554,17 @@ exports.bookRide = async (req, res) => {
             console.error("Failed to create notification:", notifErr);
         }
 
+        try {
+            await notifyUser(driverId, {
+                type: "ride_booked",
+                title: "New Booking",
+                body: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${placeName(rpickup)} to ${placeName(rdest)}.`,
+                rideId: ride._id,
+            });
+        } catch (pushErr) {
+            console.error("Failed to send push notification:", pushErr);
+        }
+
         return res.status(201).json({ message: "Ride booked successfully", booking });
 
     } catch (err) {
@@ -724,6 +736,16 @@ exports.editRide = async (req, res) => {
                     message: `Your ride from ${puStr} to ${deStr} has been updated by the driver.`,
                     rideId: id,
                 });
+                try {
+                    await notifyUser(p.user._id, {
+                        type: "ride_modified",
+                        title: "Ride Modified",
+                        body: `Your ride from ${puStr} to ${deStr} has been updated by the driver.`,
+                        rideId: id,
+                    });
+                } catch (pushErr) {
+                    console.error("Failed to send push notification:", pushErr);
+                }
             }
         } catch (notifErr) {
             console.error("Notification error:", notifErr);
@@ -775,6 +797,16 @@ exports.completeRide = async (req, res) => {
                     message: `Your ride from ${puStr} to ${deStr} has been marked as completed.`,
                     rideId: ride._id,
                 });
+                try {
+                    await notifyUser(b.user._id, {
+                        type: "ride_completed",
+                        title: "Ride Completed",
+                        body: `Your ride from ${puStr} to ${deStr} has been marked as completed.`,
+                        rideId: ride._id,
+                    });
+                } catch (pushErr) {
+                    console.error("Failed to send push notification:", pushErr);
+                }
             }
         } catch (notifErr) {
             console.error("Notification error:", notifErr);
@@ -823,6 +855,16 @@ exports.cancelRide = async (req, res) => {
                     message: `Your ride from ${puStr} to ${deStr} has been cancelled.`,
                     rideId: ride._id,
                 });
+                try {
+                    await notifyUser(b.user._id, {
+                        type: "ride_cancelled",
+                        title: "Ride Cancelled",
+                        body: `Your ride from ${puStr} to ${deStr} has been cancelled.`,
+                        rideId: ride._id,
+                    });
+                } catch (pushErr) {
+                    console.error("Failed to send push notification:", pushErr);
+                }
             }
         } catch (notifErr) {
             console.error("Notification error:", notifErr);

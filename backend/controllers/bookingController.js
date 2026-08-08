@@ -1,5 +1,13 @@
 const Ride = require("../models/Ride");
 const Booking = require("../models/Booking");
+const Notification = require("../models/Notification");
+const { notifyUser } = require("../util/fcm");
+
+const placeName = (p) => {
+    if (!p) return "";
+    const obj = (typeof p.toObject === "function") ? p.toObject() : p;
+    return (obj && typeof obj === "object") ? (obj.displayName || obj.address || obj.name || "") : String(obj || "");
+};
 
 exports.bookRide = async (req, res) => {
     try {
@@ -338,6 +346,33 @@ exports.cancelTrip = async (req, res) => {
             ride.totalEarning = Math.max(0, (ride.totalEarning || 0) - deductAmount);
 
             await ride.save();
+        }
+
+        // Notify the driver that a passenger cancelled
+        try {
+            const driverId = ride.user;
+            const pu = placeName(ride.pickup);
+            const de = placeName(ride.destination);
+            const message = `${req.user.firstName} ${req.user.lastName} cancelled ${actualCancelCount} seat(s) on your ride from ${pu} to ${de}.`;
+            await Notification.create({
+                user: driverId,
+                type: "ride_cancelled",
+                title: "Booking Cancelled",
+                message,
+                rideId: ride._id,
+            });
+            try {
+                await notifyUser(driverId, {
+                    type: "ride_cancelled",
+                    title: "Booking Cancelled",
+                    body: message,
+                    rideId: ride._id,
+                });
+            } catch (pushErr) {
+                console.error("Failed to send push notification:", pushErr);
+            }
+        } catch (notifErr) {
+            console.error("Failed to create cancellation notification:", notifErr);
         }
 
         res.status(200).json({

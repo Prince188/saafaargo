@@ -65,6 +65,36 @@ exports.removeProfilePic = async (req, res) => {
     }
 };
 
+// Save / upsert a Firebase push notification token for the logged-in user
+exports.saveDeviceToken = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token || typeof token !== "string" || !token.trim()) {
+            return res.status(400).json({ message: "Device token is required" });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const trimmed = token.trim();
+        const tokens = user.deviceToken || [];
+
+        if (!tokens.includes(trimmed)) {
+            tokens.push(trimmed);
+            user.deviceToken = tokens.slice(-5); // keep at most the 5 most recent devices
+            await user.save();
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("[saveDeviceToken] Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 // Get all users
 exports.getAllUsers = async (req, res) => {
     try {

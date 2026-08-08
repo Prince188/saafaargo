@@ -1,6 +1,9 @@
-node_modules/
+﻿node_modules/
 carpooling/node_modules/
 backend/node_modules/
 .env
 build/
-dist/
+dist/backend/firebase-service-account.json
+backend/service-account*.json
+backend/firebase-service-account.json
+backend/service-account*.json

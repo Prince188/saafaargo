@@ -66,6 +66,12 @@ const userSchema = new mongoose.Schema({
         dlImage: { type: String, default: "" },
         rcImage: { type: String, default: "" },
         submittedAt: { type: Date }
+    },
+
+    // ─── Push notifications (FCM device tokens) ────────────────────────────
+    deviceToken: {
+        type: [String],
+        default: []
     }
     // ──────────────────────────────────────────────────────────────────────
 },

@@ -42,7 +42,7 @@ router.get("/my-rides", authMiddleware, getMyRides);
 
 router.get("/admin/all", authMiddleware, getAllRides);
 
-router.get("/:id", getRideById);
+router.get("/:id", authMiddleware, getRideById);
 
 router.post("/:id/book", authMiddleware, bookRide);
 

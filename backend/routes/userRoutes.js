@@ -11,6 +11,7 @@ const {
     getAllUsers,
     getUserStats,
     toggleBlockUser,
+    saveDeviceToken,
 } = require("../controllers/userController");
 
 const upload = require("../middleware/upload");
@@ -29,6 +30,8 @@ router.put(
 );
 
 router.put("/remove-profile-pic", authMiddleware, removeProfilePic);
+
+router.put("/me/device-token", authMiddleware, saveDeviceToken);
 
 // BLOCK / UNBLOCK USER
 router.put("/block/:id", authMiddleware, toggleBlockUser);
