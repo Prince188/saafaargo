@@ -538,9 +538,10 @@ exports.bookRide = async (req, res) => {
         await ride.save();
         console.log(`[bookRide] totalEarning = ${ride.totalEarning} for ride ${rideId}`);
 
+        const driverId = ride.user._id || ride.user;
+        const rpickup = ride.pickup, rdest = ride.destination;
+
         try {
-            const driverId = ride.user._id || ride.user;
-            const rpickup = ride.pickup, rdest = ride.destination;
             const pu = debugPlace("bookRide", rpickup);
             const de = debugPlace("bookRide", rdest);
             await Notification.create({
