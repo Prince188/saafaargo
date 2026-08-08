@@ -37,6 +37,12 @@ app.use(cors({
 
 app.use(express.json());
 
+// Request logger (temporary, for debugging)
+app.use((req, res, next) => {
+    console.log(`[REQ] ${new Date().toISOString()} ${req.method} ${req.originalUrl}`);
+    next();
+});
+
 // Use auth routes
 app.use('/api/auth', authRoutes);  // https://localhost:5000/api/auth/register or login
 
