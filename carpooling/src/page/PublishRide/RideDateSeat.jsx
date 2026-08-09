@@ -23,8 +23,7 @@ const RideDateSeat = () => {
     const [selectedTime, setSelectedTime] = useState(null);
     // const [seats, setSeats] = useState(passedSeats || 1); // ✅ use seats from OfferRide
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const today = new Date();
 
     const handleNext = () => {
         if (!selectedDate || !selectedTime) {
@@ -118,7 +117,7 @@ const RideDateSeat = () => {
                             onChange={(date) => setSelectedDate(date)}
                             dateFormat="dd MMM yyyy"
                             placeholderText="Select date"
-                            minDate={tomorrow}
+                            minDate={today}
                             className="w-full px-3 py-2 md:px-3 md:py-2.5 bg-off-white border border-sage-soft rounded-sm text-sm md:text-sm font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_3px_rgba(122,155,122,0.1)]"
                             wrapperClassName="w-full"
                             popperClassName="custom-datepicker-popper"

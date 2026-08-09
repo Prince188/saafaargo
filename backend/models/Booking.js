@@ -45,6 +45,12 @@ const bookingSchema = new mongoose.Schema({
         // "declined"  → driver rejected the request (seats released)
         // "cancelled" → passenger cancelled (seats released)
         // "completed" → ride completed
+    },
+
+    // True once the passenger verified the ride's pickup OTP (trip started).
+    pickedUp: {
+        type: Boolean,
+        default: false,
     }
 
 }, { timestamps: true });

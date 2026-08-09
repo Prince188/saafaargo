@@ -3,6 +3,7 @@ const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 const { notifyUser } = require("../util/fcm");
+const { buildDepartureDate } = require("../util/rideTime");
 
 const placeName = (p) => {
     if (!p) return "";
@@ -388,6 +389,10 @@ exports.getRides = async (req, res) => {
             rides.sort((a, b) => (b.segmentPrice || 0) - (a.segmentPrice || 0));
         }
 
+        // The pickup OTP is for the driver's phone only — never expose it in
+        // public search results.
+        rides.forEach((r) => { delete r.pickupOtp; });
+
         res.json({ success: true, count: rides.length, rides });
 
     } catch (err) {
@@ -440,7 +445,7 @@ exports.getRideById = async (req, res) => {
 
         // Current user's own booking on this ride (passenger side, for status UI).
         const myBooking = await Booking.findOne({ ride: req.params.id, user: req.user.id })
-            .select("status seatsBooked amountPaid from to")
+            .select("status seatsBooked amountPaid from to pickedUp")
             .lean();
 
         // Pending requests for the driver (accepted/declined in ride detail).
@@ -452,7 +457,11 @@ exports.getRideById = async (req, res) => {
                 .lean();
         }
 
-        res.json({ success: true, ride, isDriver, myBooking: myBooking || null, pendingRequests });
+        // The pickup OTP is only shown on the driver's phone.
+        const rideJson = typeof ride.toObject === "function" ? ride.toObject() : ride;
+        if (!isDriver && rideJson.pickupOtp) delete rideJson.pickupOtp;
+
+        res.json({ success: true, ride: rideJson, isDriver, myBooking: myBooking || null, pendingRequests });
 
     } catch (err) {
         console.error(err);
@@ -696,31 +705,9 @@ exports.editRide = async (req, res) => {
         const dateStr = req.body.date || ride.date;
         const timeStr = req.body.time || ride.time;
 
-        let rideDateTime;
-
-        if (timeStr && timeStr.includes(":")) {
-            const timeParts = timeStr.trim().split(" "); // handles both "HH:mm" and "HH:mm AM/PM"
-            const [hhRaw, mmRaw] = timeParts[0].split(":").map(Number);
-            let hours = hhRaw;
-            const modifier = timeParts[1]?.toUpperCase();
-
-            if (modifier === "PM" && hours !== 12) hours += 12;
-            if (modifier === "AM" && hours === 12) hours = 0;
-
-            // dateStr may be "YYYY-MM-DD" or an ISO string
-            const base = new Date(dateStr);
-            rideDateTime = new Date(
-                base.getFullYear(),
-                base.getMonth(),
-                base.getDate(),
-                hours,
-                mmRaw,
-                0,
-                0
-            );
-        } else {
-            rideDateTime = new Date(dateStr);
-        }
+        // Interpreted as IST (see util/rideTime.js) — not server-local time,
+        // which would be UTC on Render and shift the deadline by 5h30m.
+        const rideDateTime = buildDepartureDate(dateStr, timeStr);
 
         const editDeadline = new Date(rideDateTime.getTime() - 60 * 60 * 1000);
 
@@ -1009,6 +996,121 @@ exports.cancelRide = async (req, res) => {
         res.json({ success: true, message: "Ride cancelled successfully" });
     } catch (error) {
         console.error("cancelRide error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/rides/:id/start-trip  — Driver starts the trip.
+// Generates a 4-digit pickup OTP (shown on the driver's phone) that every
+// confirmed passenger enters to verify pickup in-app (no SMS/gateway).
+// ─────────────────────────────────────────────────────────────────────────────
+exports.startTrip = async (req, res) => {
+    try {
+        const ride = await Ride.findById(req.params.id);
+        if (!ride) return res.status(404).json({ message: "Ride not found" });
+        if (ride.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+        if (ride.status !== "published") {
+            return res.status(400).json({ message: "Ride must be published to start the trip" });
+        }
+
+        // Idempotent: if the trip was already started, return the same OTP.
+        if (ride.tripStartedAt && ride.pickupOtp) {
+            return res.status(200).json({
+                success: true,
+                message: "Trip already started",
+                tripStartedAt: ride.tripStartedAt,
+                otp: ride.pickupOtp,
+            });
+        }
+
+        const otp = String(Math.floor(1000 + Math.random() * 9000));
+        ride.tripStartedAt = new Date();
+        ride.pickupOtp = otp;
+        await ride.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Trip started",
+            tripStartedAt: ride.tripStartedAt,
+            otp,
+        });
+    } catch (err) {
+        console.error("startTrip error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/rides/:id/verify-otp  — Passenger confirms pickup with the code
+// the driver shows them. Marks their confirmed booking as pickedUp.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.verifyOtp = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        const rideId = req.params.id;
+        const userId = req.user.id;
+
+        const ride = await Ride.findById(rideId);
+        if (!ride) return res.status(404).json({ message: "Ride not found" });
+        if (ride.status !== "published") {
+            return res.status(400).json({ message: "Ride is not active" });
+        }
+        if (!ride.tripStartedAt || !ride.pickupOtp) {
+            return res.status(400).json({ message: "Trip has not started yet" });
+        }
+        if (!otp || String(otp).trim() !== String(ride.pickupOtp)) {
+            return res.status(400).json({ message: "Invalid pickup code" });
+        }
+
+        const booking = await Booking.findOne({
+            ride: rideId,
+            user: userId,
+            status: "confirmed",
+        });
+        if (!booking) {
+            return res.status(403).json({ message: "No confirmed booking on this ride" });
+        }
+
+        if (booking.pickedUp) {
+            return res.status(200).json({ success: true, message: "Pickup already confirmed", pickedUp: true });
+        }
+
+        booking.pickedUp = true;
+        await booking.save();
+
+        // Let the driver know this passenger is onboard.
+        try {
+            const passenger = await User.findById(userId).select("firstName lastName");
+            const pu = placeName(ride.pickup);
+            const de = placeName(ride.destination);
+            const message = `${passenger?.firstName || "A"} ${passenger?.lastName || "passenger"} confirmed pickup for ${booking.seatsBooked} seat(s) on your ride from ${pu} to ${de}.`;
+            await Notification.create({
+                user: ride.user,
+                type: "pickup_confirmed",
+                title: "Passenger Picked Up",
+                message,
+                rideId: ride._id,
+            });
+            try {
+                await notifyUser(ride.user, {
+                    type: "pickup_confirmed",
+                    title: "Passenger Picked Up",
+                    body: message,
+                    rideId: ride._id,
+                });
+            } catch (pushErr) {
+                console.error("Failed to send push notification:", pushErr);
+            }
+        } catch (notifErr) {
+            console.error("Failed to create pickup notification:", notifErr);
+        }
+
+        res.status(200).json({ success: true, message: "Pickup confirmed", pickedUp: true });
+    } catch (err) {
+        console.error("verifyOtp error:", err);
         res.status(500).json({ message: "Server error" });
     }
 };

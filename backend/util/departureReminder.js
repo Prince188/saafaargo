@@ -2,6 +2,7 @@ const Ride = require("../models/Ride");
 const Booking = require("../models/Booking");
 const Notification = require("../models/Notification");
 const { notifyUser } = require("./fcm");
+const { buildDepartureDate } = require("./rideTime");
 
 const REMINDER_WINDOW_MS = 30 * 60 * 1000; // 30 minutes before departure
 const TICK_MS = 60 * 1000;                 // check every minute
@@ -14,36 +15,11 @@ const placeName = (p) => {
 };
 
 // Build the departure Date from the stored string `date` ("YYYY-MM-DD" or ISO)
-// and `time` ("HH:mm" or "HH:mm AM/PM", 24h otherwise).
-const getDepartureDate = (ride) => {
-    const dateStr = ride.date;
-    const timeStr = ride.time;
-    if (!dateStr) return null;
-
-    if (timeStr && timeStr.includes(":")) {
-        const timeParts = timeStr.trim().split(" ");
-        const [hhRaw, mmRaw] = timeParts[0].split(":").map(Number);
-        let hours = hhRaw;
-        const modifier = timeParts[1]?.toUpperCase();
-        if (modifier === "PM" && hours !== 12) hours += 12;
-        if (modifier === "AM" && hours === 12) hours = 0;
-
-        const base = new Date(dateStr);
-        return new Date(
-            base.getFullYear(),
-            base.getMonth(),
-            base.getDate(),
-            hours,
-            mmRaw || 0,
-            0,
-            0
-        );
-    }
-    return new Date(dateStr);
-};
+// and `time` ("HH:mm" or "HH:mm AM/PM"). Interpreted as IST (see rideTime.js).
+const getDepartureDate = (ride) => buildDepartureDate(ride.date, ride.time);
 
 const formatDepartureTime = (dep) =>
-    dep.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    dep.toLocaleTimeString([], { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" });
 
 // Send the reminder for one ride. `dryRun` only logs what would be sent.
 const sendForRide = async (ride, dryRun) => {

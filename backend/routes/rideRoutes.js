@@ -11,7 +11,9 @@ const {
     getAllRides,
     editRide,
     completeRide,
-    cancelRide
+    cancelRide,
+    startTrip,
+    verifyOtp
 } = require("../controllers/rideController");
 
 // ─── Driver verification routes ────────────────────────────────────────────
@@ -53,6 +55,11 @@ router.put("/edit/:id", authMiddleware, editRide);
 router.put("/complete/:id", authMiddleware, completeRide);
 
 router.put("/cancel/:id", authMiddleware, cancelRide);
+
+// ─── Pickup OTP handshake ───────────────────────────────────────────────────
+router.post("/:id/start-trip", authMiddleware, startTrip);
+router.post("/:id/verify-otp", authMiddleware, verifyOtp);
+// ───────────────────────────────────────────────────────────────────────────
 // ──────────────────────────────────────────────────────────────────────────
 
 module.exports = router;

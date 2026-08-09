@@ -238,6 +238,7 @@ exports.getMyTrips = async (req, res) => {
 
             .populate({
                 path: "ride",
+                select: "-pickupOtp",
                 populate: {
                     path: "user",
                     select: "firstName lastName email phone"

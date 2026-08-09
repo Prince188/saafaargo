@@ -100,6 +100,18 @@ const rideSchema = new mongoose.Schema({
         default: false,
     },
 
+    // ─── Pickup OTP handshake (trip start) ──────────────────────────────────
+    // Set when the driver taps "Start trip": a single 4-digit code shared with
+    // every confirmed passenger of the ride to verify pickup in-app.
+    // `pickupOtp` must NEVER be exposed to non-drivers in any API response.
+    tripStartedAt: {
+        type: Date,
+    },
+    pickupOtp: {
+        type: String,
+    },
+    // ───────────────────────────────────────────────────────────────────────
+
     passengers: [
         {
             user: {
