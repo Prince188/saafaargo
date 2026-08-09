@@ -93,6 +93,13 @@ const rideSchema = new mongoose.Schema({
         // Each time a seat is booked, the booking amount is added.
     },
 
+    // True once the ~30-min-before-departure reminder has been pushed to the
+    // driver + confirmed passengers, so it only fires once per ride.
+    departureReminderSent: {
+        type: Boolean,
+        default: false,
+    },
+
     passengers: [
         {
             user: {
