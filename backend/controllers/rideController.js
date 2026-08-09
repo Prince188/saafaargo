@@ -312,7 +312,13 @@ exports.getRides = async (req, res) => {
 
         let dbQuery = {
             status: "published",
-            seatsAvailable: { $gte: requestedSeats }
+            // Available = seatsAvailable - seats held by pending requests.
+            $expr: {
+                $gte: [
+                    { $subtract: ["$seatsAvailable", { $ifNull: ["$heldSeats", 0] }] },
+                    requestedSeats
+                ]
+            }
         };
 
         if (date) dbQuery.date = date;
@@ -432,7 +438,21 @@ exports.getRideById = async (req, res) => {
             }));
         }
 
-        res.json({ success: true, ride, isDriver });
+        // Current user's own booking on this ride (passenger side, for status UI).
+        const myBooking = await Booking.findOne({ ride: req.params.id, user: req.user.id })
+            .select("status seatsBooked amountPaid from to")
+            .lean();
+
+        // Pending requests for the driver (accepted/declined in ride detail).
+        let pendingRequests = [];
+        if (isDriver) {
+            pendingRequests = await Booking.find({ ride: req.params.id, status: "pending" })
+                .populate("user", "_id firstName lastName email profilePic")
+                .sort({ createdAt: -1 })
+                .lean();
+        }
+
+        res.json({ success: true, ride, isDriver, myBooking: myBooking || null, pendingRequests });
 
     } catch (err) {
         console.error(err);
@@ -458,11 +478,16 @@ exports.bookRide = async (req, res) => {
             return res.status(400).json({ message: "You cannot book your own ride" });
         }
 
-        if (ride.seatsAvailable < seatsCount) {
-            return res.status(400).json({ message: "Not enough seats available" });
+        if (ride.status !== "published") {
+            return res.status(400).json({ message: "This ride is not available for booking" });
         }
 
-
+        // Seats held by pending requests reduce the bookable pool without
+        // touching seatsAvailable (which only shrinks once a request is accepted).
+        const heldSeats = Number(ride.heldSeats) || 0;
+        if (ride.seatsAvailable - heldSeats < seatsCount) {
+            return res.status(400).json({ message: "Not enough seats available" });
+        }
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
@@ -472,13 +497,19 @@ exports.bookRide = async (req, res) => {
             : ride.perkmprice;
         const amount = pricePerSeat * seatsCount;
 
+        // A user can only ever have ONE active (pending or confirmed) booking on a ride.
         let booking = await Booking.findOne({
             ride: rideId,
             user: userId,
-            status: "confirmed"
+            status: { $in: ["pending", "confirmed"] }
         });
 
-        if (booking) {
+        if (booking && booking.status === "pending") {
+            return res.status(400).json({ message: "You already have a pending booking request for this ride" });
+        }
+
+        if (booking && booking.status === "confirmed") {
+            // Extend an existing confirmed booking (seats are already reduced).
             booking.seatsBooked += seatsCount;
             booking.amountPaid += amount;
             if (from) booking.from = from;
@@ -506,67 +537,86 @@ exports.bookRide = async (req, res) => {
                     seatsBooked: booking.seatsBooked
                 });
             }
-        } else {
-            booking = await Booking.create({
-                ride: rideId,
-                user: userId,
-                name: user.firstName + " " + user.lastName,
-                phone: user.mobile,
-                email: user.email,
-                seatsBooked: seatsCount,
-                amountPaid: amount,
-                from: from || ride.pickup,
-                to: to || ride.destination
-            });
 
-            if (!ride.passengers) ride.passengers = [];
-            ride.passengers.push({
-                user: userId,
-                name: booking.name,
-                phone: booking.phone,
-                email: booking.email,
-                from: booking.from,
-                to: booking.to,
-                amountPaid: amount,
-                seatsBooked: seatsCount
-            });
+            ride.seatsAvailable -= seatsCount;
+            ride.totalEarning = (ride.totalEarning || 0) + amount;
+            ride.markModified('totalEarning');
+            await ride.save();
+
+            const driverId = ride.user._id || ride.user;
+            try {
+                const pu = placeName(ride.pickup);
+                const de = placeName(ride.destination);
+                await Notification.create({
+                    user: driverId,
+                    type: "ride_booked",
+                    title: "New Booking",
+                    message: `${user.firstName} ${user.lastName} booked ${seatsCount} more seat(s) on your ride from ${pu} to ${de}.`,
+                    rideId: ride._id,
+                });
+                try {
+                    await notifyUser(driverId, {
+                        type: "ride_booked",
+                        title: "New Booking",
+                        body: `${user.firstName} ${user.lastName} booked ${seatsCount} more seat(s) on your ride from ${pu} to ${de}.`,
+                        rideId: ride._id,
+                    });
+                } catch (pushErr) {
+                    console.error("Failed to send push notification:", pushErr);
+                }
+            } catch (notifErr) {
+                console.error("Failed to create notification:", notifErr);
+            }
+
+            return res.status(201).json({ message: "Ride booked successfully", booking });
         }
 
-        ride.seatsAvailable -= seatsCount;
-        ride.totalEarning = (ride.totalEarning || 0) + amount;
-        ride.markModified('totalEarning');
+        // New booking request → status "pending", seats held (not reduced).
+        booking = await Booking.create({
+            ride: rideId,
+            user: userId,
+            name: user.firstName + " " + user.lastName,
+            phone: user.mobile,
+            email: user.email,
+            seatsBooked: seatsCount,
+            amountPaid: amount,
+            from: from || ride.pickup,
+            to: to || ride.destination,
+            status: "pending"
+        });
+
+        ride.heldSeats = heldSeats + seatsCount;
         await ride.save();
-        console.log(`[bookRide] totalEarning = ${ride.totalEarning} for ride ${rideId}`);
 
         const driverId = ride.user._id || ride.user;
-        const rpickup = ride.pickup, rdest = ride.destination;
-
         try {
-            const pu = debugPlace("bookRide", rpickup);
-            const de = debugPlace("bookRide", rdest);
+            const pu = placeName(ride.pickup);
+            const de = placeName(ride.destination);
             await Notification.create({
                 user: driverId,
-                type: "ride_booked",
-                title: "New Booking",
-                message: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${placeName(rpickup)} to ${placeName(rdest)}.`,
+                type: "booking_request",
+                title: "New Booking Request",
+                message: `${user.firstName} ${user.lastName} requested ${seatsCount} seat(s) on your ride from ${pu} to ${de}.`,
                 rideId: ride._id,
             });
+            try {
+                await notifyUser(driverId, {
+                    type: "booking_request",
+                    title: "New Booking Request",
+                    body: `${user.firstName} ${user.lastName} requested ${seatsCount} seat(s) on your ride from ${pu} to ${de}.`,
+                    rideId: ride._id,
+                });
+            } catch (pushErr) {
+                console.error("Failed to send push notification:", pushErr);
+            }
         } catch (notifErr) {
             console.error("Failed to create notification:", notifErr);
         }
 
-        try {
-            await notifyUser(driverId, {
-                type: "ride_booked",
-                title: "New Booking",
-                body: `${user.firstName} ${user.lastName} booked ${seatsCount} seat(s) on your ride from ${placeName(rpickup)} to ${placeName(rdest)}.`,
-                rideId: ride._id,
-            });
-        } catch (pushErr) {
-            console.error("Failed to send push notification:", pushErr);
-        }
-
-        return res.status(201).json({ message: "Ride booked successfully", booking });
+        return res.status(201).json({
+            message: "Booking request sent. The driver will confirm shortly.",
+            booking
+        });
 
     } catch (err) {
         console.error("BOOK RIDE ERROR:", err);
@@ -704,6 +754,18 @@ exports.editRide = async (req, res) => {
         if (distanceKm) updateFields.totalDistanceKm = Number(distanceKm);
         if (preferences) updateFields.preferences = preferences;
 
+        // ── Capacity guard: seats can't drop below seats held by pending requests ──
+        if (seatsAvailable !== undefined) {
+            const held = Number(ride.heldSeats) || 0;
+            const newSeats = Number(seatsAvailable);
+            if (newSeats < held) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Seats cannot be reduced below the number held by pending booking requests"
+                });
+            }
+        }
+
         const km = parseFloat(distanceKm) || null;
         const rate = Number(ride.perkmprice);
         const seats = Number(seatsAvailable || ride.seatsAvailable) || 1;
@@ -723,7 +785,7 @@ exports.editRide = async (req, res) => {
         );
 
         try {
-            const passengers = await Booking.find({ ride: id, status: "confirmed" }).populate("user", "firstName lastName");
+            const passengers = await Booking.find({ ride: id, status: { $in: ["confirmed", "pending"] } }).populate("user", "firstName lastName");
             const rpickup = updatedRide.pickup, rdest = updatedRide.destination;
             const pu = debugPlace("editRide", rpickup);
             const de = debugPlace("editRide", rdest);
@@ -785,6 +847,43 @@ exports.completeRide = async (req, res) => {
             { $set: { status: "completed" } }
         );
 
+        // Pending requests die with the ride: release held seats, cancel them,
+        // and let those passengers know they were not confirmed in time.
+        const pendingBookings = await Booking.find({ ride: ride._id, status: "pending" }).populate("user", "firstName lastName");
+        if (pendingBookings.length > 0) {
+            ride.heldSeats = 0;
+            await ride.save();
+            await Booking.updateMany(
+                { ride: ride._id, status: "pending" },
+                { $set: { status: "cancelled" } }
+            );
+            const puStr = placeName(ride.pickup);
+            const deStr = placeName(ride.destination);
+            for (const b of pendingBookings) {
+                try {
+                    await Notification.create({
+                        user: b.user._id,
+                        type: "ride_cancelled",
+                        title: "Ride Cancelled",
+                        message: `Your booking request for the ride from ${puStr} to ${deStr} was not confirmed.`,
+                        rideId: ride._id,
+                    });
+                    try {
+                        await notifyUser(b.user._id, {
+                            type: "ride_cancelled",
+                            title: "Ride Cancelled",
+                            body: `Your booking request for the ride from ${puStr} to ${deStr} was not confirmed.`,
+                            rideId: ride._id,
+                        });
+                    } catch (pushErr) {
+                        console.error("Failed to send push notification:", pushErr);
+                    }
+                } catch (notifErr) {
+                    console.error("Notification error:", notifErr);
+                }
+            }
+        }
+
         try {
             const bookings = await Booking.find({ ride: ride._id, status: "completed" }).populate("user", "firstName lastName");
             const rpickup = ride.pickup, rdest = ride.destination;
@@ -842,6 +941,42 @@ exports.cancelRide = async (req, res) => {
             { ride: ride._id, status: "confirmed" },
             { $set: { status: "cancelled" } }
         );
+
+        // Pending requests are cancelled too and their held seats released.
+        const pendingBookings = await Booking.find({ ride: ride._id, status: "pending" }).populate("user", "firstName lastName");
+        if (pendingBookings.length > 0) {
+            ride.heldSeats = 0;
+            await ride.save();
+            await Booking.updateMany(
+                { ride: ride._id, status: "pending" },
+                { $set: { status: "cancelled" } }
+            );
+            const puStr = placeName(ride.pickup);
+            const deStr = placeName(ride.destination);
+            for (const b of pendingBookings) {
+                try {
+                    await Notification.create({
+                        user: b.user._id,
+                        type: "ride_cancelled",
+                        title: "Ride Cancelled",
+                        message: `Your booking request for the ride from ${puStr} to ${deStr} was cancelled by the driver.`,
+                        rideId: ride._id,
+                    });
+                    try {
+                        await notifyUser(b.user._id, {
+                            type: "ride_cancelled",
+                            title: "Ride Cancelled",
+                            body: `Your booking request for the ride from ${puStr} to ${deStr} was cancelled by the driver.`,
+                            rideId: ride._id,
+                        });
+                    } catch (pushErr) {
+                        console.error("Failed to send push notification:", pushErr);
+                    }
+                } catch (notifErr) {
+                    console.error("Notification error:", notifErr);
+                }
+            }
+        }
 
         try {
             const bookings = await Booking.find({ ride: ride._id, status: "cancelled" }).populate("user", "firstName lastName");

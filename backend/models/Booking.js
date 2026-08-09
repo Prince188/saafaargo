@@ -38,8 +38,13 @@ const bookingSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ["confirmed", "cancelled", "completed"],
-        default: "confirmed"
+        enum: ["pending", "confirmed", "cancelled", "declined", "completed"],
+        default: "pending"
+        // "pending"   → passenger requested, waiting for driver to accept/decline (seats HELD)
+        // "confirmed" → driver accepted, seats reduced from ride.seatsAvailable
+        // "declined"  → driver rejected the request (seats released)
+        // "cancelled" → passenger cancelled (seats released)
+        // "completed" → ride completed
     }
 
 }, { timestamps: true });

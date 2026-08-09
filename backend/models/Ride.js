@@ -30,6 +30,14 @@ const rideSchema = new mongoose.Schema({
         required: true,
     },
 
+    // Seats currently HELD by pending (unconfirmed) booking requests.
+    // Not subtracted from seatsAvailable until a request is accepted; used to
+    // prevent over-booking and released on accept/decline/cancel.
+    heldSeats: {
+        type: Number,
+        default: 0,
+    },
+
     car: {
         brand: String,
         model: String,
