@@ -9,6 +9,17 @@ const placeName = (p) => {
     return (obj && typeof obj === "object") ? (obj.displayName || obj.address || obj.name || "") : String(obj || "");
 };
 
+// 4-digit code, unique among the other confirmed bookings on the same ride,
+// so the driver can resolve which passenger is boarding.
+const generatePickupOtp = async (rideId) => {
+    for (let i = 0; i < 50; i++) {
+        const otp = String(Math.floor(1000 + Math.random() * 9000));
+        const clash = await Booking.exists({ ride: rideId, pickupOtp: otp });
+        if (!clash) return otp;
+    }
+    return String(Math.floor(1000 + Math.random() * 9000));
+};
+
 exports.bookRide = async (req, res) => {
     try {
         const { seats } = req.body;
@@ -518,6 +529,7 @@ exports.acceptBooking = async (req, res) => {
         }
 
         booking.status = "confirmed";
+        booking.pickupOtp = await generatePickupOtp(ride._id);
         await booking.save();
 
         // Reduce seats, release the hold, add the passenger, add earnings.
@@ -554,7 +566,7 @@ exports.acceptBooking = async (req, res) => {
         try {
             const pu = placeName(ride.pickup);
             const de = placeName(ride.destination);
-            const message = `Your booking on the ride from ${pu} to ${de} has been confirmed.`;
+            const message = `Your booking on the ride from ${pu} to ${de} has been confirmed. Your pickup code is ${booking.pickupOtp} — show it to your driver at pickup.`;
             await Notification.create({
                 user: booking.user,
                 type: "booking_confirmed",

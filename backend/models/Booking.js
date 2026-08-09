@@ -47,11 +47,21 @@ const bookingSchema = new mongoose.Schema({
         // "completed" → ride completed
     },
 
-    // True once the passenger verified the ride's pickup OTP (trip started).
+    // Rapido-style pickup handshake: each *confirmed* booking gets its own
+    // 4-digit code shown on the passenger's phone. At pickup the passenger
+    // shows it to the driver, who enters it to mark this passenger onboard.
+    pickupOtp: {
+        type: String,
+        select: false,
+    },
+
+    // True once the driver verified this passenger's pickup code.
     pickedUp: {
         type: Boolean,
         default: false,
-    }
+    },
+
+    pickedUpAt: Date,
 
 }, { timestamps: true });
 

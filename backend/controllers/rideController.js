@@ -444,8 +444,10 @@ exports.getRideById = async (req, res) => {
         }
 
         // Current user's own booking on this ride (passenger side, for status UI).
+        // The passenger's own pickup code is included so they can show it to the
+        // driver; other users never see it (select:false by default).
         const myBooking = await Booking.findOne({ ride: req.params.id, user: req.user.id })
-            .select("status seatsBooked amountPaid from to pickedUp")
+            .select("+pickupOtp status seatsBooked amountPaid from to pickedUp")
             .lean();
 
         // Pending requests for the driver (accepted/declined in ride detail).
@@ -457,11 +459,21 @@ exports.getRideById = async (req, res) => {
                 .lean();
         }
 
-        // The pickup OTP is only shown on the driver's phone.
-        const rideJson = typeof ride.toObject === "function" ? ride.toObject() : ride;
-        if (!isDriver && rideJson.pickupOtp) delete rideJson.pickupOtp;
+        // Confirmed passengers for the driver's pickup panel. Codes stay hidden
+        // (select:false) — the driver types whatever code a passenger shows.
+        let confirmedBookings = [];
+        if (isDriver) {
+            confirmedBookings = await Booking.find({ ride: req.params.id, status: "confirmed" })
+                .populate("user", "_id firstName lastName email profilePic")
+                .sort({ createdAt: 1 })
+                .lean();
+        }
 
-        res.json({ success: true, ride: rideJson, isDriver, myBooking: myBooking || null, pendingRequests });
+        // Ride-level pickupOtp is obsolete (codes are per-booking now).
+        const rideJson = typeof ride.toObject === "function" ? ride.toObject() : ride;
+        delete rideJson.pickupOtp;
+
+        res.json({ success: true, ride: rideJson, isDriver, myBooking: myBooking || null, pendingRequests, confirmedBookings });
 
     } catch (err) {
         console.error(err);
@@ -1002,8 +1014,8 @@ exports.cancelRide = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/rides/:id/start-trip  — Driver starts the trip.
-// Generates a 4-digit pickup OTP (shown on the driver's phone) that every
-// confirmed passenger enters to verify pickup in-app (no SMS/gateway).
+// Marks the trip as started. Pickup codes are per-booking (generated when the
+// driver confirms each booking), so this no longer creates a ride-level OTP.
 // ─────────────────────────────────────────────────────────────────────────────
 exports.startTrip = async (req, res) => {
     try {
@@ -1016,26 +1028,16 @@ exports.startTrip = async (req, res) => {
             return res.status(400).json({ message: "Ride must be published to start the trip" });
         }
 
-        // Idempotent: if the trip was already started, return the same OTP.
-        if (ride.tripStartedAt && ride.pickupOtp) {
-            return res.status(200).json({
-                success: true,
-                message: "Trip already started",
-                tripStartedAt: ride.tripStartedAt,
-                otp: ride.pickupOtp,
-            });
+        // Idempotent: keep the original start time.
+        if (!ride.tripStartedAt) {
+            ride.tripStartedAt = new Date();
+            await ride.save();
         }
-
-        const otp = String(Math.floor(1000 + Math.random() * 9000));
-        ride.tripStartedAt = new Date();
-        ride.pickupOtp = otp;
-        await ride.save();
 
         res.status(200).json({
             success: true,
             message: "Trip started",
             tripStartedAt: ride.tripStartedAt,
-            otp,
         });
     } catch (err) {
         console.error("startTrip error:", err);
@@ -1044,60 +1046,60 @@ exports.startTrip = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/rides/:id/verify-otp  — Passenger confirms pickup with the code
-// the driver shows them. Marks their confirmed booking as pickedUp.
+// POST /api/rides/:id/verify-otp  — Rapido-style: the driver enters the code
+// the passenger shows them. The code belongs to that passenger's confirmed
+// booking, so it resolves exactly which passenger is boarding.
 // ─────────────────────────────────────────────────────────────────────────────
 exports.verifyOtp = async (req, res) => {
     try {
-        const { otp } = req.body;
+        const { bookingId, otp } = req.body;
         const rideId = req.params.id;
-        const userId = req.user.id;
 
         const ride = await Ride.findById(rideId);
         if (!ride) return res.status(404).json({ message: "Ride not found" });
+        if (ride.user.toString() !== req.user.id) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
         if (ride.status !== "published") {
             return res.status(400).json({ message: "Ride is not active" });
         }
-        if (!ride.tripStartedAt || !ride.pickupOtp) {
-            return res.status(400).json({ message: "Trip has not started yet" });
-        }
-        if (!otp || String(otp).trim() !== String(ride.pickupOtp)) {
-            return res.status(400).json({ message: "Invalid pickup code" });
-        }
 
-        const booking = await Booking.findOne({
-            ride: rideId,
-            user: userId,
-            status: "confirmed",
-        });
-        if (!booking) {
-            return res.status(403).json({ message: "No confirmed booking on this ride" });
+        const booking = await Booking.findById(bookingId).select("+pickupOtp");
+        if (!booking) return res.status(404).json({ message: "Booking not found" });
+        if (booking.ride.toString() !== rideId) {
+            return res.status(400).json({ message: "Booking does not belong to this ride" });
         }
-
+        if (booking.status !== "confirmed") {
+            return res.status(400).json({ message: "Booking is not confirmed" });
+        }
         if (booking.pickedUp) {
             return res.status(200).json({ success: true, message: "Pickup already confirmed", pickedUp: true });
         }
+        if (!otp || String(otp).trim() !== String(booking.pickupOtp)) {
+            return res.status(400).json({ message: "Invalid pickup code" });
+        }
 
         booking.pickedUp = true;
+        booking.pickedUpAt = new Date();
         await booking.save();
 
-        // Let the driver know this passenger is onboard.
+        // Let the passenger know they're confirmed onboard.
         try {
-            const passenger = await User.findById(userId).select("firstName lastName");
+            const passenger = await User.findById(booking.user).select("firstName lastName");
             const pu = placeName(ride.pickup);
             const de = placeName(ride.destination);
-            const message = `${passenger?.firstName || "A"} ${passenger?.lastName || "passenger"} confirmed pickup for ${booking.seatsBooked} seat(s) on your ride from ${pu} to ${de}.`;
+            const message = `You're onboard! Pickup confirmed for ${booking.seatsBooked} seat(s) on the ride from ${pu} to ${de}.`;
             await Notification.create({
-                user: ride.user,
+                user: booking.user,
                 type: "pickup_confirmed",
-                title: "Passenger Picked Up",
+                title: "Pickup Confirmed",
                 message,
                 rideId: ride._id,
             });
             try {
-                await notifyUser(ride.user, {
+                await notifyUser(booking.user, {
                     type: "pickup_confirmed",
-                    title: "Passenger Picked Up",
+                    title: "Pickup Confirmed",
                     body: message,
                     rideId: ride._id,
                 });
