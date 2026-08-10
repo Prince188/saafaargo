@@ -5,6 +5,7 @@ const {
     createRide,
     getRides,
     getMyRides,
+    getTodayRides,
     getRideById,
     bookRide,
     deleteRide,
@@ -41,6 +42,8 @@ router.post("/", authMiddleware, createRide);
 router.get("/", getRides);
 
 router.get("/my-rides", authMiddleware, getMyRides);
+
+router.get("/today", authMiddleware, getTodayRides);
 
 router.get("/admin/all", authMiddleware, getAllRides);
 

@@ -424,6 +424,73 @@ exports.getMyRides = async (req, res) => {
     }
 };
 
+// Returns rides scheduled for a given day where the current user is either the
+// driver or a confirmed passenger. Used by the home screen "Today's ride" card.
+// `date` is "YYYY-MM-DD"; defaults to today in IST (the app + ride times run
+// on India time).
+exports.getTodayRides = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        const userId = req.user.id;
+
+        const todayIST = () => {
+            const now = new Date();
+            return new Date(now.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+        };
+        const date = (req.query.date || todayIST()).slice(0, 10);
+
+        const active = { $nin: ["cancelled", "completed"] };
+
+        // Rides the user is driving today.
+        const driverRides = await Ride.find({
+            user: userId,
+            date,
+            status: active,
+        })
+            .populate("user", "_id firstName lastName email profilePic")
+            .lean();
+
+        // Rides the user booked (confirmed) and which depart today.
+        const passengerBookings = await Booking.find({
+            user: userId,
+            status: "confirmed",
+        })
+            .populate("ride")
+            .lean();
+
+        const rides = [];
+        const seen = new Set();
+
+        for (const r of driverRides) {
+            const key = r._id.toString();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            rides.push({ ride: r, isDriver: true, bookingId: null });
+        }
+
+        for (const b of passengerBookings) {
+            const r = b.ride;
+            if (!r || r.date !== date) continue;
+            if (r.status === "cancelled" || r.status === "completed") continue;
+            const key = r._id.toString();
+            if (seen.has(key)) continue;
+            seen.add(key);
+            rides.push({ ride: r, isDriver: false, bookingId: b._id.toString() });
+        }
+
+        // The pickup OTP is for the driver's phone only — never leak it.
+        rides.forEach((item) => { delete item.ride.pickupOtp; });
+
+        res.json({ success: true, rides });
+
+    } catch (err) {
+        console.error("[getTodayRides] Error:", err);
+        res.status(500).json({ error: "Server error" });
+    }
+};
+
 exports.getRideById = async (req, res) => {
     try {
         const ride = await Ride.findById(req.params.id)
