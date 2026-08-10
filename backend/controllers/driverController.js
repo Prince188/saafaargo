@@ -50,7 +50,11 @@ exports.getVerificationStatus = async (req, res) => {
         res.status(200).json({
             driverVerified: user.driverVerified,
             driverVerificationStatus: user.driverVerificationStatus,
-            submittedAt: user.driverDocuments?.submittedAt || null
+            submittedAt: user.driverDocuments?.submittedAt || null,
+            driverDocuments: {
+                dlImage: user.driverDocuments?.dlImage || "",
+                rcImage: user.driverDocuments?.rcImage || ""
+            }
         });
 
     } catch (err) {
