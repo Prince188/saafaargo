@@ -1,12 +1,20 @@
 const express = require("express");
 const router = express.Router();
 
-const { register, login, sendOtp, forgotPasswordOtp, resetPassword } = require("../controllers/authController");
+const { register, login, sendOtp, checkEmail, changeEmail, forgotPasswordOtp, resetPassword } = require("../controllers/authController");
+
+const authMiddleware = require("../middleware/authMiddleware");
 
 const upload = require("../middleware/upload");
 
+// Check if email is already registered
+router.post("/check-email", checkEmail);
+
 // Send OTP
 router.post("/send-otp", sendOtp);
+
+// Change logged-in user's email (after OTP verification)
+router.post("/change-email", authMiddleware, changeEmail);
 
 // Register
 router.post(

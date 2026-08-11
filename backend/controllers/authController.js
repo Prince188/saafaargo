@@ -376,6 +376,105 @@ exports.sendOtp = async (req, res) => {
   }
 };
 
+// Check whether an email is already registered (used before sending OTP for
+// an email change so the app can show "already registered" immediately).
+exports.checkEmail = async (req, res) => {
+  try {
+    let { email } = req.body;
+
+    if (!email || typeof email !== "string" || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required"
+      });
+    }
+
+    email = email.toLowerCase().trim();
+
+    const existing = await User.findOne({ email }).select("_id");
+
+    res.json({ success: true, exists: !!existing });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Change the logged-in user's email. Verifies the OTP that was sent to the new
+// email BEFORE updating, and re-checks the new email is not taken by another
+// account (atomic — guards the race between OTP send and save).
+exports.changeEmail = async (req, res) => {
+  try {
+    let { newEmail, otp } = req.body;
+
+    newEmail = newEmail ? newEmail.toLowerCase().trim() : "";
+
+    if (!newEmail) {
+      return res.status(400).json({
+        success: false,
+        field: "email",
+        message: "Email is required"
+      });
+    }
+
+    if (!otp || typeof otp !== "string" || !otp.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP is required"
+      });
+    }
+
+    const existing = await User.findOne({ email: newEmail });
+
+    if (existing && existing._id.toString() === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        field: "email",
+        message: "New email is same as current email"
+      });
+    }
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        field: "email",
+        message: "Email already exists"
+      });
+    }
+
+    // Find latest OTP sent to the new email
+    const recentOtp = await Otp.findOne({ email: newEmail })
+      .sort({ createdAt: -1 });
+
+    if (!recentOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired"
+      });
+    }
+
+    if (recentOtp.otp !== otp.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP"
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { email: newEmail },
+      { new: true }
+    ).select("-password");
+
+    // Delete used OTPs
+    await Otp.deleteMany({ email: newEmail });
+
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 exports.forgotPasswordOtp = async (req, res) => {
   try {
 
