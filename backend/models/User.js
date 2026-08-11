@@ -68,6 +68,16 @@ const userSchema = new mongoose.Schema({
         submittedAt: { type: Date }
     },
 
+    // ─── Ratings ───────────────────────────────────────────────────────────
+    ratingAvg: {
+        type: Number,
+        default: 0
+    },
+    ratingCount: {
+        type: Number,
+        default: 0
+    },
+
     // ─── Push notifications (FCM device tokens) ────────────────────────────
     deviceToken: {
         type: [String],

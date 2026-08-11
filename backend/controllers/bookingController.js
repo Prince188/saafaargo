@@ -2,6 +2,7 @@ const Ride = require("../models/Ride");
 const Booking = require("../models/Booking");
 const Notification = require("../models/Notification");
 const { notifyUser } = require("../util/fcm");
+const { getRideCountsByDriver } = require("../util/driverStats");
 
 const placeName = (p) => {
     if (!p) return "";
@@ -252,13 +253,24 @@ exports.getMyTrips = async (req, res) => {
                 select: "-pickupOtp",
                 populate: {
                     path: "user",
-                    select: "firstName lastName email phone"
+                    select: "firstName lastName email phone profilePic ratingAvg ratingCount"
                 }
             })
 
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
-        console.log(JSON.stringify(trips, null, 2));
+        // Attach each driver's total ride count so trip cards can show it.
+        const driverIds = trips.map((t) => t.ride?.user?._id).filter(Boolean);
+        const counts = await getRideCountsByDriver(driverIds);
+        trips.forEach((t) => {
+            if (t.ride?.user) {
+                t.ride.user = {
+                    ...t.ride.user,
+                    totalRides: counts[String(t.ride.user._id)] || 0,
+                };
+            }
+        });
 
         res.status(200).json(trips);
 

@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Notification = require("../models/Notification");
 const { notifyUser } = require("../util/fcm");
 const { buildDepartureDate } = require("../util/rideTime");
+const { getRideCountsByDriver, getRideCountForDriver } = require("../util/driverStats");
 
 const placeName = (p) => {
     if (!p) return "";
@@ -341,7 +342,7 @@ exports.getRides = async (req, res) => {
         else if (sortBy === "seats_desc") sortOption = { seatsAvailable: -1 };
 
         const candidates = await Ride.find(dbQuery)
-            .populate("user", "firstName lastName email profilePic")
+            .populate("user", "firstName lastName email profilePic ratingAvg ratingCount")
             .sort(sortOption)
             .lean();
 
@@ -392,6 +393,19 @@ exports.getRides = async (req, res) => {
         // The pickup OTP is for the driver's phone only — never expose it in
         // public search results.
         rides.forEach((r) => { delete r.pickupOtp; });
+
+        // Attach each driver's total ride count (published + completed) so the
+        // search cards can show "N rides" next to the driver's rating.
+        const driverIds = rides.map((r) => r.user?._id).filter(Boolean);
+        const counts = await getRideCountsByDriver(driverIds);
+        rides.forEach((r) => {
+            if (r.user) {
+                r.user = {
+                    ...r.user,
+                    totalRides: counts[String(r.user._id)] || 0,
+                };
+            }
+        });
 
         res.json({ success: true, count: rides.length, rides });
 
@@ -449,7 +463,7 @@ exports.getTodayRides = async (req, res) => {
             date,
             status: active,
         })
-            .populate("user", "_id firstName lastName email profilePic")
+            .populate("user", "_id firstName lastName email profilePic ratingAvg ratingCount")
             .lean();
 
         // Rides the user booked (confirmed) and which depart today.
@@ -493,9 +507,10 @@ exports.getTodayRides = async (req, res) => {
 
 exports.getRideById = async (req, res) => {
     try {
+        const { from, to } = req.query;
         const ride = await Ride.findById(req.params.id)
-            .populate("user", "_id firstName lastName email profilePic")
-            .populate("passengers.user", "_id firstName lastName email profilePic");
+            .populate("user", "_id firstName lastName email profilePic ratingAvg ratingCount")
+            .populate("passengers.user", "_id firstName lastName email profilePic ratingAvg ratingCount");
 
         if (!ride) {
             return res.status(404).json({ error: "Ride not found" });
@@ -521,7 +536,7 @@ exports.getRideById = async (req, res) => {
         let pendingRequests = [];
         if (isDriver) {
             pendingRequests = await Booking.find({ ride: req.params.id, status: "pending" })
-                .populate("user", "_id firstName lastName email profilePic")
+                .populate("user", "_id firstName lastName email profilePic ratingAvg ratingCount")
                 .sort({ createdAt: -1 })
                 .lean();
         }
@@ -531,14 +546,37 @@ exports.getRideById = async (req, res) => {
         let confirmedBookings = [];
         if (isDriver) {
             confirmedBookings = await Booking.find({ ride: req.params.id, status: "confirmed" })
-                .populate("user", "_id firstName lastName email profilePic")
+                .populate("user", "_id firstName lastName email profilePic ratingAvg ratingCount")
                 .sort({ createdAt: 1 })
                 .lean();
         }
 
         // Ride-level pickupOtp is obsolete (codes are per-booking now).
-        const rideJson = typeof ride.toObject === "function" ? ride.toObject() : ride;
+        let rideJson = typeof ride.toObject === "function" ? ride.toObject() : ride;
         delete rideJson.pickupOtp;
+
+        // Total rides the driver has run, so the detail screen can show
+        // "★ rating · N rides" next to the driver's info.
+        if (rideJson.user) {
+            rideJson.user = {
+                ...rideJson.user,
+                totalRides: await getRideCountForDriver(rideJson.user._id),
+            };
+        }
+
+        // Passenger's segment times (from/to of their search) so the detail
+        // screen shows the same pickup/drop times as the search card.
+        if (from && to) {
+            try {
+                const timeData = getSegmentTime(ride, from, to);
+                if (timeData) {
+                    rideJson.userPickupTime = timeData.pickupTime;
+                    rideJson.userDropTime = timeData.dropTime;
+                }
+            } catch (e) {
+                console.error("[getRideById] segment time error:", e);
+            }
+        }
 
         res.json({ success: true, ride: rideJson, isDriver, myBooking: myBooking || null, pendingRequests, confirmedBookings });
 

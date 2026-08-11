@@ -73,6 +73,8 @@ app.use("/api/reports", require("./routes/reportRoutes"));
 
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 
+app.use("/api/ratings", require("./routes/ratingRoutes"));
+
 const { startDepartureReminderJob } = require("./util/departureReminder");
 
 const PORT = process.env.PORT || 5000;
