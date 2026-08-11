@@ -466,11 +466,14 @@ exports.getTodayRides = async (req, res) => {
             .populate("user", "_id firstName lastName email profilePic ratingAvg ratingCount")
             .lean();
 
-        // Rides the user booked (confirmed) and which depart today.
+        // Rides the user booked (confirmed) and which depart today. The
+        // booking's pickup code is selected too (select:false by default) so
+        // an ongoing ride can show the passenger their OTP right on the card.
         const passengerBookings = await Booking.find({
             user: userId,
             status: "confirmed",
         })
+            .select("+pickupOtp")
             .populate("ride")
             .lean();
 
@@ -481,7 +484,7 @@ exports.getTodayRides = async (req, res) => {
             const key = r._id.toString();
             if (seen.has(key)) continue;
             seen.add(key);
-            rides.push({ ride: r, isDriver: true, bookingId: null });
+            rides.push({ ride: r, isDriver: true, bookingId: null, pickupOtp: null });
         }
 
         for (const b of passengerBookings) {
@@ -491,7 +494,12 @@ exports.getTodayRides = async (req, res) => {
             const key = r._id.toString();
             if (seen.has(key)) continue;
             seen.add(key);
-            rides.push({ ride: r, isDriver: false, bookingId: b._id.toString() });
+            rides.push({
+                ride: r,
+                isDriver: false,
+                bookingId: b._id.toString(),
+                pickupOtp: b.pickupOtp || null,
+            });
         }
 
         // The pickup OTP is for the driver's phone only — never leak it.
