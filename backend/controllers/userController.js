@@ -3,6 +3,28 @@ const Ride = require("../models/Ride");
 const Booking = require("../models/Booking");
 const Report = require("../models/Report");
 
+// Parse the emergencyContacts form field. The app sends it as a JSON string
+// inside the multipart profile update, so it needs JSON.parse() before saving.
+function parseEmergencyContacts(value) {
+    if (Array.isArray(value)) return value.slice(0, 2).map(normalizeContact);
+    if (typeof value !== "string") return [];
+    try {
+        const arr = JSON.parse(value);
+        if (!Array.isArray(arr)) return [];
+        return arr.slice(0, 2).map(normalizeContact);
+    } catch {
+        return [];
+    }
+}
+
+function normalizeContact(c) {
+    if (!c || typeof c !== "object") return { name: "", phone: "" };
+    return {
+        name: typeof c.name === "string" ? c.name.slice(0, 100) : "",
+        phone: typeof c.phone === "string" ? c.phone.slice(0, 20) : "",
+    };
+}
+
 // Get logged-in user
 exports.getMe = async (req, res) => {
     res.json({ user: req.user });
@@ -21,7 +43,7 @@ exports.getProfile = async (req, res) => {
 // Update profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { firstName, lastName, mobile, bio, removeProfilePic } = req.body;
+        const { firstName, lastName, mobile, bio, removeProfilePic, emergencyContacts } = req.body;
 
         const updateData = {
             firstName,
@@ -29,6 +51,10 @@ exports.updateProfile = async (req, res) => {
             mobile,
             bio,
         };
+
+        if (emergencyContacts !== undefined) {
+            updateData.emergencyContacts = parseEmergencyContacts(emergencyContacts);
+        }
 
         if (req.file) {
             updateData.profilePic = req.file.path;

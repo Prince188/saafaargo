@@ -82,6 +82,15 @@ const userSchema = new mongoose.Schema({
     deviceToken: {
         type: [String],
         default: []
+    },
+
+    // ─── Emergency contacts (safety) ───────────────────────────────────────
+    emergencyContacts: {
+        type: [{
+            name: { type: String, default: "" },
+            phone: { type: String, default: "" }
+        }],
+        default: []
     }
     // ──────────────────────────────────────────────────────────────────────
 },
