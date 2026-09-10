@@ -28,6 +28,41 @@ import API from "../../api/api";
 import { showError, showSuccess } from "../../utils/toastConfig";
 import { formatDistanceToNow } from "date-fns";
 
+const getActivityConfig = (type) => {
+    switch (type) {
+        case "user":
+            return {
+                icon: <FaUsers className="text-[11px]" />,
+                style: "bg-purple-50 text-purple-700"
+            };
+        case "ride":
+            return {
+                icon: <FaCar className="text-[11px]" />,
+                style: "bg-emerald-50 text-[#2f5a3d]"
+            };
+        case "booking":
+            return {
+                icon: <FaTicketAlt className="text-[11px]" />,
+                style: "bg-blue-50 text-blue-700"
+            };
+        case "subscription":
+            return {
+                icon: <FaUserCheck className="text-[11px]" />,
+                style: "bg-amber-50 text-amber-700"
+            };
+        case "contact":
+            return {
+                icon: <FaRoute className="text-[11px]" />,
+                style: "bg-rose-50 text-rose-700"
+            };
+        default:
+            return {
+                icon: <FaCar className="text-[11px]" />,
+                style: "bg-[#faf9f5] text-[#2f5a3d]"
+            };
+    }
+};
+
 const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -720,23 +755,30 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {recentActivities.slice(0, 6).map((activity, idx) => (
-                                <div key={idx} className="flex items-start gap-3 text-xs">
-                                    <div className="w-7 h-7 rounded-lg bg-[#faf9f5] flex items-center justify-center text-[#2f5a3d] flex-shrink-0 mt-0.5">
-                                        <FaCar className="text-[11px]" />
+                            {recentActivities.slice(0, 6).map((activity, idx) => {
+                                const config = getActivityConfig(activity.type);
+                                const timestamp = activity.time || activity.createdAt;
+                                const timeFormatted = timestamp
+                                    ? formatDistanceToNow(new Date(timestamp), { addSuffix: true })
+                                    : "Just now";
+
+                                return (
+                                    <div key={idx} className="flex items-start gap-3 text-xs">
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${config.style}`}>
+                                            {config.icon}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[#1a2620] leading-snug">
+                                                <strong className="font-semibold text-[#1a2620]">{activity.user || "A user"}</strong>{" "}
+                                                <span className="text-[#5a6358]">{activity.action || activity.message || "performed an action"}</span>
+                                            </p>
+                                            <p className="text-[10px] text-[#7a8478] mt-0.5">
+                                                {timeFormatted}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[#1a2620] font-medium leading-snug truncate">
-                                            {activity.message || activity.description || "System operation processed"}
-                                        </p>
-                                        <p className="text-[10px] text-[#7a8478] mt-0.5">
-                                            {activity.createdAt
-                                                ? formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })
-                                                : "Recent"}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
