@@ -75,12 +75,38 @@ const Search = () => {
             setLoading(true);
             setError(null);
             try {
+                const storedUser = JSON.parse(localStorage.getItem("user") || "null");
                 const params = new URLSearchParams({
                     from: from,
                     to: to,
                     date,
                     seats: seats ?? 1,
                 });
+                if (storedUser?._id || storedUser?.id) {
+                    params.set("userId", storedUser._id || storedUser.id);
+                }
+
+                try {
+                    const recentSearches = JSON.parse(localStorage.getItem("safargo_recent_searches") || "[]");
+                    const fromName = typeof from === "object" ? (from.city || from.displayName) : from;
+                    const toName = typeof to === "object" ? (to.city || to.displayName) : to;
+                    const newEntry = {
+                        from: fromName,
+                        to: toName,
+                        date,
+                        seats: seats ?? 1,
+                        timestamp: Date.now(),
+                    };
+                    const filtered = recentSearches.filter(
+                        s => !(s.from === newEntry.from && s.to === newEntry.to)
+                    );
+                    localStorage.setItem(
+                        "safargo_recent_searches",
+                        JSON.stringify([newEntry, ...filtered].slice(0, 5))
+                    );
+                } catch (e) {
+                    // Ignore localStorage error
+                }
 
                 const res = await fetch(
                     `${process.env.REACT_APP_API_URL}/rides?${params}`

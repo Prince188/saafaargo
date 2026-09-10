@@ -5,7 +5,7 @@ const router = express.Router();
 
 const driverController = require("../controllers/driverController");
 const authMiddleware = require("../middleware/authMiddleware");
-const { getRecentActivities, getAdminDashboard } = require("../controllers/adminController");
+const { getRecentActivities, getAdminDashboard, getSearchAnalytics } = require("../controllers/adminController");
 
 router.get("/drivers", authMiddleware, driverController.getAllDrivers);
 router.patch("/drivers/:userId/approve", authMiddleware, driverController.approveDriver);
@@ -13,6 +13,7 @@ router.patch("/drivers/:userId/reject", authMiddleware, driverController.rejectD
 
 router.get("/dashboard", authMiddleware, getAdminDashboard);
 router.get("/recent-activities", authMiddleware, getRecentActivities);
+router.get("/search-analytics", authMiddleware, getSearchAnalytics);
 
 module.exports = router;
 

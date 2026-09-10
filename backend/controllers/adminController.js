@@ -3,6 +3,7 @@ const Ride = require("../models/Ride");
 const Booking = require("../models/Booking");
 const Newsletter = require("../models/Newsletter");
 const Contact = require("../models/Contact");
+const SearchLog = require("../models/SearchLog");
 
 const extractCity = (displayName) => {
     if (!displayName) return null;
@@ -150,6 +151,57 @@ exports.getAdminDashboard = async (req, res) => {
             percentage: Math.round((count / maxCount) * 100),
         }));
 
+        // ── Search Analytics & Route Demand ─────────────────────────
+        const [totalSearches, searchesToday, zeroResultSearches] = await Promise.all([
+            SearchLog.countDocuments(),
+            SearchLog.countDocuments({ createdAt: { $gte: todayStart } }),
+            SearchLog.countDocuments({ resultsCount: 0 })
+        ]);
+
+        const topRoutesAgg = await SearchLog.aggregate([
+            {
+                $group: {
+                    _id: "$routeKey",
+                    fromCity: { $first: "$fromCity" },
+                    toCity: { $first: "$toCity" },
+                    totalSearches: { $sum: 1 },
+                    zeroResultsCount: {
+                        $sum: { $cond: [{ $eq: ["$resultsCount", 0] }, 1, 0] }
+                    },
+                    lastSearched: { $max: "$createdAt" }
+                }
+            },
+            { $sort: { totalSearches: -1 } },
+            { $limit: 8 }
+        ]);
+
+        const maxSearches = topRoutesAgg.length > 0 ? topRoutesAgg[0].totalSearches : 1;
+        const topSearchedRoutes = topRoutesAgg.map(r => ({
+            route: r._id || `${r.fromCity} → ${r.toCity}`,
+            fromCity: r.fromCity,
+            toCity: r.toCity,
+            searches: r.totalSearches,
+            zeroResultsCount: r.zeroResultsCount,
+            percentage: Math.round((r.totalSearches / maxSearches) * 100),
+            unmetDemand: r.zeroResultsCount > 0 && (r.zeroResultsCount / r.totalSearches) >= 0.5,
+            lastSearched: r.lastSearched
+        }));
+
+        const recentSearches = await SearchLog.find()
+            .sort({ createdAt: -1 })
+            .limit(8)
+            .populate("userId", "firstName lastName email")
+            .lean();
+
+        const searchStats = {
+            totalSearches,
+            searchesToday,
+            zeroResultSearches,
+            unmetDemandRate: totalSearches > 0 ? Math.round((zeroResultSearches / totalSearches) * 100) : 0,
+            topSearchedRoutes,
+            recentSearches
+        };
+
         res.json({
             success: true,
             data: {
@@ -175,7 +227,8 @@ exports.getAdminDashboard = async (req, res) => {
                     positiveReviews: 0,
                     contactsCount
                 },
-                topCities
+                topCities,
+                searchStats
             }
         });
 
@@ -246,5 +299,68 @@ exports.getRecentActivities = async (req, res) => {
             success: false,
             message: error.message
         });
+    }
+};
+
+exports.getSearchAnalytics = async (req, res) => {
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const [totalSearches, searchesToday, zeroResultSearches] = await Promise.all([
+            SearchLog.countDocuments(),
+            SearchLog.countDocuments({ createdAt: { $gte: todayStart } }),
+            SearchLog.countDocuments({ resultsCount: 0 })
+        ]);
+
+        const topRoutesAgg = await SearchLog.aggregate([
+            {
+                $group: {
+                    _id: "$routeKey",
+                    fromCity: { $first: "$fromCity" },
+                    toCity: { $first: "$toCity" },
+                    totalSearches: { $sum: 1 },
+                    zeroResultsCount: {
+                        $sum: { $cond: [{ $eq: ["$resultsCount", 0] }, 1, 0] }
+                    },
+                    lastSearched: { $max: "$createdAt" }
+                }
+            },
+            { $sort: { totalSearches: -1 } },
+            { $limit: 20 }
+        ]);
+
+        const maxSearches = topRoutesAgg.length > 0 ? topRoutesAgg[0].totalSearches : 1;
+        const topRoutes = topRoutesAgg.map(r => ({
+            route: r._id || `${r.fromCity} → ${r.toCity}`,
+            fromCity: r.fromCity,
+            toCity: r.toCity,
+            searches: r.totalSearches,
+            zeroResultsCount: r.zeroResultsCount,
+            percentage: Math.round((r.totalSearches / maxSearches) * 100),
+            unmetDemand: r.zeroResultsCount > 0 && (r.zeroResultsCount / r.totalSearches) >= 0.5,
+            lastSearched: r.lastSearched
+        }));
+
+        const recentSearches = await SearchLog.find()
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .populate("userId", "firstName lastName email")
+            .lean();
+
+        res.json({
+            success: true,
+            data: {
+                totalSearches,
+                searchesToday,
+                zeroResultSearches,
+                unmetDemandRate: totalSearches > 0 ? Math.round((zeroResultSearches / totalSearches) * 100) : 0,
+                topRoutes,
+                recentSearches
+            }
+        });
+    } catch (error) {
+        console.error("getSearchAnalytics error:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };

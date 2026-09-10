@@ -1,10 +1,24 @@
+const mongoose = require("mongoose");
 const Booking = require("../models/Booking");
 const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
+const SearchLog = require("../models/SearchLog");
 const { notifyUser } = require("../util/fcm");
 const { buildDepartureDate } = require("../util/rideTime");
 const { getRideCountsByDriver, getRideCountForDriver } = require("../util/driverStats");
+
+const extractCleanCity = (locationStr) => {
+    if (!locationStr) return "";
+    if (typeof locationStr === "object") {
+        return locationStr.city || locationStr.displayName || locationStr.address || "";
+    }
+    const str = String(locationStr).trim();
+    const parts = str.split(",").map(p => p.trim()).filter(Boolean);
+    if (parts.length >= 3) return parts[parts.length - 3];
+    if (parts.length === 2) return parts[0];
+    return parts[0] || str;
+};
 
 const placeName = (p) => {
     if (!p) return "";
@@ -408,6 +422,36 @@ exports.getRides = async (req, res) => {
         });
 
         res.json({ success: true, count: rides.length, rides });
+
+        // Non-blocking asynchronous search log tracking
+        if (from && to) {
+            (async () => {
+                try {
+                    const fromCity = extractCleanCity(from);
+                    const toCity = extractCleanCity(to);
+                    const routeKey = `${fromCity} → ${toCity}`;
+                    const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress || "";
+                    const userAgent = req.headers["user-agent"] || "";
+                    const userId = req.user?.id || req.query.userId || null;
+
+                    await SearchLog.create({
+                        from: String(from).trim(),
+                        to: String(to).trim(),
+                        fromCity: fromCity || "Unknown",
+                        toCity: toCity || "Unknown",
+                        routeKey,
+                        travelDate: date || "",
+                        seats: requestedSeats,
+                        resultsCount: rides.length,
+                        userId: (userId && mongoose.Types.ObjectId.isValid(userId)) ? userId : null,
+                        ip: clientIp,
+                        userAgent,
+                    });
+                } catch (logErr) {
+                    console.error("[SearchLog] Error saving search log:", logErr.message);
+                }
+            })();
+        }
 
     } catch (err) {
         console.error("[getRides] Error:", err);

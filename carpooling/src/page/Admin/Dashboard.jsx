@@ -26,6 +26,9 @@ import {
     FaUserCheck,
     FaRegClock,
     FaMapMarkerAlt,
+    FaSearch,
+    FaRoute,
+    FaExclamationTriangle,
 } from "react-icons/fa";
 import { FaArrowTrendUp, FaEnvelope, FaPaperPlane } from "react-icons/fa6";
 import { MdVerified, MdPayment, MdRateReview } from "react-icons/md";
@@ -64,6 +67,14 @@ const Dashboard = () => {
         contactsCount: 0
     });
     const [topCities, setTopCities] = useState([]);
+    const [searchStats, setSearchStats] = useState({
+        totalSearches: 0,
+        searchesToday: 0,
+        zeroResultSearches: 0,
+        unmetDemandRate: 0,
+        topSearchedRoutes: [],
+        recentSearches: []
+    });
 
     useEffect(() => {
         fetchDashboardData();
@@ -131,6 +142,7 @@ const Dashboard = () => {
             if (dashData.rideStats) setRideStats(dashData.rideStats);
             if (dashData.feedback) setFeedback(dashData.feedback);
             if (dashData.topCities) setTopCities(dashData.topCities);
+            if (dashData.searchStats) setSearchStats(dashData.searchStats);
 
         } catch (err) {
             console.log(err);
@@ -590,6 +602,135 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                 ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* ROUTE DEMAND & SEARCH ANALYTICS */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-10 overflow-hidden">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-xl bg-[#2f5a3d]/10 flex items-center justify-center text-[#2f5a3d] flex-shrink-0">
+                                <FaRoute className="text-sm" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                    Passenger Search Demand & Route Insights
+                                </h3>
+                                <p className="text-xs text-[#7a8478]">
+                                    Tracking passenger travel demand and identifying routes with zero available rides
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs bg-[#faf8f2] border border-[#e6e1d3] px-3 py-1 rounded-full text-[#1a2620] font-medium">
+                                Total Searches: <strong className="text-[#2f5a3d]">{searchStats.totalSearches || 0}</strong>
+                            </span>
+                            <span className="text-xs bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-emerald-800 font-medium">
+                                Today: <strong>{searchStats.searchesToday || 0}</strong>
+                            </span>
+                            <span className={`text-xs px-3 py-1 rounded-full font-medium border ${
+                                (searchStats.unmetDemandRate || 0) > 25 
+                                    ? "bg-rose-50 border-rose-200 text-rose-800" 
+                                    : "bg-[#faf8f2] border-[#e6e1d3] text-[#1a2620]"
+                            }`}>
+                                Zero-Ride Rate: <strong>{searchStats.unmetDemandRate || 0}%</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Top Searched Routes */}
+                        <div className="border border-[#efece4] rounded-xl p-5 bg-[#faf8f2]/40">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-xs uppercase tracking-wider font-bold text-[#5a6358] flex items-center gap-1.5">
+                                    <FaSearch className="text-[10px]" /> Top Searched City Corridors
+                                </h4>
+                                <span className="text-[11px] text-[#9aa194]">Volume & Status</span>
+                            </div>
+
+                            {(!searchStats.topSearchedRoutes || searchStats.topSearchedRoutes.length === 0) ? (
+                                <p className="text-xs text-[#7a8478] text-center py-8">No route searches recorded yet.</p>
+                            ) : (
+                                <div className="space-y-3.5">
+                                    {searchStats.topSearchedRoutes.map((r, idx) => (
+                                        <div key={idx} className="group">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-[#2f5a3d] w-4">{idx + 1}.</span>
+                                                    <span className="text-xs font-semibold text-[#1a2620]">{r.route}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-[#1a2620]">{r.searches} search{r.searches !== 1 ? "es" : ""}</span>
+                                                    {r.unmetDemand ? (
+                                                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
+                                                            <FaExclamationTriangle className="text-[8px]" /> Unmet
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                                                            Active
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="w-full bg-[#e6e1d3] rounded-full h-1.5">
+                                                <div
+                                                    className={`rounded-full h-1.5 transition-all duration-700 ${
+                                                        r.unmetDemand ? "bg-rose-500" : "bg-[#2f5a3d]"
+                                                    }`}
+                                                    style={{ width: `${Math.max(r.percentage || 0, 8)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Recent Live Searches */}
+                        <div className="border border-[#efece4] rounded-xl p-5 bg-[#faf8f2]/40">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-xs uppercase tracking-wider font-bold text-[#5a6358] flex items-center gap-1.5">
+                                    <FaRegClock className="text-[10px]" /> Recent Search Stream
+                                </h4>
+                                <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Real-time</span>
+                            </div>
+
+                            {(!searchStats.recentSearches || searchStats.recentSearches.length === 0) ? (
+                                <p className="text-xs text-[#7a8478] text-center py-8">No recent searches.</p>
+                            ) : (
+                                <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+                                    {searchStats.recentSearches.map((s, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-[#efece4] text-xs">
+                                            <div className="flex-1 min-w-0 pr-2">
+                                                <p className="font-semibold text-[#1a2620] truncate">
+                                                    {s.fromCity || s.from} <span className="text-slate-400 font-normal">→</span> {s.toCity || s.to}
+                                                </p>
+                                                <div className="flex items-center gap-2 text-[10px] text-[#7a8478] mt-0.5">
+                                                    <span>{s.travelDate ? `Date: ${s.travelDate}` : "Any date"}</span>
+                                                    <span>•</span>
+                                                    <span>{s.seats || 1} seat{(s.seats || 1) > 1 ? "s" : ""}</span>
+                                                    <span>•</span>
+                                                    <span className="truncate">{s.userId ? `${s.userId.firstName || "User"}` : "Guest"}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                                    s.resultsCount === 0
+                                                        ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                                        : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                                }`}>
+                                                    {s.resultsCount} ride{s.resultsCount !== 1 ? "s" : ""}
+                                                </span>
+                                                <span className="text-[9px] text-[#9aa194] mt-1">
+                                                    {formatDistanceToNow(new Date(s.createdAt), { addSuffix: true })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     </div>
