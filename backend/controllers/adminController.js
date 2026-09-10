@@ -86,8 +86,14 @@ exports.rejectUser = async (req, res) => {
 
 exports.getAdminDashboard = async (req, res) => {
     try {
+        // Real pending drivers awaiting KYC verification
+        const pendingDrivers = await User.find({
+            driverVerificationStatus: "pending"
+        }).select("firstName lastName email mobile driverDocuments createdAt").sort({ createdAt: -1 });
+
+        // Real account verification pending (excluding "none")
         const pendingUsers = await User.find({
-            verificationStatus: { $in: ["pending", "none"] },
+            verificationStatus: "pending",
             role: { $ne: "admin" }
         }).sort({ createdAt: -1 });
 
@@ -110,9 +116,10 @@ exports.getAdminDashboard = async (req, res) => {
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        const [totalUsers, verifiedUsers, activeUsers, newUsersToday] = await Promise.all([
+        const [totalUsers, verifiedUsers, verifiedDriversCount, activeUsers, newUsersToday] = await Promise.all([
             User.countDocuments(),
             User.countDocuments({ isVerified: true }),
+            User.countDocuments({ driverVerificationStatus: "verified" }),
             User.countDocuments({ status: "active" }),
             User.countDocuments({ createdAt: { $gte: todayStart } })
         ]);
@@ -172,7 +179,7 @@ exports.getAdminDashboard = async (req, res) => {
                 }
             },
             { $sort: { totalSearches: -1 } },
-            { $limit: 8 }
+            { $limit: 5 }
         ]);
 
         const maxSearches = topRoutesAgg.length > 0 ? topRoutesAgg[0].totalSearches : 1;
@@ -189,7 +196,7 @@ exports.getAdminDashboard = async (req, res) => {
 
         const recentSearches = await SearchLog.find()
             .sort({ createdAt: -1 })
-            .limit(8)
+            .limit(5)
             .populate("userId", "firstName lastName email")
             .lean();
 
@@ -205,6 +212,7 @@ exports.getAdminDashboard = async (req, res) => {
         res.json({
             success: true,
             data: {
+                pendingDrivers,
                 pendingUsers,
                 approvedUsers,
                 pendingRides,
@@ -212,6 +220,7 @@ exports.getAdminDashboard = async (req, res) => {
                 userStats: {
                     totalUsers,
                     verifiedUsers,
+                    verifiedDrivers: verifiedDriversCount,
                     activeUsers,
                     newUsersToday
                 },
@@ -304,13 +313,43 @@ exports.getRecentActivities = async (req, res) => {
 
 exports.getSearchAnalytics = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 15;
+        const skip = (page - 1) * limit;
+        const search = req.query.search ? req.query.search.trim() : "";
+        const filter = req.query.filter || "all"; // all, zero_results, has_results
+
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        const [totalSearches, searchesToday, zeroResultSearches] = await Promise.all([
+        let query = {};
+        if (search) {
+            query.$or = [
+                { routeKey: { $regex: search, $options: "i" } },
+                { from: { $regex: search, $options: "i" } },
+                { to: { $regex: search, $options: "i" } },
+                { fromCity: { $regex: search, $options: "i" } },
+                { toCity: { $regex: search, $options: "i" } },
+            ];
+        }
+
+        if (filter === "zero_results") {
+            query.resultsCount = 0;
+        } else if (filter === "has_results") {
+            query.resultsCount = { $gt: 0 };
+        }
+
+        const [totalSearches, searchesToday, zeroResultSearches, totalLogs, logs] = await Promise.all([
             SearchLog.countDocuments(),
             SearchLog.countDocuments({ createdAt: { $gte: todayStart } }),
-            SearchLog.countDocuments({ resultsCount: 0 })
+            SearchLog.countDocuments({ resultsCount: 0 }),
+            SearchLog.countDocuments(query),
+            SearchLog.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate("userId", "firstName lastName email phone")
+                .lean()
         ]);
 
         const topRoutesAgg = await SearchLog.aggregate([
@@ -327,7 +366,7 @@ exports.getSearchAnalytics = async (req, res) => {
                 }
             },
             { $sort: { totalSearches: -1 } },
-            { $limit: 20 }
+            { $limit: 10 }
         ]);
 
         const maxSearches = topRoutesAgg.length > 0 ? topRoutesAgg[0].totalSearches : 1;
@@ -342,12 +381,6 @@ exports.getSearchAnalytics = async (req, res) => {
             lastSearched: r.lastSearched
         }));
 
-        const recentSearches = await SearchLog.find()
-            .sort({ createdAt: -1 })
-            .limit(20)
-            .populate("userId", "firstName lastName email")
-            .lean();
-
         res.json({
             success: true,
             data: {
@@ -356,7 +389,13 @@ exports.getSearchAnalytics = async (req, res) => {
                 zeroResultSearches,
                 unmetDemandRate: totalSearches > 0 ? Math.round((zeroResultSearches / totalSearches) * 100) : 0,
                 topRoutes,
-                recentSearches
+                logs,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(totalLogs / limit) || 1,
+                    totalLogs,
+                    limit
+                }
             }
         });
     } catch (error) {

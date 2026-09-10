@@ -1,5 +1,6 @@
 // src/page/Admin/Dashboard.jsx
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
     AreaChart,
     Area,
@@ -18,20 +19,21 @@ import {
     FaCalendarWeek,
     FaCalendarAlt,
     FaEye,
-    FaArrowUp,
-    FaArrowDown,
     FaDownload,
     FaPrint,
-    FaStar,
     FaUserCheck,
     FaRegClock,
     FaMapMarkerAlt,
     FaSearch,
     FaRoute,
     FaExclamationTriangle,
+    FaCheckCircle,
+    FaTicketAlt,
+    FaChevronRight,
+    FaShieldAlt
 } from "react-icons/fa";
-import { FaArrowTrendUp, FaEnvelope, FaPaperPlane } from "react-icons/fa6";
-import { MdVerified, MdPayment, MdRateReview } from "react-icons/md";
+import { FaArrowTrendUp, FaPaperPlane } from "react-icons/fa6";
+import { RiSteeringFill } from "react-icons/ri";
 import API from "../../api/api";
 import { showSuccess, showError } from "../../utils/toastConfig";
 import { formatDistanceToNow } from "date-fns";
@@ -48,6 +50,12 @@ const Dashboard = () => {
     const [dateRange, setDateRange] = useState("week");
     const [recentActivities, setRecentActivities] = useState([]);
     const [recentVisitors, setRecentVisitors] = useState([]);
+
+    // Action Center Counts (Real DB counts)
+    const [pendingDriversCount, setPendingDriversCount] = useState(0);
+    const [pendingRidesCount, setPendingRidesCount] = useState(0);
+    const [activeRidesCount, setActiveRidesCount] = useState(0);
+
     const [userStats, setUserStats] = useState({
         totalUsers: 0,
         verifiedUsers: 0,
@@ -134,7 +142,7 @@ const Dashboard = () => {
                 setStats(formatted);
             }
 
-            setRecentActivities(activityRes.data.activities || []);
+            setRecentActivities(activityRes.data?.activities || []);
             setRecentVisitors(recentVisitorsRes.data || []);
 
             const dashData = dashboardRes.data?.data || {};
@@ -143,9 +151,16 @@ const Dashboard = () => {
             if (dashData.feedback) setFeedback(dashData.feedback);
             if (dashData.topCities) setTopCities(dashData.topCities);
             if (dashData.searchStats) setSearchStats(dashData.searchStats);
+            if (dashData.pendingDrivers) {
+                setPendingDriversCount(dashData.pendingDrivers.length);
+            } else if (dashData.pendingUsers) {
+                setPendingDriversCount(dashData.pendingUsers.length);
+            }
+            if (dashData.pendingRides) setPendingRidesCount(dashData.pendingRides.length);
+            if (dashData.activeRides) setActiveRidesCount(dashData.activeRides.length);
 
         } catch (err) {
-            console.log(err);
+            console.error("Dashboard error:", err);
             showError("Failed to load dashboard");
         } finally {
             setLoading(false);
@@ -158,24 +173,26 @@ const Dashboard = () => {
         const dateStr = new Date().toISOString().split('T')[0];
         const rows = [
             ['Section', 'Metric', 'Value'],
-            ['Overview', 'Daily Unique Visits', today],
-            ['Overview', 'Total Unique Visits', total],
-            ['Overview', 'Total Visits', totalVisits],
-            ['Overview', 'Total Users', userStats.totalUsers],
-            ['Overview', 'Verified Users', userStats.verifiedUsers],
-            ['Overview', 'New Users Today', userStats.newUsersToday],
             ['Rides', 'Total Rides', rideStats.totalRides],
+            ['Rides', 'Active Published Rides', activeRidesCount],
             ['Rides', 'Completed Rides', rideStats.completedRides],
             ['Rides', 'Cancelled Rides', rideStats.cancelledRides],
             ['Rides', 'Seats Booked', rideStats.seatsBooked],
-            ['Feedback', 'Average Rating', feedback.averageRating],
-            ['Feedback', 'Total Reviews', feedback.totalReviews],
-            ['Feedback', 'Contacts Count', feedback.contactsCount],
+            ['Users', 'Total Users', userStats.totalUsers],
+            ['Users', 'Verified Users', userStats.verifiedUsers],
+            ['Users', 'New Users Today', userStats.newUsersToday],
+            ['Demand', 'Total Searches', searchStats.totalSearches],
+            ['Demand', 'Searches Today', searchStats.searchesToday],
+            ['Demand', 'Zero-Result Rate', `${searchStats.unmetDemandRate}%`],
+            ['Traffic', 'Daily Unique Visits', today],
+            ['Traffic', 'Total Unique Visits', total],
+            ['Traffic', 'Total Site Visits', totalVisits],
+            ['Inquiries', 'Total Contacts', feedback.contactsCount],
             [],
             ['Date', 'Visitors'],
             ...(dateRange === 'week' ? weeklyStats : dateRange === 'month' ? monthlyStats : stats).map(s => [s.date, s.visitors]),
             [],
-            ['City', 'Rides', 'Percentage'],
+            ['City Corridor', 'Rides Count', 'Percentage'],
             ...topCities.map(c => [c.city, c.rides, `${c.percentage}%`]),
         ];
 
@@ -184,12 +201,12 @@ const Dashboard = () => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `safargo-dashboard-${dateStr}.csv`);
+        link.setAttribute('download', `safargo-operations-${dateStr}.csv`);
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-        showSuccess('Dashboard data exported');
+        showSuccess('Operations data exported successfully');
     };
 
     const handlePrint = () => {
@@ -211,102 +228,80 @@ const Dashboard = () => {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-[#e6e1d3]">
-                    <p className="text-sm font-semibold text-[#1a2620] mb-1">{label}</p>
-                    <p className="text-3xl font-bold text-[#2f5a3d]">
+                <div className="bg-white/95 backdrop-blur-sm p-3.5 rounded-2xl shadow-xl border border-[#e6e1d3]">
+                    <p className="text-xs font-semibold text-[#7a8478] mb-1">{label}</p>
+                    <p className="text-2xl font-bold text-[#2f5a3d]">
                         {payload[0].value.toLocaleString()}
                     </p>
-                    <p className="text-xs text-[#7a8478] mt-1">visitors</p>
+                    <p className="text-[10px] text-[#7a8478] mt-0.5">unique visitors</p>
                 </div>
             );
         }
         return null;
     };
 
-    const statsCards = [
-        {
-            title: "Daily Unique Visits",
-            value: today.toLocaleString(),
-            icon: FaEye,
-            trend: "+12%",
-            trendUp: true,
-            accent: "#2f5a3d",
-            tint: "#e8f1ea",
-        },
-        {
-            title: "Total Unique Visits",
-            value: total.toLocaleString(),
-            icon: FaUsers,
-            trend: "+8%",
-            trendUp: true,
-            accent: "#1e3a8a",
-            tint: "#eaf1fb",
-        },
-        {
-            title: "Total Visits",
-            value: totalVisits.toLocaleString(),
-            icon: FaChartLine,
-            trend: "+15%",
-            trendUp: true,
-            accent: "#10b981",
-            tint: "#ecfdf5",
-        },
-        {
-            title: "Total Users",
-            value: userStats.totalUsers.toLocaleString(),
-            icon: FaUserPlus,
-            trend: `${userStats.newUsersToday} new today`,
-            trendUp: true,
-            accent: "#a0522d",
-            tint: "#f5e9df",
-        },
-        // {
-        //     title: "Avg Rating",
-        //     value: feedback.averageRating.toFixed(1),
-        //     icon: FaStar,
-        //     trend: "+0.2",
-        //     trendUp: true,
-        //     accent: "#9b2c2c",
-        //     tint: "#fdecec",
-        // }
-    ];
-
-    // Removed early spinner return to support premium in-place skeleton loading
+    const hasActionItems = pendingDriversCount > 0 || pendingRidesCount > 0 || (searchStats.unmetDemandRate || 0) > 20;
 
     return (
-        <div className="min-h-screen font-inter text-[#1a2620]">
-            <div className="max-w-[1400px] mx-auto" id="dashboard-print-area">
+        <div className="min-h-screen font-['Plus_Jakarta_Sans',sans-serif] text-[#1a2620]">
+            <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8" id="dashboard-print-area">
 
-                {/* HEADER */}
-                <div className="mb-10">
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-[#e6e1d3]">
+                {/* TOP COMMAND HEADER */}
+                <div className="mb-8">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pb-6 border-b border-[#e6e1d3]">
                         <div>
-                            <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#7a8478] mb-3">
-                                <span className="w-6 h-px bg-[#7a8478]" />
-                                Analytics · Overview
-                            </span>
-                            <h1
-                                className="text-4xl lg:text-5xl font-semibold leading-[1.05] text-[#1a2620]"
-                                style={{ fontFamily: '"Fraunces", serif' }}
-                            >
-                                Analytics <span className="italic text-[#2f5a3d]">dashboard</span>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 mb-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800">
+                                    Platform Online · Live Operations
+                                </span>
+                            </div>
+                            <h1 className="text-3xl sm:text-4xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                Operations <span className="text-[#2f5a3d] italic">Command Center</span>
                             </h1>
-                            <p className="text-[#5a6358] mt-3 max-w-md text-[15px]">
-                                Monitor your platform's growth and performance.
+                            <p className="text-xs sm:text-sm text-[#5a6358] mt-1 max-w-lg">
+                                Real-time monitoring of rides, driver verification approvals, passenger demand, and growth.
                             </p>
                         </div>
 
-                        <div className="flex gap-3 no-print">
+                        {/* Quick Action Buttons */}
+                        <div className="flex items-center gap-2.5 flex-wrap no-print">
+                            <Link
+                                to="/admin/verify"
+                                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                                    pendingDriversCount > 0
+                                        ? "bg-amber-500 hover:bg-amber-600 text-white"
+                                        : "bg-white border border-[#e6e1d3] text-[#1a2620] hover:bg-[#faf8f2]"
+                                }`}
+                            >
+                                <RiSteeringFill className="text-sm" />
+                                Verify Drivers
+                                {pendingDriversCount > 0 && (
+                                    <span className="w-5 h-5 rounded-full bg-white text-amber-700 text-[10px] font-extrabold flex items-center justify-center">
+                                        {pendingDriversCount}
+                                    </span>
+                                )}
+                            </Link>
+
+                            <Link
+                                to="/admin/search-demand"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] text-xs font-bold transition-all shadow-sm"
+                            >
+                                <FaRoute className="text-xs text-[#2f5a3d]" />
+                                Demand Corridors
+                            </Link>
+
                             <button
                                 onClick={handleExportData}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-[#e6e1d3] text-[#1a2620] hover:bg-[#faf8f2] text-xs font-bold transition-all shadow-sm"
                             >
                                 <FaDownload className="text-xs text-[#2f5a3d]" />
-                                Export
+                                Export CSV
                             </button>
+
                             <button
                                 onClick={handlePrint}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-[#e6e1d3] text-[#1a2620] hover:bg-[#faf8f2] text-xs font-bold transition-all shadow-sm"
                             >
                                 <FaPrint className="text-xs text-[#2f5a3d]" />
                                 Print
@@ -315,167 +310,243 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* DATE RANGE SELECTOR */}
-                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-1.5 mb-8 inline-flex flex-wrap gap-1 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
-                    {[
-                        { id: "day", label: "Today", icon: FaCalendarDay },
-                        { id: "week", label: "This Week", icon: FaCalendarWeek },
-                        { id: "month", label: "This Month", icon: FaCalendarAlt }
-                    ].map((range) => (
-                        <button
-                            key={range.id}
-                            onClick={() => handleDateRangeChange(range.id)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${dateRange === range.id
-                                ? "bg-[#1a2620] text-white shadow-sm"
-                                : "text-[#5a6358] hover:bg-[#faf8f2] hover:text-[#2f5a3d]"
-                                }`}
-                        >
-                            <range.icon className="text-xs" />
-                            <span className="hidden sm:inline">{range.label}</span>
-                        </button>
-                    ))}
-                </div>
+                {/* ACTION REQUIRED BANNER (Real-time operational alerts) */}
+                {hasActionItems && (
+                    <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50/40 rounded-2xl border border-amber-200/80 p-4 sm:p-5 mb-8 shadow-sm no-print">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-start gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0 mt-0.5">
+                                    <FaExclamationTriangle className="text-sm" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                                        Action Required · Platform Attention Needed
+                                    </h2>
+                                    <div className="flex items-center gap-3 flex-wrap mt-1 text-xs text-amber-950 font-medium">
+                                        {pendingDriversCount > 0 && (
+                                            <span className="flex items-center gap-1">
+                                                <strong>{pendingDriversCount} driver{pendingDriversCount > 1 ? "s" : ""}</strong> awaiting document verification.
+                                            </span>
+                                        )}
+                                        {pendingRidesCount > 0 && (
+                                            <span className="flex items-center gap-1">
+                                                • <strong>{pendingRidesCount} ride{pendingRidesCount > 1 ? "s" : ""}</strong> pending publication approval.
+                                            </span>
+                                        )}
+                                        {(searchStats.unmetDemandRate || 0) > 20 && (
+                                            <span className="flex items-center gap-1 text-rose-700">
+                                                • <strong>{searchStats.unmetDemandRate}% unmet search rate</strong> (passengers finding 0 rides).
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
 
-                {/* STATS CARDS */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-10">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {pendingDriversCount > 0 && (
+                                    <Link
+                                        to="/admin/verify"
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-sm"
+                                    >
+                                        Review Drivers <FaChevronRight className="text-[10px]" />
+                                    </Link>
+                                )}
+                                {(searchStats.unmetDemandRate || 0) > 20 && (
+                                    <Link
+                                        to="/admin/search-demand"
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-50 text-xs font-bold transition-colors"
+                                    >
+                                        View Unmet Corridors <FaChevronRight className="text-[10px]" />
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* PRIMARY MOBILITY KPI CARDS (Core Business Indicators) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
                     {loading ? (
-                        Array.from({ length: 5 }).map((_, idx) => (
+                        Array.from({ length: 4 }).map((_, idx) => (
                             <StatsCardSkeleton key={idx} />
                         ))
                     ) : (
-                        statsCards.map((card, index) => {
-                            const Icon = card.icon;
-                            return (
-                                <div
-                                    key={index}
-                                    className="group relative bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3">
-                                                {card.title}
-                                            </p>
-                                            <p
-                                                className="text-4xl font-semibold text-[#1a2620] tracking-tight"
-                                                style={{ fontFamily: '"Fraunces", serif' }}
-                                            >
-                                                {card.value}
-                                            </p>
-                                        </div>
-                                        <div
-                                            className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
-                                            style={{ backgroundColor: card.tint, color: card.accent }}
-                                        >
-                                            <Icon className="text-lg" />
-                                        </div>
+                        <>
+                            {/* 1. Total Rides & Active */}
+                            <div className="bg-white rounded-2xl border border-[#e6e1d3] p-5 hover:border-[#2f5a3d]/50 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                                        <FaCar className="text-base" />
                                     </div>
-                                    {/* <div className="mt-4 flex items-center gap-1.5">
-                                        <span className={`text-xs font-medium ${card.trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-                                            {card.trendUp ? <FaArrowUp className="inline text-[10px] mr-0.5" /> : <FaArrowDown className="inline text-[10px] mr-0.5" />}
-                                            {card.trend}
-                                        </span>
-                                        <span className="text-[11px] text-[#9aa194]">vs last period</span>
-                                    </div> */}
-                                    {/* <div
-                                        className="mt-5 h-px w-10"
-                                        style={{ backgroundColor: card.accent, opacity: 0.4 }}
-                                    /> */}
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                        {activeRidesCount} Live Active
+                                    </span>
                                 </div>
-                            );
-                        })
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
+                                    Ride Operations
+                                </p>
+                                <p className="text-3xl font-extrabold text-[#1a2620] mt-1 tracking-tight">
+                                    {rideStats.totalRides.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-[#7a8478] mt-2 flex items-center gap-2">
+                                    <span className="text-[#2f5a3d] font-semibold">{rideStats.completedRides} completed</span>
+                                    <span>•</span>
+                                    <span>{rideStats.cancelledRides} cancelled</span>
+                                </p>
+                            </div>
+
+                            {/* 2. Seats Booked & Fill Rate */}
+                            <div className="bg-white rounded-2xl border border-[#e6e1d3] p-5 hover:border-[#2f5a3d]/50 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+                                        <FaTicketAlt className="text-base" />
+                                    </div>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                        Bookings
+                                    </span>
+                                </div>
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
+                                    Seats Booked
+                                </p>
+                                <p className="text-3xl font-extrabold text-[#1a2620] mt-1 tracking-tight">
+                                    {rideStats.seatsBooked.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-[#7a8478] mt-2">
+                                    Across all confirmed passenger reservations
+                                </p>
+                            </div>
+
+                            {/* 3. Verified Drivers & Community */}
+                            <div className="bg-white rounded-2xl border border-[#e6e1d3] p-5 hover:border-[#2f5a3d]/50 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center">
+                                        <FaUserCheck className="text-base" />
+                                    </div>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
+                                        {userStats.totalUsers > 0 ? Math.round((userStats.verifiedUsers / userStats.totalUsers) * 100) : 0}% Verified
+                                    </span>
+                                </div>
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
+                                    Platform Users
+                                </p>
+                                <p className="text-3xl font-extrabold text-[#1a2620] mt-1 tracking-tight">
+                                    {userStats.totalUsers.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-[#7a8478] mt-2 flex items-center gap-2">
+                                    <span className="text-emerald-700 font-semibold">+{userStats.newUsersToday} today</span>
+                                    <span>•</span>
+                                    <span>{userStats.verifiedDrivers || 0} verified drivers</span>
+                                </p>
+                            </div>
+
+                            {/* 4. Passenger Search Demand */}
+                            <div className="bg-white rounded-2xl border border-[#e6e1d3] p-5 hover:border-[#2f5a3d]/50 hover:shadow-md transition-all duration-300">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                                        <FaSearch className="text-base" />
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                        (searchStats.unmetDemandRate || 0) > 20
+                                            ? "bg-rose-50 text-rose-800 border-rose-200"
+                                            : "bg-amber-50 text-amber-800 border-amber-200"
+                                    }`}>
+                                        {searchStats.searchesToday} Today
+                                    </span>
+                                </div>
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
+                                    Search Demand
+                                </p>
+                                <p className="text-3xl font-extrabold text-[#1a2620] mt-1 tracking-tight">
+                                    {(searchStats.totalSearches || 0).toLocaleString()}
+                                </p>
+                                <p className="text-xs text-[#7a8478] mt-2 flex items-center gap-2">
+                                    <span className="text-rose-700 font-semibold">{searchStats.zeroResultSearches} unmet</span>
+                                    <span>•</span>
+                                    <span>{searchStats.unmetDemandRate}% zero-ride rate</span>
+                                </p>
+                            </div>
+                        </>
                     )}
                 </div>
 
-                {/* DETAILED STATS ROW */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-10">
-                    {/* Verified Users */}
-                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 rounded-xl bg-[#e8f1ea] flex items-center justify-center">
-                                    <FaUserCheck className="text-[#2f5a3d] text-lg" />
-                                </div>
-                                <div>
-                                    <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Verified Users</p>
-                                    <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                        {userStats.verifiedUsers.toLocaleString()}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-xl font-bold text-[#2f5a3d]">
-                                    {userStats.totalUsers > 0 ? ((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0) : 0}%
-                                </p>
-                                <p className="text-[10px] text-[#7a8478]">of total</p>
-                            </div>
+                {/* SECONDARY COMPACT TRAFFIC & GROWTH STRIP */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 mb-8 shadow-sm flex flex-wrap items-center justify-between gap-4 text-xs">
+                    <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#2f5a3d]" />
+                        <span className="font-bold text-[#1a2620]">Platform Traffic:</span>
+                    </div>
+                    <div className="flex items-center gap-6 flex-wrap">
+                        <div>
+                            <span className="text-[#7a8478]">Daily Unique Visits: </span>
+                            <strong className="text-[#1a2620]">{today.toLocaleString()}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[#7a8478]">Total Unique Visitors: </span>
+                            <strong className="text-[#1a2620]">{total.toLocaleString()}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[#7a8478]">Total Page Hits: </span>
+                            <strong className="text-[#1a2620]">{totalVisits.toLocaleString()}</strong>
+                        </div>
+                        <div>
+                            <span className="text-[#7a8478]">Contact Inquiries: </span>
+                            <strong className="text-[#1a2620]">{feedback.contactsCount.toLocaleString()}</strong>
                         </div>
                     </div>
-
-                    {/* Total Rides */}
-                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
-                        <div className="flex items-center gap-3 mb-5">
-                            <div className="w-11 h-11 rounded-xl bg-[#eaf1fb] flex items-center justify-center">
-                                <FaCar className="text-[#1e3a8a] text-lg" />
-                            </div>
-                            <div>
-                                <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Total Rides</p>
-                                <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    {rideStats.totalRides.toLocaleString()}
-                                </p>
-                            </div>
-                        </div>
-                        
-                    </div>
-
-                    {/* Contacts */}
-                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 hover:border-[#2f5a3d]/40 transition-all duration-300">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-11 h-11 rounded-xl bg-[#fef3c7] flex items-center justify-center">
-                                <FaPaperPlane className="text-[#d97706] text-lg" />
-                            </div>
-                            <div>
-                                <p className="text-[11px] uppercase tracking-[0.16em] text-[#7a8478]">Total Contacts</p>
-                                <p className="text-2xl font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    {feedback.contactsCount.toLocaleString()}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <Link to="/admin/subscribers" className="text-[#2f5a3d] font-bold hover:underline">
+                        Manage Subscribers →
+                    </Link>
                 </div>
 
-                {/* CHART SECTION */}
-                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-10">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                {/* VISITOR TRAFFIC TRENDS CHART */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-8 shadow-sm">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <FaChartLine className="text-[#2f5a3d] text-sm" />
                                 <h2 className="font-semibold text-lg text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    Visitor Insights
+                                    Traffic & Audience Growth
                                 </h2>
                             </div>
-                            <p className="text-[13px] text-[#7a8478]">
-                                {dateRange === "week" ? "Weekly traffic overview" : dateRange === "month" ? "Monthly trends" : "Daily analytics"}
+                            <p className="text-xs text-[#7a8478]">
+                                {dateRange === "week" ? "Weekly visitor analytics and conversion trends" : dateRange === "month" ? "Monthly visitor trajectory" : "Today's hourly traffic"}
                             </p>
                         </div>
-                        <div className="mt-3 md:mt-0 flex items-center gap-2">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#2f5a3d]" />
-                                <span className="text-xs text-[#7a8478]">Visitors</span>
-                            </div>
+
+                        {/* Date Range Selector */}
+                        <div className="bg-[#faf8f2] rounded-xl border border-[#e6e1d3] p-1 inline-flex gap-1 no-print">
+                            {[
+                                { id: "day", label: "Today", icon: FaCalendarDay },
+                                { id: "week", label: "This Week", icon: FaCalendarWeek },
+                                { id: "month", label: "This Month", icon: FaCalendarAlt }
+                            ].map((range) => (
+                                <button
+                                    key={range.id}
+                                    onClick={() => handleDateRangeChange(range.id)}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                        dateRange === range.id
+                                            ? "bg-[#1a2620] text-white shadow-sm"
+                                            : "text-[#5a6358] hover:text-[#1a2620]"
+                                    }`}
+                                >
+                                    <range.icon className="text-[10px]" />
+                                    <span>{range.label}</span>
+                                </button>
+                            ))}
                         </div>
                     </div>
 
                     {loading ? (
-                        <div className="skeleton w-full h-[380px] rounded-2xl"></div>
+                        <div className="skeleton w-full h-[320px] rounded-2xl"></div>
                     ) : (
-                        <ResponsiveContainer width="100%" height={380}>
+                        <ResponsiveContainer width="100%" height={320}>
                             <AreaChart
                                 data={dateRange === "week" ? weeklyStats : dateRange === "month" ? monthlyStats : stats}
-                                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                                margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                             >
                                 <defs>
                                     <linearGradient id="visitorGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2f5a3d" stopOpacity={0.1} />
+                                        <stop offset="5%" stopColor="#2f5a3d" stopOpacity={0.15} />
                                         <stop offset="95%" stopColor="#2f5a3d" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
@@ -498,7 +569,7 @@ const Dashboard = () => {
                                     type="monotone"
                                     dataKey="visitors"
                                     stroke="#2f5a3d"
-                                    strokeWidth={2}
+                                    strokeWidth={2.5}
                                     fill="url(#visitorGradient)"
                                     activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#2f5a3d' }}
                                 />
@@ -507,96 +578,32 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* BOTTOM SECTIONS */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-                    {/* Recent Activity */}
-                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
-                        <div className="flex items-center justify-between mb-5">
-                            <div className="flex items-center gap-2">
-                                <FaRegClock className="text-[#2f5a3d] text-sm" />
-                                <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    Recent Activity
-                                </h3>
-                            </div>
-                            <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live</span>
-                        </div>
-                        <div className="space-y-3 max-h-[380px] overflow-y-auto">
-                            {recentActivities.map((activity, idx) => {
-                                let Icon = FaUsers;
-
-                                if (activity.type === "ride") {
-                                    Icon = FaCar;
-                                }
-                                else if (activity.type === "booking") {
-                                    Icon = MdPayment;
-                                }
-                                else if (activity.type === "review") {
-                                    Icon = FaStar;
-                                }
-                                else if (activity.type === "verification") {
-                                    Icon = MdVerified;
-                                }
-                                else if (activity.type === "subscription") {
-                                    Icon = FaEnvelope;
-                                }
-                                else if (activity.type === "contact") {
-                                    Icon = FaPaperPlane;
-                                }
-                                const typeStyles = {
-                                    user: "bg-[#e8f1ea] text-[#2f5a3d]",
-                                    ride: "bg-[#eaf1fb] text-[#1e3a8a]",
-                                    booking: "bg-[#f5e9df] text-[#a0522d]",
-                                    review: "bg-[#fdecec] text-[#9b2c2c]",
-                                    verification: "bg-[#e8f1ea] text-[#2f5a3d]",
-                                    subscription: "bg-[#f0fdf4] text-[#16a34a]",
-                                    contact: "bg-[#fef3c7] text-[#d97706]"
-                                };
-                                return (
-                                    <div key={idx} className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#faf8f2] transition-all duration-200">
-                                        <div className={`w-9 h-9 rounded-xl ${typeStyles[activity.type]} flex items-center justify-center flex-shrink-0`}>
-                                            <Icon className="text-sm" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-[13.5px] text-[#1a2620]">
-                                                <span className="font-semibold">{activity.user}</span>
-                                                <span className="text-[#5a6358]"> {activity.action}</span>
-                                            </p>
-                                            <p className="text-[11px] text-[#9aa194] mt-1">
-                                                {formatDistanceToNow(new Date(activity.time), {
-                                                    addSuffix: true
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Top Performing Cities */}
-                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6">
+                {/* OPERATIONS INTELLIGENCE (Two Column: Supply vs. Activity) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    {/* Top Performing Destinations (Driver Supply) */}
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-5">
                             <div className="flex items-center gap-2">
                                 <FaMapMarkerAlt className="text-[#2f5a3d] text-sm" />
                                 <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                    Top Performing Cities
+                                    Top Driver Destinations (Supply)
                                 </h3>
                             </div>
-                            <FaArrowTrendUp className="text-[#2f5a3d] text-sm opacity-60" />
+                            <span className="text-xs text-[#7a8478] font-medium">Published Rides</span>
                         </div>
                         <div className="space-y-4">
                             {topCities.length === 0 ? (
-                                <p className="text-sm text-[#7a8478] text-center py-4">No ride data yet</p>
+                                <p className="text-xs text-[#7a8478] text-center py-8">No ride destinations published yet.</p>
                             ) : (
                                 topCities.map((city, idx) => (
                                     <div key={idx} className="group">
-                                        <div className="flex justify-between items-center mb-1.5">
-                                            <span className="text-sm font-medium text-[#1a2620]">{city.city}</span>
-                                            <span className="text-sm font-semibold text-[#2f5a3d]">{city.rides} rides</span>
+                                        <div className="flex justify-between items-center mb-1 text-xs">
+                                            <span className="font-semibold text-[#1a2620]">{city.city}</span>
+                                            <span className="font-bold text-[#2f5a3d]">{city.rides} ride{city.rides !== 1 ? "s" : ""}</span>
                                         </div>
                                         <div className="w-full bg-[#e6e1d3] rounded-full h-1.5">
                                             <div
-                                                className="bg-[#2f5a3d] rounded-full h-1.5 transition-all duration-1000"
+                                                className="bg-[#2f5a3d] rounded-full h-1.5 transition-all duration-700"
                                                 style={{ width: `${city.percentage}%` }}
                                             />
                                         </div>
@@ -605,10 +612,61 @@ const Dashboard = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* Live Platform Activity Feed */}
+                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-2">
+                                <FaRegClock className="text-[#2f5a3d] text-sm" />
+                                <h3 className="font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
+                                    Live Platform Events
+                                </h3>
+                            </div>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                Real-time
+                            </span>
+                        </div>
+
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                            {recentActivities.length === 0 ? (
+                                <p className="text-xs text-[#7a8478] text-center py-8">No recent events recorded.</p>
+                            ) : (
+                                recentActivities.map((activity, idx) => {
+                                    const Icon = activity.type === "user" ? FaUsers
+                                        : activity.type === "ride" ? FaCar
+                                        : activity.type === "booking" ? FaTicketAlt
+                                        : activity.type === "subscription" ? FaCheckCircle
+                                        : FaPaperPlane;
+
+                                    const typeBg = activity.type === "user" ? "bg-purple-50 text-purple-700"
+                                        : activity.type === "ride" ? "bg-emerald-50 text-emerald-700"
+                                        : activity.type === "booking" ? "bg-blue-50 text-blue-700"
+                                        : "bg-amber-50 text-amber-700";
+
+                                    return (
+                                        <div key={idx} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#faf8f2] transition-colors text-xs">
+                                            <div className={`w-8 h-8 rounded-lg ${typeBg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                                                <Icon className="text-xs" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-[#1a2620] leading-snug">
+                                                    <span className="font-bold">{activity.user}</span>
+                                                    <span className="text-[#5a6358]"> {activity.action}</span>
+                                                </p>
+                                                <p className="text-[10px] text-[#9aa194] mt-0.5">
+                                                    {formatDistanceToNow(new Date(activity.time), { addSuffix: true })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* ROUTE DEMAND & SEARCH ANALYTICS */}
-                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-10 overflow-hidden">
+                {/* ROUTE DEMAND & SEARCH ANALYTICS (Top 5 Preview + View More) */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-8 shadow-sm overflow-hidden">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div className="flex items-center gap-2.5">
                             <div className="w-9 h-9 rounded-xl bg-[#2f5a3d]/10 flex items-center justify-center text-[#2f5a3d] flex-shrink-0">
@@ -619,7 +677,7 @@ const Dashboard = () => {
                                     Passenger Search Demand & Route Insights
                                 </h3>
                                 <p className="text-xs text-[#7a8478]">
-                                    Tracking passenger travel demand and identifying routes with zero available rides
+                                    Tracking what routes passengers are actively searching (Supply vs. Unmet Demand)
                                 </p>
                             </div>
                         </div>
@@ -638,24 +696,32 @@ const Dashboard = () => {
                             }`}>
                                 Zero-Ride Rate: <strong>{searchStats.unmetDemandRate || 0}%</strong>
                             </span>
+                            <Link
+                                to="/admin/search-demand"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#2f5a3d] text-white rounded-xl text-xs font-semibold hover:bg-[#254830] transition-colors shadow-sm ml-1"
+                            >
+                                View More →
+                            </Link>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Top Searched Routes */}
+                        {/* Top Searched Routes (Max 5) */}
                         <div className="border border-[#efece4] rounded-xl p-5 bg-[#faf8f2]/40">
                             <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-xs uppercase tracking-wider font-bold text-[#5a6358] flex items-center gap-1.5">
-                                    <FaSearch className="text-[10px]" /> Top Searched City Corridors
+                                    <FaSearch className="text-[10px]" /> Top Searched City Corridors (Top 5)
                                 </h4>
-                                <span className="text-[11px] text-[#9aa194]">Volume & Status</span>
+                                <Link to="/admin/search-demand" className="text-[11px] text-[#2f5a3d] font-semibold hover:underline">
+                                    View all
+                                </Link>
                             </div>
 
                             {(!searchStats.topSearchedRoutes || searchStats.topSearchedRoutes.length === 0) ? (
                                 <p className="text-xs text-[#7a8478] text-center py-8">No route searches recorded yet.</p>
                             ) : (
                                 <div className="space-y-3.5">
-                                    {searchStats.topSearchedRoutes.map((r, idx) => (
+                                    {searchStats.topSearchedRoutes.slice(0, 5).map((r, idx) => (
                                         <div key={idx} className="group">
                                             <div className="flex justify-between items-center mb-1">
                                                 <div className="flex items-center gap-2">
@@ -689,11 +755,11 @@ const Dashboard = () => {
                             )}
                         </div>
 
-                        {/* Recent Live Searches */}
+                        {/* Recent Live Searches (Max 5) */}
                         <div className="border border-[#efece4] rounded-xl p-5 bg-[#faf8f2]/40">
                             <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-xs uppercase tracking-wider font-bold text-[#5a6358] flex items-center gap-1.5">
-                                    <FaRegClock className="text-[10px]" /> Recent Search Stream
+                                    <FaRegClock className="text-[10px]" /> Recent Search Stream (Latest 5)
                                 </h4>
                                 <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Real-time</span>
                             </div>
@@ -702,7 +768,7 @@ const Dashboard = () => {
                                 <p className="text-xs text-[#7a8478] text-center py-8">No recent searches.</p>
                             ) : (
                                 <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
-                                    {searchStats.recentSearches.map((s, idx) => (
+                                    {searchStats.recentSearches.slice(0, 5).map((s, idx) => (
                                         <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-[#efece4] text-xs">
                                             <div className="flex-1 min-w-0 pr-2">
                                                 <p className="font-semibold text-[#1a2620] truncate">
@@ -734,10 +800,23 @@ const Dashboard = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* Footer View More Action */}
+                    <div className="mt-5 pt-4 border-t border-[#efece4] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                        <span className="text-[#7a8478]">
+                            Showing top 5 routes & 5 recent searches. Total recorded: <strong className="text-[#1a2620]">{searchStats.totalSearches || 0} searches</strong>
+                        </span>
+                        <Link
+                            to="/admin/search-demand"
+                            className="inline-flex items-center gap-1 text-[#2f5a3d] hover:text-[#1a2620] font-bold hover:underline"
+                        >
+                            View all paginated search data & filters →
+                        </Link>
+                    </div>
                 </div>
 
-                {/* RECENT VISITORS LOG */}
-                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-10 overflow-hidden">
+                {/* RECENT VISITORS LOG TABLE */}
+                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-6 mb-8 shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
                             <FaUsers className="text-[#2f5a3d] text-sm" />
@@ -745,24 +824,24 @@ const Dashboard = () => {
                                 Recent Visitors Log
                             </h3>
                         </div>
-                        <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Live Logs</span>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">Live Logs</span>
                     </div>
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-[#e6e1d3] text-[11px] uppercase tracking-wider text-[#7a8478]">
-                                    <th className="pb-3 font-semibold">Visitor UUID / IP</th>
-                                    <th className="pb-3 font-semibold">User Type</th>
-                                    <th className="pb-3 font-semibold">User Email</th>
-                                    <th className="pb-3 font-semibold text-center">Visits Today</th>
-                                    <th className="pb-3 font-semibold">Last Active</th>
+                                <tr className="border-b border-[#e6e1d3] text-[11px] uppercase tracking-wider text-[#7a8478] bg-[#faf8f2]/60">
+                                    <th className="py-3 px-4 font-bold">Visitor UUID / IP</th>
+                                    <th className="py-3 px-4 font-bold">User Type</th>
+                                    <th className="py-3 px-4 font-bold">User Email</th>
+                                    <th className="py-3 px-4 font-bold text-center">Visits Today</th>
+                                    <th className="py-3 px-4 font-bold">Last Active</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#efece4]">
+                            <tbody className="divide-y divide-[#efece4] text-xs">
                                 {recentVisitors.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="py-6 text-center text-[#7a8478] text-sm">
+                                        <td colSpan="5" className="py-8 text-center text-[#7a8478]">
                                             No recent visitors tracked.
                                         </td>
                                     </tr>
@@ -770,27 +849,27 @@ const Dashboard = () => {
                                     recentVisitors.map((visitor, idx) => {
                                         const isGuest = !visitor.userId || visitor.userId === "guest";
                                         return (
-                                            <tr key={idx} className="hover:bg-[#faf8f2]/60 transition-colors duration-150">
-                                                <td className="py-4 font-mono text-xs text-[#1a2620]">
+                                            <tr key={idx} className="hover:bg-[#faf8f2]/60 transition-colors">
+                                                <td className="py-3.5 px-4 font-mono text-xs text-[#1a2620]">
                                                     <div className="font-semibold">{visitor.visitorId ? `${visitor.visitorId.slice(0, 18)}...` : "N/A"}</div>
                                                     <div className="text-[10px] text-[#7a8478] mt-0.5">{visitor.ip || "Unknown IP"}</div>
                                                 </td>
-                                                <td className="py-4">
-                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                                                <td className="py-3.5 px-4">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                                                         isGuest 
-                                                            ? "bg-amber-50 text-amber-700" 
-                                                            : "bg-emerald-50 text-emerald-700"
+                                                            ? "bg-amber-50 text-amber-700 border border-amber-200" 
+                                                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                                     }`}>
                                                         {isGuest ? "Guest" : "Registered User"}
                                                     </span>
                                                 </td>
-                                                <td className="py-4 text-sm text-[#1a2620]">
+                                                <td className="py-3.5 px-4 text-xs text-[#1a2620]">
                                                     {visitor.email || "guest"}
                                                 </td>
-                                                <td className="py-4 text-sm font-semibold text-[#2f5a3d] text-center">
+                                                <td className="py-3.5 px-4 text-xs font-bold text-[#2f5a3d] text-center">
                                                     {visitor.count || 1}
                                                 </td>
-                                                <td className="py-4 text-xs text-[#7a8478]">
+                                                <td className="py-3.5 px-4 text-xs text-[#7a8478]">
                                                     {visitor.updatedAt 
                                                         ? formatDistanceToNow(new Date(visitor.updatedAt), { addSuffix: true }) 
                                                         : "Just now"}
@@ -803,38 +882,6 @@ const Dashboard = () => {
                         </table>
                     </div>
                 </div>
-
-                {/* QUICK STATS FOOTER */}
-                {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
-                        <FaPercentage className="text-[#2f5a3d] text-xl mx-auto mb-2" />
-                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                            {((rideStats.completedRides / rideStats.totalRides) * 100).toFixed(0)}%
-                        </p>
-                        <p className="text-[10px] text-[#7a8478] mt-0.5">Booking Success Rate</p>
-                    </div>
-                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
-                        <FaRocket className="text-[#2f5a3d] text-xl mx-auto mb-2" />
-                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                            2.5K
-                        </p>
-                        <p className="text-[10px] text-[#7a8478] mt-0.5">Active Rides Today</p>
-                    </div>
-                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
-                        <FaUserCheck className="text-[#2f5a3d] text-xl mx-auto mb-2" />
-                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                            {((userStats.verifiedUsers / userStats.totalUsers) * 100).toFixed(0)}%
-                        </p>
-                        <p className="text-[10px] text-[#7a8478] mt-0.5">Verification Rate</p>
-                    </div>
-                    <div className="bg-white rounded-xl border border-[#e6e1d3] p-4 text-center hover:border-[#2f5a3d]/30 hover:shadow-sm transition-all duration-300">
-                        <FaStar className="text-[#2f5a3d] text-xl mx-auto mb-2" />
-                        <p className="text-xl font-bold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                            {feedback.averageRating.toFixed(1)}
-                        </p>
-                        <p className="text-[10px] text-[#7a8478] mt-0.5">Average Rating</p>
-                    </div>
-                </div> */}
             </div>
         </div>
     );

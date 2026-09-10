@@ -1,7 +1,7 @@
 import {  useAuth } from "../../utils/AuthContext";
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
-import { FaBlog, FaDashcube, FaHome, FaRoute, FaUserCheck, FaUsers } from "react-icons/fa";
+import { FaBlog, FaDashcube, FaHome, FaRoute, FaUserCheck, FaUsers, FaSearchLocation } from "react-icons/fa";
 import { IoClose, IoMenu } from "react-icons/io5";
 import { LuLogOut } from "react-icons/lu";
 import { RiCustomerService2Line, RiSteeringFill } from "react-icons/ri";
@@ -17,6 +17,7 @@ const AdminLayout = () => {
 
     const navItems = [
         { path: "/admin/dashboard", name: "Dashboard", icon: <FaDashcube /> },
+        { path: "/admin/search-demand", name: "Search Demand", icon: <FaSearchLocation /> },
         { path: "/admin/users", name: "Users", icon: <FaUsers /> },
         { path: "/admin/verify", name: "Driver Verify", icon: <RiSteeringFill /> },
         { path: "/admin/rides", name: "Rides", icon: <FaRoute /> },

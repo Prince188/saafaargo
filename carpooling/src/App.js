@@ -66,6 +66,7 @@ const Contacts = lazy(() => import('./page/Admin/Contacts'));
 const Help = lazy(() => import('./page/Help'));
 const ContactUs = lazy(() => import('./page/ContactUs'));
 const DriverVerify = lazy(() => import('./page/Admin/DriverVerify'));
+const SearchDemand = lazy(() => import('./page/Admin/SearchDemand'));
 const EditRide = lazy(() => import('./page/User/EditRide'));
 const ForgotPasswordPage = lazy(() => import('./page/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./page/ResetPasswordPage'));
@@ -223,6 +224,7 @@ function App() {
               <Route path="subscribers" element={<Suspense fallback={<AdminTableSkeleton />}><Subscribers /></Suspense>} />
               <Route path="contacts" element={<Suspense fallback={<AdminTableSkeleton />}><Contacts /></Suspense>} />
               <Route path="verify" element={<Suspense fallback={<AdminTableSkeleton />}><DriverVerify /></Suspense>} />
+              <Route path="search-demand" element={<Suspense fallback={<AdminTableSkeleton />}><SearchDemand /></Suspense>} />
             </Route>
           </Route>
 
