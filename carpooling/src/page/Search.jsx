@@ -9,6 +9,10 @@ import {
     FaSlidersH,
     FaTimes,
     FaSortAmountDown,
+    FaCar,
+    FaCheckCircle,
+    FaClock,
+    FaShieldAlt,
 } from "react-icons/fa";
 
 import { MdRoute } from "react-icons/md";
@@ -270,6 +274,8 @@ const Search = () => {
                     <p className="text-sm text-slate-500">
                         {loading
                             ? "Finding the best rides for you..."
+                            : rides.length === 0
+                            ? "We're coordinating ride options for your route"
                             : `${filteredRides.length} ride${filteredRides.length !== 1 ? "s" : ""} available`}
                     </p>
                 </div>
@@ -429,23 +435,95 @@ const Search = () => {
                     </div>
                 )}
 
-                {/* No Results */}
+                {/* No Results - Travel Request Received */}
                 {!loading && !error && rides.length === 0 && (
-                    <div className="text-center py-16">
-                        <div className="w-24 h-24 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <MdRoute className="text-emerald-600 text-4xl" />
+                    <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6">
+                        <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.05)] p-8 sm:p-10 text-center relative overflow-hidden">
+                            {/* Decorative background accent */}
+                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-50 rounded-full blur-2xl pointer-events-none" />
+                            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-teal-50 rounded-full blur-2xl pointer-events-none" />
+
+                            {/* Status Pill */}
+                            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 mb-6">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-xs font-bold tracking-wide text-emerald-700 uppercase">
+                                    Request Active
+                                </span>
+                            </div>
+
+                            {/* Main Icon */}
+                            <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-5 text-emerald-600 shadow-sm border border-emerald-100/50">
+                                <FaCar className="text-3xl" />
+                            </div>
+
+                            {/* Heading */}
+                            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">
+                                Travel Request Received
+                            </h2>
+
+                            {/* Subtitle / Message */}
+                            <p className="text-slate-600 text-sm sm:text-base max-w-lg mx-auto leading-relaxed mb-6">
+                                We have received your travel request for{" "}
+                                <strong className="text-slate-900 font-bold">
+                                    {from?.city || extractCity(from)} → {to?.city || extractCity(to)}
+                                </strong>
+                                . Our team is actively coordinating with verified drivers on this route and will reach out to you directly shortly with available options.
+                            </p>
+
+                            {/* Request Summary Box */}
+                            <div className="bg-slate-50/80 rounded-2xl p-4 mb-8 border border-slate-100 flex flex-wrap items-center justify-around gap-4 text-xs sm:text-sm text-slate-600">
+                                <div className="flex items-center gap-2">
+                                    <MdRoute className="text-emerald-600 text-base" />
+                                    <span>
+                                        <strong>Route:</strong> {from?.city || extractCity(from)} → {to?.city || extractCity(to)}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <FaCalendar className="text-emerald-600 text-sm" />
+                                    <span>
+                                        <strong>Date:</strong> {formattedDate}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <FaClock className="text-emerald-600 text-sm" />
+                                    <span>
+                                        <strong>Seats:</strong> {seats ?? 1} Seat{(seats ?? 1) > 1 ? "s" : ""}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Trust badges */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
+                                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50/60 border border-slate-100">
+                                    <FaCheckCircle className="text-emerald-500 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-slate-700">Verified Drivers</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50/60 border border-slate-100">
+                                    <FaClock className="text-emerald-500 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-slate-700">Fast Follow-up</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50/60 border border-slate-100">
+                                    <FaShieldAlt className="text-emerald-500 text-sm flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-slate-700">Best Fare Guarantee</span>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                                <button
+                                    onClick={() => navigate(-1)}
+                                    className="w-full sm:w-auto px-7 py-3 border-2 border-slate-800 rounded-full text-slate-800 text-sm font-bold hover:bg-slate-800 hover:text-white transition-all duration-300"
+                                >
+                                    Modify Search
+                                </button>
+                                <button
+                                    onClick={() => navigate("/")}
+                                    className="w-full sm:w-auto px-7 py-3 bg-emerald-600 rounded-full text-white text-sm font-bold hover:bg-emerald-700 transition-all duration-300 shadow-sm"
+                                >
+                                    Back to Home
+                                </button>
+                            </div>
                         </div>
-                        <p className="text-2xl font-extrabold text-slate-800 mb-3">No rides found</p>
-                        <p className="text-slate-500 text-sm max-w-md mx-auto leading-relaxed">
-                            No rides match <strong className="text-slate-800">{from?.city || from} → {to?.city || to}</strong> on {formattedDate} for {seats ?? 1} seat{(seats ?? 1) > 1 ? "s" : ""}.
-                            Try a different date or nearby city.
-                        </p>
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="mt-8 inline-flex items-center gap-2 px-8 py-3 border-2 border-slate-800 rounded-full text-slate-800 text-sm font-bold hover:bg-slate-800 hover:text-white transition-all duration-300"
-                        >
-                            ← Modify search
-                        </button>
                     </div>
                 )}
 
