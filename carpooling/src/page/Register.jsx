@@ -6,7 +6,7 @@ import {
     IoCameraOutline
 } from "react-icons/io5";
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaArrowRight, FaShieldAlt, FaCar } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import API from '../api/api';
 import { showError, showWarning } from '../utils/toastConfig';
 
@@ -19,6 +19,7 @@ const RegisterPage = () => {
     const [otpLoading, setOtpLoading] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -62,9 +63,9 @@ const RegisterPage = () => {
 
             alert(res.data.message);
 
-            // ✅ Navigate to OTP page passing formData and file
+            // ✅ Navigate to OTP page passing formData, file, and redirectState
             navigate("/verify-otp", {
-                state: { formData, file }
+                state: { formData, file, redirectState: location.state }
             });
 
         } catch (err) {
@@ -108,6 +109,16 @@ const RegisterPage = () => {
                             Start sharing the journey with thousands of travellers.
                         </p>
                     </div>
+
+                    {location.state?.searchState && (
+                        <div className="mb-lg p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-900 flex items-center gap-2.5 animate-fade-in-up">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                            <span>
+                                Create an account to view available verified rides for{" "}
+                                <strong>{location.state.searchState.from} → {location.state.searchState.to}</strong>.
+                            </span>
+                        </div>
+                    )}
 
                     <form className="mb-xl" onSubmit={(e) => e.preventDefault()}>
                         {/* Name Row */}
@@ -282,7 +293,7 @@ const RegisterPage = () => {
                     {/* Footer */}
                     <div className="text-center pt-lg border-t border-sage-soft mb-lg">
                         <p className="text-[13px] text-stone mb-sm">Already have an account?</p>
-                        <Link to="/login" className="inline-flex items-center gap-2 text-sm font-bold text-forest no-underline transition-all duration-base hover:text-sage hover:gap-3">
+                        <Link to="/login" state={location.state} className="inline-flex items-center gap-2 text-sm font-bold text-forest no-underline transition-all duration-base hover:text-sage hover:gap-3">
                             Log in
                             <FaArrowRight className="text-xs" />
                         </Link>

@@ -42,13 +42,26 @@ export default function Home() {
         e.preventDefault();
         if (!from || !to || !selectedDate) return;
 
+        const searchPayload = {
+            from: from.trim(),
+            to: to.trim(),
+            date: selectedDate.toLocaleDateString("en-CA"),
+            seats: guests,
+        };
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login", {
+                state: {
+                    redirect: "/search",
+                    searchState: searchPayload,
+                },
+            });
+            return;
+        }
+
         navigate("/search", {
-            state: {
-                from: from.trim(),
-                to: to.trim(),
-                date: selectedDate.toLocaleDateString("en-CA"),
-                seats: guests,
-            },
+            state: searchPayload,
         });
     };
 

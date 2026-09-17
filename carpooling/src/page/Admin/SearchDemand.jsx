@@ -12,6 +12,7 @@ import {
     FaChevronRight,
     FaTimes,
     FaRegClock,
+    FaEnvelope,
 } from "react-icons/fa";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { Link } from "react-router-dom";
@@ -20,6 +21,14 @@ import { showError } from "../../utils/toastConfig";
 import { formatDistanceToNow } from "date-fns";
 
 const SearchDemand = () => {
+    const openGmailCompose = (email, name, fromCity, toCity, travelDate) => {
+        if (!email) return;
+        const subject = `SafarGo Ride Update: ${fromCity || "Your route"} to ${toCity || "destination"}`;
+        const body = `Hi ${name || "there"},\n\nWe noticed you recently searched for a ride from ${fromCity || "your pickup"} to ${toCity || "your destination"}${travelDate ? ` on ${travelDate}` : ""}.\n\nOur team has ride options and verified drivers available for this route. Would you like us to help you reserve a seat?\n\nBest regards,\nSafarGo Team`;
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(gmailUrl, "_blank", "noopener,noreferrer");
+    };
+
     const [loading, setLoading] = useState(true);
     const [logs, setLogs] = useState([]);
     const [topRoutes, setTopRoutes] = useState([]);
@@ -323,7 +332,30 @@ const SearchDemand = () => {
                                 logs.map((log) => {
                                     const isZero = log.resultsCount === 0;
                                     return (
-                                        <tr key={log._id} className="hover:bg-[#faf8f2]/60 transition-colors">
+                                        <tr
+                                            key={log._id}
+                                            onClick={() => {
+                                                if (log.userId?.email) {
+                                                    openGmailCompose(
+                                                        log.userId.email,
+                                                        log.userId.firstName,
+                                                        log.fromCity,
+                                                        log.toCity,
+                                                        log.travelDate
+                                                    );
+                                                }
+                                            }}
+                                            className={`transition-colors ${
+                                                log.userId?.email
+                                                    ? "cursor-pointer hover:bg-emerald-50/40"
+                                                    : "hover:bg-[#faf8f2]/60"
+                                            }`}
+                                            title={
+                                                log.userId?.email
+                                                    ? `Click row to compose Gmail to ${log.userId.email}`
+                                                    : undefined
+                                            }
+                                        >
                                             {/* Route */}
                                             <td className="py-4 px-4 font-medium text-[#1a2620]">
                                                 <div className="font-bold flex items-center gap-1.5">
@@ -362,11 +394,33 @@ const SearchDemand = () => {
                                             {/* User / Passenger */}
                                             <td className="py-4 px-4">
                                                 {log.userId ? (
-                                                    <div>
-                                                        <div className="font-semibold text-[#1a2620]">
-                                                            {log.userId.firstName} {log.userId.lastName}
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        <div>
+                                                            <div className="font-semibold text-[#1a2620]">
+                                                                {log.userId.firstName} {log.userId.lastName}
+                                                            </div>
+                                                            <div className="text-[10px] text-[#7a8478]">{log.userId.email}</div>
                                                         </div>
-                                                        <div className="text-[10px] text-[#7a8478]">{log.userId.email}</div>
+                                                        {log.userId.email && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openGmailCompose(
+                                                                        log.userId.email,
+                                                                        log.userId.firstName,
+                                                                        log.fromCity,
+                                                                        log.toCity,
+                                                                        log.travelDate
+                                                                    );
+                                                                }}
+                                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-800 hover:text-white text-[11px] font-bold transition-all border border-emerald-200 shadow-xs flex-shrink-0"
+                                                                title={`Open Gmail to ${log.userId.email}`}
+                                                            >
+                                                                <FaEnvelope className="text-[10px]" />
+                                                                <span>Gmail</span>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 ) : (
                                                     <div>

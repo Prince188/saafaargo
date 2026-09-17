@@ -12,8 +12,8 @@ const VerifyOtpPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // ✅ Receive formData and file passed from RegisterPage
-    const { formData, file } = location.state || {};
+    // ✅ Receive formData, file, and redirectState passed from RegisterPage
+    const { formData, file, redirectState } = location.state || {};
 
     const handleVerify = async (e) => {
         e.preventDefault();
@@ -42,7 +42,14 @@ const VerifyOtpPage = () => {
             window.dispatchEvent(new Event("authChange"));
 
             showSuccess("Registration successful");
-            navigate("/");
+            if (redirectState?.redirect && redirectState?.searchState) {
+                navigate(redirectState.redirect, {
+                    state: redirectState.searchState,
+                    replace: true
+                });
+            } else {
+                navigate("/");
+            }
 
         } catch (err) {
             showError(err.response?.data?.message || "Verification failed");

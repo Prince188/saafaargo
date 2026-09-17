@@ -6,7 +6,7 @@ import {
     IoCarSportOutline
 } from "react-icons/io5";
 import { FaEnvelope, FaLock, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import API from '../api/api';
 import { showError } from './../utils/toastConfig';
 import BlockedUserModal from '../component/BlockedUserModal';
@@ -16,6 +16,7 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showBlockedModal, setShowBlockedModal] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -35,8 +36,16 @@ const LoginPage = () => {
             const res = await API.post("/auth/login", formData);
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
-            console.log(res.data);
-            navigate("/");
+            window.dispatchEvent(new Event("authChange"));
+            
+            if (location.state?.redirect && location.state?.searchState) {
+                navigate(location.state.redirect, {
+                    state: location.state.searchState,
+                    replace: true
+                });
+            } else {
+                navigate("/");
+            }
         } catch (err) {
 
             // blocked user
@@ -95,6 +104,16 @@ const LoginPage = () => {
                         </p>
                     </div>
 
+                    {location.state?.searchState && (
+                        <div className="mb-lg p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-900 flex items-center gap-2.5 animate-fade-in-up">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                            <span>
+                                Sign in to view available verified rides for{" "}
+                                <strong>{location.state.searchState.from} → {location.state.searchState.to}</strong>.
+                            </span>
+                        </div>
+                    )}
+
                     <form className="mb-xl" onSubmit={handleSubmit}>
                         {/* Email Field */}
                         <div className="mb-lg">
@@ -106,7 +125,7 @@ const LoginPage = () => {
                                 <input
                                     type="email"
                                     name="email"
-                                    placeholder="you@example.com"
+                                    placeholder="your.email@example.com"
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
@@ -116,13 +135,13 @@ const LoginPage = () => {
                         </div>
 
                         {/* Password Field */}
-                        <div className="mb-lg">
+                        <div className="mb-md">
                             <div className="flex justify-between items-center mb-sm">
                                 <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase">
                                     <FaLock className="text-sage text-xs" />
                                     <span>PASSWORD</span>
                                 </label>
-                                <Link to="/forgot-password" className="text-[11px] font-semibold text-clay no-underline transition-all duration-base hover:text-forest hover:underline">
+                                <Link to="/forgot-password" className="text-xs text-forest font-semibold no-underline transition-all duration-base hover:text-sage hover:underline">
                                     Forgot password?
                                 </Link>
                             </div>
@@ -130,21 +149,32 @@ const LoginPage = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     name="password"
-                                    placeholder="Enter your password"
+                                    placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-[18px] py-[14px] pr-[50px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light pr-12"
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-stone flex items-center justify-center p-1.5 rounded-full transition-all duration-base hover:bg-sage-soft hover:text-forest"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    className="absolute right-[18px] top-1/2 -translate-y-1/2 text-stone bg-transparent border-none cursor-pointer p-0 text-lg transition-colors duration-fast hover:text-forest"
                                 >
-                                    {showPassword ? <IoEyeOffOutline className="w-[18px] h-[18px]" /> : <IoEyeOutline className="w-[18px] h-[18px]" />}
+                                    {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Remember Me */}
+                        <div className="flex items-center gap-sm mb-lg">
+                            <input
+                                type="checkbox"
+                                id="remember"
+                                className="w-4 h-4 rounded border-sage-soft text-forest focus:ring-sage"
+                            />
+                            <label htmlFor="remember" className="text-xs text-stone">
+                                Remember me on this device
+                            </label>
                         </div>
 
                         {/* Login Button */}
@@ -168,7 +198,7 @@ const LoginPage = () => {
                     {/* Footer */}
                     <div className="text-center pt-lg border-t border-sage-soft mb-lg">
                         <p className="text-[13px] text-stone mb-sm">Don't have an account?</p>
-                        <Link to="/register" className="inline-flex items-center gap-2 text-sm font-bold text-forest no-underline transition-all duration-base hover:text-sage hover:gap-3">
+                        <Link to="/register" state={location.state} className="inline-flex items-center gap-2 text-sm font-bold text-forest no-underline transition-all duration-base hover:text-sage hover:gap-3">
                             Sign up for free
                             <FaArrowRight className="text-xs" />
                         </Link>

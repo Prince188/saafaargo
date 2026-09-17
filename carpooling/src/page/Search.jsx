@@ -13,6 +13,7 @@ import {
     FaCheckCircle,
     FaClock,
     FaShieldAlt,
+    FaEnvelope,
 } from "react-icons/fa";
 
 import { MdRoute } from "react-icons/md";
@@ -65,7 +66,30 @@ const Search = () => {
         return parts.length >= 3 ? parts[parts.length - 3] : value;
     };
 
+    const openDriverGmail = (e, driverEmail, driverName) => {
+        e.stopPropagation();
+        if (!driverEmail) return;
+        const pickupCity = from?.city || extractCity(from) || "pickup";
+        const dropCity = to?.city || extractCity(to) || "destination";
+        const subject = `SafarGo Ride Inquiry: ${pickupCity} to ${dropCity}`;
+        const body = `Hi ${driverName || "Driver"},\n\nI am interested in joining your SafarGo ride from ${pickupCity} to ${dropCity} on ${formattedDate}.\n\nCould you please share more details regarding the pickup point?\n\nThank you!`;
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(driverEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(gmailUrl, "_blank", "noopener,noreferrer");
+    };
+
     useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login", {
+                state: {
+                    redirect: "/search",
+                    searchState: location.state || { from, to, date, seats }
+                },
+                replace: true
+            });
+            return;
+        }
+
         if (!from || !to || !date) {
             navigate("/", { replace: true });
             return;
@@ -484,7 +508,7 @@ const Search = () => {
 
                             {/* Heading */}
                             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">
-                                Travel Request Received
+                                Trip not found
                             </h2>
 
                             {/* Subtitle / Message */}
@@ -645,13 +669,23 @@ const Search = () => {
                                             <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
                                                 {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.trim() || "Driver"}
                                             </h3>
-                                            <div className="flex items-center gap-2 mt-1">
+                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                                                 <div className="flex text-amber-400">
                                                     <FaStar className="w-3.5 h-3.5 fill-current" />
                                                 </div>
                                                 <span className="text-sm font-bold text-slate-700">{ride.user?.rating || "4.8"}</span>
                                                 <span className="text-xs font-medium text-slate-400">• Verified Driver</span>
                                             </div>
+                                            {ride.user?.email && (
+                                                <button
+                                                    onClick={(e) => openDriverGmail(e, ride.user.email, ride.user.firstName)}
+                                                    className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-emerald-700 font-medium transition-colors mt-2 bg-white hover:bg-emerald-50 px-2.5 py-1 rounded-full border border-slate-200 shadow-sm"
+                                                    title="Send email via Gmail"
+                                                >
+                                                    <FaEnvelope className="text-emerald-600 text-[10px]" />
+                                                    <span className="truncate max-w-[150px]">{ride.user.email}</span>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
