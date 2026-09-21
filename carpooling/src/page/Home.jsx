@@ -15,6 +15,9 @@ import {
     FaClock,
     FaHeart,
     FaUserFriends,
+    FaCar,
+    FaGasPump,
+    FaCheckCircle,
 } from "react-icons/fa";
 
 
@@ -252,7 +255,7 @@ export default function Home() {
                     <div className="max-w-[900px] mx-auto text-center py-3xl">
                         <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-md px-5 py-2 rounded-full mb-8 border border-forest/10 shadow-sm animate-fade-in-up">
                             <span className="w-2 h-2 bg-forest rounded-full animate-pulse"></span>
-                            <span className="text-[11px] font-bold tracking-[0.15em] text-forest uppercase">SHARE THE JOURNEY</span>
+                            <span className="text-[11px] font-bold tracking-[0.15em] text-forest uppercase">INDIA'S TRUSTED CARPOOLING NETWORK</span>
                         </div>
 
                         <h1 className="font-fraunces text-[clamp(48px,8vw,88px)] font-semibold leading-[1.08] tracking-[-0.02em] mb-7 animate-fade-in-up-delay">
@@ -267,15 +270,14 @@ export default function Home() {
                                         color: "transparent"
                                     }}
                                 >
-                                    Ride smarter.
+                                    Carpool smarter.
                                 </span>
                                 <span className="absolute bottom-2 left-0 right-0 h-1 bg-gradient-sage rounded-full opacity-30"></span>
                             </span>
                         </h1>
 
-                        <p className="text-lg leading-relaxed text-stone max-w-[560px] mx-auto mb-14 animate-fade-in-up-delay">
-                            Share the road, halve the cost, and meet people worth the detour —
-                            every kilometre carefully curated.
+                        <p className="text-lg leading-relaxed text-stone max-w-[580px] mx-auto mb-14 animate-fade-in-up-delay">
+                            India's verified intercity carpooling platform. Share empty car seats, halve your travel costs, and connect with trusted co-travellers on every route.
                         </p>
 
                         {/* SEARCH CARD */}
@@ -391,10 +393,31 @@ export default function Home() {
                                 </button>
                             </form>
 
-                            {/* <div className="flex items-center justify-center gap-3 mt-6 text-[11px] font-semibold tracking-[0.1em] text-stone uppercase">
-                                <FaHeart className="text-clay text-sm animate-heartbeat" />
-                                <span>TRUSTED BY 12,400+ TRAVELLERS THIS MONTH</span>
-                            </div> */}
+                            {/* POPULAR CARPOOL ROUTES */}
+                            <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 text-xs animate-fade-in-up-delay">
+                                <span className="text-stone font-semibold mr-1 flex items-center gap-1.5">
+                                    <FaRoute className="text-sage" /> Popular Carpool Corridors:
+                                </span>
+                                {[
+                                    { from: "Jaipur", to: "Delhi" },
+                                    { from: "Delhi", to: "Chandigarh" },
+                                    { from: "Mumbai", to: "Pune" },
+                                    { from: "Bengaluru", to: "Chennai" },
+                                    { from: "Ahmedabad", to: "Surat" }
+                                ].map((route, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => {
+                                            setFrom(route.from);
+                                            setTo(route.to);
+                                        }}
+                                        className="bg-white/90 hover:bg-forest hover:text-white text-charcoal border border-forest/10 hover:border-forest px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow text-xs cursor-pointer"
+                                    >
+                                        {route.from} ⇄ {route.to}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -404,14 +427,13 @@ export default function Home() {
             <section className="py-4xl bg-white">
                 <div className="max-w-[1280px] mx-auto px-xl">
                     <div className="text-center mb-3xl">
-                        <div className="inline-block text-[11px] font-extrabold tracking-[0.2em] text-sage mb-md uppercase">THE EXPERIENCE</div>
+                        <div className="inline-block text-[11px] font-extrabold tracking-[0.2em] text-sage mb-md uppercase">WHY CHOOSE SAFARGO CARPOOL</div>
                         <h2 className="font-fraunces text-[clamp(36px,5vw,52px)] font-semibold leading-[1.2] mb-lg text-forest">
-                            Elevating the way you<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest to-forest">connect</span> with the world.
+                            Elevating intercity carpooling<br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest to-forest">across India.</span>
                         </h2>
                         <p className="text-base text-stone max-w-[600px] mx-auto leading-relaxed">
-                            Safar is a curated travel experience with a focus on ease,
-                            flexibility, and safety at the turn of every corner.
+                            SafarGo is India's verified carpooling network designed for economical, reliable, and comfortable intercity road trips.
                         </p>
                     </div>
 
@@ -422,8 +444,8 @@ export default function Home() {
                             <div className="w-14 h-14 bg-gradient-to-br from-sage-soft to-sage/10 rounded-md flex items-center justify-center mb-7 text-forest text-2xl transition-all duration-base group-hover:scale-105">
                                 <FaShieldAlt />
                             </div>
-                            <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">The Security Aura</h3>
-                            <p className="text-sm leading-relaxed text-stone">Smart systems track every move so the road feels as safe as home.</p>
+                            <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Verified Drivers & Passengers</h3>
+                            <p className="text-sm leading-relaxed text-stone">Government ID and driving license checks ensure every shared car ride is safe, trusted, and community verified.</p>
                         </div>
 
                         {/* Sustainable Card */}
@@ -432,8 +454,8 @@ export default function Home() {
                             <div className="w-14 h-14 bg-gradient-to-br from-sage-soft to-sage/10 rounded-md flex items-center justify-center mb-7 text-forest text-2xl transition-all duration-base group-hover:scale-105">
                                 <FaLeaf />
                             </div>
-                            <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Sustainable Luxury</h3>
-                            <p className="text-sm leading-relaxed text-stone">A clean energy fleet that reduces carbon without sacrificing comfort.</p>
+                            <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Greener Ridesharing</h3>
+                            <p className="text-sm leading-relaxed text-stone">Carpooling fills empty seats, cuts highway carbon emissions, and builds a sustainable future for India.</p>
                         </div>
 
                         {/* Community Card - Tall */}
@@ -442,8 +464,8 @@ export default function Home() {
                             <div className="w-14 h-14 bg-gradient-to-br from-sage-soft to-sage/10 rounded-md flex items-center justify-center mb-7 text-forest text-2xl transition-all duration-base group-hover:scale-105">
                                 <FaUserFriends />
                             </div>
-                            <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Community First</h3>
-                            <p className="text-sm leading-relaxed text-stone">Every ride builds connections that last beyond the journey.</p>
+                            <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Carpool Community</h3>
+                            <p className="text-sm leading-relaxed text-stone">Connect with verified professionals, students, and regular commuters traveling along the same route.</p>
                         </div>
 
                         {/* Logistics Card - Wide */}
@@ -453,8 +475,8 @@ export default function Home() {
                                 <div className="w-14 h-14 bg-gradient-to-br from-sage-soft to-sage/10 rounded-md flex items-center justify-center mb-7 text-forest text-2xl transition-all duration-base group-hover:scale-105 mx-auto lg:mx-0">
                                     <FaClock />
                                 </div>
-                                <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Effortless Logistics</h3>
-                                <p className="text-sm leading-relaxed text-stone mb-6">An urban algorithm helps you move and ride with ease, no matter the traffic density.</p>
+                                <h3 className="font-fraunces text-2xl font-semibold mb-3.5 text-forest">Smart Route Matching</h3>
+                                <p className="text-sm leading-relaxed text-stone mb-6">Our algorithm connects drivers and passengers on highway routes seamlessly, eliminating tedious detours.</p>
                                 <button className="mt-6 px-6 py-2.5 bg-transparent border-2 border-sage rounded-full text-sage font-bold text-[13px] cursor-pointer transition-all duration-base font-inter hover:bg-sage hover:text-white hover:translate-x-1">
                                     Learn more
                                 </button>
@@ -469,6 +491,59 @@ export default function Home() {
                                     <span className="text-[10px] font-extrabold tracking-[0.1em] text-stone mt-2 block">AVG. WAIT</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* HOW CARPOOLING WORKS */}
+            <section className="py-4xl bg-[#FAF8F5] border-t border-forest/5">
+                <div className="max-w-[1280px] mx-auto px-xl">
+                    <div className="text-center mb-3xl">
+                        <div className="inline-block text-[11px] font-extrabold tracking-[0.2em] text-sage mb-md uppercase">HOW SAFARGO WORKS</div>
+                        <h2 className="font-fraunces text-[clamp(32px,4.5vw,46px)] font-semibold text-forest mb-4">
+                            Carpooling made simple in 3 easy steps
+                        </h2>
+                        <p className="text-base text-stone max-w-[540px] mx-auto leading-relaxed">
+                            Whether you are driving with empty seats or looking for an affordable ride, SafarGo connects you directly.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Step 1 */}
+                        <div className="bg-white rounded-xl p-8 border border-forest/08 shadow-sm hover:shadow-md transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-sage/10 text-forest flex items-center justify-center text-xl font-bold mb-6">
+                                <FaCar />
+                            </div>
+                            <span className="text-[11px] font-extrabold tracking-widest text-sage uppercase block mb-2">STEP 01</span>
+                            <h3 className="font-fraunces text-xl font-semibold text-forest mb-3">Find or Offer a Ride</h3>
+                            <p className="text-sm text-stone leading-relaxed">
+                                Enter your departure and destination cities. Drivers can publish empty seats; passengers can browse verified rides matching their timeline.
+                            </p>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="bg-white rounded-xl p-8 border border-forest/08 shadow-sm hover:shadow-md transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-sage/10 text-forest flex items-center justify-center text-xl font-bold mb-6">
+                                <FaGasPump />
+                            </div>
+                            <span className="text-[11px] font-extrabold tracking-widest text-sage uppercase block mb-2">STEP 02</span>
+                            <h3 className="font-fraunces text-xl font-semibold text-forest mb-3">Split Fuel Costs Fairly</h3>
+                            <p className="text-sm text-stone leading-relaxed">
+                                Save up to 70% compared to private cabs or expensive last-minute tickets with transparent, cost-sharing passenger contributions.
+                            </p>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="bg-white rounded-xl p-8 border border-forest/08 shadow-sm hover:shadow-md transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-sage/10 text-forest flex items-center justify-center text-xl font-bold mb-6">
+                                <FaCheckCircle />
+                            </div>
+                            <span className="text-[11px] font-extrabold tracking-widest text-sage uppercase block mb-2">STEP 03</span>
+                            <h3 className="font-fraunces text-xl font-semibold text-forest mb-3">Travel Together Safely</h3>
+                            <p className="text-sm text-stone leading-relaxed">
+                                Meet at the designated pickup point, verify each other on the app, and enjoy a pleasant, comfortable intercity journey.
+                            </p>
                         </div>
                     </div>
                 </div>
