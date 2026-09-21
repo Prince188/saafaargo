@@ -27,6 +27,13 @@ export default function Home() {
     const [to, setTo] = useState("");
     // const [fromAuto, setFromAuto] = useState(null);
     // const [toAuto, setToAuto] = useState(null);
+    const [popularRoutes, setPopularRoutes] = useState([
+        { from: "Jaipur", to: "Delhi" },
+        { from: "Delhi", to: "Chandigarh" },
+        { from: "Mumbai", to: "Pune" },
+        { from: "Bengaluru", to: "Chennai" },
+        { from: "Ahmedabad", to: "Surat" }
+    ]);
     const [selectedDate, setSelectedDate] = useState(null);
     const [guests, setGuests] = useState(1);
     const [guestsOpen, setGuestsOpen] = useState(false);
@@ -93,6 +100,20 @@ export default function Home() {
                 setTo(place.formatted_address);
             }
         });
+    }, []);
+
+    // Fetch top dynamic searched routes from backend (with random fallback to 5)
+    useEffect(() => {
+        fetch(`${process.env.REACT_APP_API_URL}/rides/popular-routes`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.routes) && data.routes.length > 0) {
+                    setPopularRoutes(data.routes);
+                }
+            })
+            .catch(err => {
+                console.warn("[Home] Could not load dynamic popular routes, using default fallback corridors:", err);
+            });
     }, []);
 
 
@@ -398,13 +419,7 @@ export default function Home() {
                                 <span className="text-stone font-semibold mr-1 flex items-center gap-1.5">
                                     <FaRoute className="text-sage" /> Popular Carpool Corridors:
                                 </span>
-                                {[
-                                    { from: "Jaipur", to: "Delhi" },
-                                    { from: "Delhi", to: "Chandigarh" },
-                                    { from: "Mumbai", to: "Pune" },
-                                    { from: "Bengaluru", to: "Chennai" },
-                                    { from: "Ahmedabad", to: "Surat" }
-                                ].map((route, idx) => (
+                                {popularRoutes.map((route, idx) => (
                                     <button
                                         key={idx}
                                         type="button"
@@ -412,9 +427,10 @@ export default function Home() {
                                             setFrom(route.from);
                                             setTo(route.to);
                                         }}
-                                        className="bg-white/90 hover:bg-forest hover:text-white text-charcoal border border-forest/10 hover:border-forest px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow text-xs cursor-pointer"
+                                        className="bg-white/90 hover:bg-forest hover:text-white text-charcoal border border-forest/10 hover:border-forest px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow text-xs cursor-pointer flex items-center gap-1.5"
+                                        title={`Carpool between ${route.from} and ${route.to}`}
                                     >
-                                        {route.from} ⇄ {route.to}
+                                        <span>{route.from} ⇄ {route.to}</span>
                                     </button>
                                 ))}
                             </div>

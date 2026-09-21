@@ -14,7 +14,8 @@ const {
     completeRide,
     cancelRide,
     startTrip,
-    verifyOtp
+    verifyOtp,
+    getPopularRoutes
 } = require("../controllers/rideController");
 
 // ─── Driver verification routes ────────────────────────────────────────────
@@ -40,6 +41,9 @@ router.get("/driver/verification-status", authMiddleware, driverController.getVe
 router.post("/", authMiddleware, createRide);
 
 router.get("/", getRides);
+
+// Public route: Dynamic top searched routes or fallback corridors
+router.get("/popular-routes", getPopularRoutes);
 
 router.get("/my-rides", authMiddleware, getMyRides);
 

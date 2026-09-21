@@ -1273,3 +1273,87 @@ exports.verifyOtp = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// ─── GET /api/rides/popular-routes ──────────────────────────────────────────
+// Returns top 5 searched routes dynamically from SearchLog.
+// If fewer than 5 exist in the DB, the remaining slots are filled with random
+// non-duplicate corridor routes from the predefined fallback pool.
+const DEFAULT_CORRIDORS = [
+    { from: "Jaipur", to: "Delhi" },
+    { from: "Delhi", to: "Chandigarh" },
+    { from: "Mumbai", to: "Pune" },
+    { from: "Bengaluru", to: "Chennai" },
+    { from: "Ahmedabad", to: "Surat" },
+    { from: "Delhi", to: "Agra" },
+    { from: "Pune", to: "Nashik" },
+    { from: "Bengaluru", to: "Mysuru" },
+    { from: "Hyderabad", to: "Vijayawada" },
+    { from: "Kolkata", to: "Durgapur" },
+    { from: "Chandigarh", to: "Shimla" },
+    { from: "Delhi", to: "Dehradun" },
+    { from: "Lucknow", to: "Kanpur" },
+    { from: "Indore", to: "Bhopal" },
+    { from: "Chennai", to: "Pondicherry" }
+];
+
+exports.getPopularRoutes = async (req, res) => {
+    try {
+        const topSearches = await SearchLog.aggregate([
+            {
+                $match: {
+                    fromCity: { $exists: true, $nin: ["", "Unknown", null] },
+                    toCity: { $exists: true, $nin: ["", "Unknown", null] },
+                    $expr: {
+                        $ne: [
+                            { $toLower: "$fromCity" },
+                            { $toLower: "$toCity" }
+                        ]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        from: { $trim: { input: "$fromCity" } },
+                        to: { $trim: { input: "$toCity" } }
+                    },
+                    totalSearches: { $sum: 1 },
+                    lastSearched: { $max: "$createdAt" }
+                }
+            },
+            { $sort: { totalSearches: -1, lastSearched: -1 } },
+            { $limit: 5 }
+        ]);
+
+        const result = topSearches.map(item => ({
+            from: item._id.from,
+            to: item._id.to,
+            searches: item.totalSearches
+        }));
+
+        if (result.length < 5) {
+            const isAlreadyPresent = (r) => result.some(
+                existing => existing.from.toLowerCase() === r.from.toLowerCase() &&
+                            existing.to.toLowerCase() === r.to.toLowerCase()
+            );
+            const availableFallbacks = DEFAULT_CORRIDORS.filter(r => !isAlreadyPresent(r));
+            const shuffled = availableFallbacks.sort(() => 0.5 - Math.random());
+            const needed = 5 - result.length;
+            const randomFillers = shuffled.slice(0, needed).map(r => ({
+                from: r.from,
+                to: r.to,
+                searches: 0
+            }));
+            result.push(...randomFillers);
+        }
+
+        res.status(200).json({ success: true, routes: result });
+    } catch (err) {
+        console.error("[getPopularRoutes] Error:", err);
+        const shuffled = [...DEFAULT_CORRIDORS].sort(() => 0.5 - Math.random()).slice(0, 5);
+        res.status(200).json({
+            success: true,
+            routes: shuffled.map(r => ({ ...r, searches: 0 }))
+        });
+    }
+};
