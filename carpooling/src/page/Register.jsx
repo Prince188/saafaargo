@@ -5,7 +5,7 @@ import {
     IoArrowForwardOutline,
     IoCameraOutline
 } from "react-icons/io5";
-import { FaUser, FaEnvelope, FaPhone, FaLock, FaArrowRight, FaShieldAlt, FaCar } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import API from '../api/api';
 import { showError, showWarning } from '../utils/toastConfig';
@@ -14,7 +14,6 @@ const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [otpLoading, setOtpLoading] = useState(false);
 
@@ -47,8 +46,17 @@ const RegisterPage = () => {
     };
 
     const handleSendOtp = async () => {
-        if (!formData.email) {
-            return showWarning("Please enter email");
+        if (!formData.firstName.trim()) {
+            return showWarning("Please enter your first name");
+        }
+        if (!formData.email.trim()) {
+            return showWarning("Please enter email address");
+        }
+        if (!formData.mobile.trim()) {
+            return showWarning("Please enter mobile number");
+        }
+        if (!formData.password || formData.password.length < 8) {
+            return showWarning("Password must be at least 8 characters");
         }
         if (!agreeTerms) {
             return showWarning("Please agree to the Terms & Conditions");
@@ -63,7 +71,6 @@ const RegisterPage = () => {
 
             alert(res.data.message);
 
-            // ✅ Navigate to OTP page passing formData, file, and redirectState
             navigate("/verify-otp", {
                 state: { formData, file, redirectState: location.state }
             });
@@ -76,156 +83,143 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-hero font-inter flex items-center justify-center relative overflow-hidden">
-            {/* Animated background elements */}
-            <div className="absolute w-[300px] h-[300px] rounded-full bg-sage-light blur-[80px] opacity-40 -top-[100px] -right-[100px] animate-float pointer-events-none"></div>
-            <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse pointer-events-none"></div>
+        <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center relative overflow-hidden py-12 px-4 selection:bg-forest selection:text-white">
+            {/* Ambient Diffuse Lights */}
+            <div className="absolute w-[450px] h-[450px] rounded-full bg-sage-light/30 blur-[120px] pointer-events-none -top-[100px] -right-[100px] animate-float"></div>
+            <div className="absolute w-[400px] h-[400px] rounded-full bg-clay-light/20 blur-[120px] pointer-events-none -bottom-[100px] -left-[100px] animate-float-reverse"></div>
 
-            <div className="relative z-10 w-full max-w-[650px] my-3xl mx-auto px-xl">
-                <div className="bg-white rounded-xl sm:py-3xl px-xl py-xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
+            <div className="relative z-10 w-full max-w-[540px] mx-auto animate-fade-in-up">
+                
+                {/* Apple ID Style Frosted Glass Card */}
+                <div className="bg-white/90 backdrop-blur-2xl rounded-[32px] p-8 sm:p-10 shadow-[0_16px_48px_rgba(26,58,46,0.08)] border border-white/80 ring-1 ring-black/[0.04]">
+                    
                     {/* Header */}
-                    <div className="text-center mb-xl">
-                        <Link to="/" className="inline-block mb-lg transition-transform duration-fast hover:scale-102">
+                    <div className="text-center mb-8">
+                        <Link to="/" className="inline-block mb-4 transition-transform duration-200 active:scale-95">
                             <img 
                                 src="/logo.png" 
                                 alt="SafarGo Logo" 
-                                className="h-12 sm:h-14 w-auto object-contain" 
+                                className="h-10 sm:h-11 w-auto object-contain mx-auto" 
                             />
                         </Link>
-                        <h1 className="font-fraunces text-[clamp(32px,5vw,42px)] font-semibold leading-[1.2] mb-sm text-forest">
-                            Create{' '}
-                            <span
-                                style={{
-                                    background: "linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%)",
-                                    WebkitBackgroundClip: "text",
-                                    backgroundClip: "text",
-                                    color: "transparent"
-                                }}
-                            >
-                                account
-                            </span>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-[-0.03em] text-[#1D1D1F] mb-1.5">
+                            Create your SafarGo ID
                         </h1>
-                        <p className="text-sm text-stone">
-                            Start sharing the journey with thousands of travellers.
+                        <p className="text-[14px] text-[#6E6E73]">
+                            Join thousands of verified commuters across India.
                         </p>
                     </div>
 
+                    {/* Active Route Query Pill */}
                     {location.state?.searchState && (
-                        <div className="mb-lg p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-900 flex items-center gap-2.5 animate-fade-in-up">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                        <div className="mb-6 p-3.5 bg-forest/5 border border-forest/10 rounded-2xl text-[12.5px] text-forest flex items-center gap-2.5">
+                            <span className="w-2 h-2 rounded-full bg-forest animate-pulse shrink-0" />
                             <span>
-                                Create an account to view available verified rides for{" "}
+                                Create an account to view verified rides for{" "}
                                 <strong>{location.state.searchState.from} → {location.state.searchState.to}</strong>.
                             </span>
                         </div>
                     )}
 
-                    <form className="mb-xl" onSubmit={(e) => e.preventDefault()}>
-                        {/* Name Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mb-lg">
+                    <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                        
+                        {/* Name Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div>
-                                <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
-                                    <FaUser className="text-sage text-xs" />
-                                    <span>FIRST NAME</span>
+                                <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                    FIRST NAME
                                 </label>
                                 <input
                                     type="text"
                                     name="firstName"
-                                    // placeholder="Jane"
+                                    placeholder="First name"
                                     value={formData.firstName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                    className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400"
                                 />
                             </div>
 
                             <div>
-                                <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
-                                    <FaUser className="text-sage text-xs" />
-                                    <span>LAST NAME</span>
+                                <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                    LAST NAME
                                 </label>
                                 <input
                                     type="text"
                                     name="lastName"
-                                    // placeholder="Doe"
+                                    placeholder="Last name"
                                     value={formData.lastName}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                    className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400"
                                 />
                             </div>
                         </div>
 
-                        {/* Email */}
-                        <div className="mb-lg">
-                            <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
-                                <FaEnvelope className="text-sage text-xs" />
-                                <span>EMAIL ADDRESS</span>
+                        {/* Email Field */}
+                        <div>
+                            <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                EMAIL ADDRESS
                             </label>
                             <input
                                 type="email"
                                 name="email"
-                                // placeholder="jane@example.com"
+                                placeholder="name@example.com"
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400"
                             />
                         </div>
 
-                        {/* Mobile */}
-                        <div className="mb-lg">
-                            <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
-                                <FaPhone className="text-sage text-xs" />
-                                <span>MOBILE NUMBER</span>
+                        {/* Mobile Field */}
+                        <div>
+                            <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                MOBILE NUMBER
                             </label>
                             <input
                                 type="tel"
                                 name="mobile"
-                                // placeholder="+91 98765 43210"
+                                placeholder="10-digit mobile number"
                                 value={formData.mobile}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400"
                             />
                         </div>
 
-                        {/* Password */}
-                        <div className="mb-lg">
-                            <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
-                                <FaLock className="text-sage text-xs" />
-                                <span>PASSWORD</span>
+                        {/* Password Field */}
+                        <div>
+                            <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                PASSWORD
                             </label>
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     name="password"
-                                    // placeholder="At least 8 characters"
+                                    placeholder="At least 8 characters"
                                     value={formData.password}
                                     onChange={handleChange}
                                     minLength={8}
                                     required
-                                    className="w-full px-[18px] py-[14px] pr-[50px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                    className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400 pr-11"
                                 />
                                 <button
                                     type="button"
-                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-stone flex items-center justify-center p-1.5 rounded-full transition-all duration-base hover:bg-sage-soft hover:text-forest"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-[#1D1D1F] bg-transparent border-none cursor-pointer p-1 text-base transition-colors"
                                 >
-                                    {showPassword ? <IoEyeOffOutline className="w-[18px] h-[18px]" /> : <IoEyeOutline className="w-[18px] h-[18px]" />}
+                                    {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                                 </button>
                             </div>
-                            <p className="text-[11px] text-stone-light mt-2">Must be at least 8 characters</p>
                         </div>
 
-                        {/* Profile Picture */}
-                        <div className="mb-lg">
-                            <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm cursor-pointer">
-                                <IoCameraOutline className="text-sage text-sm" />
-                                <span>PROFILE PICTURE (optional)</span>
+                        {/* Profile Picture (Optional) */}
+                        <div>
+                            <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                PROFILE PICTURE (OPTIONAL)
                             </label>
-                            <div className="flex flex-col sm:flex-row items-center gap-3">
+                            <div className="flex items-center gap-3">
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -235,74 +229,70 @@ const RegisterPage = () => {
                                 />
                                 <label
                                     htmlFor="profile-pic-input"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-off-white border-2 border-sage-soft rounded-full text-sm font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage hover:text-white hover:border-sage"
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-black/[0.04] hover:bg-black/[0.07] active:scale-95 border border-black/[0.06] rounded-full text-[12.5px] font-semibold text-forest cursor-pointer transition-all duration-200"
                                 >
-                                    <IoCameraOutline />
-                                    Choose image
+                                    <IoCameraOutline className="text-sm" />
+                                    <span>Choose photo</span>
                                 </label>
                                 {fileName && (
-                                    <span className="text-sm text-stone truncate max-w-[200px]">{fileName}</span>
+                                    <span className="text-[12px] text-stone-500 truncate max-w-[200px]">{fileName}</span>
                                 )}
                             </div>
                         </div>
 
-                        {/* Terms */}
-                        <div className="mb-lg">
-                            <label className="flex items-start gap-3 cursor-pointer">
+                        {/* Terms & Conditions */}
+                        <div className="pt-1">
+                            <label className="flex items-start gap-2.5 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={agreeTerms}
                                     onChange={(e) => setAgreeTerms(e.target.checked)}
-                                    className="hidden"
+                                    className="w-4 h-4 mt-0.5 rounded border-black/[0.15] text-forest focus:ring-forest/20 cursor-pointer"
                                 />
-                                <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-base mt-0.5 ${agreeTerms
-                                    ? 'bg-gradient-primary border-sage'
-                                    : 'bg-white border-sage-soft hover:border-sage'
-                                    }`}>
-                                    {agreeTerms && (
-                                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    )}
-                                </span>
-                                <span className="text-[13px] text-stone leading-relaxed">
-                                    I agree to the <Link to="/terms" className="text-sage font-semibold no-underline hover:text-forest">Terms & Conditions</Link> and{' '}
-                                    <Link to="/privacy" className="text-sage font-semibold no-underline hover:text-forest">Privacy Policy</Link>
+                                <span className="text-[12.5px] text-[#6E6E73] leading-relaxed">
+                                    I agree to SafarGo's{" "}
+                                    <Link to="/terms" className="text-forest font-semibold hover:underline no-underline">Terms of Service</Link>{" "}
+                                    and{" "}
+                                    <Link to="/privacy" className="text-forest font-semibold hover:underline no-underline">Privacy Policy</Link>.
                                 </span>
                             </label>
                         </div>
 
-                        {/* Send OTP Button */}
+                        {/* Send OTP Primary Button */}
                         <button
                             type="button"
                             onClick={handleSendOtp}
-                            className="w-full inline-flex items-center justify-center gap-3 bg-gradient-primary text-white px-8 py-[14px] rounded-full font-bold text-sm cursor-pointer transition-all duration-base relative overflow-hidden mt-md group disabled:opacity-70"
                             disabled={otpLoading}
+                            className="w-full mt-3 bg-gradient-primary text-white py-3.5 px-6 rounded-full font-semibold text-[14px] tracking-tight transition-all duration-200 active:scale-95 shadow-[0_4px_16px_rgba(26,58,46,0.25)] hover:shadow-[0_8px_24px_rgba(26,58,46,0.32)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                         >
                             {otpLoading ? (
-                                "Sending OTP..."
+                                <span>Sending verification OTP...</span>
                             ) : (
                                 <>
-                                    Send OTP
-                                    <IoArrowForwardOutline />
+                                    <span>Continue with OTP</span>
+                                    <IoArrowForwardOutline className="text-sm" />
                                 </>
                             )}
                         </button>
                     </form>
 
-                    {/* Footer */}
-                    <div className="text-center pt-lg border-t border-sage-soft mb-lg">
-                        <p className="text-[13px] text-stone mb-sm">Already have an account?</p>
-                        <Link to="/login" state={location.state} className="inline-flex items-center gap-2 text-sm font-bold text-forest no-underline transition-all duration-base hover:text-sage hover:gap-3">
-                            Log in
-                            <FaArrowRight className="text-xs" />
+                    {/* Bottom Login Link */}
+                    <div className="text-center pt-6 mt-6 border-t border-black/[0.06]">
+                        <p className="text-[13px] text-[#6E6E73] mb-2">Already have a SafarGo ID?</p>
+                        <Link
+                            to="/login"
+                            state={location.state}
+                            className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-forest hover:opacity-85 no-underline active:scale-95 transition-all"
+                        >
+                            <span>Sign in</span>
+                            <FaArrowRight className="text-[10px]" />
                         </Link>
                     </div>
 
-                    {/* Security Note */}
-                    <div className="flex items-center justify-center gap-sm pt-md text-[11px] text-stone-light">
-                        <FaShieldAlt className="text-sage text-xs" />
-                        <span>Your data is protected with 256-bit encryption</span>
+                    {/* Security Micro Badge */}
+                    <div className="flex items-center justify-center gap-1.5 pt-4 text-[11px] text-stone-400">
+                        <FaShieldAlt className="text-sage text-[10px]" />
+                        <span>Protected by 256-bit SSL encryption</span>
                     </div>
                 </div>
             </div>

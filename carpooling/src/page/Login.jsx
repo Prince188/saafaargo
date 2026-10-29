@@ -3,7 +3,6 @@ import {
     IoEyeOutline,
     IoEyeOffOutline,
     IoArrowForwardOutline,
-    IoCarSportOutline
 } from "react-icons/io5";
 import { FaEnvelope, FaLock, FaArrowRight, FaShieldAlt } from 'react-icons/fa';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -47,102 +46,87 @@ const LoginPage = () => {
                 navigate("/");
             }
         } catch (err) {
-
-            // blocked user
             if (err.response?.status === 403) {
-
                 localStorage.setItem(
                     "blockedUser",
                     JSON.stringify(err.response.data.user)
                 );
-
                 setShowBlockedModal(true);
-
                 return;
             }
-
-            showError(
-                err.response?.data?.message || "Login failed"
-            );
+            showError(err.response?.data?.message || "Login failed");
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-hero font-inter flex items-center justify-center relative overflow-hidden">
-            {/* Animated background elements */}
-            <div className="absolute w-[300px] h-[300px] rounded-full bg-sage-light blur-[80px] opacity-40 -top-[100px] -right-[100px] animate-float pointer-events-none"></div>
-            <div className="absolute w-[300px] h-[300px] rounded-full bg-clay-light blur-[80px] opacity-40 -bottom-[100px] -left-[100px] animate-float-reverse pointer-events-none"></div>
+        <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center relative overflow-hidden py-12 px-4 selection:bg-forest selection:text-white">
+            {/* Apple Ambient Soft Diffuse Lights */}
+            <div className="absolute w-[450px] h-[450px] rounded-full bg-sage-light/30 blur-[120px] pointer-events-none -top-[100px] -right-[100px] animate-float"></div>
+            <div className="absolute w-[400px] h-[400px] rounded-full bg-clay-light/20 blur-[120px] pointer-events-none -bottom-[100px] -left-[100px] animate-float-reverse"></div>
 
-            <div className="relative z-10 w-full max-w-[650px] my-3xl mx-auto px-xl">
-                <div className="bg-white rounded-xl sm:px-3xl px-xl py-xl shadow-xl transition-all duration-base animate-fade-in-up hover:-translate-y-1 hover:shadow-2xl">
+            <div className="relative z-10 w-full max-w-[500px] mx-auto animate-fade-in-up">
+                
+                {/* Apple ID Style Frosted Glass Card */}
+                <div className="bg-white/90 backdrop-blur-2xl rounded-[32px] p-8 sm:p-10 shadow-[0_16px_48px_rgba(26,58,46,0.08)] border border-white/80 ring-1 ring-black/[0.04]">
+                    
                     {/* Header */}
-                    <div className="text-center mb-xl">
-                        <Link to="/" className="inline-block mb-lg transition-transform duration-fast hover:scale-102">
+                    <div className="text-center mb-8">
+                        <Link to="/" className="inline-block mb-4 transition-transform duration-200 active:scale-95">
                             <img 
                                 src="/logo.png" 
                                 alt="SafarGo Logo" 
-                                className="h-12 sm:h-14 w-auto object-contain" 
+                                className="h-10 sm:h-11 w-auto object-contain mx-auto" 
                             />
                         </Link>
-                        <h1 className="font-fraunces text-[clamp(32px,5vw,42px)] font-semibold leading-[1.2] mb-sm text-forest">
-                            Welcome{' '}
-                            <span
-                                style={{
-                                    background: "linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%)",
-                                    WebkitBackgroundClip: "text",
-                                    backgroundClip: "text",
-                                    color: "transparent"
-                                }}
-                            >
-                                back
-                            </span>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-[-0.03em] text-[#1D1D1F] mb-1.5">
+                            Sign in to SafarGo
                         </h1>
-                        <p className="text-sm text-stone">
-                            Sign in to continue your journey with Safar GO.
+                        <p className="text-[14px] text-[#6E6E73]">
+                            Enter your credentials to continue your journey.
                         </p>
                     </div>
 
+                    {/* Active Route Query Pill */}
                     {location.state?.searchState && (
-                        <div className="mb-lg p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs text-emerald-900 flex items-center gap-2.5 animate-fade-in-up">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                        <div className="mb-6 p-3.5 bg-forest/5 border border-forest/10 rounded-2xl text-[12.5px] text-forest flex items-center gap-2.5">
+                            <span className="w-2 h-2 rounded-full bg-forest animate-pulse shrink-0" />
                             <span>
-                                Sign in to view available verified rides for{" "}
+                                Sign in to view verified rides for{" "}
                                 <strong>{location.state.searchState.from} → {location.state.searchState.to}</strong>.
                             </span>
                         </div>
                     )}
 
-                    <form className="mb-xl" onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        
                         {/* Email Field */}
-                        <div className="mb-lg">
-                            <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase mb-sm">
-                                <FaEnvelope className="text-sage text-xs" />
-                                <span>EMAIL ADDRESS</span>
+                        <div>
+                            <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase mb-1.5">
+                                EMAIL ADDRESS
                             </label>
                             <div className="relative">
                                 <input
                                     type="email"
                                     name="email"
-                                    placeholder="your.email@example.com"
+                                    placeholder="name@example.com"
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light"
+                                    className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400"
                                 />
                             </div>
                         </div>
 
                         {/* Password Field */}
-                        <div className="mb-md">
-                            <div className="flex justify-between items-center mb-sm">
-                                <label className="flex items-center gap-2 text-[11px] font-extrabold tracking-[0.1em] text-stone uppercase">
-                                    <FaLock className="text-sage text-xs" />
-                                    <span>PASSWORD</span>
+                        <div>
+                            <div className="flex justify-between items-center mb-1.5">
+                                <label className="block text-[10px] font-bold tracking-[0.14em] text-stone-400 uppercase">
+                                    PASSWORD
                                 </label>
-                                <Link to="/forgot-password" className="text-xs text-forest font-semibold no-underline transition-all duration-base hover:text-sage hover:underline">
-                                    Forgot password?
+                                <Link to="/forgot-password" className="text-[12px] text-forest font-semibold hover:underline no-underline">
+                                    Forgot?
                                 </Link>
                             </div>
                             <div className="relative">
@@ -153,64 +137,56 @@ const LoginPage = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-[18px] py-[14px] bg-off-white border-2 border-sage-soft rounded-md text-[15px] font-inter text-charcoal transition-all duration-base focus:outline-none focus:border-sage focus:bg-white focus:shadow-[0_0_0_4px_rgba(122,155,122,0.1)] hover:border-sage-light hover:bg-cream placeholder:text-stone-light pr-12"
+                                    className="w-full px-4 py-3 bg-black/[0.025] hover:bg-black/[0.04] focus:bg-white border border-black/[0.06] focus:border-forest rounded-2xl text-[14px] font-medium text-[#1D1D1F] transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-forest/10 placeholder:text-stone-400 pr-11"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-[18px] top-1/2 -translate-y-1/2 text-stone bg-transparent border-none cursor-pointer p-0 text-lg transition-colors duration-fast hover:text-forest"
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-[#1D1D1F] bg-transparent border-none cursor-pointer p-1 text-base transition-colors"
                                 >
                                     {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Remember Me */}
-                        <div className="flex items-center gap-sm mb-lg">
-                            <input
-                                type="checkbox"
-                                id="remember"
-                                className="w-4 h-4 rounded border-sage-soft text-forest focus:ring-sage"
-                            />
-                            <label htmlFor="remember" className="text-xs text-stone">
-                                Remember me on this device
-                            </label>
-                        </div>
-
-                        {/* Login Button */}
+                        {/* Primary Sign In Button */}
                         <button
                             type="submit"
-                            className="w-full inline-flex items-center justify-center gap-3 bg-gradient-primary text-white px-8 py-[14px] rounded-full font-bold text-sm cursor-pointer transition-all duration-base relative overflow-hidden mt-md group disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-gradient-to-r disabled:from-[#4a7c59] disabled:to-[#2d5a42] disabled:bg-[length:200%_100%] disabled:animate-[shimmer_2s_infinite]"
                             disabled={isLoading}
+                            className="w-full mt-2 bg-gradient-primary text-white py-3.5 px-6 rounded-full font-semibold text-[14px] tracking-tight transition-all duration-200 active:scale-95 shadow-[0_4px_16px_rgba(26,58,46,0.25)] hover:shadow-[0_8px_24px_rgba(26,58,46,0.32)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                         >
-                            <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-all duration-500 group-hover:left-full"></span>
                             {isLoading ? (
-                                <>Signing in...</>
+                                <span>Signing in...</span>
                             ) : (
                                 <>
-                                    Sign In
-                                    <IoArrowForwardOutline />
+                                    <span>Sign In</span>
+                                    <IoArrowForwardOutline className="text-sm" />
                                 </>
                             )}
                         </button>
                     </form>
 
-                    {/* Footer */}
-                    <div className="text-center pt-lg border-t border-sage-soft mb-lg">
-                        <p className="text-[13px] text-stone mb-sm">Don't have an account?</p>
-                        <Link to="/register" state={location.state} className="inline-flex items-center gap-2 text-sm font-bold text-forest no-underline transition-all duration-base hover:text-sage hover:gap-3">
-                            Sign up for free
-                            <FaArrowRight className="text-xs" />
+                    {/* Bottom Registration Link */}
+                    <div className="text-center pt-6 mt-6 border-t border-black/[0.06]">
+                        <p className="text-[13px] text-[#6E6E73] mb-2">Don't have an account?</p>
+                        <Link
+                            to="/register"
+                            state={location.state}
+                            className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-forest hover:opacity-85 no-underline active:scale-95 transition-all"
+                        >
+                            <span>Sign up for free</span>
+                            <FaArrowRight className="text-[10px]" />
                         </Link>
                     </div>
 
-                    {/* Security Note */}
-                    <div className="flex items-center justify-center gap-sm pt-md text-[11px] text-stone-light">
-                        <FaShieldAlt className="text-sage text-xs" />
-                        <span>Your data is protected with 256-bit encryption</span>
+                    {/* Security Micro Badge */}
+                    <div className="flex items-center justify-center gap-1.5 pt-4 text-[11px] text-stone-400">
+                        <FaShieldAlt className="text-sage text-[10px]" />
+                        <span>Protected by 256-bit SSL encryption</span>
                     </div>
                 </div>
             </div>
+
             <BlockedUserModal
                 isOpen={showBlockedModal}
                 onClose={() => setShowBlockedModal(false)}

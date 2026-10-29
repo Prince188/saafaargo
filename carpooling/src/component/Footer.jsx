@@ -1,15 +1,10 @@
 import axios from "axios";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
     FaFacebook,
     FaTwitter,
     FaYoutube,
     FaInstagram,
-    FaArrowRight,
-    FaHeart,
-    FaCar,
-    FaShieldAlt,
     FaHeadset
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -22,17 +17,19 @@ const Footer = () => {
     const [loading, setLoading] = useState(false);
 
     const handleSubscribe = async () => {
+        if (!email || !email.includes("@")) {
+            showError("Please enter a valid email address");
+            return;
+        }
         try {
             setLoading(true);
-
             await axios.post(`${process.env.REACT_APP_API_URL}/newsletter/subscribe`, {
                 email,
             });
-
             setSubscribed(true);
             showSuccess("Subscribed successfully!");
         } catch (err) {
-            showError(err.response?.data?.message || "Error");
+            showError(err.response?.data?.message || "Subscription failed");
         } finally {
             setLoading(false);
         }
@@ -41,71 +38,82 @@ const Footer = () => {
     const handleUnsubscribe = async () => {
         try {
             setLoading(true);
-
             await axios.post(`${process.env.REACT_APP_API_URL}/newsletter/unsubscribe`, {
                 email,
             });
-
             setSubscribed(false);
             setEmail("");
             showSuccess("Unsubscribed successfully!");
         } catch (err) {
-            showError("Error");
+            showError("Unsubscribe failed");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <footer className="bg-forest text-white font-inter relative overflow-hidden">
-            {/* Animated background elements */}
-            <div className="absolute -top-[100px] -right-[100px] w-[300px] h-[300px] rounded-full bg-sage/10 blur-[80px] pointer-events-none"></div>
-            <div className="absolute -bottom-[100px] -left-[100px] w-[250px] h-[250px] rounded-full bg-clay/20 blur-[80px] pointer-events-none"></div>
+        <footer className="bg-forest text-white font-sans relative overflow-hidden border-t border-white/[0.08]">
+            {/* Ambient Apple Soft Radial Lights */}
+            <div className="absolute -top-[120px] -right-[120px] w-[350px] h-[350px] rounded-full bg-sage/15 blur-[100px] pointer-events-none"></div>
+            <div className="absolute -bottom-[120px] -left-[120px] w-[300px] h-[300px] rounded-full bg-clay/10 blur-[100px] pointer-events-none"></div>
 
-            <div className="max-w-[1280px] mx-auto py-3xl px-xl relative z-10">
+            <div className="max-w-[1240px] mx-auto py-16 px-4 sm:px-6 lg:px-8 relative z-10">
+
                 {/* Top Section with Newsletter */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3xl mb-xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-14 items-center">
+
                     {/* Brand Section */}
-                    <div className="animate-fade-in-up">
-                        <Link to="/" className="inline-block mb-lg bg-white/95 px-4 py-2.5 rounded-xl shadow-md transition-all duration-base hover:bg-white hover:scale-102 hover:shadow-lg">
-                            <img 
-                                src="/logo.png" 
-                                alt="SafarGo Logo" 
-                                className="h-10 w-auto object-contain" 
+                    <div>
+                        <Link
+                            to="/"
+                            className="inline-block mb-4 transition-transform duration-200 active:scale-95"
+                            aria-label="SafarGo"
+                        >
+                            <img
+                                src="/logo.png"
+                                alt="SafarGo Logo"
+                                className="h-9 w-auto object-contain brightness-0 invert"
                             />
                         </Link>
-                        <p className="text-lg leading-tight mb-lg text-white/90">
-                            Don't travel alone. Ride smarter.
+                        <p className="text-[17px] font-medium text-white/90 tracking-tight max-w-[420px] mb-2">
+                            Don't travel alone. Carpool smarter.
                         </p>
-                        {/* <div className="flex items-center gap-sm text-[13px] text-white/70">
-                            <FaShieldAlt className="text-clay text-sm" />
-                            <span>Trusted by 12,400+ travellers</span>
-                        </div> */}
+                        <p className="text-[13.5px] text-white/60 max-w-[420px] leading-relaxed">
+                            India's verified intercity carpooling network connecting travellers, halving costs, and reducing emissions.
+                        </p>
                     </div>
 
-                    {/* Newsletter Section */}
-                    <div className="animate-fade-in-up-delay">
-                        <h4 className="font-fraunces text-xl font-semibold mb-sm">Stay in the loop</h4>
-                        <p className="text-sm text-white/70 mb-lg">Get the latest updates on new routes and features</p>
-                        <div className="flex flex-col sm:flex-row gap-sm">
+                    {/* Apple Style Frosted Newsletter Pill */}
+                    <div className="bg-white/[0.06] backdrop-blur-xl p-5 sm:p-6 rounded-[24px] border border-white/10">
+                        <span className="block text-[10px] font-extrabold tracking-[0.16em] text-sage-light uppercase mb-1">
+                            STAY IN THE LOOP
+                        </span>
+                        <h4 className="text-[17px] font-bold tracking-tight text-white mb-3">
+                            Subscribe for corridor updates & travel tips
+                        </h4>
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <input
                                 type="email"
                                 value={email}
                                 disabled={subscribed}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Your email address"
-                                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-full text-sm text-white"
+                                placeholder="Enter your email"
+                                className="flex-1 px-4 py-2.5 bg-white/10 border border-white/15 rounded-full text-[13.5px] text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors"
                             />
                             {!subscribed ? (
                                 <button
-                                    className="inline-flex items-center justify-center gap-sm px-6 py-3 bg-gradient-sage border-none rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-md hover:shadow-md whitespace-nowrap"
-                                    onClick={handleSubscribe} disabled={loading}>
-                                    Subscribe
+                                    onClick={handleSubscribe}
+                                    disabled={loading}
+                                    className="px-5 py-2.5 bg-white text-forest rounded-full text-[13px] font-bold tracking-tight active:scale-95 hover:bg-white/90 transition-all duration-200 shrink-0 cursor-pointer shadow-sm disabled:opacity-50"
+                                >
+                                    {loading ? "Joining..." : "Subscribe"}
                                 </button>
                             ) : (
                                 <button
-                                    className="inline-flex items-center justify-center gap-sm px-6 py-3 bg-gradient-sage border-none rounded-full text-sm font-semibold text-forest cursor-pointer transition-all duration-base hover:translate-y-[-2px] hover:gap-md hover:shadow-md whitespace-nowrap"
-                                    onClick={handleUnsubscribe} disabled={loading}>
+                                    onClick={handleUnsubscribe}
+                                    disabled={loading}
+                                    className="px-5 py-2.5 bg-white/20 text-white rounded-full text-[13px] font-bold tracking-tight active:scale-95 hover:bg-white/30 transition-all duration-200 shrink-0 cursor-pointer"
+                                >
                                     Unsubscribe
                                 </button>
                             )}
@@ -113,137 +121,119 @@ const Footer = () => {
                     </div>
                 </div>
 
-                {/* Divider */}
-                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2xl"></div>
+                {/* Hairline Divider */}
+                <div className="h-px bg-white/10 my-10"></div>
 
-                {/* Main Columns */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2xl mb-2xl">
-                    {/* Column 1 */}
-                    {/* <div className="animate-fade-in-up">
-                        <span className="inline-block text-[10px] font-extrabold tracking-[0.15em] text-sage-light uppercase mb-md">EXPLORE</span>
-                        <h4 className="font-fraunces text-lg font-medium mb-lg text-white">Go anywhere with Safar Go</h4>
-                        <nav className="flex flex-col gap-md">
-                            <Link to="/rides" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Popular rides</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
+                {/* Navigation Links Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+                    <div>
+                        <span className="block text-[10px] font-bold tracking-[0.16em] text-white/40 uppercase mb-4">
+                            PRODUCT
+                        </span>
+                        <nav className="flex flex-col space-y-2.5 text-[13px]">
+                            <Link to="/" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Find a Ride
                             </Link>
-                            <Link to="/destinations" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Destinations</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
+                            <Link to="/offer-ride" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Publish Empty Seats
                             </Link>
-                            <Link to="/cities" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Cities we serve</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                        </nav>
-                    </div> */}
-
-                    {/* Column 2 */}
-                    {/* <div className="animate-fade-in-up">
-                        <span className="inline-block text-[10px] font-extrabold tracking-[0.15em] text-sage-light uppercase mb-md">CARPOOL ROUTES</span>
-                        <h4 className="font-fraunces text-lg font-medium mb-lg text-white">Travel with carpool</h4>
-                        <nav className="flex flex-col gap-md">
-                            <Link to="/route/ahm-srt" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Ahmedabad → Surat</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                            <Link to="/route/srt-vad" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Surat → Vadodara</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                            <Link to="/route/vls-mhs" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Valsad → Mehsana</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                            <Link to="/route/gnd-bhr" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Gandhinagar → Bharuch</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                        </nav>
-                    </div> */}
-
-                    {/* Column 3 */}
-                    <div className="animate-fade-in-up">
-                        <span className="inline-block text-[10px] font-extrabold tracking-[0.15em] text-sage-light uppercase mb-md">COMPANY</span>
-                        <h4 className="font-fraunces text-lg font-medium mb-lg text-white">Find out more</h4>
-                        <nav className="flex flex-col gap-md">
-                            <Link to="/about-us" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Who we are</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                            <Link to="/how-it-works" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">How it works?</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                            <Link to="/help" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Help Centre</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
-                            </Link>
-                            <Link to="/blog" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Our blog</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
+                            <Link to="/how-it-works" className="text-white/75 hover:text-white transition-colors no-underline">
+                                How Carpooling Works
                             </Link>
                         </nav>
                     </div>
 
-                    {/* Column 4 */}
-                    <div className="animate-fade-in-up">
-                        <span className="inline-block text-[10px] font-extrabold tracking-[0.15em] text-sage-light uppercase mb-md">LEGAL</span>
-                        <h4 className="font-fraunces text-lg font-medium mb-lg text-white">Terms & Policies</h4>
-                        <nav className="flex flex-col gap-md">
-                            <Link to="/terms" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Terms of Service</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
+                    <div>
+                        <span className="block text-[10px] font-bold tracking-[0.16em] text-white/40 uppercase mb-4">
+                            COMPANY
+                        </span>
+                        <nav className="flex flex-col space-y-2.5 text-[13px]">
+                            <Link to="/about-us" className="text-white/75 hover:text-white transition-colors no-underline">
+                                About Us
                             </Link>
-                            <Link to="/privacy" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Privacy Policy</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
+                            <Link to="/help" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Help & Support
                             </Link>
-                            <Link to="/cookies" className="inline-flex items-center justify-between gap-sm text-sm text-white/70 transition-all duration-base py-xs group">
-                                <span className="transition-transform duration-base group-hover:-translate-x-1">Cookie Policy</span>
-                                <FaArrowRight className="text-xs opacity-0 -translate-x-1 transition-all duration-base group-hover:opacity-100 group-hover:translate-x-0" />
+                            <Link to="/blog" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Travel Stories
                             </Link>
                         </nav>
                     </div>
-                </div>
 
-                {/* Divider */}
-                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2xl"></div>
+                    <div>
+                        <span className="block text-[10px] font-bold tracking-[0.16em] text-white/40 uppercase mb-4">
+                            LEGAL & TRUST
+                        </span>
+                        <nav className="flex flex-col space-y-2.5 text-[13px]">
+                            <Link to="/terms" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Terms of Service
+                            </Link>
+                            <Link to="/privacy" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Privacy Policy
+                            </Link>
+                            <Link to="/cookies" className="text-white/75 hover:text-white transition-colors no-underline">
+                                Cookie Settings
+                            </Link>
+                        </nav>
+                    </div>
 
-                {/* Bottom Section */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-lg flex-wrap">
-                    <div className="flex flex-col sm:flex-row items-center gap-md text-center sm:text-left">
-                        <FaHeadset className="text-2xl text-clay" />
-                        <div>
-                            <span className="block text-[11px] font-bold tracking-[0.1em] text-white/50 uppercase">24/7 Support</span>
+                    <div>
+                        <span className="block text-[10px] font-bold tracking-[0.16em] text-white/40 uppercase mb-4">
+                            SUPPORT
+                        </span>
+                        <div className="flex items-center gap-2.5 mb-3 text-white/80">
+                            <FaHeadset className="text-sage" />
                             <a
-                                href="mailto:safargo858@gmail.com?subject=Support Request&body=Hi SafarGo Team,"
-                                className="block text-sm font-semibold text-white hover:underline"
+                                href="mailto:safargo858@gmail.com"
+                                className="text-[13px] text-white/90 hover:underline no-underline"
                             >
                                 help@safargo.com
                             </a>
                         </div>
+                        <p className="text-[12px] text-white/50 leading-relaxed">
+                            Intercity traveller support available 7 days a week.
+                        </p>
                     </div>
+                </div>
 
-                    <div className="flex gap-md">
-                        <Link to="/" aria-label="Facebook" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white transition-all duration-base hover:bg-sage hover:-translate-y-1">
-                            <FaFacebook />
+                {/* Hairline Divider */}
+                <div className="h-px bg-white/10 my-8"></div>
+
+                {/* Bottom Bar */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[12px] text-white/50">
+                    <p>© {currentYear} SafarGo India Inc. All rights reserved.</p>
+
+                    {/* Social Pills */}
+                    <div className="flex items-center gap-2">
+                        <Link
+                            to="/"
+                            aria-label="Facebook"
+                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 flex items-center justify-center text-white/80 hover:text-white transition-all duration-150 no-underline"
+                        >
+                            <FaFacebook className="text-xs" />
                         </Link>
-                        <Link to="/" aria-label="Twitter" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white transition-all duration-base hover:bg-sage hover:-translate-y-1">
-                            <FaTwitter />
+                        <Link
+                            to="/"
+                            aria-label="Twitter"
+                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 flex items-center justify-center text-white/80 hover:text-white transition-all duration-150 no-underline"
+                        >
+                            <FaTwitter className="text-xs" />
                         </Link>
-                        <Link to="/" aria-label="YouTube" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white transition-all duration-base hover:bg-sage hover:-translate-y-1">
-                            <FaYoutube />
+                        <Link
+                            to="/"
+                            aria-label="YouTube"
+                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 flex items-center justify-center text-white/80 hover:text-white transition-all duration-150 no-underline"
+                        >
+                            <FaYoutube className="text-xs" />
                         </Link>
-                        <Link to="/" aria-label="Instagram" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white transition-all duration-base hover:bg-sage hover:-translate-y-1">
-                            <FaInstagram />
+                        <Link
+                            to="/"
+                            aria-label="Instagram"
+                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 flex items-center justify-center text-white/80 hover:text-white transition-all duration-150 no-underline"
+                        >
+                            <FaInstagram className="text-xs" />
                         </Link>
                     </div>
-
-                    <p className="flex items-center justify-center gap-xs text-[13px] text-white/50">
-                        © {currentYear} Safar Go — Crafted for the curious.
-                        <FaHeart className="text-clay text-xs animate-heartbeat" />
-                    </p>
                 </div>
             </div>
         </footer>
