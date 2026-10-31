@@ -1,3 +1,4 @@
+import SEO from '../../component/SEO';
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import { FaUser, FaCar, FaRoute, FaBell, FaWallet, FaHome, FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
@@ -49,6 +50,11 @@ const UserDashboard = () => {
     ];
 
     return (
+        <>
+            <SEO
+                title="User Dashboard"
+                noindex={true}
+            />
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Mobile sidebar toggle */}
             <button
@@ -126,6 +132,7 @@ const UserDashboard = () => {
                 <Outlet />
             </main>
         </div>
+        </>
     );
 };
 

@@ -1,3 +1,4 @@
+import SEO from '../component/SEO';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -74,6 +75,13 @@ const Help = () => {
     ];
 
     return (
+        <>
+            <SEO
+                title="Help Center & FAQs - Driver and Passenger Support"
+                description="Got questions about SafarGo? Browse our Help Center for instant answers about booking, cancellations, verification, safety guidelines, and payments."
+                keywords="SafarGo help, carpooling FAQs, rideshare support, travel assistance"
+                canonical="/help"
+            />
         <div className="font-inter bg-off-white text-charcoal">
             {/* Hero Section */}
             {/* Hero Section */}
@@ -313,6 +321,7 @@ const Help = () => {
                 </div>
             </section> */}
         </div>
+        </>
     );
 };
 

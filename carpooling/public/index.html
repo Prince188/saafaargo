@@ -6,30 +6,78 @@
   <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
   <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="SafarGo is India's trusted intercity carpooling and ridesharing platform. Find and offer carpool rides between cities, split fuel costs, and travel with verified drivers and passengers." />
-  <meta name="keywords" content="carpooling, carpool India, intercity carpool, ridesharing app, share ride, car sharing, carpool Delhi Jaipur, carpool Mumbai Pune, split fuel cost, SafarGo" />
+  <meta name="theme-color" content="#1A3A2E" />
+  <meta name="description" content="SafarGo is India's trusted intercity carpooling and ridesharing platform. Find and offer carpool rides between cities, split fuel costs, and travel comfortably with verified drivers and passengers." />
+  <meta name="keywords" content="carpooling India, intercity carpool, rideshare India, share empty car seats, car sharing app, split fuel costs, Delhi Jaipur carpool, Mumbai Pune rideshare, verified carpool drivers, SafarGo" />
   <meta name="author" content="SafarGo" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <link rel="canonical" href="https://safargo.com/" />
   
   <!-- Open Graph / Facebook / WhatsApp -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SafarGo" />
+  <meta property="og:url" content="https://safargo.com/" />
   <meta property="og:title" content="SafarGo — Intercity Carpooling & Ridesharing Platform" />
   <meta property="og:description" content="Share empty car seats, halve your travel costs, and travel comfortably between cities with verified co-travellers on SafarGo." />
-  <meta property="og:site_name" content="SafarGo" />
+  <meta property="og:image" content="https://safargo.com/logo512.png" />
+  <meta property="og:locale" content="en_IN" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://safargo.com/" />
   <meta name="twitter:title" content="SafarGo — Intercity Carpooling & Ridesharing Platform" />
   <meta name="twitter:description" content="Share empty car seats, halve your travel costs, and travel comfortably between cities with verified co-travellers on SafarGo." />
+  <meta name="twitter:image" content="https://safargo.com/logo512.png" />
 
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <title>SafarGo — Intercity Carpooling & Ridesharing in India</title>
+
+  <!-- Global Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://safargo.com/#organization",
+        "name": "SafarGo",
+        "url": "https://safargo.com",
+        "logo": "https://safargo.com/logo.png",
+        "description": "India's trusted intercity carpooling and ridesharing platform connecting drivers with empty seats to verified passengers.",
+        "sameAs": [
+          "https://facebook.com/safargo",
+          "https://twitter.com/safargo",
+          "https://instagram.com/safargo"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "help@safargo.com",
+          "contactType": "customer service",
+          "areaServed": "IN"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://safargo.com/#website",
+        "url": "https://safargo.com",
+        "name": "SafarGo",
+        "publisher": {
+          "@id": "https://safargo.com/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://safargo.com/search?from={search_term_from}&to={search_term_to}",
+          "query-input": "required name=search_term_from"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
-  
 </body>
 
 </html>

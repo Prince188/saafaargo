@@ -1,3 +1,33 @@
+# SafarGo Search Engine Crawlability Rules
 # https://www.robotstxt.org/robotstxt.html
+
 User-agent: *
-Disallow:
+# Allow public discoverable marketing & booking routes
+Allow: /
+Allow: /search
+Allow: /offer-ride
+Allow: /About-us
+Allow: /how-it-works
+Allow: /help
+Allow: /contact
+Allow: /blog
+Allow: /terms
+Allow: /privacy
+Allow: /login
+Allow: /register
+
+# Disallow private user portals, auth flows, & admin endpoints
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /my-rides
+Disallow: /my-trips
+Disallow: /vehicle/
+Disallow: /edit-ride/
+Disallow: /notifications
+Disallow: /verify-otp
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Sitemap location
+Sitemap: https://safargo.com/sitemap.xml

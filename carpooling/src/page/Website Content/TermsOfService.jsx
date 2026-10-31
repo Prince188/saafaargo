@@ -1,3 +1,4 @@
+import SEO from '../../component/SEO';
 // src/pages/TermsOfService.jsx
 import React, {  useState } from "react";
 import { Link } from "react-router-dom";
@@ -35,6 +36,12 @@ const TermsOfService = () => {
     // ];
 
     return (
+        <>
+            <SEO
+                title="Terms of Service"
+                description="Review the terms and conditions for using SafarGo's ridesharing and carpooling platform."
+                canonical="/terms"
+            />
         <div className="min-h-screen bg-off-white font-inter">
             {/* Hero Section */}
             <div className="relative bg-gradient-hero py-3xl overflow-hidden">
@@ -436,6 +443,7 @@ const TermsOfService = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

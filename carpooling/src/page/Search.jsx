@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import SEO from "../component/SEO";
 import {
     FaArrowRight,
     FaStar,
@@ -280,8 +281,33 @@ const Search = () => {
         </div>
     );
 
+    const pickupCity = from?.city || extractCity(from);
+    const dropCity = to?.city || extractCity(to);
+    const pageTitle = pickupCity && dropCity ? `${pickupCity} to ${dropCity} Carpool Rides` : "Search Verified Carpool Rides";
+    const pageDescription = pickupCity && dropCity 
+        ? `Book verified carpool rides from ${pickupCity} to ${dropCity}. Compare seat fares, departure timings, and travel safely with verified co-passengers.`
+        : "Find and compare verified intercity carpool rides across India with SafarGo.";
+
     return (
         <div className="min-h-screen bg-[#F8FAF9] text-[#1D1D1F] font-sans py-8 sm:py-12 selection:bg-forest selection:text-white">
+            <SEO
+                title={pageTitle}
+                description={pageDescription}
+                keywords={[
+                    `${pickupCity} to ${dropCity} carpool`,
+                    `${pickupCity} ${dropCity} ride share`,
+                    "intercity carpool search",
+                    "verified drivers India",
+                    "SafarGo search"
+                ]}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "SearchResultsPage",
+                    "name": pageTitle,
+                    "description": pageDescription,
+                    "url": "https://safargo.com/search"
+                }}
+            />
             <div className="max-w-[1140px] mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Back to Search Pill Button */}

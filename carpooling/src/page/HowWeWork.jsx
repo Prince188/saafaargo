@@ -1,3 +1,4 @@
+import SEO from '../component/SEO';
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight, FaChevronDown, FaChevronUp, FaCar, FaUser, FaQuestionCircle, FaShieldAlt, FaMoneyBillWave, FaEdit, FaTimesCircle, FaSearch, FaInfoCircle, FaComments, FaStar, FaUsers } from "react-icons/fa";
@@ -82,6 +83,18 @@ const HowWeWork = () => {
 
     return (
         <div className="font-inter bg-off-white text-charcoal">
+            <SEO
+                title="How It Works - Simple Carpooling Guide"
+                description="Understand how SafarGo works: Find rides, book seats, verify identity, share travel expenses, and publish empty car seats securely across India."
+                keywords="how carpooling works, rideshare guide, publish ride, book seat, verified drivers, SafarGo help"
+                canonical="/how-it-works"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "HowTo",
+                    "name": "How SafarGo Carpooling Works",
+                    "description": "Step-by-step guide on how to search, book, and offer rides on SafarGo."
+                }}
+            />
             {/* Hero Section */}
             {/* Hero Section */}
             <section className="relative min-h-screen flex items-center overflow-hidden isolate">

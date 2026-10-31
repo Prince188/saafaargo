@@ -1,3 +1,4 @@
+import SEO from '../component/SEO';
 import React, { useState } from "react";
 import API from "../api/api";
 import { showError, showSuccess } from "../utils/toastConfig";
@@ -103,6 +104,18 @@ const ContactUs = () => {
     const selectedCategory = categories.find(c => c.id === formData.category);
 
     return (
+        <>
+            <SEO
+                title="Contact Us - 24/7 Carpooling & Rider Support"
+                description="Get in touch with the SafarGo team. We are here 24/7 to help you with ride queries, technical support, corporate partnerships, or community feedback."
+                keywords="contact SafarGo, carpooling customer care, rideshare support India"
+                canonical="/contact"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "ContactPage",
+                    "name": "Contact SafarGo Support"
+                }}
+            />
         <div className="min-h-screen bg-[#f8f6ef] font-inter py-14 px-4">
             <div className="max-w-3xl mx-auto">
 
@@ -309,6 +322,7 @@ const ContactUs = () => {
                 </div> */}
             </div>
         </div>
+        </>
     );
 };
 

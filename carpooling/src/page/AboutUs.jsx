@@ -1,9 +1,22 @@
+import SEO from '../component/SEO';
 import { FaArrowRight, FaDollarSign, FaLeaf, FaStar, FaUsers, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const AboutUs = () => {
     return (
         <div className="font-inter bg-off-white text-charcoal">
+            <SEO
+                title="About Us - Community Ridesharing & Carpooling"
+                description="Learn about SafarGo's mission to make intercity travel in India affordable, safe, and sustainable through verified carpooling."
+                keywords="about SafarGo, carpooling mission, verified rideshare India, sustainable travel"
+                canonical="/About-us"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "AboutPage",
+                    "name": "About SafarGo",
+                    "description": "Learn about SafarGo's mission to make intercity travel affordable, eco-friendly, and social."
+                }}
+            />
             {/* Hero Section */}
             <section className="relative min-h-[90vh] flex items-center overflow-hidden isolate">
                 {/* Background elements */}

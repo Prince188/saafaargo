@@ -1,3 +1,4 @@
+import SEO from '../../component/SEO';
 // src/page/Website Content/PrivacyPolicy.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -56,6 +57,12 @@ const PrivacyPolicy = () => {
     ];
 
     return (
+        <>
+            <SEO
+                title="Privacy Policy"
+                description="Learn how SafarGo protects your personal data, ridesharing privacy, and transaction security."
+                canonical="/privacy"
+            />
         <div className="min-h-screen bg-off-white font-inter">
             {/* Hero Section */}
             <div className="relative bg-gradient-hero py-3xl overflow-hidden">
@@ -604,6 +611,7 @@ const PrivacyPolicy = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

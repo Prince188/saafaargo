@@ -1,3 +1,4 @@
+import SEO from '../../component/SEO';
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import API from "../../api/api";
@@ -101,6 +102,17 @@ const BlogDetails = () => {
 
     return (
         <div className="min-h-screen bg-off-white font-inter">
+            <SEO
+                title={blog?.title || "Blog Article"}
+                description={blog?.summary || blog?.description || "Read insights and stories from the SafarGo Carpooling community."}
+                canonical={blog?._id ? `/blog/${blog._id}` : "/blog"}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "BlogPosting",
+                    "headline": blog?.title || "SafarGo Blog Post",
+                    "description": blog?.summary || "SafarGo carpooling guide"
+                }}
+            />
             {/* Hero Section with Featured Image */}
             <div className="relative w-full aspect-[1440/522] overflow-hidden">
                 {blog.image ? (

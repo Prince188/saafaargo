@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import SEO from "../component/SEO";
 import {
     FaMapPin,
     FaCalendar,
@@ -200,6 +201,28 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-[#F8FAF9] text-[#1D1D1F] overflow-hidden font-sans selection:bg-forest selection:text-white">
+            <SEO
+                title="Intercity Carpooling & Verified Ridesharing in India"
+                description="SafarGo is India's trusted intercity carpooling platform. Share empty car seats, halve travel costs, and ride with verified co-travellers across India."
+                keywords={[
+                    "carpooling India",
+                    "intercity carpool",
+                    "rideshare India",
+                    "share empty car seats",
+                    "split fuel costs",
+                    "verified carpool drivers",
+                    "Delhi Jaipur carpool",
+                    "Mumbai Pune rideshare",
+                    "SafarGo"
+                ]}
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "WebPage",
+                    "name": "SafarGo — Intercity Carpooling & Ridesharing in India",
+                    "description": "Share empty car seats, halve your travel costs, and connect with trusted co-travellers on every highway route across India.",
+                    "url": "https://safargo.com/"
+                }}
+            />
 
             {/* HERO SECTION - Apple Spatial Feel */}
             <section className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden">

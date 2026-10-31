@@ -1,3 +1,4 @@
+import SEO from '../component/SEO';
 import React, { useState } from "react";
 import {
     HiOutlineChatAlt2,
@@ -65,6 +66,13 @@ const OfferRide = () => {
     };
 
     return (
+        <>
+            <SEO
+                title="Offer a Ride - Share Empty Car Seats & Cut Travel Costs"
+                description="Publish your intercity ride on SafarGo. Connect with verified passengers heading your way, share fuel costs, and make your trip economical."
+                keywords="offer ride, publish carpool, share car seats, driver rideshare India, carpooling driver"
+                canonical="/offer-ride"
+            />
         <div className="font-inter bg-off-white text-charcoal">
             {/* Hero Section */}
             <section className="relative overflow-hidden py-3xl">
@@ -341,6 +349,7 @@ const OfferRide = () => {
                 </div>
             </section>
         </div>
+        </>
     );
 };
 

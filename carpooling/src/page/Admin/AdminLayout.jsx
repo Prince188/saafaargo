@@ -1,3 +1,4 @@
+import SEO from '../../component/SEO';
 import {  useAuth } from "../../utils/AuthContext";
 import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
@@ -36,6 +37,11 @@ const AdminLayout = () => {
     };
 
     return (
+        <>
+            <SEO
+                title="Admin Control Center"
+                noindex={true}
+            />
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
 
             {/* Mobile menu button */}
@@ -132,6 +138,7 @@ const AdminLayout = () => {
                 </div>
             </main>
         </div>
+        </>
     );
 };
 

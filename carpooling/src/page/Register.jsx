@@ -1,3 +1,4 @@
+import SEO from '../component/SEO';
 import React, { useState } from 'react';
 import {
     IoEyeOutline,
@@ -83,6 +84,12 @@ const RegisterPage = () => {
     };
 
     return (
+        <>
+            <SEO
+                title="Sign Up for SafarGo - Join India's Carpooling Community"
+                description="Create a free SafarGo account today. Find affordable shared rides or share empty seats with verified community members across Indian cities."
+                canonical="/register"
+            />
         <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center relative overflow-hidden py-12 px-4 selection:bg-forest selection:text-white">
             {/* Ambient Diffuse Lights */}
             <div className="absolute w-[450px] h-[450px] rounded-full bg-sage-light/30 blur-[120px] pointer-events-none -top-[100px] -right-[100px] animate-float"></div>
@@ -297,6 +304,7 @@ const RegisterPage = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

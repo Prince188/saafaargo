@@ -1,3 +1,4 @@
+import SEO from '../../component/SEO';
 import React, { useEffect, useState } from "react";
 import API from "../../api/api";
 import { Link } from "react-router-dom";
@@ -60,6 +61,18 @@ const Blogs = () => {
     };
 
     return (
+        <>
+            <SEO
+                title="Carpooling Blog & Travel Stories"
+                description="Explore tips, road trip stories, sustainability advice, and safe travel guides from SafarGo's carpooling community."
+                keywords="carpooling blog, rideshare tips India, sustainable commuting, travel guides"
+                canonical="/blog"
+                schema={{
+                    "@context": "https://schema.org",
+                    "@type": "Blog",
+                    "name": "SafarGo Carpooling & Travel Blog"
+                }}
+            />
         <div className="min-h-screen bg-off-white font-inter">
             {/* Hero Section */}
             <div className="relative bg-gradient-hero py-3xl overflow-hidden">
@@ -224,6 +237,7 @@ const Blogs = () => {
                 </div> */}
             </div>
         </div>
+        </>
     );
 }; 
 

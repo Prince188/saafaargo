@@ -1,3 +1,4 @@
+import SEO from '../component/SEO';
 import React, { useState } from 'react';
 import {
     IoEyeOutline,
@@ -61,6 +62,12 @@ const LoginPage = () => {
     };
 
     return (
+        <>
+            <SEO
+                title="Log In to SafarGo - Access Your Rides & Bookings"
+                description="Log in to your SafarGo account to manage your carpool bookings, publish trips, view messages, and track your travel history."
+                canonical="/login"
+            />
         <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center relative overflow-hidden py-12 px-4 selection:bg-forest selection:text-white">
             {/* Apple Ambient Soft Diffuse Lights */}
             <div className="absolute w-[450px] h-[450px] rounded-full bg-sage-light/30 blur-[120px] pointer-events-none -top-[100px] -right-[100px] animate-float"></div>
@@ -192,6 +199,7 @@ const LoginPage = () => {
                 onClose={() => setShowBlockedModal(false)}
             />
         </div>
+        </>
     );
 };
 
