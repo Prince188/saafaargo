@@ -15,6 +15,10 @@ import {
     FaClock,
     FaShieldAlt,
     FaEnvelope,
+    FaUserFriends,
+    FaDog,
+    FaSmokingBan,
+    FaMusic,
 } from "react-icons/fa";
 
 import { MdRoute } from "react-icons/md";
@@ -65,6 +69,16 @@ const Search = () => {
         if (typeof value === "object" && value.city) return value.city;
         const parts = value.split(",").map(p => p.trim());
         return parts.length >= 3 ? parts[parts.length - 3] : value;
+    };
+
+    const formatDuration = (minutes) => {
+        if (!minutes || isNaN(minutes)) return null;
+        const h = Math.floor(minutes / 60);
+        const m = Math.round(minutes % 60);
+        if (h > 0) {
+            return m > 0 ? `${h}h ${m}m` : `${h}h`;
+        }
+        return `${m}m`;
     };
 
     const openDriverGmail = (e, driverEmail, driverName) => {
@@ -264,18 +278,35 @@ const Search = () => {
     }, [date]);
 
     const SkeletonCard = () => (
-        <div className="bg-white/80 backdrop-blur-xl rounded-[26px] p-6 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.03)] animate-pulse">
-            <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1 space-y-3">
-                    <div className="h-4 bg-black/[0.05] rounded-full w-1/3"></div>
-                    <div className="h-6 bg-black/[0.05] rounded-xl w-2/3"></div>
+        <div className="bg-white/95 backdrop-blur-2xl rounded-[28px] p-6 sm:p-7 border border-black/[0.05] shadow-[0_4px_24px_rgba(0,0,0,0.03)] animate-pulse">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+                <div className="w-full lg:w-[38%] space-y-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full bg-black/[0.08]" />
+                        <div className="h-5 bg-black/[0.06] rounded-xl w-1/2" />
+                    </div>
+                    <div className="h-4 bg-black/[0.04] rounded-full w-1/3 ml-7" />
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full bg-black/[0.08]" />
+                        <div className="h-5 bg-black/[0.06] rounded-xl w-2/3" />
+                    </div>
                 </div>
-                <div className="flex-1 space-y-3">
-                    <div className="h-12 w-12 bg-black/[0.05] rounded-2xl"></div>
+                <div className="hidden lg:block w-[1px] h-20 bg-black/[0.05]" />
+                <div className="w-full lg:w-[35%] flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-[20px] bg-black/[0.08] shrink-0" />
+                    <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-black/[0.06] rounded-xl w-3/4" />
+                        <div className="h-3 bg-black/[0.04] rounded-full w-1/2" />
+                        <div className="h-3 bg-black/[0.04] rounded-full w-2/3" />
+                    </div>
                 </div>
-                <div className="w-32 space-y-2">
-                    <div className="h-8 bg-black/[0.05] rounded-xl"></div>
-                    <div className="h-10 bg-black/[0.05] rounded-full"></div>
+                <div className="hidden lg:block w-[1px] h-20 bg-black/[0.05]" />
+                <div className="w-full lg:w-[24%] flex lg:flex-col items-center lg:items-end justify-between gap-3">
+                    <div className="space-y-1.5 lg:text-right">
+                        <div className="h-7 bg-black/[0.07] rounded-xl w-20" />
+                        <div className="h-3 bg-black/[0.04] rounded-full w-16" />
+                    </div>
+                    <div className="h-10 bg-black/[0.08] rounded-full w-28" />
                 </div>
             </div>
         </div>
@@ -604,148 +635,239 @@ const Search = () => {
                     </div>
                 )}
 
-                {/* Ride Cards List (Apple Wallet Style) */}
+                {/* Ride Cards List (Apple Transit & Wallet Style) */}
                 {!loading && !error && filteredRides.length > 0 && (
-                    <div className="space-y-4">
-                        {filteredRides.map((ride) => (
-                            <div
-                                key={ride._id}
-                                className="bg-white/95 backdrop-blur-2xl rounded-[28px] overflow-hidden border border-black/[0.05] shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col lg:flex-row"
-                            >
-                                {/* Section 1: iOS Transport Timeline */}
-                                <div className="lg:w-1/3 p-6 sm:p-7 border-b lg:border-b-0 lg:border-r border-black/[0.04] flex flex-col justify-center">
-                                    <div className="relative pl-6 space-y-5">
-                                        
-                                        {/* Vertical Timeline Track */}
-                                        <div className="absolute top-2 bottom-2 left-2 w-0.5 bg-black/[0.08] -translate-x-1/2"></div>
+                    <div className="space-y-4 sm:space-y-5">
+                        {filteredRides.map((ride) => {
+                            const effectivePrice =
+                                ride.segmentPrice != null
+                                    ? Math.ceil(ride.segmentPrice / ((ride.totalSeats || ride.seats || 1) + 1))
+                                    : 119;
+                            const distance = ride.segmentDistanceKm || ride.totalDistanceKm || ride.distanceKm || 79;
+                            const duration = formatDuration(ride.segmentDurationMinutes);
+                            const driverFullName =
+                                `${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.trim() || "Verified Driver";
+                            const seatsLeft = ride.seatsAvailable ?? 1;
 
-                                        {/* Pickup Node */}
-                                        <div className="relative">
-                                            <div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-white border-2 border-forest shadow-sm -translate-x-1/2"></div>
-                                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.14em] block mb-0.5">
-                                                PICKUP
-                                            </span>
-                                            <div className="flex items-center justify-between gap-2">
-                                                <h4 className="text-[15px] font-bold text-[#1D1D1F]">
-                                                    {from?.city || extractCity(from)}
-                                                </h4>
-                                                <span className="text-[12px] font-semibold text-forest bg-sage/15 px-2.5 py-0.5 rounded-full">
-                                                    {ride.userPickupTime || "10:00 AM"}
-                                                </span>
-                                            </div>
-                                        </div>
+                            return (
+                                <div
+                                    key={ride._id}
+                                    onClick={() =>
+                                        navigate(`/rides/${ride._id}`, {
+                                            state: { ride, from, to, seats },
+                                        })
+                                    }
+                                    className="group relative bg-white/95 backdrop-blur-2xl rounded-[26px] sm:rounded-[30px] border border-black/[0.06] shadow-[0_2px_14px_rgba(0,0,0,0.03),0_8px_30px_rgba(26,58,46,0.04)] hover:shadow-[0_16px_40px_rgba(26,58,46,0.09)] transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden active:scale-[0.995]"
+                                >
+                                    <div className="p-5 sm:p-7 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                                        {/* 1. iOS Transit Route Timeline (Apple Maps Transit Style) */}
+                                        <div className="lg:w-[38%] flex-1">
+                                            <div className="relative pl-7 sm:pl-8 space-y-5">
+                                                {/* Connecting Transit Line */}
+                                                <div className="absolute left-[9px] top-3 bottom-3 w-[2px] bg-gradient-to-b from-forest via-forest/30 to-amber-500 rounded-full" />
 
-                                        {/* Drop Node */}
-                                        <div className="relative">
-                                            <div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-white border-2 border-amber-500 shadow-sm -translate-x-1/2"></div>
-                                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.14em] block mb-0.5">
-                                                DESTINATION
-                                            </span>
-                                            <div className="flex items-center justify-between gap-2">
-                                                <h4 className="text-[15px] font-bold text-[#1D1D1F]">
-                                                    {to?.city || extractCity(to)}
-                                                </h4>
-                                                <span className="text-[12px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">
-                                                    {ride.userDropTime || "01:30 PM"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Section 2: Driver & Vehicle Card */}
-                                <div className="lg:w-5/12 p-6 sm:p-7 flex flex-col justify-center bg-black/[0.015]">
-                                    <div className="flex items-center gap-3.5 mb-5">
-                                        <div className="relative shrink-0">
-                                            <img
-                                                src={
-                                                    ride.user?.profilePic ||
-                                                    `https://ui-avatars.com/api/?name=${ride.user?.firstName}+${ride.user?.lastName}&background=1A3A2E&color=fff&rounded=true&size=64&bold=true`
-                                                }
-                                                alt="Driver"
-                                                className="w-13 h-13 rounded-2xl object-cover border border-black/[0.06] shadow-sm"
-                                            />
-                                            <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white shadow-sm" title="Active"></div>
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-[15.5px] font-bold text-[#1D1D1F] tracking-tight truncate">
-                                                {`${ride.user?.firstName || ""} ${ride.user?.lastName || ""}`.trim() || "Verified Driver"}
-                                            </h3>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                <div className="flex items-center text-amber-500 text-xs">
-                                                    <FaStar />
+                                                {/* Departure Info */}
+                                                <div className="relative">
+                                                    <div className="absolute -left-7 sm:-left-8 top-1 w-4 h-4 rounded-full bg-white border-[3px] border-forest shadow-sm flex items-center justify-center">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-forest" />
+                                                    </div>
+                                                    <div className="flex items-baseline justify-between gap-3">
+                                                        <span className="text-[17px] sm:text-[18px] font-bold text-[#1D1D1F] tracking-tight">
+                                                            {ride.userPickupTime || "10:00 AM"}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold text-forest uppercase tracking-[0.14em] bg-forest/5 px-2.5 py-0.5 rounded-full border border-forest/10">
+                                                            DEPARTURE
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[14px] font-semibold text-[#444] mt-0.5 truncate">
+                                                        {from?.city || extractCity(from)}
+                                                    </p>
                                                 </div>
-                                                <span className="text-[13px] font-bold text-[#1D1D1F]">
-                                                    {ride.user?.rating || "4.9"}
-                                                </span>
-                                                <span className="text-[12px] text-stone-400">• Verified</span>
+
+                                                {/* Transit Distance & Duration Capsule */}
+                                                <div className="my-1 pl-1">
+                                                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.03] border border-black/[0.04] text-[11px] font-semibold text-stone-500">
+                                                        <FaClock className="text-[10px] text-stone-400" />
+                                                        <span>
+                                                            {duration ? `${duration} · ` : ""}
+                                                            {distance} km
+                                                        </span>
+                                                    </span>
+                                                </div>
+
+                                                {/* Arrival Info */}
+                                                <div className="relative">
+                                                    <div className="absolute -left-7 sm:-left-8 top-1 w-4 h-4 rounded-full bg-white border-[3px] border-amber-500 shadow-sm flex items-center justify-center">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                    </div>
+                                                    <div className="flex items-baseline justify-between gap-3">
+                                                        <span className="text-[17px] sm:text-[18px] font-bold text-[#1D1D1F] tracking-tight">
+                                                            {ride.userDropTime || "01:30 PM"}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold text-amber-700 uppercase tracking-[0.14em] bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                                                            ARRIVAL
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[14px] font-semibold text-[#444] mt-0.5 truncate">
+                                                        {to?.city || extractCity(to)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Subtle Divider (Desktop vertical / Mobile horizontal) */}
+                                        <div className="hidden lg:block w-[1px] self-stretch bg-black/[0.06]" />
+                                        <div className="block lg:hidden h-[1px] w-full bg-black/[0.05]" />
+
+                                        {/* 2. Driver & Vehicle Profile (Apple Contact Card Style) */}
+                                        <div className="lg:w-[35%] flex flex-col justify-center">
+                                            <div className="flex items-start gap-3.5 mb-3.5">
+                                                {/* Avatar */}
+                                                <div className="relative shrink-0">
+                                                    <img
+                                                        src={
+                                                            ride.user?.profilePic ||
+                                                            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                                                driverFullName
+                                                            )}&background=1A3A2E&color=fff&rounded=true&size=80&bold=true`
+                                                        }
+                                                        alt={driverFullName}
+                                                        className="w-13 h-13 sm:w-14 sm:h-14 rounded-[20px] object-cover border border-black/[0.08] shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                                                    />
+                                                    <span
+                                                        className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-sm"
+                                                        title="Active Driver"
+                                                    />
+                                                </div>
+
+                                                {/* Driver Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <h3 className="text-[15.5px] sm:text-[16px] font-bold text-[#1D1D1F] tracking-tight truncate">
+                                                            {driverFullName}
+                                                        </h3>
+                                                        <FaCheckCircle
+                                                            className="text-forest text-[13px] shrink-0"
+                                                            title="Verified Driver"
+                                                        />
+                                                    </div>
+
+                                                    {/* Rating & Car Details */}
+                                                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                        <div className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-800 px-2 py-0.5 rounded-full border border-amber-500/20 text-[11.5px] font-bold">
+                                                            <FaStar className="text-amber-500 text-[10px]" />
+                                                            <span>{ride.user?.rating || "4.9"}</span>
+                                                        </div>
+                                                        {ride.car && (
+                                                            <span className="inline-flex items-center gap-1 text-[12px] font-medium text-stone-600 bg-black/[0.03] px-2.5 py-0.5 rounded-full border border-black/[0.04] truncate max-w-[150px]">
+                                                                <FaCar className="text-[10px] text-stone-400" />
+                                                                <span>
+                                                                    {ride.car.brand} {ride.car.model}
+                                                                </span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Gmail Inquiry Action Pill */}
+                                                    {ride.user?.email && (
+                                                        <div className="mt-2.5">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) =>
+                                                                    openDriverGmail(e, ride.user.email, ride.user.firstName)
+                                                                }
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white hover:bg-forest/5 text-forest border border-forest/20 shadow-sm text-[11.5px] font-semibold transition-all duration-200 active:scale-95 cursor-pointer hover:border-forest/40"
+                                                                title="Inquire via Gmail"
+                                                            >
+                                                                <FaEnvelope className="text-[10.5px]" />
+                                                                <span className="truncate max-w-[150px] sm:max-w-[180px]">
+                                                                    {ride.user.email}
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            {/* Gmail Inquiry Pill */}
-                                            {ride.user?.email && (
-                                                <button
-                                                    onClick={(e) => openDriverGmail(e, ride.user.email, ride.user.firstName)}
-                                                    className="inline-flex items-center gap-1.5 text-[11px] text-forest hover:text-forest bg-white hover:bg-forest/5 px-2.5 py-1 rounded-full border border-black/[0.06] shadow-sm mt-1.5 cursor-pointer active:scale-95 transition-all"
-                                                    title="Send email inquiry via Gmail"
-                                                >
-                                                    <FaEnvelope className="text-[10px]" />
-                                                    <span className="truncate max-w-[140px]">{ride.user.email}</span>
-                                                </button>
+                                            {/* Preference Badges (Micro Apple Chips) */}
+                                            {ride.preferences && (
+                                                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                    {ride.preferences.womenOnly && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200/60 text-[10.5px] font-medium">
+                                                            <FaUserFriends className="text-[9px]" />
+                                                            <span>Women only</span>
+                                                        </span>
+                                                    )}
+                                                    {ride.preferences.noSmoking && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/[0.03] text-stone-600 border border-black/[0.04] text-[10.5px] font-medium">
+                                                            <FaSmokingBan className="text-[9px]" />
+                                                            <span>No smoking</span>
+                                                        </span>
+                                                    )}
+                                                    {ride.preferences.noPets && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/[0.03] text-stone-600 border border-black/[0.04] text-[10.5px] font-medium">
+                                                            <FaDog className="text-[9px]" />
+                                                            <span>No pets</span>
+                                                        </span>
+                                                    )}
+                                                    {ride.preferences.musicFriendly && (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/[0.03] text-stone-600 border border-black/[0.04] text-[10.5px] font-medium">
+                                                            <FaMusic className="text-[9px]" />
+                                                            <span>Music friendly</span>
+                                                        </span>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Vehicle & Distance Pills */}
-                                    <div className="grid grid-cols-2 gap-2.5">
-                                        <div className="bg-white p-2.5 rounded-xl border border-black/[0.04] shadow-sm">
-                                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
-                                                VEHICLE
-                                            </span>
-                                            <p className="text-[12.5px] font-bold text-[#1D1D1F] truncate">
-                                                {ride.car?.brand} {ride.car?.model}
-                                            </p>
-                                        </div>
-                                        <div className="bg-white p-2.5 rounded-xl border border-black/[0.04] shadow-sm">
-                                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
-                                                DISTANCE
-                                            </span>
-                                            <p className="text-[12.5px] font-bold text-[#1D1D1F]">
-                                                {ride.segmentDistanceKm || ride.totalDistanceKm || ride.distanceKm || 79} km
-                                            </p>
+                                        {/* Subtle Divider (Desktop vertical / Mobile horizontal) */}
+                                        <div className="hidden lg:block w-[1px] self-stretch bg-black/[0.06]" />
+                                        <div className="block lg:hidden h-[1px] w-full bg-black/[0.05]" />
+
+                                        {/* 3. Fare & Primary Booking Action (Apple Wallet Style) */}
+                                        <div className="lg:w-[24%] flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-4">
+                                            <div className="text-left lg:text-right">
+                                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.16em] block mb-0.5">
+                                                    PER SEAT
+                                                </span>
+                                                <div className="flex items-baseline lg:justify-end gap-1">
+                                                    <span className="text-2xl sm:text-[30px] font-extrabold text-[#1D1D1F] tracking-tight">
+                                                        ₹{effectivePrice}
+                                                    </span>
+                                                </div>
+                                                <div className="mt-1">
+                                                    {seatsLeft <= 1 ? (
+                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                                            <span>Only 1 seat left</span>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 text-[11px] font-semibold">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                            <span>{seatsLeft} seats left</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/rides/${ride._id}`, {
+                                                        state: { ride, from, to, seats },
+                                                    });
+                                                }}
+                                                className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 rounded-full bg-gradient-primary hover:opacity-95 text-white text-[13.5px] font-bold tracking-tight shadow-[0_4px_16px_rgba(26,58,46,0.22)] hover:shadow-[0_8px_24px_rgba(26,58,46,0.3)] active:scale-[0.96] transition-all duration-200 shrink-0 cursor-pointer group/btn"
+                                            >
+                                                <span>Select Ride</span>
+                                                <FaArrowRight className="text-[11px] transition-transform duration-200 group-hover/btn:translate-x-1" />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Section 3: Fare & Primary Action */}
-                                <div className="lg:w-1/4 p-6 sm:p-7 flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center border-t lg:border-t-0 border-black/[0.04] gap-4">
-                                    <div className="text-left lg:text-right">
-                                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.16em] block mb-0.5">
-                                            PER SEAT
-                                        </span>
-                                        <span className="text-3xl font-extrabold text-[#1D1D1F] tracking-tight">
-                                            {ride.segmentPrice != null
-                                                ? `₹${Math.ceil(ride.segmentPrice / ((ride.totalSeats || ride.seats || 1) + 1))}`
-                                                : "₹119"}
-                                        </span>
-                                        <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-forest/5 text-forest text-[11px] font-semibold">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-forest"></span>
-                                            <span>{ride.seatsAvailable} seat{ride.seatsAvailable !== 1 ? "s" : ""} left</span>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() =>
-                                            navigate(`/rides/${ride._id}`, { state: { ride, from, to, seats } })
-                                        }
-                                        className="bg-gradient-primary hover:opacity-95 text-white font-semibold text-[13.5px] py-3 px-5 sm:px-6 rounded-full transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(26,58,46,0.22)] shrink-0 cursor-pointer group"
-                                    >
-                                        <span>Select Ride</span>
-                                        <FaArrowRight className="text-xs transition-transform duration-200 group-hover:translate-x-1" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
