@@ -169,13 +169,19 @@ const MyRide = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#F8FAF9] font-sans py-8 sm:py-12 px-4 sm:px-8">
+            <div className="min-h-screen bg-[#F8FAF9] font-sans antialiased py-8 sm:py-10 px-4 sm:px-8">
                 <div className="max-w-[1140px] mx-auto">
-                    <div className="text-center mb-8">
-                        <div className="h-4 bg-black/[0.05] rounded-full w-28 mx-auto mb-3 animate-pulse" />
-                        <div className="h-8 bg-black/[0.05] rounded-2xl w-56 mx-auto mb-2 animate-pulse" />
-                        <div className="h-4 bg-black/[0.03] rounded-full w-72 mx-auto animate-pulse" />
+                    {/* Header Shimmer */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 text-center sm:text-left">
+                        <div className="space-y-2">
+                            <div className="skeleton w-36 h-6 rounded-full" />
+                            <div className="skeleton w-60 h-9 rounded-2xl" />
+                            <div className="skeleton w-72 h-4 rounded-md" />
+                        </div>
+                        <div className="skeleton w-44 h-11 rounded-full" />
                     </div>
+
+                    {/* Grid of Ride Cards Shimmer */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {[1, 2, 3, 4].map((i) => (
                             <RideCardSkeleton key={i} />

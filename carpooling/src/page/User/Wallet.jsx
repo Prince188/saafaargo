@@ -95,30 +95,51 @@ const Wallet = () => {
         },
     ];
 
-    const SkeletonCard = () => (
-        <div className="bg-white/95 backdrop-blur-2xl rounded-[26px] border border-black/[0.05] p-6 shadow-sm animate-pulse">
-            <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-[16px] bg-black/[0.06]" />
-                <div className="h-4 bg-black/[0.06] rounded-xl w-24" />
-            </div>
-            <div className="h-8 bg-black/[0.06] rounded-xl w-32 mb-2" />
-            <div className="h-3 bg-black/[0.03] rounded-full w-24" />
-        </div>
-    );
-
     if (loading) {
         return (
             <div className="min-h-screen bg-[#F8FAF9] font-sans antialiased py-8 sm:py-10 px-4 sm:px-8">
-                <div className="max-w-5xl mx-auto space-y-6">
-                    <div className="mb-8">
-                        <div className="h-4 bg-black/[0.05] rounded-full w-24 mb-2 animate-pulse" />
-                        <div className="h-8 bg-black/[0.05] rounded-2xl w-48 mb-1 animate-pulse" />
+                <div className="max-w-5xl mx-auto">
+                    {/* Header Shimmer */}
+                    <div className="pb-6 mb-8 border-b border-black/[0.05]">
+                        <div className="skeleton w-36 h-6 rounded-full mb-2.5" />
+                        <div className="skeleton w-64 h-9 rounded-2xl mb-1.5" />
+                        <div className="skeleton w-96 max-w-full h-4 rounded-md" />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <SkeletonCard />
-                        <SkeletonCard />
-                        <SkeletonCard />
-                        <SkeletonCard />
+
+                    {/* 4 Apple Wallet Stats Tiles Shimmer */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div
+                                key={i}
+                                className="bg-white/95 backdrop-blur-2xl rounded-[26px] border border-black/[0.06] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between overflow-hidden"
+                            >
+                                <div>
+                                    <div className="flex items-center gap-3 mb-3.5">
+                                        <div className="skeleton w-11 h-11 rounded-[16px] shrink-0" />
+                                        <div className="skeleton w-24 h-4 rounded-md" />
+                                    </div>
+                                    <div className="skeleton w-28 h-8 rounded-xl mb-1" />
+                                </div>
+                                <div className="skeleton w-32 h-3.5 rounded-full mt-3 pt-2" />
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Eco & Community Impact Pass Shimmer */}
+                    <div className="bg-gradient-to-br from-forest via-[#1E4334] to-[#12281F] rounded-[30px] p-6 sm:p-8 text-white shadow-[0_12px_36px_rgba(26,58,46,0.18)] relative overflow-hidden">
+                        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                            <div className="max-w-lg w-full space-y-3">
+                                <div className="skeleton-dark w-44 h-6 rounded-full" />
+                                <div className="skeleton-dark w-64 h-7 rounded-xl" />
+                                <div className="skeleton-dark w-full h-4 rounded-md" />
+                                <div className="skeleton-dark w-3/4 h-4 rounded-md" />
+                            </div>
+                            <div className="sm:text-right bg-white/10 backdrop-blur-xl p-4 sm:p-5 rounded-[22px] border border-white/15 min-w-[180px] w-full sm:w-auto space-y-2">
+                                <div className="skeleton-dark w-28 h-3.5 rounded-full sm:ml-auto" />
+                                <div className="skeleton-dark w-32 h-8 rounded-xl sm:ml-auto" />
+                                <div className="skeleton-dark w-24 h-3 rounded-full sm:ml-auto" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

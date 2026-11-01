@@ -196,21 +196,18 @@
   }
 
   @keyframes pulse {
-
     0%,
     100% {
-      transform: scale(1);
       opacity: 1;
     }
 
     50% {
-      transform: scale(1.5);
-      opacity: 0.5;
+      opacity: 0.45;
     }
   }
 
   .animate-pulse {
-    animation: pulse 2s ease-in-out infinite;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   /* For disabled button state */
@@ -840,22 +837,47 @@ html {
 }
 
 /* ============================================
-   SKELETON LOADER ANIMATION SYSTEM
+   SKELETON LOADER ANIMATION SYSTEM (APPLE iOS HIG LIGHT SHEEN)
    ============================================ */
 @keyframes shimmer {
   0% {
-    background-position: -200% 0;
+    background-position: 200% 0;
   }
   100% {
-    background-position: 200% 0;
+    background-position: -200% 0;
   }
 }
 
-.skeleton {
-  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+.skeleton,
+.skeleton-light {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.04) 25%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(0, 0, 0, 0.04) 75%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite linear;
-  border-radius: 6px;
+  animation: shimmer 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* For dark cards (e.g. Apple Wallet Eco Pass, Dark Heros) */
+.skeleton-dark {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.06) 75%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border-radius: 8px;
   position: relative;
   overflow: hidden;
 }
@@ -864,12 +886,14 @@ html {
   height: 16px;
   margin-bottom: 8px;
   width: 100%;
+  border-radius: 6px;
 }
 
 .skeleton-title {
   height: 24px;
   margin-bottom: 16px;
   width: 60%;
+  border-radius: 10px;
 }
 
 .skeleton-avatar {

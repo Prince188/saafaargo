@@ -144,30 +144,48 @@ const Notifications = () => {
         return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     };
 
-    const SkeletonCard = () => (
-        <div className="bg-white/95 backdrop-blur-2xl rounded-[24px] border border-black/[0.05] p-5 animate-pulse shadow-sm">
-            <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-[16px] bg-black/[0.06] shrink-0" />
-                <div className="flex-1 space-y-2.5">
-                    <div className="h-4 bg-black/[0.06] rounded-xl w-1/3" />
-                    <div className="h-3.5 bg-black/[0.04] rounded-full w-3/4" />
-                    <div className="h-3 bg-black/[0.03] rounded-full w-1/4" />
-                </div>
-            </div>
-        </div>
-    );
-
     if (loading) {
         return (
             <div className="min-h-screen bg-[#F8FAF9] font-sans antialiased py-8 sm:py-10 px-4 sm:px-8">
-                <div className="max-w-3xl mx-auto space-y-3.5">
-                    <div className="mb-8 text-center sm:text-left">
-                        <div className="h-4 bg-black/[0.05] rounded-full w-24 mb-2 animate-pulse" />
-                        <div className="h-8 bg-black/[0.05] rounded-2xl w-48 mb-1 animate-pulse" />
+                <div className="max-w-3xl mx-auto">
+                    {/* Header Shimmer */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 mb-6 border-b border-black/[0.05]">
+                        <div className="space-y-2">
+                            <div className="skeleton w-36 h-6 rounded-full" />
+                            <div className="skeleton w-48 h-9 rounded-2xl" />
+                            <div className="skeleton w-64 h-4 rounded-md" />
+                        </div>
+                        <div className="skeleton w-36 h-9 rounded-full sm:self-center" />
                     </div>
-                    <SkeletonCard />
-                    <SkeletonCard />
-                    <SkeletonCard />
+
+                    {/* Filter Pills Shimmer */}
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className="skeleton w-16 h-8 rounded-full" />
+                        <div className="skeleton w-20 h-8 rounded-full" />
+                        <div className="skeleton w-16 h-8 rounded-full" />
+                    </div>
+
+                    {/* Notification Cards Shimmer List */}
+                    <div className="space-y-3.5">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div
+                                key={i}
+                                className="bg-white/95 backdrop-blur-2xl rounded-[24px] border border-black/[0.06] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="skeleton w-11 h-11 rounded-[16px] shrink-0" />
+                                    <div className="flex-1 space-y-2.5">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="skeleton w-44 h-4 rounded-md" />
+                                            <div className="skeleton w-16 h-3 rounded-full" />
+                                        </div>
+                                        <div className="skeleton w-full h-3.5 rounded-md" />
+                                        <div className="skeleton w-3/4 h-3.5 rounded-md" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         );

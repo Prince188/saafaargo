@@ -278,35 +278,85 @@ const Search = () => {
     }, [date]);
 
     const SkeletonCard = () => (
-        <div className="bg-white/95 backdrop-blur-2xl rounded-[28px] p-6 sm:p-7 border border-black/[0.05] shadow-[0_4px_24px_rgba(0,0,0,0.03)] animate-pulse">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-                <div className="w-full lg:w-[38%] space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full bg-black/[0.08]" />
-                        <div className="h-5 bg-black/[0.06] rounded-xl w-1/2" />
-                    </div>
-                    <div className="h-4 bg-black/[0.04] rounded-full w-1/3 ml-7" />
-                    <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full bg-black/[0.08]" />
-                        <div className="h-5 bg-black/[0.06] rounded-xl w-2/3" />
+        <div className="bg-white/95 backdrop-blur-2xl rounded-[26px] sm:rounded-[30px] border border-black/[0.06] shadow-[0_2px_14px_rgba(0,0,0,0.03)] p-5 sm:p-7 overflow-hidden">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                {/* 1. Transit Route Timeline */}
+                <div className="lg:w-[38%] flex-1">
+                    <div className="relative pl-7 sm:pl-8 space-y-5">
+                        {/* Connecting Transit Line */}
+                        <div className="absolute left-[9px] top-3 bottom-3 w-[2px] bg-black/[0.06] rounded-full" />
+
+                        {/* Departure Info */}
+                        <div className="relative">
+                            <div className="absolute -left-7 sm:-left-8 top-1 w-4 h-4 rounded-full bg-white border-[3px] border-forest/30 flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-forest/30" />
+                            </div>
+                            <div className="flex items-baseline justify-between gap-3">
+                                <div className="skeleton w-24 h-5 rounded-lg" />
+                                <div className="skeleton w-20 h-4 rounded-full" />
+                            </div>
+                            <div className="skeleton w-36 h-4 rounded-md mt-1.5" />
+                        </div>
+
+                        {/* Transit Distance & Duration Capsule */}
+                        <div className="my-1 pl-1">
+                            <div className="skeleton w-28 h-6 rounded-full" />
+                        </div>
+
+                        {/* Arrival Info */}
+                        <div className="relative">
+                            <div className="absolute -left-7 sm:-left-8 top-1 w-4 h-4 rounded-full bg-white border-[3px] border-amber-500/30 flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500/30" />
+                            </div>
+                            <div className="flex items-baseline justify-between gap-3">
+                                <div className="skeleton w-24 h-5 rounded-lg" />
+                                <div className="skeleton w-16 h-4 rounded-full" />
+                            </div>
+                            <div className="skeleton w-40 h-4 rounded-md mt-1.5" />
+                        </div>
                     </div>
                 </div>
-                <div className="hidden lg:block w-[1px] h-20 bg-black/[0.05]" />
-                <div className="w-full lg:w-[35%] flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-[20px] bg-black/[0.08] shrink-0" />
-                    <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-black/[0.06] rounded-xl w-3/4" />
-                        <div className="h-3 bg-black/[0.04] rounded-full w-1/2" />
-                        <div className="h-3 bg-black/[0.04] rounded-full w-2/3" />
+
+                {/* Subtle Divider */}
+                <div className="hidden lg:block w-[1px] self-stretch bg-black/[0.06]" />
+                <div className="block lg:hidden h-[1px] w-full bg-black/[0.05]" />
+
+                {/* 2. Driver & Vehicle Profile */}
+                <div className="lg:w-[35%] flex flex-col justify-center">
+                    <div className="flex items-start gap-3.5 mb-3.5">
+                        <div className="skeleton w-13 h-13 sm:w-14 sm:h-14 rounded-[20px] shrink-0" />
+                        <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex items-center gap-2">
+                                <div className="skeleton w-32 h-4 rounded-md" />
+                                <div className="skeleton w-4 h-4 rounded-full shrink-0" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="skeleton w-14 h-5 rounded-full" />
+                                <div className="skeleton w-24 h-5 rounded-full" />
+                            </div>
+                            <div className="skeleton w-36 h-6 rounded-full mt-2" />
+                        </div>
+                    </div>
+                    {/* Preference Badges */}
+                    <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                        <div className="skeleton w-20 h-5 rounded-full" />
+                        <div className="skeleton w-20 h-5 rounded-full" />
+                        <div className="skeleton w-24 h-5 rounded-full" />
                     </div>
                 </div>
-                <div className="hidden lg:block w-[1px] h-20 bg-black/[0.05]" />
-                <div className="w-full lg:w-[24%] flex lg:flex-col items-center lg:items-end justify-between gap-3">
-                    <div className="space-y-1.5 lg:text-right">
-                        <div className="h-7 bg-black/[0.07] rounded-xl w-20" />
-                        <div className="h-3 bg-black/[0.04] rounded-full w-16" />
+
+                {/* Subtle Divider */}
+                <div className="hidden lg:block w-[1px] self-stretch bg-black/[0.06]" />
+                <div className="block lg:hidden h-[1px] w-full bg-black/[0.05]" />
+
+                {/* 3. Fare & Booking Action */}
+                <div className="lg:w-[24%] flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-4">
+                    <div className="text-left lg:text-right space-y-1">
+                        <div className="skeleton w-14 h-3 rounded-full lg:ml-auto" />
+                        <div className="skeleton w-24 h-8 rounded-xl lg:ml-auto" />
+                        <div className="skeleton w-20 h-4 rounded-full mt-1 lg:ml-auto" />
                     </div>
-                    <div className="h-10 bg-black/[0.08] rounded-full w-28" />
+                    <div className="skeleton w-28 sm:w-32 h-10 rounded-full" />
                 </div>
             </div>
         </div>
