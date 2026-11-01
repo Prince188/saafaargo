@@ -1,36 +1,34 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import SEO from "../../component/SEO";
 import {
     FiCalendar,
     FiClock,
     FiUsers,
     FiArrowRight,
-    FiInfo,
     FiCheckCircle,
     FiAlertCircle,
-    FiMapPin
+    FiMapPin,
+    FiSearch,
 } from "react-icons/fi";
 import { FaCar, FaUser } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import { showError, showSuccess } from "../../utils/toastConfig";
 import { RideCardSkeleton } from "../../component/Skeleton";
 
 const MyTrips = () => {
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchMyTrips = async () => {
             try {
                 const token = localStorage.getItem("token");
-
-                const res = await fetch(
-                    `${process.env.REACT_APP_API_URL}/bookings/my-trips`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                const res = await fetch(`${process.env.REACT_APP_API_URL}/bookings/my-trips`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
                 if (!res.ok) {
                     console.error("Backend error:", res.status);
@@ -39,9 +37,6 @@ const MyTrips = () => {
                 }
 
                 const data = await res.json();
-
-                console.log("TRIPS DATA:", data);
-
                 if (Array.isArray(data)) {
                     setTrips(data);
                 } else if (Array.isArray(data.trips)) {
@@ -63,9 +58,7 @@ const MyTrips = () => {
     // Format Date
     const formatDate = (dateString) => {
         if (!dateString) return "Date not set";
-
         const date = new Date(dateString);
-
         return date.toLocaleDateString("en-US", {
             day: "numeric",
             month: "short",
@@ -77,21 +70,21 @@ const MyTrips = () => {
     const getStatusBadge = (status) => {
         if (status === "completed") {
             return {
-                containerClass: "bg-success/10 text-success",
-                icon: <FiCheckCircle className="w-3 h-3" />,
+                containerClass: "bg-black/[0.04] text-stone-600 border border-black/[0.06]",
+                icon: <FiCheckCircle className="w-3 h-3 text-emerald-600" />,
                 text: "Completed",
             };
         } else if (status === "cancelled") {
             return {
-                containerClass: "bg-error/10 text-error",
-                icon: <FiAlertCircle className="w-3 h-3" />,
+                containerClass: "bg-red-50 text-red-700 border border-red-200/60",
+                icon: <FiAlertCircle className="w-3 h-3 text-red-500" />,
                 text: "Cancelled",
             };
         } else {
             return {
-                containerClass: "bg-primary/10 text-primary",
-                icon: <FiInfo className="w-3 h-3" />,
-                text: "Upcoming",
+                containerClass: "bg-emerald-50 text-emerald-700 border border-emerald-100",
+                icon: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />,
+                text: "Confirmed",
             };
         }
     };
@@ -105,8 +98,8 @@ const MyTrips = () => {
                 `This booking has ${trip.seatsBooked} seats. How many seats would you like to cancel? (1 to ${trip.seatsBooked})`,
                 trip.seatsBooked
             );
-            if (promptVal === null) return; // user cancelled the prompt
-            
+            if (promptVal === null) return;
+
             seatsToCancel = parseInt(promptVal, 10);
             if (isNaN(seatsToCancel) || seatsToCancel < 1 || seatsToCancel > trip.seatsBooked) {
                 showError(`Please enter a valid number of seats between 1 and ${trip.seatsBooked}.`);
@@ -121,30 +114,25 @@ const MyTrips = () => {
 
         try {
             const token = localStorage.getItem("token");
-
-            const res = await fetch(
-                `${process.env.REACT_APP_API_URL}/bookings/cancel/${tripId}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ seatsToCancel }),
-                }
-            );
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/bookings/cancel/${tripId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ seatsToCancel }),
+            });
 
             const data = await res.json();
-
             if (res.ok) {
                 setTrips((prev) =>
                     prev.map((t) =>
                         t._id === tripId
-                            ? { 
-                                ...t, 
-                                seatsBooked: data.booking.seatsBooked, 
-                                amountPaid: data.booking.amountPaid, 
-                                status: data.booking.status 
+                            ? {
+                                  ...t,
+                                  seatsBooked: data.booking.seatsBooked,
+                                  amountPaid: data.booking.amountPaid,
+                                  status: data.booking.status,
                               }
                             : t
                     )
@@ -166,14 +154,14 @@ const MyTrips = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-off-white font-inter">
-                <div className="max-w-[1100px] mx-auto px-xl py-xl">
-                    {/* Header */}
-                    <div className="text-center mb-2xl">
-                        <h1 className="font-fraunces text-4xl font-semibold text-forest mb-sm animate-pulse">My Trips</h1>
-                        <p className="text-[15px] text-stone animate-pulse">View all rides you have booked</p>
+            <div className="min-h-screen bg-[#F8FAF9] font-sans py-8 sm:py-12 px-4 sm:px-8">
+                <div className="max-w-[1140px] mx-auto">
+                    <div className="text-center mb-8">
+                        <div className="h-4 bg-black/[0.05] rounded-full w-28 mx-auto mb-3 animate-pulse" />
+                        <div className="h-8 bg-black/[0.05] rounded-2xl w-56 mx-auto mb-2 animate-pulse" />
+                        <div className="h-4 bg-black/[0.03] rounded-full w-72 mx-auto animate-pulse" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {[1, 2, 3, 4].map((i) => (
                             <RideCardSkeleton key={i} />
                         ))}
@@ -184,178 +172,193 @@ const MyTrips = () => {
     }
 
     return (
-        <div className="min-h-screen bg-off-white font-inter">
-            <div className="max-w-[1100px] mx-auto px-xl py-xl">
+        <div className="min-h-screen bg-[#F8FAF9] text-[#1D1D1F] font-sans antialiased py-8 sm:py-10 px-4 sm:px-8">
+            <SEO title="My Trips" noindex={true} />
+            <div className="max-w-[1140px] mx-auto">
+                {/* Header Section */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 text-center sm:text-left">
+                    <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest/5 border border-forest/10 mb-2">
+                            <FiUsers className="text-forest text-xs" />
+                            <span className="text-[10.5px] font-bold tracking-[0.14em] text-forest uppercase">
+                                PASSENGER PORTAL
+                            </span>
+                        </div>
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1D1D1F] tracking-tight">
+                            My Booked Trips
+                        </h1>
+                        <p className="text-[13.5px] text-stone-500">
+                            View reserved seats, driver profiles, and travel itineraries
+                        </p>
+                    </div>
 
-                {/* Header */}
-                <div className="text-center mb-2xl">
-                    <h1 className="font-fraunces text-4xl font-semibold text-forest mb-sm">
-                        My Trips
-                    </h1>
-
-                    <p className="text-[15px] text-stone">
-                        View all rides you have booked
-                    </p>
+                    <button
+                        onClick={() => navigate("/search")}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-forest text-white text-[13px] font-bold shadow-[0_4px_14px_rgba(26,58,46,0.22)] active:scale-95 transition-all hover:opacity-95 cursor-pointer"
+                    >
+                        <FiSearch className="text-xs" />
+                        <span>Find a New Ride</span>
+                    </button>
                 </div>
 
+                {/* Empty State */}
                 {!Array.isArray(trips) || trips.length === 0 ? (
-                    <div className="text-center py-2xl px-2xl bg-white rounded-md shadow-sm">
-                        <div className="text-6xl mb-md">🧳</div>
-
-                        <h3 className="text-[22px] font-semibold text-forest mb-sm">
-                            No trips found
-                        </h3>
-
-                        <p className="text-sm text-stone mb-lg">
-                            You haven’t booked any rides yet.
+                    <div className="text-center py-16 px-6 bg-white/95 backdrop-blur-2xl rounded-[30px] border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.02)] max-w-lg mx-auto">
+                        <div className="w-16 h-16 rounded-2xl bg-forest/5 flex items-center justify-center text-forest text-2xl mx-auto mb-4">
+                            🧳
+                        </div>
+                        <h3 className="text-xl font-bold text-[#1D1D1F] mb-1.5">No booked trips</h3>
+                        <p className="text-[13.5px] text-stone-500 mb-6 leading-relaxed">
+                            You have not reserved any carpool rides yet. Explore affordable verified rides across Indian cities.
                         </p>
-
                         <button
-                            className="bg-gradient-primary text-white border-none px-7 py-3 rounded-full text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:shadow-md"
-                            onClick={() => (window.location.href = "/find-ride")}
+                            type="button"
+                            onClick={() => navigate("/")}
+                            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-forest text-white text-[13px] font-bold active:scale-95 transition-all shadow-sm cursor-pointer"
                         >
-                            Find a Ride
+                            <FiSearch className="text-xs" />
+                            <span>Search Available Rides</span>
                         </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         {trips.map((trip, index) => {
-
-                            // const statusBadge = getStatusBadge(trip.status);
-
-                            // Ride Data
+                            const badge = getStatusBadge(trip.status);
                             const ride = trip.ride;
+                            const pickupCity =
+                                ride?.pickup?.displayName?.split(",").slice(-3, -2)[0]?.trim() ||
+                                ride?.pickup?.city ||
+                                "Origin";
+                            const destinationCity =
+                                ride?.destination?.displayName?.split(",").slice(-3, -2)[0]?.trim() ||
+                                ride?.destination?.city ||
+                                "Destination";
 
                             return (
                                 <div
                                     key={trip._id || index}
-                                    className="bg-white rounded-md p-lg shadow-sm transition-all duration-base relative border border-sage-soft hover:-translate-y-1 hover:shadow-md hover:border-sage-light animate-fade-in-up"
-                                    style={{
-                                        animationDelay: `${index * 0.05}s`,
-                                    }}
+                                    className="bg-white/95 backdrop-blur-2xl rounded-[28px] p-5 sm:p-6 border border-black/[0.06] shadow-[0_2px_14px_rgba(0,0,0,0.02),0_8px_24px_rgba(26,58,46,0.03)] hover:shadow-[0_12px_32px_rgba(26,58,46,0.08)] transition-all duration-300 hover:-translate-y-0.5 flex flex-col justify-between"
                                 >
-
-                                    {/* Status Badge */}
-                                    {(() => {
-                                        const badge = getStatusBadge(trip.status);
-                                        return (
-                                            <div className={`inline-flex items-center gap-xs px-3.5 py-1 rounded-full text-xs font-semibold w-fit mb-md ${badge.containerClass}`}>
+                                    <div>
+                                        {/* Status & Fare Header */}
+                                        <div className="flex items-center justify-between gap-3 mb-4">
+                                            <span
+                                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${badge.containerClass}`}
+                                            >
                                                 {badge.icon}
                                                 <span>{badge.text}</span>
-                                            </div>
-                                        );
-                                    })()}
-
-                                    {/* Route */}
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-md mb-md p-sm px-md bg-off-white rounded-sm">
-
-                                        {/* Pickup */}
-                                        <div className="flex-1 flex items-center gap-sm">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-success"></div>
-
-                                            <div className="flex-1">
-                                                <span className="block text-[10px] font-bold tracking-[0.1em] text-stone uppercase mb-0.5">
-                                                    PICKUP
-                                                </span>
-
-                                                <span className="text-[13px] font-semibold text-forest truncate block">
-                                                    {ride?.pickup?.displayName?.split(",").slice(-3,-2)[0] ||
-                                                        "N/A"}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Arrow */}
-                                        <div className="text-sage-light hidden sm:block">
-                                            <FiArrowRight />
-                                        </div>
-
-                                        {/* Destination */}
-                                        <div className="flex-1 flex items-center gap-sm">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-clay"></div>
-
-                                            <div className="flex-1">
-                                                <span className="block text-[10px] font-bold tracking-[0.1em] text-stone uppercase mb-0.5">
-                                                    DESTINATION
-                                                </span>
-
-                                                <span className="text-[13px] font-semibold text-forest truncate block">
-                                                    {ride?.destination?.displayName?.split(",").slice(-3,-2)[0] ||
-                                                        "N/A"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Ride Details */}
-                                    <div className="flex justify-between gap-md py-sm border-t border-b border-sage-soft mb-md flex-wrap">
-
-                                        <div className="flex items-center gap-1.5 text-xs text-stone">
-                                            <FiCalendar className="text-[13px] text-sage" />
-                                            <span>{formatDate(ride?.date)}</span>
-                                        </div>
-
-                                        <div className="flex items-center gap-1.5 text-xs text-stone">
-                                            <FiClock className="text-[13px] text-sage" />
-                                            <span>{ride?.time || "N/A"}</span>
-                                        </div>
-
-                                        <div className="flex items-center gap-1.5 text-xs text-stone">
-                                            <FiUsers className="text-[13px] text-sage" />
-                                            <span>{trip?.seatsBooked || 1} seat</span>
-                                        </div>
-
-                                        <div className="flex items-center gap-1.5 text-xs text-success font-semibold">
-                                            ₹{trip?.amountPaid || 0}
-                                        </div>
-                                    </div>
-
-                                    {/* Driver */}
-                                    <div className="flex items-center gap-sm mb-md text-xs text-stone">
-                                        <FaUser className="text-sm text-sage" />
-
-                                        <span>
-                                            Driver: {ride?.user?.firstName} {ride?.user?.lastName}
-                                        </span>
-                                    </div>
-
-                                    {/* Vehicle */}
-                                    <div className="flex items-center gap-sm mb-md text-xs text-stone">
-                                        <FaCar className="text-sm text-sage" />
-
-                                        <span>
-                                            {ride?.car
-                                                ? `${ride.car.brand} ${ride.car.model}`
-                                                : "Vehicle not specified"}
-                                        </span>
-                                    </div>
-
-                                    {/* Pickup Point */}
-                                    {trip?.pickupPoint && (
-                                        <div className="flex items-center gap-sm mb-md text-xs text-stone">
-                                            <FiMapPin className="text-sm text-sage" />
-
-                                            <span>
-                                                Pickup Point: {ride?.pickup?.displayName}
                                             </span>
-                                        </div>
-                                    )}
 
-                                    {/* Buttons */}
-                                    <div className="flex gap-sm">
+                                            <div className="text-right">
+                                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                                                    PAID FARE
+                                                </span>
+                                                <span className="text-[17px] font-extrabold text-[#1D1D1F] tracking-tight">
+                                                    ₹{trip?.amountPaid || 0}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* iOS Route Pass */}
+                                        <div className="p-3.5 bg-black/[0.02] rounded-[20px] border border-black/[0.04] mb-4">
+                                            <div className="flex items-center justify-between gap-3">
+                                                {/* Pickup */}
+                                                <div className="flex-1 min-w-0">
+                                                    <span className="text-[9.5px] font-bold text-stone-400 uppercase tracking-[0.12em] block mb-0.5">
+                                                        PICKUP
+                                                    </span>
+                                                    <p className="text-[14px] font-bold text-[#1D1D1F] truncate">
+                                                        {pickupCity}
+                                                    </p>
+                                                </div>
+
+                                                {/* Transit Arrow */}
+                                                <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-black/[0.05] flex items-center justify-center text-forest text-xs shrink-0">
+                                                    <FiArrowRight />
+                                                </div>
+
+                                                {/* Destination */}
+                                                <div className="flex-1 min-w-0 text-right">
+                                                    <span className="text-[9.5px] font-bold text-stone-400 uppercase tracking-[0.12em] block mb-0.5">
+                                                        DESTINATION
+                                                    </span>
+                                                    <p className="text-[14px] font-bold text-[#1D1D1F] truncate">
+                                                        {destinationCity}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Pickup Point Details if available */}
+                                            {trip?.pickupPoint && (
+                                                <div className="mt-2.5 pt-2 border-t border-black/[0.04] flex items-center gap-1.5 text-[11px] text-stone-500">
+                                                    <FiMapPin className="text-forest shrink-0" />
+                                                    <span className="truncate">
+                                                        Meeting Point: {ride?.pickup?.displayName || "Exact location"}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Key Trip Info Badges */}
+                                        <div className="grid grid-cols-3 gap-2 p-2.5 bg-black/[0.015] rounded-[18px] border border-black/[0.03] mb-4 text-center">
+                                            <div>
+                                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
+                                                    DATE
+                                                </span>
+                                                <span className="text-[12px] font-bold text-[#1D1D1F]">
+                                                    {formatDate(ride?.date)}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
+                                                    DEPARTURE
+                                                </span>
+                                                <span className="text-[12px] font-bold text-[#1D1D1F]">
+                                                    {ride?.time || "N/A"}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
+                                                    SEATS
+                                                </span>
+                                                <span className="text-[12px] font-bold text-forest">
+                                                    {trip?.seatsBooked || 1} seat{(trip?.seatsBooked || 1) > 1 ? "s" : ""}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Driver & Vehicle info */}
+                                        <div className="flex items-center justify-between gap-3 text-[12px] text-stone-500 mb-4 px-1">
+                                            <div className="flex items-center gap-1.5 truncate">
+                                                <FaUser className="text-forest text-[11px] shrink-0" />
+                                                <span className="truncate">
+                                                    Driver: <strong className="text-[#1D1D1F]">{ride?.user?.firstName} {ride?.user?.lastName}</strong>
+                                                </span>
+                                            </div>
+
+                                            {ride?.car && (
+                                                <div className="flex items-center gap-1.5 shrink-0 text-stone-600">
+                                                    <FaCar className="text-stone-400 text-xs" />
+                                                    <span>{ride.car.brand} {ride.car.model}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="pt-3 border-t border-black/[0.05] flex items-center gap-2">
                                         <Link
-                                        to={`/rides/${ride?._id}`}
-                                            className="flex-1 text-center px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-sage text-sage hover:bg-sage-soft hover:-translate-y-0.5"
+                                            to={`/rides/${ride?._id}`}
+                                            className="flex-1 py-2 px-4 rounded-full text-center bg-forest text-white text-[12.5px] font-bold active:scale-95 transition-all shadow-sm hover:opacity-95 cursor-pointer"
                                         >
                                             View Ride
                                         </Link>
 
                                         {trip.status === "confirmed" && (
                                             <button
-                                                className="flex-1 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all duration-base bg-transparent border-1.5 border-error text-error hover:bg-error/5 hover:-translate-y-0.5"
-                                                onClick={() =>
-                                                    handleCancelTrip(trip)
-                                                }
+                                                type="button"
+                                                onClick={() => handleCancelTrip(trip)}
+                                                className="py-2 px-4 rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-[12.5px] font-bold active:scale-95 transition-all cursor-pointer"
                                             >
                                                 Cancel Trip
                                             </button>

@@ -417,32 +417,23 @@ export function PublishRideSkeleton() {
 // Ride Card Skeleton for Search / My Rides (Inline Details)
 export function RideCardSkeleton() {
     return (
-        <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-4 w-full">
-            <div className="flex justify-between items-start mb-6">
-                <div className="flex-1 space-y-4 text-left">
-                    <div className="flex items-center gap-3">
-                        <Skeleton variant="circle" className="w-4 h-4 shrink-0" style={{ backgroundColor: "#e5e7eb" }} />
-                        <Skeleton variant="text" className="w-[60%] h-4" />
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Skeleton variant="circle" className="w-4 h-4 shrink-0" style={{ backgroundColor: "#e5e7eb" }} />
-                        <Skeleton variant="text" className="w-[40%] h-4" />
-                    </div>
-                </div>
-                <div className="text-right space-y-2">
-                    <Skeleton variant="text" className="w-12 h-6" />
-                    <Skeleton variant="text" className="w-16 h-3" />
-                </div>
+        <div className="bg-white/95 backdrop-blur-2xl rounded-[28px] border border-black/[0.06] p-6 shadow-sm mb-4 w-full animate-pulse">
+            <div className="flex justify-between items-center mb-4">
+                <div className="h-4 bg-black/[0.05] rounded-full w-24" />
+                <div className="h-5 bg-black/[0.05] rounded-xl w-16" />
             </div>
-            <div className="border-t border-gray-50 pt-4 flex justify-between items-center">
-                <div className="flex items-center gap-3 text-left">
-                    <Skeleton variant="circle" />
-                    <div className="space-y-1">
-                        <Skeleton variant="text" className="w-20 h-4" />
-                        <Skeleton variant="text" className="w-12 h-3" />
-                    </div>
-                </div>
-                <Skeleton variant="button" className="w-[110px] h-9 bg-forest/10" />
+            <div className="p-3.5 bg-black/[0.02] rounded-[20px] mb-4 space-y-2">
+                <div className="h-4 bg-black/[0.05] rounded-full w-3/4" />
+                <div className="h-4 bg-black/[0.05] rounded-full w-1/2" />
+            </div>
+            <div className="grid grid-cols-3 gap-2 p-2 bg-black/[0.015] rounded-[18px] mb-4">
+                <div className="h-4 bg-black/[0.04] rounded-full mx-auto w-12" />
+                <div className="h-4 bg-black/[0.04] rounded-full mx-auto w-12" />
+                <div className="h-4 bg-black/[0.04] rounded-full mx-auto w-12" />
+            </div>
+            <div className="border-t border-black/[0.05] pt-3 flex gap-2">
+                <div className="h-8 bg-black/[0.04] rounded-full flex-1" />
+                <div className="h-8 bg-black/[0.04] rounded-full flex-1" />
             </div>
         </div>
     );
