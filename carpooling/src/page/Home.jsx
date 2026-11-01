@@ -14,11 +14,11 @@ import {
     FaMinus,
     FaRoute,
     FaClock,
-    FaHeart,
     FaUserFriends,
     FaCar,
     FaGasPump,
     FaCheckCircle,
+    FaStar,
 } from "react-icons/fa";
 
 export default function Home() {
@@ -35,14 +35,20 @@ export default function Home() {
     const [selectedDate, setSelectedDate] = useState(null);
     const [guests, setGuests] = useState(1);
     const [guestsOpen, setGuestsOpen] = useState(false);
-    const [fromSuggestions, setFromSuggestions] = useState([]);
-    const [toSuggestions, setToSuggestions] = useState([]);
-    const [debouncedFrom, setDebouncedFrom] = useState("");
-    const [debouncedTo, setDebouncedTo] = useState("");
+
+    // ---- ANIMATION & SCROLL STATES ----
+    const [bentoVisible, setBentoVisible] = useState(false);
+    const [stepsVisible, setStepsVisible] = useState(false);
+    const [reliabilityCount, setReliabilityCount] = useState(0);
+    const [avgMatchCount, setAvgMatchCount] = useState(0);
+
     const fromRef = useRef(null);
     const toRef = useRef(null);
     const pathRef = useRef(null);
     const carRef = useRef(null);
+    const car2Ref = useRef(null);
+    const bentoRef = useRef(null);
+    const stepsRef = useRef(null);
 
     const navigate = useNavigate();
 
@@ -73,6 +79,7 @@ export default function Home() {
         });
     };
 
+    // Google Maps Autocomplete
     useEffect(() => {
         if (!window.google) return;
 
@@ -99,7 +106,7 @@ export default function Home() {
         });
     }, []);
 
-    // Fetch top dynamic searched routes from backend (with random fallback to 5)
+    // Fetch top dynamic searched routes from backend
     useEffect(() => {
         fetch(`${process.env.REACT_APP_API_URL}/rides/popular-routes`)
             .then(res => res.json())
@@ -113,7 +120,7 @@ export default function Home() {
             });
     }, []);
 
-    // Count the visitor
+    // Visitor Tracking
     useEffect(() => {
         const isLocalhost = 
             window.location.hostname === "localhost" || 
@@ -165,28 +172,106 @@ export default function Home() {
         });
     }, []);
 
-    // SVG Road animation scroll logic
+    // Continuous Highway Cruise + Interactive Scroll Speed
     useEffect(() => {
-        const handleScroll = () => {
-            if (!pathRef.current || !carRef.current) return;
+        if (!pathRef.current || !carRef.current) return;
 
-            const path = pathRef.current;
-            const pathLength = path.getTotalLength();
-            const scrollY = window.scrollY;
-            const maxScroll = 600;
+        const path = pathRef.current;
+        const pathLength = path.getTotalLength();
+        let animFrameId;
+        let baseProgress = 0;
 
-            const progress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+        const animate = () => {
+            // Continual cruising speed + scroll acceleration
+            const scrollOffset = (window.scrollY / 700);
+            baseProgress = (baseProgress + 0.0007) % 1;
+            const currentProgress = (baseProgress + scrollOffset * 0.35) % 1;
+            const progress = Math.max(0, Math.min(1, currentProgress));
+
+            // Primary car forward motion
             const point = path.getPointAtLength(progress * pathLength);
-
-            const nextPoint = path.getPointAtLength(Math.min((progress + 0.01) * pathLength, pathLength));
+            const lookAhead = Math.min(progress * pathLength + 5, pathLength);
+            const nextPoint = path.getPointAtLength(lookAhead);
             const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * (180 / Math.PI);
 
             carRef.current.style.transform = `translate(${point.x}px, ${point.y}px) rotate(${angle}deg)`;
+
+            // Oncoming car in reverse lane
+            if (car2Ref.current) {
+                const revProgress = 1 - ((baseProgress * 1.25) % 1);
+                const p2 = path.getPointAtLength(revProgress * pathLength);
+                const p2Ahead = path.getPointAtLength(Math.max(0, revProgress * pathLength - 5));
+                const angle2 = Math.atan2(p2Ahead.y - p2.y, p2Ahead.x - p2.x) * (180 / Math.PI);
+
+                car2Ref.current.style.transform = `translate(${p2.x}px, ${p2.y}px) rotate(${angle2}deg)`;
+            }
+
+            animFrameId = requestAnimationFrame(animate);
         };
 
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        animFrameId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(animFrameId);
     }, []);
+
+    // Scroll Reveal Observer for Bento & Steps sections
+    useEffect(() => {
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const bentoObserver = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setBentoVisible(true);
+            }
+        }, observerOptions);
+
+        const stepsObserver = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setStepsVisible(true);
+            }
+        }, observerOptions);
+
+        if (bentoRef.current) bentoObserver.observe(bentoRef.current);
+        if (stepsRef.current) stepsObserver.observe(stepsRef.current);
+
+        return () => {
+            bentoObserver.disconnect();
+            stepsObserver.disconnect();
+        };
+    }, []);
+
+    // Animated Counting when Bento section is revealed
+    useEffect(() => {
+        if (!bentoVisible) return;
+
+        let rel = 0;
+        let avg = 0;
+        const relTimer = setInterval(() => {
+            rel += 2;
+            if (rel >= 98) {
+                setReliabilityCount(98);
+                clearInterval(relTimer);
+            } else {
+                setReliabilityCount(rel);
+            }
+        }, 25);
+
+        const avgTimer = setInterval(() => {
+            avg += 1;
+            if (avg >= 11) {
+                setAvgMatchCount(11);
+                clearInterval(avgTimer);
+            } else {
+                setAvgMatchCount(avg);
+            }
+        }, 120);
+
+        return () => {
+            clearInterval(relTimer);
+            clearInterval(avgTimer);
+        };
+    }, [bentoVisible]);
 
     // Close guest dropdown on outside click
     useEffect(() => {
@@ -224,30 +309,58 @@ export default function Home() {
                 }}
             />
 
-            {/* HERO SECTION - Apple Spatial Feel */}
+            {/* HERO SECTION - Apple Spatial & Animated Highway Experience */}
             <section className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden">
 
-                {/* SVG Road Animation Background */}
-                <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-30">
+                {/* Animated Highway Road Canvas */}
+                <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-35">
                     <svg className="w-full h-full" viewBox="0 0 1440 800" fill="none" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#DFE7E1" />
+                                <stop offset="50%" stopColor="#CBD8CE" />
+                                <stop offset="100%" stopColor="#DFE7E1" />
+                            </linearGradient>
+                            <linearGradient id="headlightBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="rgba(254, 240, 138, 0.45)" />
+                                <stop offset="100%" stopColor="rgba(254, 240, 138, 0)" />
+                            </linearGradient>
+                        </defs>
+
+                        {/* Road Outer Shoulder */}
+                        <path
+                            d="M 100 150 C 400 150, 400 700, 1100 700"
+                            fill="none"
+                            stroke="#CBD8CE"
+                            strokeWidth="86"
+                            strokeLinecap="round"
+                        />
+                        {/* Road Asphalt Base */}
                         <path
                             ref={pathRef}
                             d="M 100 150 C 400 150, 400 700, 1100 700"
                             fill="none"
-                            stroke="#E2E8E4"
+                            stroke="url(#roadGrad)"
                             strokeWidth="80"
                             strokeLinecap="round"
                         />
+                        {/* Road Center Animated Dashed Line */}
                         <path
                             d="M 100 150 C 400 150, 400 700, 1100 700"
                             fill="none"
-                            stroke="#ffffff"
+                            stroke="#FFFFFF"
                             strokeWidth="4"
                             strokeDasharray="20 20"
+                            className="animate-road-dash"
                         />
-                        <g ref={carRef} style={{ transition: 'transform 0.1s ease-out', transform: 'translate(100px, 150px)' }}>
+
+                        {/* Primary Cruising Car */}
+                        <g ref={carRef} style={{ transition: 'transform 0.05s linear', transform: 'translate(100px, 150px)' }}>
                             <g transform="scale(1.5)">
-                                <rect x="-18" y="-12" width="36" height="24" fill="rgba(0,0,0,0.12)" rx="6" />
+                                {/* Headlight Beam Projection */}
+                                <polygon points="18,-10 60,-20 60,20 18,10" fill="url(#headlightBeam)" />
+                                {/* Car Body */}
+                                <rect x="-18" y="-12" width="36" height="24" fill="rgba(0,0,0,0.14)" rx="6" />
                                 <path d="M-15 -10 h30 a5 5 0 0 1 5 5 v10 a5 5 0 0 1 -5 5 h-30 a5 5 0 0 1 -5 -5 v-10 a5 5 0 0 1 5 -5 z" fill="#1A3A2E" />
                                 <path d="M-3 -8 h10 a2 2 0 0 1 2 2 v12 a2 2 0 0 1 -2 2 h-10 a2 2 0 0 1 -2 -2 v-12 a2 2 0 0 1 2 -2 z" fill="#A8C5B8" />
                                 <path d="M-12 -6 h4 a1 1 0 0 1 1 1 v10 a1 1 0 0 1 -1 1 h-4 a1 1 0 0 1 -1 -1 v-10 a1 1 0 0 1 1 -1 z" fill="#A8C5B8" />
@@ -261,6 +374,24 @@ export default function Home() {
                                 <rect x="-19" y="5" width="2" height="3" fill="#EF4444" />
                             </g>
                         </g>
+
+                        {/* Oncoming Commuter Car */}
+                        <g ref={car2Ref} style={{ transition: 'transform 0.05s linear', transform: 'translate(1100px, 700px)' }}>
+                            <g transform="scale(1.35)">
+                                <polygon points="-18,-8 -50,-16 -50,16 -18,8" fill="url(#headlightBeam)" />
+                                <rect x="-16" y="-11" width="32" height="22" fill="rgba(0,0,0,0.12)" rx="5" />
+                                <path d="M-13 -9 h26 a4 4 0 0 1 4 4 v10 a4 4 0 0 1 -4 4 h-26 a4 4 0 0 1 -4 -4 v-10 a4 4 0 0 1 4 -4 z" fill="#2E5A44" />
+                                <path d="M-2 -7 h9 a2 2 0 0 1 2 2 v10 a2 2 0 0 1 -2 2 h-9 a2 2 0 0 1 -2 -2 v-10 a2 2 0 0 1 2 -2 z" fill="#C5DCD0" />
+                                <rect x="-10" y="-11" width="5" height="2.5" fill="#111" rx="1" />
+                                <rect x="7" y="-11" width="5" height="2.5" fill="#111" rx="1" />
+                                <rect x="-10" y="8.5" width="5" height="2.5" fill="#111" rx="1" />
+                                <rect x="7" y="8.5" width="5" height="2.5" fill="#111" rx="1" />
+                                <rect x="-17" y="-7" width="2" height="3" fill="#FDE047" />
+                                <rect x="-17" y="4" width="2" height="3" fill="#FDE047" />
+                                <rect x="16" y="-7" width="2" height="3" fill="#EF4444" />
+                                <rect x="16" y="4" width="2" height="3" fill="#EF4444" />
+                            </g>
+                        </g>
                     </svg>
                 </div>
 
@@ -268,30 +399,57 @@ export default function Home() {
                 <div className="absolute w-[450px] h-[450px] rounded-full bg-sage-light/35 blur-[120px] pointer-events-none -top-[120px] -right-[120px] animate-float z-0"></div>
                 <div className="absolute w-[400px] h-[400px] rounded-full bg-clay-light/25 blur-[120px] pointer-events-none -bottom-[100px] -left-[100px] animate-float-reverse z-0"></div>
 
+                {/* Floating Real-Time Proof Badge (Left - Desktop) */}
+                <div className="hidden xl:flex items-center gap-3 bg-white/90 backdrop-blur-xl px-4 py-2.5 rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(26,58,46,0.08)] animate-float-card absolute left-8 top-32 z-20">
+                    <div className="w-9 h-9 rounded-xl bg-forest/10 flex items-center justify-center text-forest text-sm shrink-0">
+                        <FaCar />
+                    </div>
+                    <div className="text-left">
+                        <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-radar-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span className="text-[12.5px] font-bold text-[#1D1D1F]">Delhi ➔ Jaipur</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 font-medium">3 seats left · Verified Driver</p>
+                    </div>
+                </div>
+
+                {/* Floating Real-Time Proof Badge (Right - Desktop) */}
+                <div className="hidden xl:flex items-center gap-3 bg-white/90 backdrop-blur-xl px-4 py-2.5 rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(26,58,46,0.08)] animate-float-card-reverse absolute right-8 top-44 z-20">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-700 text-sm shrink-0">
+                        <FaLeaf />
+                    </div>
+                    <div className="text-left">
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[12.5px] font-bold text-[#1D1D1F]">₹480 Avg. Savings</span>
+                            <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded-full border border-emerald-200">-70%</span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 font-medium">42,850+ kg CO₂ saved</p>
+                    </div>
+                </div>
+
                 <div className="relative z-10 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="max-w-[880px] mx-auto text-center pt-4 md:pt-8 pb-10">
 
-                        {/* iOS Frosted Eyebrow Capsule */}
+                        {/* iOS Frosted Eyebrow Capsule with Beacon Ping */}
                         <div className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-xl px-4 py-1.5 rounded-full mb-7 border border-black/[0.05] shadow-[0_2px_10px_rgba(0,0,0,0.03)] animate-fade-in-up">
-                            <span className="w-2 h-2 bg-forest rounded-full animate-pulse"></span>
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-radar-pulse absolute inline-flex h-full w-full rounded-full bg-forest opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-forest"></span>
+                            </span>
                             <span className="text-[11px] font-bold tracking-[0.16em] text-forest uppercase">
                                 INDIA'S TRUSTED CARPOOLING NETWORK
                             </span>
                         </div>
 
-                        {/* Apple SF Pro Display Headline */}
+                        {/* Apple SF Pro Display Headline with Dynamic Gradient Text */}
                         <h1 className="text-[clamp(40px,7.2vw,82px)] font-bold leading-[1.06] tracking-[-0.035em] mb-6 text-[#1D1D1F] animate-fade-in-up-delay">
                             Don't travel alone.
                             <br />
                             <span className="relative inline-block mt-1">
-                                <span
-                                    style={{
-                                        background: "linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%)",
-                                        WebkitBackgroundClip: "text",
-                                        backgroundClip: "text",
-                                        color: "transparent"
-                                    }}
-                                >
+                                <span className="animate-gradient-text">
                                     Carpool smarter.
                                 </span>
                                 <span className="absolute -bottom-1 left-0 right-0 h-[3px] bg-gradient-sage rounded-full opacity-40"></span>
@@ -303,10 +461,10 @@ export default function Home() {
                             India's verified intercity carpooling platform. Share empty car seats, halve your travel costs, and connect with trusted co-travellers on every route.
                         </p>
 
-                        {/* SEARCH CARD - Apple Maps / Dynamic Island Squircle */}
+                        {/* SEARCH CARD - Apple Maps Squircle with Aura Glow */}
                         <div className="max-w-[980px] mx-auto animate-fade-in-up-delay relative z-30">
                             <form
-                                className="bg-white/90 backdrop-blur-2xl rounded-[28px] sm:rounded-[32px] p-3 sm:p-3.5 flex flex-col md:flex-row items-stretch md:items-center gap-2 sm:gap-2.5 shadow-[0_12px_44px_rgba(26,58,46,0.08)] border border-white/80 ring-1 ring-black/[0.04] transition-all duration-300 hover:shadow-[0_20px_50px_rgba(26,58,46,0.12)] relative z-30"
+                                className="bg-white/90 backdrop-blur-2xl rounded-[28px] sm:rounded-[32px] p-3 sm:p-3.5 flex flex-col md:flex-row items-stretch md:items-center gap-2 sm:gap-2.5 shadow-[0_12px_44px_rgba(26,58,46,0.08)] border border-white/80 ring-1 ring-black/[0.04] transition-all duration-300 hover:shadow-[0_20px_50px_rgba(26,58,46,0.14)] relative z-30 animate-aura-glow"
                                 onSubmit={handleSearch}
                             >
 
@@ -400,7 +558,7 @@ export default function Home() {
 
                                         {/* iOS Stepper Popover */}
                                         {guestsOpen && (
-                                            <div className="absolute top-[calc(100%+12px)] left-0 min-w-[230px] bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-black/[0.06] p-4 z-[100] animate-slide-down">
+                                             <div className="absolute top-[calc(100%+12px)] left-0 min-w-[230px] bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] border border-black/[0.06] p-4 z-[100] animate-slide-down">
                                                 <span className="block text-[10px] font-extrabold tracking-[0.14em] text-stone-400 uppercase mb-3">
                                                     Seats required
                                                 </span>
@@ -431,14 +589,14 @@ export default function Home() {
                                 {/* APPLE PRIMARY SEARCH BUTTON */}
                                 <button
                                     type="submit"
-                                    className="flex items-center justify-center gap-2.5 bg-gradient-primary text-white px-7 py-3.5 rounded-full font-semibold text-[14px] tracking-tight transition-all duration-200 active:scale-95 shadow-[0_4px_16px_rgba(26,58,46,0.28)] hover:shadow-[0_8px_24px_rgba(26,58,46,0.35)] shrink-0 cursor-pointer group"
+                                    className="flex items-center justify-center gap-2.5 bg-gradient-primary text-white px-7 py-3.5 rounded-full font-semibold text-[14px] tracking-tight transition-all duration-200 active:scale-95 shadow-[0_4px_16px_rgba(26,58,46,0.28)] hover:shadow-[0_8px_24px_rgba(26,58,46,0.35)] shrink-0 cursor-pointer group hover:opacity-95"
                                 >
                                     <span>Search Rides</span>
-                                    <FaArrowRight className="text-xs transition-transform duration-200 group-hover:translate-x-0.5" />
+                                    <FaArrowRight className="text-xs transition-transform duration-200 group-hover:translate-x-1" />
                                 </button>
                             </form>
 
-                            {/* POPULAR CARPOOL ROUTES (iOS Quick Chips) */}
+                            {/* POPULAR CARPOOL ROUTES (iOS Quick Chips with Route Arrow) */}
                             <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-xs animate-fade-in-up-delay">
                                 <span className="text-[#6E6E73] font-medium mr-1.5 flex items-center gap-1.5 text-[12px]">
                                     <FaRoute className="text-sage" /> Popular:
@@ -451,10 +609,12 @@ export default function Home() {
                                             setFrom(route.from);
                                             setTo(route.to);
                                         }}
-                                        className="bg-white/80 hover:bg-white active:scale-95 text-[#333] border border-black/[0.05] hover:border-forest/20 px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_12px_rgba(26,58,46,0.08)] text-[12px] cursor-pointer flex items-center gap-1.5"
+                                        className="bg-white/80 hover:bg-white active:scale-95 text-[#333] border border-black/[0.05] hover:border-forest/25 px-3.5 py-1.5 rounded-full font-medium transition-all duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.03)] hover:shadow-[0_6px_16px_rgba(26,58,46,0.09)] hover:-translate-y-0.5 text-[12px] cursor-pointer flex items-center gap-1.5 group"
                                         title={`Carpool between ${route.from} and ${route.to}`}
                                     >
-                                        <span>{route.from} ⇄ {route.to}</span>
+                                        <span>{route.from}</span>
+                                        <span className="text-stone-300 group-hover:text-forest transition-colors">⇄</span>
+                                        <span>{route.to}</span>
                                     </button>
                                 ))}
                             </div>
@@ -463,12 +623,12 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* FEATURES BENTO SECTION - Apple Keynote Bento Grid */}
-            <section className="py-20 md:py-28 bg-white border-t border-black/[0.04]">
+            {/* FEATURES BENTO SECTION - Apple Keynote Bento Grid with Scroll Reveal */}
+            <section ref={bentoRef} className="py-20 md:py-28 bg-white border-t border-black/[0.04]">
                 <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
                     
                     {/* Section Header */}
-                    <div className="text-center max-w-[680px] mx-auto mb-16">
+                    <div className={`text-center max-w-[680px] mx-auto mb-16 scroll-reveal ${bentoVisible ? 'is-revealed' : ''}`}>
                         <div className="inline-block text-[11px] font-bold tracking-[0.2em] text-sage mb-3 uppercase">
                             WHY SAFARGO
                         </div>
@@ -487,8 +647,8 @@ export default function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                         {/* Card 1: Verified Security (Span 2) */}
-                        <div className="lg:col-span-2 bg-[#F8FAF9] rounded-[28px] p-8 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1 relative overflow-hidden group">
-                            <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] group-hover:scale-105 transition-transform duration-200">
+                        <div className={`lg:col-span-2 bg-[#F8FAF9] rounded-[28px] p-8 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 relative overflow-hidden group scroll-reveal ${bentoVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '100ms' }}>
+                            <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] group-hover:scale-110 transition-transform duration-300">
                                 <FaShieldAlt />
                             </div>
                             <span className="text-[11px] font-bold tracking-[0.14em] text-sage uppercase block mb-2">VERIFIED NETWORK</span>
@@ -501,8 +661,8 @@ export default function Home() {
                         </div>
 
                         {/* Card 2: Greener Ridesharing */}
-                        <div className="bg-[#F8FAF9] rounded-[28px] p-8 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1 relative overflow-hidden group">
-                            <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] group-hover:scale-105 transition-transform duration-200">
+                        <div className={`bg-[#F8FAF9] rounded-[28px] p-8 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 relative overflow-hidden group scroll-reveal ${bentoVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '200ms' }}>
+                            <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] group-hover:scale-110 transition-transform duration-300">
                                 <FaLeaf />
                             </div>
                             <span className="text-[11px] font-bold tracking-[0.14em] text-sage uppercase block mb-2">SUSTAINABLE</span>
@@ -514,9 +674,9 @@ export default function Home() {
                             </p>
                         </div>
 
-                        {/* Card 3: Carpool Community (Span Row) */}
-                        <div className="bg-[#F8FAF9] rounded-[28px] p-8 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1 relative overflow-hidden group">
-                            <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] group-hover:scale-105 transition-transform duration-200">
+                        {/* Card 3: Carpool Community */}
+                        <div className={`bg-[#F8FAF9] rounded-[28px] p-8 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 relative overflow-hidden group scroll-reveal ${bentoVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '300ms' }}>
+                            <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] group-hover:scale-110 transition-transform duration-300">
                                 <FaUserFriends />
                             </div>
                             <span className="text-[11px] font-bold tracking-[0.14em] text-sage uppercase block mb-2">COMMUNITY</span>
@@ -528,10 +688,10 @@ export default function Home() {
                             </p>
                         </div>
 
-                        {/* Card 4: Smart Route Matching (Wide) */}
-                        <div className="lg:col-span-4 bg-[#F8FAF9] rounded-[28px] p-8 md:p-10 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1 flex flex-col md:flex-row items-center justify-between gap-8 group">
+                        {/* Card 4: Smart Route Matching (Wide with Animated Live Counters) */}
+                        <div className={`lg:col-span-4 bg-[#F8FAF9] rounded-[28px] p-8 md:p-10 border border-black/[0.04] shadow-[0_4px_20px_rgba(0,0,0,0.02)] transition-all duration-500 hover:shadow-[0_16px_40px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 flex flex-col md:flex-row items-center justify-between gap-8 group scroll-reveal ${bentoVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '400ms' }}>
                             <div className="flex-1 text-center md:text-left">
-                                <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] mx-auto md:mx-0 group-hover:scale-105 transition-transform duration-200">
+                                <div className="w-13 h-13 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 text-forest text-2xl border border-black/[0.04] mx-auto md:mx-0 group-hover:scale-110 transition-transform duration-300">
                                     <FaClock />
                                 </div>
                                 <span className="text-[11px] font-bold tracking-[0.14em] text-sage uppercase block mb-2">PRECISION DISPATCH</span>
@@ -543,19 +703,19 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            {/* Apple Stat Pills */}
+                            {/* Apple Stat Pills with Animated Number Counters */}
                             <div className="flex items-center gap-6 sm:gap-10 shrink-0">
-                                <div className="text-center bg-white px-6 py-4 rounded-2xl border border-black/[0.04] shadow-sm">
-                                    <span className="block text-[36px] font-bold tracking-tight text-forest leading-none mb-1">
-                                        98%
+                                <div className="text-center bg-white px-6 py-4 rounded-2xl border border-black/[0.04] shadow-sm transition-transform duration-300 group-hover:scale-105">
+                                    <span className="block text-[36px] font-bold tracking-tight text-forest leading-none mb-1 tabular-nums">
+                                        {reliabilityCount}%
                                     </span>
                                     <span className="text-[10px] font-extrabold tracking-[0.14em] text-stone-400 uppercase">
                                         RELIABILITY
                                     </span>
                                 </div>
-                                <div className="text-center bg-white px-6 py-4 rounded-2xl border border-black/[0.04] shadow-sm">
-                                    <span className="block text-[36px] font-bold tracking-tight text-forest leading-none mb-1">
-                                        11m
+                                <div className="text-center bg-white px-6 py-4 rounded-2xl border border-black/[0.04] shadow-sm transition-transform duration-300 group-hover:scale-105">
+                                    <span className="block text-[36px] font-bold tracking-tight text-forest leading-none mb-1 tabular-nums">
+                                        {avgMatchCount}m
                                     </span>
                                     <span className="text-[10px] font-extrabold tracking-[0.14em] text-stone-400 uppercase">
                                         AVG. MATCH
@@ -567,11 +727,11 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* HOW CARPOOLING WORKS - Apple Step Cards */}
-            <section className="py-20 md:py-28 bg-[#F8FAF9] border-t border-black/[0.04]">
+            {/* HOW CARPOOLING WORKS - Apple Step Cards with Staggered Entrance */}
+            <section ref={stepsRef} className="py-20 md:py-28 bg-[#F8FAF9] border-t border-black/[0.04]">
                 <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
                     
-                    <div className="text-center max-w-[640px] mx-auto mb-16">
+                    <div className={`text-center max-w-[640px] mx-auto mb-16 scroll-reveal ${stepsVisible ? 'is-revealed' : ''}`}>
                         <div className="inline-block text-[11px] font-bold tracking-[0.2em] text-sage mb-3 uppercase">
                             HOW SAFARGO WORKS
                         </div>
@@ -586,7 +746,7 @@ export default function Home() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                         {/* Step 1 */}
-                        <div className="bg-white rounded-[26px] p-8 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(26,58,46,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        <div className={`bg-white rounded-[26px] p-8 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 transition-all duration-500 scroll-reveal ${stepsVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '150ms' }}>
                             <div className="flex items-center justify-between mb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-forest/5 text-forest flex items-center justify-center text-xl">
                                     <FaCar />
@@ -604,7 +764,7 @@ export default function Home() {
                         </div>
 
                         {/* Step 2 */}
-                        <div className="bg-white rounded-[26px] p-8 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(26,58,46,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        <div className={`bg-white rounded-[26px] p-8 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 transition-all duration-500 scroll-reveal ${stepsVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '250ms' }}>
                             <div className="flex items-center justify-between mb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-forest/5 text-forest flex items-center justify-center text-xl">
                                     <FaGasPump />
@@ -622,7 +782,7 @@ export default function Home() {
                         </div>
 
                         {/* Step 3 */}
-                        <div className="bg-white rounded-[26px] p-8 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(26,58,46,0.08)] hover:-translate-y-1 transition-all duration-300">
+                        <div className={`bg-white rounded-[26px] p-8 border border-black/[0.05] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_rgba(26,58,46,0.08)] hover:-translate-y-1.5 transition-all duration-500 scroll-reveal ${stepsVisible ? 'is-revealed' : ''}`} style={{ transitionDelay: '350ms' }}>
                             <div className="flex items-center justify-between mb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-forest/5 text-forest flex items-center justify-center text-xl">
                                     <FaCheckCircle />
@@ -645,10 +805,10 @@ export default function Home() {
             {/* CTA SECTION - Apple Deep Glass Banner */}
             <section className="py-16 md:py-24">
                 <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-gradient-primary rounded-[32px] sm:rounded-[40px] py-14 px-8 sm:px-14 text-center text-white relative overflow-hidden shadow-[0_20px_50px_rgba(26,58,46,0.25)]">
+                    <div className="bg-gradient-primary rounded-[32px] sm:rounded-[40px] py-14 px-8 sm:px-14 text-center text-white relative overflow-hidden shadow-[0_20px_50px_rgba(26,58,46,0.25)] group">
                         
                         {/* Specular Ambient Glow */}
-                        <div className="absolute -top-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(255,255,255,0.12)_0%,transparent_65%)] pointer-events-none"></div>
+                        <div className="absolute -top-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(255,255,255,0.12)_0%,transparent_65%)] pointer-events-none transition-transform duration-700 group-hover:scale-105"></div>
 
                         <div className="relative z-10 max-w-[620px] mx-auto">
                             <div className="inline-block text-[11px] font-bold tracking-[0.2em] bg-white/15 px-4 py-1.5 rounded-full mb-6 uppercase backdrop-blur-md border border-white/20">
@@ -664,7 +824,7 @@ export default function Home() {
                                 href="https://docs.google.com/forms/d/e/1FAIpQLSfw4w_fBdX_0S6urZTIYavT5F4PvTiL4FNGpqk4UNFNYciP3w/viewform?usp=publish-editor"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-3 bg-white text-forest px-8 py-3.5 rounded-full font-bold text-[14px] transition-all duration-200 active:scale-95 shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] group"
+                                className="inline-flex items-center gap-3 bg-white text-forest px-8 py-3.5 rounded-full font-bold text-[14px] transition-all duration-200 active:scale-95 shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] group hover:bg-[#F8FAF9]"
                             >
                                 <span>Improve us</span>
                                 <FaArrowRight className="text-xs transition-transform duration-200 group-hover:translate-x-1" />
