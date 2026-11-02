@@ -437,8 +437,8 @@ const AboutUs = () => {
                                         <span className="text-lg font-bold text-forest">{corridor.avgPrice}</span>
                                         <span className="text-[11px] text-[#86868B]"> / seat</span>
                                     </div>
-                                    <span className="text-xs font-semibold text-forest bg-forest/5 px-2.5 py-1 rounded-full border border-forest/10 group-hover:bg-forest group-hover:text-white transition-all">
-                                        View Rides
+                                    <span className="text-xs font-medium text-[#86868B]">
+                                        {corridor.rides}
                                     </span>
                                 </div>
                             </button>
