@@ -338,14 +338,14 @@ const RideReview = () => {
     if ((!computedDistanceKm || isNaN(computedDistanceKm)) && pickup?.lat && destination?.lat) {
         computedDistanceKm = Math.round(calculateDistance(pickup.lat, pickup.lng, destination.lat, destination.lng));
     }
-    if (!computedDistanceKm || isNaN(computedDistanceKm)) {
+    if (!computedDistanceKm || isNaN(computedDistanceKm) || computedDistanceKm <= 0) {
         computedDistanceKm = 120;
     }
 
     // Computed total price per seat
     let computedPricePerSeat = Number(totalPricePerSeat);
-    if (!computedPricePerSeat || isNaN(computedPricePerSeat)) {
-        computedPricePerSeat = Math.round((computedDistanceKm * ratePerKm) / (seats + 1));
+    if (!computedPricePerSeat || isNaN(computedPricePerSeat) || computedPricePerSeat <= 0) {
+        computedPricePerSeat = Math.max(50, Math.round((computedDistanceKm * ratePerKm) / (seats + 1)));
     }
 
     // Filter and compute intermediate stops with guaranteed distance and pricePerSeat
@@ -356,14 +356,17 @@ const RideReview = () => {
             if ((!dist || isNaN(dist)) && pickup?.lat && s.lat) {
                 dist = Math.round(calculateDistance(pickup.lat, pickup.lng, s.lat, s.lng));
             }
-            if (!dist || isNaN(dist)) {
+            if (!dist || isNaN(dist) || dist <= 0) {
                 // Approximate evenly along route corridor
                 dist = Math.round(((idx + 1) / (stops.length + 1)) * computedDistanceKm);
             }
+            if (!dist || isNaN(dist) || dist <= 0) {
+                dist = (idx + 1) * 35;
+            }
 
             let price = Number(s.pricePerSeat || s.price);
-            if (!price || isNaN(price)) {
-                price = Math.round((dist * ratePerKm) / (seats + 1));
+            if (!price || isNaN(price) || price <= 0) {
+                price = Math.max(30, Math.round((dist * ratePerKm) / (seats + 1)));
             }
 
             return {
@@ -533,8 +536,8 @@ const RideReview = () => {
         { key: "talkFriendly", label: "Conversational", icon: <FaComments className="text-emerald-600" /> },
     ].filter((p) => preferences[p.key]);
 
-    const pickupCity = pickup?.city || pickup?.displayName?.split(",")[0] || "Origin";
-    const destCity = destination?.city || destination?.displayName?.split(",")[0] || "Destination";
+    const pickupCity = pickup?.city || pickup?.displayName?.split(",")[0] || pickup?.address?.split(",")[0] || draft?.formData?.from?.split(",")[0] || "Origin";
+    const destCity = destination?.city || destination?.displayName?.split(",")[0] || destination?.address?.split(",")[0] || draft?.formData?.to?.split(",")[0] || "Destination";
 
     return (
         <div className="min-h-screen bg-[#F8FAF9] flex flex-col font-sans text-[#1D1D1F] pb-12">
@@ -705,15 +708,15 @@ const RideReview = () => {
                                             </div>
                                             <div>
                                                 <h4 className="text-xs font-bold text-[#1D1D1F]">
-                                                    {stop.displayName?.split(",")[0] || stop.address}
+                                                    {stop.displayName?.split(",")[0] || stop.address || `Stop ${idx + 1}`}
                                                 </h4>
                                                 <span className="text-[10px] text-[#8E8E93]">
-                                                    ~{stop.distanceKm} km from pickup
+                                                    ~{stop.distanceKm || (idx + 1) * 35} km from pickup
                                                 </span>
                                             </div>
                                         </div>
                                         <span className="text-xs font-bold text-forest font-mono bg-white px-2.5 py-1 rounded-full border border-black/[0.04]">
-                                            ₹{stop.pricePerSeat} /seat
+                                            ₹{stop.pricePerSeat || Math.max(30, Math.round(((stop.distanceKm || 35) * ratePerKm) / (seats + 1)))} /seat
                                         </span>
                                     </div>
                                 ))}
@@ -722,7 +725,7 @@ const RideReview = () => {
                     </div>
 
                     {/* Assigned Vehicle Card */}
-                    {activeCar && (
+                    {activeCar ? (
                         <div className="rounded-[28px] bg-white border border-black/[0.06] p-6 shadow-xs flex items-center justify-between">
                             <div className="flex items-center gap-3.5">
                                 <div className="w-12 h-12 rounded-2xl bg-forest/10 text-forest flex items-center justify-center text-xl flex-shrink-0">
@@ -744,6 +747,25 @@ const RideReview = () => {
                             <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                                 Assigned
                             </span>
+                        </div>
+                    ) : (
+                        <div className="rounded-[28px] bg-amber-500/[0.06] border border-amber-500/20 p-5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-lg">
+                                    <FaCar />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-[#1D1D1F]">No Vehicle Selected</h4>
+                                    <p className="text-[11px] text-[#6E6E73]">Please assign your vehicle to publish this ride</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => navigate("/offer-ride/car")}
+                                className="text-xs font-bold text-forest bg-white px-3.5 py-2 rounded-full border border-black/[0.08] hover:bg-forest hover:text-white transition-all shadow-xs"
+                            >
+                                Select Car
+                            </button>
                         </div>
                     )}
 

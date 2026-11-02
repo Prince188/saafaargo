@@ -12,7 +12,6 @@ import { Link } from "react-router-dom";
 import {
     FaCar,
     FaUserCheck,
-    FaSearch,
     FaRoute,
     FaUsers,
     FaDownload,
@@ -22,7 +21,6 @@ import {
     FaTicketAlt,
     FaSyncAlt
 } from "react-icons/fa";
-import { FaArrowTrendUp } from "react-icons/fa6";
 import { RiSteeringFill } from "react-icons/ri";
 import API from "../../api/api";
 import { showError, showSuccess } from "../../utils/toastConfig";
@@ -32,33 +30,33 @@ const getActivityConfig = (type) => {
     switch (type) {
         case "user":
             return {
-                icon: <FaUsers className="text-[11px]" />,
-                style: "bg-purple-50 text-purple-700"
+                icon: <FaUsers className="text-[12px]" />,
+                style: "bg-purple-50 text-purple-700 border border-purple-200/60"
             };
         case "ride":
             return {
-                icon: <FaCar className="text-[11px]" />,
-                style: "bg-emerald-50 text-[#2f5a3d]"
+                icon: <FaCar className="text-[12px]" />,
+                style: "bg-emerald-50 text-forest border border-emerald-200/60"
             };
         case "booking":
             return {
-                icon: <FaTicketAlt className="text-[11px]" />,
-                style: "bg-blue-50 text-blue-700"
+                icon: <FaTicketAlt className="text-[12px]" />,
+                style: "bg-blue-50 text-blue-700 border border-blue-200/60"
             };
         case "subscription":
             return {
-                icon: <FaUserCheck className="text-[11px]" />,
-                style: "bg-amber-50 text-amber-700"
+                icon: <FaUserCheck className="text-[12px]" />,
+                style: "bg-amber-50 text-amber-700 border border-amber-200/60"
             };
         case "contact":
             return {
-                icon: <FaRoute className="text-[11px]" />,
-                style: "bg-rose-50 text-rose-700"
+                icon: <FaRoute className="text-[12px]" />,
+                style: "bg-rose-50 text-rose-700 border border-rose-200/60"
             };
         default:
             return {
-                icon: <FaCar className="text-[11px]" />,
-                style: "bg-[#faf9f5] text-[#2f5a3d]"
+                icon: <FaCar className="text-[12px]" />,
+                style: "bg-[#F5F6F8] text-forest border border-black/[0.04]"
             };
     }
 };
@@ -237,9 +235,9 @@ const Dashboard = () => {
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-[#1a2620] text-white px-3 py-2 rounded-xl shadow-lg border-0 text-xs">
-                    <p className="text-white/60 text-[10px] font-medium">{label}</p>
-                    <p className="text-base font-bold text-emerald-300">
+                <div className="bg-[#1D1D1F]/90 text-white px-3.5 py-2.5 rounded-2xl shadow-xl border border-white/10 text-xs backdrop-blur-xl">
+                    <p className="text-white/60 text-[10px] font-semibold uppercase tracking-wider">{label}</p>
+                    <p className="text-base font-bold text-emerald-300 mt-0.5">
                         {payload[0].value.toLocaleString()} <span className="text-[11px] font-normal text-white/70">visitors</span>
                     </p>
                 </div>
@@ -252,47 +250,44 @@ const Dashboard = () => {
     const chartData = dateRange === "week" ? weeklyStats : dateRange === "month" ? monthlyStats : stats;
 
     return (
-        <div className="font-['Plus_Jakarta_Sans',sans-serif] text-[#1a2620] pb-12" id="dashboard-print-area">
+        <div className="font-sans text-[#1D1D1F] pb-12 max-w-[1400px] mx-auto" id="dashboard-print-area">
 
-            {/* TOP BAR / COMMAND HEADER (Borderless & Fluid) */}
+            {/* Apple Spatial Header */}
             <header className="mb-8">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                     <div>
-                        <div className="flex items-center gap-2.5 mb-1.5">
+                        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full mb-2">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2f5a3d]"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-forest" />
                             </span>
-                            <span className="text-[11px] font-semibold tracking-wider uppercase text-[#2f5a3d]/90">
-                                Live Platform Operations
+                            <span className="text-[10px] font-bold tracking-wider uppercase text-emerald-900">
+                                Live Platform Telemetry
                             </span>
                         </div>
-                        <h1
-                            className="text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight text-[#1a2620]"
-                            style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                        >
-                            Operations <span className="italic font-light text-[#2f5a3d]">Command</span>
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#1D1D1F]">
+                            Operations <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest to-emerald-700">Command</span>
                         </h1>
-                        <p className="text-xs sm:text-sm text-[#5a6358] mt-1">
-                            Real-time platform status, driver KYC verifications, route capacity, and passenger demand.
+                        <p className="text-xs sm:text-sm text-[#6E6E73] mt-1 max-w-2xl leading-relaxed">
+                            Monitor real-time passenger capacity, driver KYC document verifications, corridor utilization, and search demand.
                         </p>
                     </div>
 
-                    {/* Top Action Controls (Sleek Ghost & Tinted Buttons) */}
+                    {/* Apple Action Controls */}
                     <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap no-print">
                         {/* Driver Verification Action */}
                         <Link
                             to="/admin/verify"
-                            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold transition-all no-underline shadow-xs active:scale-95 ${
                                 pendingDriversCount > 0
-                                    ? "bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/20"
-                                    : "bg-white hover:bg-[#f7f5ed] text-[#1a2620] shadow-sm"
+                                    ? "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
+                                    : "bg-white hover:bg-[#F5F6F8] text-[#1D1D1F] border border-black/[0.08]"
                             }`}
                         >
                             <RiSteeringFill className="text-sm" />
                             <span>Verify Drivers</span>
                             {pendingDriversCount > 0 && (
-                                <span className="px-1.5 py-0.5 rounded-full bg-white text-amber-700 text-[10px] font-bold">
+                                <span className="px-2 py-0.5 rounded-full bg-white text-amber-700 text-[10px] font-bold">
                                     {pendingDriversCount}
                                 </span>
                             )}
@@ -301,9 +296,9 @@ const Dashboard = () => {
                         {/* Search Demand Link */}
                         <Link
                             to="/admin/search-demand"
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-[#f7f5ed] text-[#1a2620] text-xs font-semibold transition-all shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#1D1D1F] text-xs font-bold transition-all border border-black/[0.08] shadow-xs no-underline active:scale-95"
                         >
-                            <FaRoute className="text-xs text-[#2f5a3d]" />
+                            <FaRoute className="text-xs text-forest" />
                             <span>Search Demand</span>
                         </Link>
 
@@ -311,51 +306,51 @@ const Dashboard = () => {
                         <button
                             onClick={() => fetchDashboardData(true)}
                             disabled={refreshing}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#f7f5ed] text-[#5a6358] hover:text-[#1a2620] text-xs font-semibold transition-all shadow-sm"
+                            className="w-10 h-10 rounded-full bg-white hover:bg-[#F5F6F8] text-[#6E6E73] hover:text-[#1D1D1F] flex items-center justify-center transition-all border border-black/[0.08] shadow-xs active:scale-95"
                             title="Refresh Data"
                         >
-                            <FaSyncAlt className={`text-[11px] ${refreshing ? "animate-spin text-[#2f5a3d]" : ""}`} />
+                            <FaSyncAlt className={`text-xs ${refreshing ? "animate-spin text-forest" : ""}`} />
                         </button>
 
                         {/* Export CSV */}
                         <button
                             onClick={handleExportData}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#f7f5ed] text-[#5a6358] hover:text-[#1a2620] text-xs font-semibold transition-all shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#6E6E73] hover:text-[#1D1D1F] text-xs font-semibold transition-all border border-black/[0.08] shadow-xs active:scale-95"
                         >
-                            <FaDownload className="text-[11px] text-[#2f5a3d]" />
+                            <FaDownload className="text-[11px] text-forest" />
                             <span className="hidden sm:inline">Export</span>
                         </button>
 
                         {/* Print */}
                         <button
                             onClick={handlePrint}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-[#f7f5ed] text-[#5a6358] hover:text-[#1a2620] text-xs font-semibold transition-all shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#6E6E73] hover:text-[#1D1D1F] text-xs font-semibold transition-all border border-black/[0.08] shadow-xs active:scale-95"
                         >
-                            <FaPrint className="text-[11px] text-[#2f5a3d]" />
+                            <FaPrint className="text-[11px] text-forest" />
                             <span className="hidden sm:inline">Print</span>
                         </button>
                     </div>
                 </div>
             </header>
 
-            {/* ACTION ALERT STRIP (Subtle Left-Accent Banner - No chunky borders) */}
+            {/* Apple Action Alert Strip */}
             {hasActionAlert && (
-                <div className="mb-8 rounded-2xl bg-amber-50/70 p-4 sm:p-4.5 border-l-4 border-amber-500 shadow-sm no-print">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-start sm:items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0">
-                                <FaExclamationTriangle className="text-xs" />
+                <div className="mb-8 rounded-[28px] bg-amber-500/[0.08] border border-amber-500/20 p-5 shadow-xs no-print animate-fade-in">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start sm:items-center gap-3.5">
+                            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center text-amber-700 flex-shrink-0 text-base">
+                                <FaExclamationTriangle />
                             </div>
                             <div className="text-xs text-amber-950 font-medium leading-relaxed">
                                 <span className="font-bold text-amber-900 block sm:inline mr-2">Action Required:</span>
                                 {pendingDriversCount > 0 && (
                                     <span className="inline-block mr-3">
-                                        <strong>{pendingDriversCount} driver{pendingDriversCount > 1 ? "s" : ""}</strong> awaiting KYC approval.
+                                        <strong>{pendingDriversCount} driver{pendingDriversCount > 1 ? "s" : ""}</strong> awaiting document approval.
                                     </span>
                                 )}
                                 {pendingRidesCount > 0 && (
                                     <span className="inline-block mr-3">
-                                        <strong>{pendingRidesCount} ride{pendingRidesCount > 1 ? "s" : ""}</strong> pending publication.
+                                        <strong>{pendingRidesCount} ride{pendingRidesCount > 1 ? "s" : ""}</strong> pending verification.
                                     </span>
                                 )}
                                 {(searchStats.unmetDemandRate || 0) > 20 && (
@@ -366,11 +361,11 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 self-start sm:self-auto pl-11 sm:pl-0">
+                        <div className="flex items-center gap-2 self-start sm:self-auto pl-13 sm:pl-0">
                             {pendingDriversCount > 0 && (
                                 <Link
                                     to="/admin/verify"
-                                    className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shadow-sm"
+                                    className="px-4 py-2 rounded-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-xs no-underline active:scale-95"
                                 >
                                     Review Drivers
                                 </Link>
@@ -378,7 +373,7 @@ const Dashboard = () => {
                             {(searchStats.unmetDemandRate || 0) > 20 && (
                                 <Link
                                     to="/admin/search-demand"
-                                    className="px-3 py-1.5 rounded-lg bg-white text-amber-900 hover:bg-amber-100/60 text-xs font-semibold transition-colors"
+                                    className="px-4 py-2 rounded-full bg-white text-amber-900 hover:bg-amber-50 text-xs font-bold border border-amber-300 transition-all no-underline active:scale-95"
                                 >
                                     View Demand
                                 </Link>
@@ -388,155 +383,138 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {/* CORE MOBILITY KPI RIBBON (Seamless Fluid Strip - Zero Boxy Frames) */}
+            {/* Apple Bento KPI Ribbon */}
             <section className="mb-8">
-                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
 
-                        {/* Metric 1: Ride Operations */}
-                        <div className="p-6 transition-colors hover:bg-[#faf9f5]/50">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
-                                    Ride Operations
-                                </span>
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    {activeRidesCount} Active
-                                </span>
-                            </div>
-                            <div
-                                className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1a2620] mt-1"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
-                                {rideStats.totalRides.toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-2 mt-3 text-xs text-[#5a6358]">
-                                <span className="font-semibold text-[#2f5a3d]">{rideStats.completedRides} completed</span>
-                                <span>•</span>
-                                <span>{rideStats.cancelledRides} cancelled</span>
-                            </div>
+                    {/* Metric 1: Ride Operations */}
+                    <div className="bg-white rounded-[28px] border border-black/[0.06] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                                Ride Operations
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                {activeRidesCount} Active
+                            </span>
                         </div>
-
-                        {/* Metric 2: Seats Booked */}
-                        <div className="p-6 transition-colors hover:bg-[#faf9f5]/50">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
-                                    Seats Booked
-                                </span>
-                                <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs">
-                                    <FaTicketAlt />
-                                </div>
-                            </div>
-                            <div
-                                className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1a2620] mt-1"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
-                                {rideStats.seatsBooked.toLocaleString()}
-                            </div>
-                            <p className="mt-3 text-xs text-[#5a6358]">
-                                Confirmed passenger reservations
-                            </p>
+                        <div className="text-3xl sm:text-4xl font-black tracking-tight text-[#1D1D1F]">
+                            {rideStats.totalRides.toLocaleString()}
                         </div>
-
-                        {/* Metric 3: Community & Verified Drivers */}
-                        <div className="p-6 transition-colors hover:bg-[#faf9f5]/50">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
-                                    Platform Community
-                                </span>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-800">
-                                    {userStats.verifiedDrivers || 0} Verified Drivers
-                                </span>
-                            </div>
-                            <div
-                                className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1a2620] mt-1"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
-                                {userStats.totalUsers.toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-2 mt-3 text-xs text-[#5a6358]">
-                                <span className="text-emerald-700 font-semibold">+{userStats.newUsersToday} new today</span>
-                                <span>•</span>
-                                <span>{userStats.activeUsers || userStats.totalUsers} active</span>
-                            </div>
+                        <div className="flex items-center gap-2 mt-3.5 text-xs text-[#6E6E73]">
+                            <span className="font-semibold text-forest">{rideStats.completedRides} completed</span>
+                            <span>•</span>
+                            <span>{rideStats.cancelledRides} cancelled</span>
                         </div>
-
-                        {/* Metric 4: Passenger Search Demand */}
-                        <div className="p-6 transition-colors hover:bg-[#faf9f5]/50">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8478]">
-                                    Search Demand
-                                </span>
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                    (searchStats.unmetDemandRate || 0) > 20
-                                        ? "bg-rose-50 text-rose-800"
-                                        : "bg-emerald-50 text-emerald-800"
-                                }`}>
-                                    {searchStats.searchesToday} Today
-                                </span>
-                            </div>
-                            <div
-                                className="text-3xl sm:text-4xl font-bold tracking-tight text-[#1a2620] mt-1"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
-                                {(searchStats.totalSearches || 0).toLocaleString()}
-                            </div>
-                            <div className="flex items-center gap-2 mt-3 text-xs text-[#5a6358]">
-                                <span className="font-semibold text-rose-700">{searchStats.zeroResultSearches} unmet</span>
-                                <span>•</span>
-                                <span>{searchStats.unmetDemandRate}% 0-ride rate</span>
-                            </div>
-                        </div>
-
                     </div>
+
+                    {/* Metric 2: Seats Booked */}
+                    <div className="bg-white rounded-[28px] border border-black/[0.06] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                                Seats Booked
+                            </span>
+                            <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-xs border border-blue-200/60">
+                                <FaTicketAlt />
+                            </div>
+                        </div>
+                        <div className="text-3xl sm:text-4xl font-black tracking-tight text-[#1D1D1F]">
+                            {rideStats.seatsBooked.toLocaleString()}
+                        </div>
+                        <p className="mt-3.5 text-xs text-[#6E6E73]">
+                            Confirmed passenger reservations
+                        </p>
+                    </div>
+
+                    {/* Metric 3: Community & Drivers */}
+                    <div className="bg-white rounded-[28px] border border-black/[0.06] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                                Platform Community
+                            </span>
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-50 text-purple-800 border border-purple-200/60">
+                                {userStats.verifiedDrivers || 0} Drivers
+                            </span>
+                        </div>
+                        <div className="text-3xl sm:text-4xl font-black tracking-tight text-[#1D1D1F]">
+                            {userStats.totalUsers.toLocaleString()}
+                        </div>
+                        <div className="flex items-center gap-2 mt-3.5 text-xs text-[#6E6E73]">
+                            <span className="text-emerald-700 font-semibold">+{userStats.newUsersToday} today</span>
+                            <span>•</span>
+                            <span>{userStats.activeUsers || userStats.totalUsers} active</span>
+                        </div>
+                    </div>
+
+                    {/* Metric 4: Search Demand */}
+                    <div className="bg-white rounded-[28px] border border-black/[0.06] p-6 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                                Search Demand
+                            </span>
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                                (searchStats.unmetDemandRate || 0) > 20
+                                    ? "bg-rose-50 text-rose-800 border-rose-200"
+                                    : "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            }`}>
+                                {searchStats.searchesToday} Today
+                            </span>
+                        </div>
+                        <div className="text-3xl sm:text-4xl font-black tracking-tight text-[#1D1D1F]">
+                            {(searchStats.totalSearches || 0).toLocaleString()}
+                        </div>
+                        <div className="flex items-center gap-2 mt-3.5 text-xs text-[#6E6E73]">
+                            <span className="font-semibold text-rose-700">{searchStats.zeroResultSearches} unmet</span>
+                            <span>•</span>
+                            <span>{searchStats.unmetDemandRate}% 0-match</span>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
-            {/* AUDIENCE & OPERATIONS TRAFFIC FLOW (Clean Chart Surface) */}
+            {/* Apple Traffic & Engagement Chart Card */}
             <section className="mb-8">
-                <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm">
-                    {/* Chart Header */}
+                <div className="bg-white rounded-[32px] border border-black/[0.06] p-6 sm:p-7 shadow-xs">
+                    {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div>
-                            <h2
-                                className="text-xl sm:text-2xl font-bold text-[#1a2620]"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
+                            <h2 className="text-lg sm:text-xl font-bold text-[#1D1D1F]">
                                 Traffic & Platform Engagement
                             </h2>
-                            <p className="text-xs text-[#7a8478] mt-0.5">
-                                Unique visitor volume trends across user and guest sessions
+                            <p className="text-xs text-[#6E6E73] mt-0.5">
+                                Unique visitor volume trends across authenticated and guest sessions
                             </p>
                         </div>
 
-                        {/* Range Switcher */}
-                        <div className="flex items-center gap-1 bg-[#f4f1ea] p-1 rounded-xl self-start sm:self-auto text-xs">
+                        {/* Apple Segmented Pill Switcher */}
+                        <div className="flex items-center gap-1 bg-[#F5F6F8] p-1 rounded-full border border-black/[0.04] self-start sm:self-auto text-xs">
                             <button
                                 onClick={() => setDateRange("today")}
-                                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                                className={`px-3.5 py-1.5 rounded-full font-bold transition-all ${
                                     dateRange === "today"
-                                        ? "bg-white text-[#1a2620] shadow-sm"
-                                        : "text-[#7a8478] hover:text-[#1a2620]"
+                                        ? "bg-white text-[#1D1D1F] shadow-xs"
+                                        : "text-[#6E6E73] hover:text-[#1D1D1F]"
                                 }`}
                             >
                                 Today
                             </button>
                             <button
                                 onClick={() => setDateRange("week")}
-                                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                                className={`px-3.5 py-1.5 rounded-full font-bold transition-all ${
                                     dateRange === "week"
-                                        ? "bg-white text-[#1a2620] shadow-sm"
-                                        : "text-[#7a8478] hover:text-[#1a2620]"
+                                        ? "bg-white text-[#1D1D1F] shadow-xs"
+                                        : "text-[#6E6E73] hover:text-[#1D1D1F]"
                                 }`}
                             >
                                 7 Days
                             </button>
                             <button
                                 onClick={() => setDateRange("month")}
-                                className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                                className={`px-3.5 py-1.5 rounded-full font-bold transition-all ${
                                     dateRange === "month"
-                                        ? "bg-white text-[#1a2620] shadow-sm"
-                                        : "text-[#7a8478] hover:text-[#1a2620]"
+                                        ? "bg-white text-[#1D1D1F] shadow-xs"
+                                        : "text-[#6E6E73] hover:text-[#1D1D1F]"
                                 }`}
                             >
                                 30 Days
@@ -550,26 +528,26 @@ const Dashboard = () => {
                             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorTrafficFlow" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#2f5a3d" stopOpacity={0.25} />
-                                        <stop offset="95%" stopColor="#2f5a3d" stopOpacity={0.0} />
+                                        <stop offset="5%" stopColor="#1A3A2E" stopOpacity={0.25} />
+                                        <stop offset="95%" stopColor="#1A3A2E" stopOpacity={0.0} />
                                     </linearGradient>
                                 </defs>
                                 <XAxis
                                     dataKey="date"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: "#7a8478", fontSize: 11 }}
+                                    tick={{ fill: "#8E8E93", fontSize: 11 }}
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: "#7a8478", fontSize: 11 }}
+                                    tick={{ fill: "#8E8E93", fontSize: 11 }}
                                 />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Area
                                     type="monotone"
                                     dataKey="visitors"
-                                    stroke="#2f5a3d"
+                                    stroke="#1A3A2E"
                                     strokeWidth={2.5}
                                     fillOpacity={1}
                                     fill="url(#colorTrafficFlow)"
@@ -579,57 +557,54 @@ const Dashboard = () => {
                     </div>
 
                     {/* Compact Footer Strip */}
-                    <div className="mt-6 pt-5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4 text-xs text-[#5a6358]">
+                    <div className="mt-6 pt-5 border-t border-black/[0.04] flex flex-wrap items-center justify-between gap-4 text-xs text-[#6E6E73]">
                         <div className="flex items-center gap-6 flex-wrap">
                             <div>
-                                <span className="text-[#7a8478]">Daily Unique: </span>
-                                <strong className="text-[#1a2620] font-bold">{today.toLocaleString()}</strong>
+                                <span className="text-[#8E8E93]">Daily Unique: </span>
+                                <strong className="text-[#1D1D1F] font-bold">{today.toLocaleString()}</strong>
                             </div>
                             <div>
-                                <span className="text-[#7a8478]">Total Unique Visitors: </span>
-                                <strong className="text-[#1a2620] font-bold">{total.toLocaleString()}</strong>
+                                <span className="text-[#8E8E93]">Total Unique Visitors: </span>
+                                <strong className="text-[#1D1D1F] font-bold">{total.toLocaleString()}</strong>
                             </div>
                             <div>
-                                <span className="text-[#7a8478]">Total Page Impressions: </span>
-                                <strong className="text-[#1a2620] font-bold">{totalVisits.toLocaleString()}</strong>
+                                <span className="text-[#8E8E93]">Total Impressions: </span>
+                                <strong className="text-[#1D1D1F] font-bold">{totalVisits.toLocaleString()}</strong>
                             </div>
                         </div>
 
-                        <div className="text-[11px] text-[#7a8478]">
-                            Customer Support Inquiries: <strong className="text-[#1a2620]">{feedback.contactsCount}</strong>
+                        <div className="text-[11px] text-[#8E8E93]">
+                            Support Inquiries: <strong className="text-[#1D1D1F]">{feedback.contactsCount}</strong>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* ROUTE CORRIDORS & DEMAND INTELLIGENCE (Balanced 2-Column Grid) */}
+            {/* Route Corridors & Demand Intelligence (2-Column Bento) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
 
-                {/* Left Column: Driver Supply Routes */}
-                <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm">
+                {/* Left: Driver Supply Corridors */}
+                <div className="bg-white rounded-[32px] border border-black/[0.06] p-6 sm:p-7 shadow-xs">
                     <div className="flex items-center justify-between mb-5">
                         <div>
-                            <h3
-                                className="text-lg sm:text-xl font-bold text-[#1a2620]"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
+                            <h3 className="text-base sm:text-lg font-bold text-[#1D1D1F]">
                                 Driver Supply Corridors
                             </h3>
-                            <p className="text-xs text-[#7a8478] mt-0.5">
-                                Destinations with highest driver ride postings
+                            <p className="text-xs text-[#6E6E73] mt-0.5">
+                                Destinations with highest driver postings
                             </p>
                         </div>
                         <Link
                             to="/admin/rides"
-                            className="text-xs font-semibold text-[#2f5a3d] hover:text-[#1e3b27] flex items-center gap-1 transition-colors"
+                            className="text-xs font-bold text-forest hover:underline flex items-center gap-1 no-underline"
                         >
                             All Rides <FaChevronRight className="text-[10px]" />
                         </Link>
                     </div>
 
                     {topCities.length === 0 ? (
-                        <div className="py-12 text-center text-xs text-[#7a8478]">
-                            No published ride corridor data yet.
+                        <div className="py-12 text-center text-xs text-[#8E8E93]">
+                            No published ride corridor data recorded yet.
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -637,21 +612,21 @@ const Dashboard = () => {
                                 <div key={idx} className="group">
                                     <div className="flex items-center justify-between text-xs mb-1.5">
                                         <div className="flex items-center gap-2">
-                                            <span className="w-5 text-[11px] font-bold text-[#7a8478]">
+                                            <span className="w-5 text-[11px] font-bold text-[#8E8E93]">
                                                 0{idx + 1}
                                             </span>
-                                            <span className="font-semibold text-[#1a2620]">
+                                            <span className="font-bold text-[#1D1D1F]">
                                                 {city.city}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2 font-medium">
-                                            <span className="text-[#1a2620] font-bold">{city.rides}</span>
-                                            <span className="text-[#7a8478]">rides ({city.percentage}%)</span>
+                                            <span className="text-[#1D1D1F] font-bold">{city.rides}</span>
+                                            <span className="text-[#8E8E93]">rides ({city.percentage}%)</span>
                                         </div>
                                     </div>
-                                    <div className="w-full bg-[#f4f1ea] rounded-full h-2 overflow-hidden">
+                                    <div className="w-full bg-[#F5F6F8] rounded-full h-2.5 overflow-hidden">
                                         <div
-                                            className="bg-[#2f5a3d] h-2 rounded-full transition-all duration-500 group-hover:bg-emerald-600"
+                                            className="bg-forest h-2.5 rounded-full transition-all duration-500 group-hover:bg-emerald-600"
                                             style={{ width: `${city.percentage}%` }}
                                         />
                                     </div>
@@ -661,53 +636,50 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* Right Column: Passenger Search Demand (Unmet Gap Detector) */}
-                <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm">
+                {/* Right: Passenger Search Demand (Unmet Gap Detector) */}
+                <div className="bg-white rounded-[32px] border border-black/[0.06] p-6 sm:p-7 shadow-xs">
                     <div className="flex items-center justify-between mb-5">
                         <div>
                             <div className="flex items-center gap-2">
-                                <h3
-                                    className="text-lg sm:text-xl font-bold text-[#1a2620]"
-                                    style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                                >
+                                <h3 className="text-base sm:text-lg font-bold text-[#1D1D1F]">
                                     Passenger Search Demand
                                 </h3>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800">
-                                    Demand Radar
+                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/60">
+                                    Radar
                                 </span>
                             </div>
-                            <p className="text-xs text-[#7a8478] mt-0.5">
+                            <p className="text-xs text-[#6E6E73] mt-0.5">
                                 Top routes searched by riders vs available supply
                             </p>
                         </div>
                         <Link
                             to="/admin/search-demand"
-                            className="text-xs font-semibold text-[#2f5a3d] hover:text-[#1e3b27] flex items-center gap-1 transition-colors"
+                            className="text-xs font-bold text-forest hover:underline flex items-center gap-1 no-underline"
                         >
                             View All Demand <FaChevronRight className="text-[10px]" />
                         </Link>
                     </div>
 
                     {!searchStats.topSearchedRoutes || searchStats.topSearchedRoutes.length === 0 ? (
-                        <div className="py-12 text-center text-xs text-[#7a8478]">
+                        <div className="py-12 text-center text-xs text-[#8E8E93]">
                             No passenger search history recorded yet.
                         </div>
                     ) : (
-                        <div className="space-y-3.5">
+                        <div className="space-y-3">
                             {searchStats.topSearchedRoutes.slice(0, 5).map((route, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex items-center justify-between p-3 rounded-xl bg-[#faf9f5] hover:bg-[#f4f1ea]/70 transition-colors"
+                                    className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F8FAF9] hover:bg-[#F2F4F3] border border-black/[0.04] transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#2f5a3d] flex items-center justify-center text-xs font-bold">
+                                        <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest flex items-center justify-center text-xs font-bold">
                                             #{idx + 1}
                                         </div>
                                         <div>
-                                            <div className="text-xs font-bold text-[#1a2620]">
+                                            <div className="text-xs font-bold text-[#1D1D1F]">
                                                 {route.fromCity} → {route.toCity}
                                             </div>
-                                            <div className="text-[11px] text-[#7a8478] mt-0.5">
+                                            <div className="text-[11px] text-[#8E8E93] mt-0.5">
                                                 {route.searches} search inquiries
                                             </div>
                                         </div>
@@ -715,11 +687,11 @@ const Dashboard = () => {
 
                                     <div>
                                         {route.zeroResultsCount > 0 ? (
-                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                                 {route.zeroResultsCount} unmet
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                                                 Fully Served
                                             </span>
                                         )}
@@ -732,29 +704,26 @@ const Dashboard = () => {
 
             </div>
 
-            {/* LIVE PLATFORM FEED & AUDIENCE LOG (Clean Data Streams) */}
+            {/* Live Platform Feed & Visitor Log */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 
                 {/* Live Activity Stream (1 Column) */}
-                <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm">
+                <div className="bg-white rounded-[32px] border border-black/[0.06] p-6 sm:p-7 shadow-xs">
                     <div className="flex items-center justify-between mb-5">
-                        <h3
-                            className="text-lg sm:text-xl font-bold text-[#1a2620]"
-                            style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                        >
+                        <h3 className="text-base sm:text-lg font-bold text-[#1D1D1F]">
                             Live Activity
                         </h3>
-                        <span className="text-[11px] text-[#7a8478]">
-                            Platform Feed
+                        <span className="text-[11px] font-semibold text-[#8E8E93] bg-[#F5F6F8] px-2.5 py-0.5 rounded-full">
+                            Feed
                         </span>
                     </div>
 
                     {recentActivities.length === 0 ? (
-                        <div className="py-12 text-center text-xs text-[#7a8478]">
+                        <div className="py-12 text-center text-xs text-[#8E8E93]">
                             No recent activity recorded.
                         </div>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-3.5">
                             {recentActivities.slice(0, 6).map((activity, idx) => {
                                 const config = getActivityConfig(activity.type);
                                 const timestamp = activity.time || activity.createdAt;
@@ -763,16 +732,16 @@ const Dashboard = () => {
                                     : "Just now";
 
                                 return (
-                                    <div key={idx} className="flex items-start gap-3 text-xs">
-                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${config.style}`}>
+                                    <div key={idx} className="flex items-start gap-3 text-xs p-2.5 rounded-2xl bg-[#F8FAF9] border border-black/[0.04]">
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${config.style}`}>
                                             {config.icon}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-[#1a2620] leading-snug">
-                                                <strong className="font-semibold text-[#1a2620]">{activity.user || "A user"}</strong>{" "}
-                                                <span className="text-[#5a6358]">{activity.action || activity.message || "performed an action"}</span>
+                                            <p className="text-[#1D1D1F] leading-snug">
+                                                <strong className="font-bold text-[#1D1D1F]">{activity.user || "A user"}</strong>{" "}
+                                                <span className="text-[#6E6E73]">{activity.action || activity.message || "performed an action"}</span>
                                             </p>
-                                            <p className="text-[10px] text-[#7a8478] mt-0.5">
+                                            <p className="text-[10px] text-[#8E8E93] mt-0.5">
                                                 {timeFormatted}
                                             </p>
                                         </div>
@@ -784,20 +753,17 @@ const Dashboard = () => {
                 </div>
 
                 {/* Recent Visitors Log Table (2 Columns) */}
-                <div className="lg:col-span-2 bg-white rounded-2xl p-6 sm:p-7 shadow-sm">
+                <div className="lg:col-span-2 bg-white rounded-[32px] border border-black/[0.06] p-6 sm:p-7 shadow-xs">
                     <div className="flex items-center justify-between mb-5">
                         <div>
-                            <h3
-                                className="text-lg sm:text-xl font-bold text-[#1a2620]"
-                                style={{ fontFamily: '"Fraunces", Georgia, serif' }}
-                            >
+                            <h3 className="text-base sm:text-lg font-bold text-[#1D1D1F]">
                                 Recent Visitor Sessions
                             </h3>
-                            <p className="text-xs text-[#7a8478] mt-0.5">
+                            <p className="text-xs text-[#6E6E73] mt-0.5">
                                 Real-time incoming traffic, accounts, and session counts
                             </p>
                         </div>
-                        <span className="text-[11px] font-bold text-[#7a8478]">
+                        <span className="text-[11px] font-bold text-forest bg-forest/10 px-3 py-1 rounded-full border border-forest/20">
                             {recentVisitors.length} live sessions
                         </span>
                     </div>
@@ -805,18 +771,18 @@ const Dashboard = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                             <thead>
-                                <tr className="text-[11px] uppercase tracking-wider text-[#7a8478] border-b border-gray-100">
-                                    <th className="pb-3 font-semibold">Visitor UUID / IP</th>
-                                    <th className="pb-3 font-semibold">User Type</th>
-                                    <th className="pb-3 font-semibold">User Email</th>
-                                    <th className="pb-3 font-semibold text-center">Visits</th>
-                                    <th className="pb-3 font-semibold text-right">Last Active</th>
+                                <tr className="text-[10px] uppercase tracking-wider text-[#8E8E93] border-b border-black/[0.06]">
+                                    <th className="pb-3 font-bold">Visitor UUID / IP</th>
+                                    <th className="pb-3 font-bold">User Type</th>
+                                    <th className="pb-3 font-bold">User Email</th>
+                                    <th className="pb-3 font-bold text-center">Visits</th>
+                                    <th className="pb-3 font-bold text-right">Last Active</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-black/[0.04]">
                                 {recentVisitors.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="py-8 text-center text-[#7a8478]">
+                                        <td colSpan="5" className="py-8 text-center text-[#8E8E93]">
                                             No recent visitors tracked.
                                         </td>
                                     </tr>
@@ -824,31 +790,31 @@ const Dashboard = () => {
                                     recentVisitors.slice(0, 7).map((visitor, idx) => {
                                         const isGuest = !visitor.userId || visitor.userId === "guest";
                                         return (
-                                            <tr key={idx} className="hover:bg-[#faf9f5]/70 transition-colors">
-                                                <td className="py-3 font-mono text-[11px] text-[#1a2620]">
-                                                    <div className="font-semibold text-xs">
+                                            <tr key={idx} className="hover:bg-[#F8FAF9] transition-colors">
+                                                <td className="py-3 font-mono text-[11px] text-[#1D1D1F]">
+                                                    <div className="font-bold text-xs">
                                                         {visitor.visitorId ? `${visitor.visitorId.slice(0, 16)}...` : "N/A"}
                                                     </div>
-                                                    <div className="text-[10px] text-[#7a8478]">
+                                                    <div className="text-[10px] text-[#8E8E93]">
                                                         {visitor.ip || "Unknown IP"}
                                                     </div>
                                                 </td>
                                                 <td className="py-3">
-                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                                                         isGuest
-                                                            ? "bg-amber-50 text-amber-700"
-                                                            : "bg-emerald-50 text-emerald-800"
+                                                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                                            : "bg-emerald-50 text-emerald-800 border border-emerald-200"
                                                     }`}>
                                                         {isGuest ? "Guest" : "Registered"}
                                                     </span>
                                                 </td>
-                                                <td className="py-3 text-[#1a2620] truncate max-w-[150px]">
+                                                <td className="py-3 text-[#1D1D1F] truncate max-w-[150px]">
                                                     {visitor.email || "guest"}
                                                 </td>
-                                                <td className="py-3 text-center font-bold text-[#2f5a3d]">
+                                                <td className="py-3 text-center font-bold text-forest">
                                                     {visitor.count || 1}
                                                 </td>
-                                                <td className="py-3 text-right text-[#7a8478] text-[11px]">
+                                                <td className="py-3 text-right text-[#8E8E93] text-[11px]">
                                                     {visitor.updatedAt
                                                         ? formatDistanceToNow(new Date(visitor.updatedAt), { addSuffix: true })
                                                         : "Just now"}

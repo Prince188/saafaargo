@@ -27,13 +27,15 @@ const PriceSelection = () => {
     const isAboveAvg = ratePerKm > MAX_RECOMMENDED_RATE;
 
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
+        const nLat1 = Number(lat1), nLng1 = Number(lng1), nLat2 = Number(lat2), nLng2 = Number(lng2);
+        if (isNaN(nLat1) || isNaN(nLng1) || isNaN(nLat2) || isNaN(nLng2) || (!nLat1 && !nLat2)) return 45;
         const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const dLat = (nLat2 - nLat1) * Math.PI / 180;
+        const dLng = (nLng2 - nLng1) * Math.PI / 180;
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) *
-            Math.cos(lat2 * Math.PI / 180) *
+            Math.cos(nLat1 * Math.PI / 180) *
+            Math.cos(nLat2 * Math.PI / 180) *
             Math.sin(dLng / 2) *
             Math.sin(dLng / 2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
@@ -47,42 +49,49 @@ const PriceSelection = () => {
         ...orderedStops,
         {
             id: "destination",
-            displayName: destination?.displayName,
+            displayName: destination?.displayName || destination?.address || "Destination",
             lat: destination?.lat,
             lng: destination?.lng,
         },
     ]
-        .map((stop) => {
+        .map((stop, idx) => {
             const pCoords = getCityCenter(pickup);
             const sCoords = getCityCenter(stop);
-            const distanceKm = parseFloat(
+            let distanceKm = parseFloat(
                 calculateDistance(
-                    pCoords.lat,
-                    pCoords.lng,
-                    sCoords.lat,
-                    sCoords.lng
+                    pCoords?.lat,
+                    pCoords?.lng,
+                    sCoords?.lat,
+                    sCoords?.lng
                 ).toFixed(1)
             );
+            if (isNaN(distanceKm) || distanceKm <= 0) {
+                distanceKm = Math.round((idx + 1) * 35);
+            }
             return { ...stop, distanceKm };
         })
         .sort((a, b) => a.distanceKm - b.distanceKm);
 
-    const totalHaversineDist = segments[segments.length - 1]?.distanceKm || 0;
-    const scaleFactor = roadDistanceKm && totalHaversineDist > 0 ? roadDistanceKm / totalHaversineDist : 1;
+    const totalHaversineDist = segments[segments.length - 1]?.distanceKm || 120;
+    const safeRoadDistance = Number(roadDistanceKm) > 0 ? Number(roadDistanceKm) : totalHaversineDist;
+    const scaleFactor = safeRoadDistance && totalHaversineDist > 0 ? safeRoadDistance / totalHaversineDist : 1;
 
-    const segmentPrices = segments.map((stop) => {
-        const scaledKm = parseFloat((stop.distanceKm * scaleFactor).toFixed(1));
+    const segmentPrices = segments.map((stop, idx) => {
+        const baseKm = stop.distanceKm || (idx + 1) * 35;
+        const scaledKm = parseFloat((baseKm * scaleFactor).toFixed(1));
+        const pricePerSeat = Math.max(30, Math.round((scaledKm * ratePerKm) / (seats + 1)));
+        const totalRoutePrice = Math.round(scaledKm * ratePerKm);
         return {
             ...stop,
             distanceKm: scaledKm,
-            pricePerSeat: Math.round((scaledKm * ratePerKm) / (seats + 1)),
-            totalRoutePrice: Math.round(scaledKm * ratePerKm),
+            pricePerSeat,
+            totalRoutePrice,
         };
     });
 
     const destinationSegment = segmentPrices.find((s) => s.id === "destination") || segmentPrices[segmentPrices.length - 1];
-    const totalPriceFullRoute = destinationSegment?.totalRoutePrice || Math.round(roadDistanceKm * ratePerKm);
-    const totalPricePerSeat = destinationSegment?.pricePerSeat || Math.round((roadDistanceKm * ratePerKm) / (seats + 1));
+    const totalPriceFullRoute = destinationSegment?.totalRoutePrice || Math.round(safeRoadDistance * ratePerKm);
+    const totalPricePerSeat = destinationSegment?.pricePerSeat || Math.max(50, Math.round((safeRoadDistance * ratePerKm) / (seats + 1)));
 
     const handleContinue = () => {
         const intermediateSegmentPrices = segmentPrices.filter((s) => s.id !== "destination");
@@ -93,7 +102,7 @@ const PriceSelection = () => {
             stops: intermediateSegmentPrices,
             ratePerKm,
             seats,
-            totalDistanceKm: roadDistanceKm,
+            totalDistanceKm: safeRoadDistance,
             totalPriceFullRoute,
             totalPricePerSeat,
             formData: rideFormData
@@ -107,7 +116,7 @@ const PriceSelection = () => {
                 ratePerKm,
                 seats,
                 formData: rideFormData,
-                totalDistanceKm: roadDistanceKm,
+                totalDistanceKm: safeRoadDistance,
                 totalPriceFullRoute,
                 totalPricePerSeat,
             },
