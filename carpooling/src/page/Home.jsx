@@ -18,10 +18,22 @@ import {
     FaCar,
     FaGasPump,
     FaCheckCircle,
-    FaStar,
 } from "react-icons/fa";
 
+// ResidentOne-style Rotating Words in Hero Title
+const ROTATING_WORDS = [
+    { word: "Smarter.", tag: "AI Corridor Matching" },
+    { word: "Greener.", tag: "Cut Highway Carbon" },
+    { word: "Together.", tag: "Verified Community" },
+    { word: "Affordable.", tag: "Save 70% on Intercity Travel" },
+    { word: "Safer.", tag: "100% Verified Drivers" },
+];
+
 export default function Home() {
+    // ---- ROTATING WORDS STATE (ResidentOne Animation) ----
+    const [wordIdx, setWordIdx] = useState(0);
+    const [animatingWord, setAnimatingWord] = useState(false);
+
     // ---- SEARCH STATE ----
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
@@ -44,13 +56,24 @@ export default function Home() {
 
     const fromRef = useRef(null);
     const toRef = useRef(null);
-    const pathRef = useRef(null);
-    const carRef = useRef(null);
-    const car2Ref = useRef(null);
     const bentoRef = useRef(null);
     const stepsRef = useRef(null);
 
     const navigate = useNavigate();
+
+    // Cycle rotating words in Hero Title (ResidentOne Pattern)
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setAnimatingWord(true);
+            setTimeout(() => {
+                setWordIdx((prev) => (prev + 1) % ROTATING_WORDS.length);
+                setAnimatingWord(false);
+            }, 250);
+        }, 2800);
+        return () => clearInterval(timer);
+    }, []);
+
+    const currentWord = ROTATING_WORDS[wordIdx];
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -172,47 +195,6 @@ export default function Home() {
         });
     }, []);
 
-    // Continuous Highway Cruise + Interactive Scroll Speed
-    useEffect(() => {
-        if (!pathRef.current || !carRef.current) return;
-
-        const path = pathRef.current;
-        const pathLength = path.getTotalLength();
-        let animFrameId;
-        let baseProgress = 0;
-
-        const animate = () => {
-            // Continual cruising speed + scroll acceleration
-            const scrollOffset = (window.scrollY / 700);
-            baseProgress = (baseProgress + 0.0007) % 1;
-            const currentProgress = (baseProgress + scrollOffset * 0.35) % 1;
-            const progress = Math.max(0, Math.min(1, currentProgress));
-
-            // Primary car forward motion
-            const point = path.getPointAtLength(progress * pathLength);
-            const lookAhead = Math.min(progress * pathLength + 5, pathLength);
-            const nextPoint = path.getPointAtLength(lookAhead);
-            const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * (180 / Math.PI);
-
-            carRef.current.style.transform = `translate(${point.x}px, ${point.y}px) rotate(${angle}deg)`;
-
-            // Oncoming car in reverse lane
-            if (car2Ref.current) {
-                const revProgress = 1 - ((baseProgress * 1.25) % 1);
-                const p2 = path.getPointAtLength(revProgress * pathLength);
-                const p2Ahead = path.getPointAtLength(Math.max(0, revProgress * pathLength - 5));
-                const angle2 = Math.atan2(p2Ahead.y - p2.y, p2Ahead.x - p2.x) * (180 / Math.PI);
-
-                car2Ref.current.style.transform = `translate(${p2.x}px, ${p2.y}px) rotate(${angle2}deg)`;
-            }
-
-            animFrameId = requestAnimationFrame(animate);
-        };
-
-        animFrameId = requestAnimationFrame(animate);
-        return () => cancelAnimationFrame(animFrameId);
-    }, []);
-
     // Scroll Reveal Observer for Bento & Steps sections
     useEffect(() => {
         const observerOptions = {
@@ -309,95 +291,12 @@ export default function Home() {
                 }}
             />
 
-            {/* HERO SECTION - Apple Spatial & Animated Highway Experience */}
+            {/* HERO SECTION - Apple Spatial & Dynamic Animated Typography */}
             <section className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden">
 
-                {/* Animated Highway Road Canvas */}
-                <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-35">
-                    <svg className="w-full h-full" viewBox="0 0 1440 800" fill="none" preserveAspectRatio="none">
-                        <defs>
-                            <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#DFE7E1" />
-                                <stop offset="50%" stopColor="#CBD8CE" />
-                                <stop offset="100%" stopColor="#DFE7E1" />
-                            </linearGradient>
-                            <linearGradient id="headlightBeam" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="rgba(254, 240, 138, 0.45)" />
-                                <stop offset="100%" stopColor="rgba(254, 240, 138, 0)" />
-                            </linearGradient>
-                        </defs>
-
-                        {/* Road Outer Shoulder */}
-                        <path
-                            d="M 100 150 C 400 150, 400 700, 1100 700"
-                            fill="none"
-                            stroke="#CBD8CE"
-                            strokeWidth="86"
-                            strokeLinecap="round"
-                        />
-                        {/* Road Asphalt Base */}
-                        <path
-                            ref={pathRef}
-                            d="M 100 150 C 400 150, 400 700, 1100 700"
-                            fill="none"
-                            stroke="url(#roadGrad)"
-                            strokeWidth="80"
-                            strokeLinecap="round"
-                        />
-                        {/* Road Center Animated Dashed Line */}
-                        <path
-                            d="M 100 150 C 400 150, 400 700, 1100 700"
-                            fill="none"
-                            stroke="#FFFFFF"
-                            strokeWidth="4"
-                            strokeDasharray="20 20"
-                            className="animate-road-dash"
-                        />
-
-                        {/* Primary Cruising Car */}
-                        <g ref={carRef} style={{ transition: 'transform 0.05s linear', transform: 'translate(100px, 150px)' }}>
-                            <g transform="scale(1.5)">
-                                {/* Headlight Beam Projection */}
-                                <polygon points="18,-10 60,-20 60,20 18,10" fill="url(#headlightBeam)" />
-                                {/* Car Body */}
-                                <rect x="-18" y="-12" width="36" height="24" fill="rgba(0,0,0,0.14)" rx="6" />
-                                <path d="M-15 -10 h30 a5 5 0 0 1 5 5 v10 a5 5 0 0 1 -5 5 h-30 a5 5 0 0 1 -5 -5 v-10 a5 5 0 0 1 5 -5 z" fill="#1A3A2E" />
-                                <path d="M-3 -8 h10 a2 2 0 0 1 2 2 v12 a2 2 0 0 1 -2 2 h-10 a2 2 0 0 1 -2 -2 v-12 a2 2 0 0 1 2 -2 z" fill="#A8C5B8" />
-                                <path d="M-12 -6 h4 a1 1 0 0 1 1 1 v10 a1 1 0 0 1 -1 1 h-4 a1 1 0 0 1 -1 -1 v-10 a1 1 0 0 1 1 -1 z" fill="#A8C5B8" />
-                                <rect x="-12" y="-12" width="6" height="3" fill="#111" rx="1" />
-                                <rect x="8" y="-12" width="6" height="3" fill="#111" rx="1" />
-                                <rect x="-12" y="9" width="6" height="3" fill="#111" rx="1" />
-                                <rect x="8" y="9" width="6" height="3" fill="#111" rx="1" />
-                                <rect x="18" y="-8" width="2" height="4" fill="#FDE047" />
-                                <rect x="18" y="4" width="2" height="4" fill="#FDE047" />
-                                <rect x="-19" y="-8" width="2" height="3" fill="#EF4444" />
-                                <rect x="-19" y="5" width="2" height="3" fill="#EF4444" />
-                            </g>
-                        </g>
-
-                        {/* Oncoming Commuter Car */}
-                        <g ref={car2Ref} style={{ transition: 'transform 0.05s linear', transform: 'translate(1100px, 700px)' }}>
-                            <g transform="scale(1.35)">
-                                <polygon points="-18,-8 -50,-16 -50,16 -18,8" fill="url(#headlightBeam)" />
-                                <rect x="-16" y="-11" width="32" height="22" fill="rgba(0,0,0,0.12)" rx="5" />
-                                <path d="M-13 -9 h26 a4 4 0 0 1 4 4 v10 a4 4 0 0 1 -4 4 h-26 a4 4 0 0 1 -4 -4 v-10 a4 4 0 0 1 4 -4 z" fill="#2E5A44" />
-                                <path d="M-2 -7 h9 a2 2 0 0 1 2 2 v10 a2 2 0 0 1 -2 2 h-9 a2 2 0 0 1 -2 -2 v-10 a2 2 0 0 1 2 -2 z" fill="#C5DCD0" />
-                                <rect x="-10" y="-11" width="5" height="2.5" fill="#111" rx="1" />
-                                <rect x="7" y="-11" width="5" height="2.5" fill="#111" rx="1" />
-                                <rect x="-10" y="8.5" width="5" height="2.5" fill="#111" rx="1" />
-                                <rect x="7" y="8.5" width="5" height="2.5" fill="#111" rx="1" />
-                                <rect x="-17" y="-7" width="2" height="3" fill="#FDE047" />
-                                <rect x="-17" y="4" width="2" height="3" fill="#FDE047" />
-                                <rect x="16" y="-7" width="2" height="3" fill="#EF4444" />
-                                <rect x="16" y="4" width="2" height="3" fill="#EF4444" />
-                            </g>
-                        </g>
-                    </svg>
-                </div>
-
                 {/* Apple Ambient Soft Diffuse Auras */}
-                <div className="absolute w-[450px] h-[450px] rounded-full bg-sage-light/35 blur-[120px] pointer-events-none -top-[120px] -right-[120px] animate-float z-0"></div>
-                <div className="absolute w-[400px] h-[400px] rounded-full bg-clay-light/25 blur-[120px] pointer-events-none -bottom-[100px] -left-[100px] animate-float-reverse z-0"></div>
+                <div className="absolute w-[500px] h-[500px] rounded-full bg-sage-light/35 blur-[130px] pointer-events-none -top-[120px] -right-[120px] animate-float z-0"></div>
+                <div className="absolute w-[450px] h-[450px] rounded-full bg-clay-light/25 blur-[130px] pointer-events-none -bottom-[100px] -left-[100px] animate-float-reverse z-0"></div>
 
                 {/* Floating Real-Time Proof Badge (Left - Desktop) */}
                 <div className="hidden xl:flex items-center gap-3 bg-white/90 backdrop-blur-xl px-4 py-2.5 rounded-2xl border border-black/[0.06] shadow-[0_12px_32px_rgba(26,58,46,0.08)] animate-float-card absolute left-8 top-32 z-20">
@@ -433,26 +332,32 @@ export default function Home() {
                 <div className="relative z-10 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div className="max-w-[880px] mx-auto text-center pt-4 md:pt-8 pb-10">
 
-                        {/* iOS Frosted Eyebrow Capsule with Beacon Ping */}
-                        <div className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-xl px-4 py-1.5 rounded-full mb-7 border border-black/[0.05] shadow-[0_2px_10px_rgba(0,0,0,0.03)] animate-fade-in-up">
+                        {/* iOS Frosted Eyebrow Capsule with Beacon Ping & Dynamic Tag */}
+                        <div className="inline-flex items-center gap-2.5 bg-white/85 backdrop-blur-xl px-4 py-1.5 rounded-full mb-7 border border-black/[0.05] shadow-[0_2px_10px_rgba(0,0,0,0.03)] animate-fade-in-up">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-radar-pulse absolute inline-flex h-full w-full rounded-full bg-forest opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-forest"></span>
                             </span>
-                            <span className="text-[11px] font-bold tracking-[0.16em] text-forest uppercase">
-                                INDIA'S TRUSTED CARPOOLING NETWORK
+                            <span className="text-[11px] font-bold tracking-[0.16em] text-forest uppercase transition-opacity duration-300">
+                                {currentWord.tag}
                             </span>
                         </div>
 
-                        {/* Apple SF Pro Display Headline with Dynamic Gradient Text */}
-                        <h1 className="text-[clamp(40px,7.2vw,82px)] font-bold leading-[1.06] tracking-[-0.035em] mb-6 text-[#1D1D1F] animate-fade-in-up-delay">
-                            Don't travel alone.
-                            <br />
-                            <span className="relative inline-block mt-1">
-                                <span className="animate-gradient-text">
-                                    Carpool smarter.
+                        {/* 🍏 ResidentOne-Style Animated Dynamic Hero Headline */}
+                        <h1 className="text-[clamp(40px,7.2vw,80px)] font-bold leading-[1.08] tracking-[-0.035em] mb-6 text-[#1D1D1F] animate-fade-in-up-delay min-h-[95px] sm:min-h-[125px] md:min-h-[175px]">
+                            <span className="block">Don't travel alone.</span>
+                            <span className="block mt-1">
+                                <span>Carpool </span>
+                                <span
+                                    key={currentWord.word}
+                                    className={`italic text-gradient-shimmer inline-block transition-all duration-300 transform ${
+                                        animatingWord
+                                            ? "opacity-0 -translate-y-3 scale-95"
+                                            : "opacity-100 translate-y-0 scale-100"
+                                    }`}
+                                >
+                                    {currentWord.word}
                                 </span>
-                                <span className="absolute -bottom-1 left-0 right-0 h-[3px] bg-gradient-sage rounded-full opacity-40"></span>
                             </span>
                         </h1>
 

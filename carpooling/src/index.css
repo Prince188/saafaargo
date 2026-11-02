@@ -319,6 +319,26 @@
   }
 
 
+  
+  /* ResidentOne-style Animated Text Shimmer for Hero Heading */
+  .text-gradient-shimmer {
+    background: linear-gradient(90deg, #1A3A2E 0%, #34D399 25%, #1A3A2E 50%, #4A8568 75%, #1A3A2E 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 4.5s linear infinite;
+  }
+
+  @keyframes textShimmer {
+    0% {
+      background-position: 0% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
   /* For disabled button state */
   .disabled\:bg-gradient-disabled:disabled {
     background: linear-gradient(135deg, #4a7c59, #2d5a42);
