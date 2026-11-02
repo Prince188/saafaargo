@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FiArrowLeft, FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
-import { FaArrowRight, FaLocationArrow, FaMapPin as FaMapPinSolid } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FiMapPin, FiPlus, FiTrash2, FiCheck } from "react-icons/fi";
+import { FaArrowRight, FaRoute } from "react-icons/fa";
 import CITY_CENTERS from "../../constants/cityCenters";
+import PublishStepperHeader from "../../component/PublishStepperHeader";
+import { getPublishDraft, savePublishDraft } from "../../utils/publishDraftStore";
 
 const allCities = Object.entries(CITY_CENTERS).map(([key, coords]) => ({
     name: key.charAt(0).toUpperCase() + key.slice(1),
     ...coords,
 }));
 
-// ✅ Decode Google's encoded polyline into [{lat, lng}] array
 const decodePolyline = (encoded) => {
     let index = 0, lat = 0, lng = 0;
     const coords = [];
@@ -29,11 +30,14 @@ const StopoversPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [stops, setStops] = useState([]);
-    const [pickup, setPickup] = useState(null);
-    const [destination, setDestination] = useState(null);
-    const [formData, setFormData] = useState({});
-    const [routeCoords, setRouteCoords] = useState([]);
+    const draft = getPublishDraft();
+    const state = location.state || {};
+
+    const [pickup, setPickup] = useState(state.pickup || draft?.pickup);
+    const [destination, setDestination] = useState(state.destination || draft?.destination);
+    const [stops, setStops] = useState(state.stops || draft?.stops || []);
+    const [formData, setFormData] = useState(state.formData || draft?.formData || {});
+    const [routeCoords, setRouteCoords] = useState(state.routeCoords || draft?.routeCoords || []);
     const [loadingRoute, setLoadingRoute] = useState(false);
 
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
@@ -46,14 +50,11 @@ const StopoversPage = () => {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
 
-    // ✅ Fetch real route from Google Directions API
     const fetchRoute = (from, to) => {
         setLoadingRoute(true);
-
         const loadDirections = () => {
-            // ✅ FIXED HERE
+            if (!window.google?.maps?.DirectionsService) return;
             const directionsService = new window.google.maps.DirectionsService();
-
             directionsService.route(
                 {
                     origin: { lat: from.lat, lng: from.lng },
@@ -63,20 +64,14 @@ const StopoversPage = () => {
                 (result, status) => {
                     if (status === "OK" && result.routes.length > 0) {
                         const coords = [];
-
                         result.routes[0].legs.forEach(leg => {
                             leg.steps.forEach(step => {
                                 const decoded = decodePolyline(step.polyline.points);
                                 coords.push(...decoded);
                             });
                         });
-
                         setRouteCoords(coords);
-                    } else {
-                        console.warn("DirectionsService returned:", status);
-                        setRouteCoords([]);
                     }
-
                     setLoadingRoute(false);
                 }
             );
@@ -93,25 +88,14 @@ const StopoversPage = () => {
         }
     };
 
-    // 📥 Load state + fetch route
     useEffect(() => {
-        const state = location.state || {};
-        const p = state.pickup || state.pickupLocation;
-        const d = state.destination || state.destinationLocation;
+        const p = state.pickup || draft?.pickup;
+        const d = state.destination || draft?.destination;
 
-        setPickup(p);
-        setDestination(d);
-        setStops(state.stops || []);
-        setFormData(state.formData || state);
-
-        // ✅ If routeCoords already passed in (from RoutePreview), use them
-        // Otherwise fetch fresh from Directions API
-        if (state.routeCoords?.length) {
-            setRouteCoords(state.routeCoords);
-        } else if (p && d) {
+        if (p && d && !routeCoords.length) {
             fetchRoute(p, d);
         }
-    }, [location.state]);
+    }, [state.pickup, state.destination]);
 
     const getCitiesOnRoute = () => {
         if (!routeCoords.length || !pickup) return [];
@@ -159,38 +143,73 @@ const StopoversPage = () => {
             lng: city.lng,
             routeIndex: city.routeIndex
         };
-        setStops(prev => [...prev, newStop]);
+        const updated = [...stops, newStop];
+        setStops(updated);
+        savePublishDraft({ stops: updated });
     };
 
     const handleRemoveStop = (index) => {
-        setStops(stops.filter((_, i) => i !== index));
+        const updated = stops.filter((_, i) => i !== index);
+        setStops(updated);
+        savePublishDraft({ stops: updated });
+    };
+
+    const handleSelectAllStops = () => {
+        const allStopsFormatted = citiesBetween.map((city, idx) => ({
+            id: Date.now() + idx,
+            displayName: city.name,
+            address: city.name,
+            lat: city.lat,
+            lng: city.lng,
+            routeIndex: city.routeIndex
+        }));
+        setStops(allStopsFormatted);
+        savePublishDraft({ stops: allStopsFormatted });
+    };
+
+    const handleClearAllStops = () => {
+        setStops([]);
+        savePublishDraft({ stops: [] });
     };
 
     const handleContinue = () => {
+        const totalDistanceKm = state.totalDistanceKm || formData?.totalDistanceKm || draft?.totalDistanceKm || null;
+        savePublishDraft({
+            pickup,
+            destination,
+            stops,
+            totalDistanceKm,
+            formData
+        });
+
         navigate("/offer-ride/prices", {
             state: {
                 pickup,
                 destination,
                 stops,
-                totalDistanceKm: formData?.totalDistanceKm || null, // ✅ forward it
-                formData: formData, // ✅ keep it nested, don't spread
+                totalDistanceKm,
+                formData,
             }
         });
     };
 
     if (!pickup || !destination) {
         return (
-            <div className="min-h-screen bg-off-white font-inter">
-                <div className="max-w-[1200px] mx-auto bg-white min-h-screen">
-                    <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                        <button className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5" onClick={() => navigate(-1)}>
-                            <FiArrowLeft className="text-sm md:text-base" />
-                        </button>
+            <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center p-4">
+                <div className="text-center bg-white p-8 rounded-[28px] max-w-[420px] shadow-sm border border-black/[0.06]">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <FiMapPin />
                     </div>
-                    <div className="flex flex-col items-center justify-center min-h-[400px] gap-lg text-center px-4 md:px-8">
-                        <p className="text-sm text-stone">Loading route data...</p>
-                        <button className="bg-gradient-primary text-white border-none px-6 py-2.5 rounded-full cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate(-1)}>Go Back</button>
-                    </div>
+                    <h2 className="text-xl font-bold text-[#1D1D1F] mb-2">No route details found</h2>
+                    <p className="text-xs sm:text-sm text-[#6E6E73] mb-6 leading-relaxed">
+                        Please start from route selection to calculate your highway path.
+                    </p>
+                    <button
+                        className="w-full bg-forest text-white py-3 rounded-full font-bold text-xs uppercase tracking-wider transition-all hover:bg-forest-light active:scale-95"
+                        onClick={() => navigate("/offer-ride")}
+                    >
+                        Start Over
+                    </button>
                 </div>
             </div>
         );
@@ -199,146 +218,162 @@ const StopoversPage = () => {
     const sortedStops = [...stops].sort((a, b) => (a.routeIndex || 0) - (b.routeIndex || 0));
 
     return (
-        <div className="min-h-screen bg-off-white font-inter">
-            <div className="max-w-[1200px] mx-auto bg-white min-h-screen">
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                    <button className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5" onClick={() => navigate(-1)}>
-                        <FiArrowLeft className="text-sm md:text-base" />
-                    </button>
-                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
-                        <img 
-                            src="/logo.png" 
-                            alt="SafarGo Logo" 
-                            className="h-7 lg:h-9 w-auto object-contain" 
-                        />
-                    </Link>
+        <div className="min-h-screen bg-[#F8FAF9] flex flex-col font-sans text-[#1D1D1F]">
+            {/* Apple Stepper Header */}
+            <PublishStepperHeader
+                currentStep={2}
+                title="Highway Stopovers (Optional)"
+                subtitle="You decide: choose 0 stops for a non-stop ride, or select intermediate cities"
+            />
+
+            <div className="max-w-[1000px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 flex flex-col justify-between">
+                <div>
+                    {/* Top Guidance & Driver Choice Controls */}
+                    <div className="rounded-[28px] bg-white border border-black/[0.06] p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] mb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <span className="text-xs font-bold text-forest bg-forest/5 px-3 py-1 rounded-full border border-forest/10 uppercase tracking-wider inline-block mb-2">
+                                    DRIVER’S CHOICE · 0, 1, OR ALL STOPS
+                                </span>
+                                <h2 className="text-xl sm:text-2xl font-bold text-[#1D1D1F]">
+                                    Intermediate Highway Stopovers
+                                </h2>
+                                <p className="text-xs sm:text-sm text-[#6E6E73] mt-1">
+                                    Adding stopovers lets you pick up passengers along the expressway and increases your fuel cost recovery.
+                                </p>
+                            </div>
+
+                            {/* Quick Action Pills */}
+                            <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={handleClearAllStops}
+                                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                                        stops.length === 0
+                                            ? 'bg-forest text-white shadow-sm'
+                                            : 'bg-[#F5F6F8] text-[#6E6E73] hover:text-[#1D1D1F] border border-black/[0.06]'
+                                    }`}
+                                >
+                                    Direct Non-Stop (0 Stops)
+                                </button>
+                                {citiesBetween.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleSelectAllStops}
+                                        className="px-4 py-2 rounded-full text-xs font-bold bg-[#F5F6F8] hover:bg-forest/10 text-forest border border-forest/20 transition-all"
+                                    >
+                                        Select All ({citiesBetween.length})
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Visual Route Chain Timeline */}
+                        <div className="bg-[#F8FAF9] rounded-2xl p-4 sm:p-5 border border-black/[0.06] mb-6 overflow-x-auto">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-max">
+                                {/* Pickup */}
+                                <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-black/[0.06] shadow-xs">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                    <span className="text-xs font-bold text-[#1D1D1F]">{pickup.displayName?.split(",")[0]}</span>
+                                </div>
+
+                                <span className="text-xs text-[#86868B] font-bold">➔</span>
+
+                                {/* Intermediate Stops */}
+                                {sortedStops.map((stop, idx) => (
+                                    <React.Fragment key={stop.id}>
+                                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
+                                            <span>Stop {idx + 1}: {stop.displayName}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveStop(idx)}
+                                                className="w-4 h-4 rounded-full bg-emerald-200 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all text-[10px]"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                        <span className="text-xs text-[#86868B] font-bold">➔</span>
+                                    </React.Fragment>
+                                ))}
+
+                                {stops.length === 0 && (
+                                    <span className="text-xs text-[#86868B] italic bg-white/70 px-3 py-1 rounded-xl border border-dashed border-black/[0.1]">
+                                        Non-Stop Direct Highway Trip
+                                    </span>
+                                )}
+
+                                {stops.length === 0 && <span className="text-xs text-[#86868B] font-bold">➔</span>}
+
+                                {/* Destination */}
+                                <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-black/[0.06] shadow-xs">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-forest"></span>
+                                    <span className="text-xs font-bold text-[#1D1D1F]">{destination.displayName?.split(",")[0]}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Highway Cities Chips Grid */}
+                        <div>
+                            <h3 className="text-xs font-bold text-[#86868B] uppercase tracking-wider mb-3">
+                                DETECTED CITIES WITHIN 25 KM OF HIGHWAY ROUTE
+                            </h3>
+
+                            {loadingRoute && (
+                                <p className="text-xs text-[#6E6E73] py-4 text-center">Detecting highway junctions...</p>
+                            )}
+
+                            {!loadingRoute && citiesBetween.length === 0 && (
+                                <p className="text-xs text-[#6E6E73] py-4 text-center">
+                                    Direct highway corridor — no intermediate cities needed.
+                                </p>
+                            )}
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                {citiesBetween.map((city) => {
+                                    const isSelected = stops.some(s => s.displayName === city.name);
+                                    return (
+                                        <button
+                                            key={city.name}
+                                            type="button"
+                                            onClick={() => isSelected ? handleRemoveStop(stops.findIndex(s => s.displayName === city.name)) : handleAddStop(city)}
+                                            className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between group ${
+                                                isSelected
+                                                    ? 'bg-emerald-50/80 border-emerald-400 text-emerald-900 shadow-xs'
+                                                    : 'bg-[#F8FAF9] border-black/[0.06] hover:border-forest/30 text-[#1D1D1F]'
+                                            }`}
+                                        >
+                                            <div className="min-w-0 pr-2">
+                                                <span className="text-xs sm:text-sm font-bold block truncate">
+                                                    {city.name}
+                                                </span>
+                                                <span className="text-[10px] text-[#86868B]">
+                                                    Highway checkpoint
+                                                </span>
+                                            </div>
+                                            <span className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs transition-transform ${
+                                                isSelected
+                                                    ? 'bg-emerald-600 text-white'
+                                                    : 'bg-white border border-black/[0.08] text-forest group-hover:scale-105'
+                                            }`}>
+                                                {isSelected ? <FiCheck /> : <FiPlus />}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Content */}
-                <div className="px-4 md:px-xl py-4 md:py-2xl">
-                    <h1 className="font-fraunces text-2xl md:text-3xl font-semibold text-forest mb-1 md:mb-sm text-center">
-                        Add <span className="text-transparent bg-clip-text bg-gradient-primary">stopovers</span>
-                    </h1>
-                    <p className="text-xs md:text-sm text-stone mb-4 md:mb-xl text-center">
-                        Add intermediate stops along your route
-                    </p>
-
-                    {/* Horizontal Timeline */}
-                    <div className="flex items-center justify-start md:justify-center gap-2 md:gap-md mb-4 md:mb-3xl p-3 md:p-xl bg-off-white rounded-lg overflow-x-auto">
-                        <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px] relative">
-                            <div className="w-9 h-9 md:w-10 md:h-10 bg-success rounded-full flex items-center justify-center shadow-md border-2 border-success mb-1 md:mb-2">
-                                <FaLocationArrow className="text-white text-sm md:text-base" />
-                            </div>
-                            <div className="flex flex-col gap-0.5">
-                                <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">PICKUP</span>
-                                <span className="text-xs md:text-sm font-semibold text-forest">{pickup.displayName?.split(",")[0]}</span>
-                            </div>
-                        </div>
-
-                        <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>
-
-                        {sortedStops.map((stop, index) => (
-                            <div key={stop.id} className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px] relative">
-                                <div className="w-9 h-9 md:w-10 md:h-10 bg-sage rounded-full flex items-center justify-center shadow-md border-2 border-sage mb-1 md:mb-2 relative">
-                                    <span className="text-white text-xs md:text-sm font-bold">{index + 1}</span>
-                                    <button
-                                        className="absolute -top-2 -right-2 md:-top-2.5 md:-right-2.5 w-5 h-5 md:w-6 md:h-6 bg-white border border-error rounded-full flex items-center justify-center text-error cursor-pointer transition-all duration-base hover:bg-error hover:text-white hover:scale-110"
-                                        onClick={() => handleRemoveStop(index)}
-                                    >
-                                        <FiTrash2 className="text-[10px] md:text-xs" />
-                                    </button>
-                                </div>
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">STOP {index + 1}</span>
-                                    <span className="text-xs md:text-sm font-semibold text-forest">{stop.displayName}</span>
-                                </div>
-                            </div>
-                        ))}
-
-                        {stops.length === 0 && (
-                            <>
-                                <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px]">
-                                    <div className="w-9 h-9 md:w-10 md:h-10 bg-sage-soft rounded-full flex items-center justify-center shadow-md border-2 border-sage-soft mb-1 md:mb-2">
-                                        <FiPlus className="text-sage text-sm md:text-base" />
-                                    </div>
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">ADD STOP</span>
-                                        <span className="text-[10px] md:text-xs text-stone-light">Select a city below</span>
-                                    </div>
-                                </div>
-                                <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>
-                            </>
-                        )}
-
-                        {stops.length > 0 && <div className="w-6 md:w-10 h-px bg-gradient-to-r from-sage to-sage-light mx-0 md:mx-1"></div>}
-
-                        <div className="flex flex-col items-center text-center min-w-[80px] md:min-w-[100px]">
-                            <div className="w-9 h-9 md:w-10 md:h-10 bg-clay rounded-full flex items-center justify-center shadow-md border-2 border-clay mb-1 md:mb-2">
-                                <FaMapPinSolid className="text-white text-sm md:text-base" />
-                            </div>
-                            <div className="flex flex-col gap-0.5">
-                                <span className="text-[9px] md:text-[10px] font-extrabold tracking-[0.1em] text-stone uppercase">DESTINATION</span>
-                                <span className="text-xs md:text-sm font-semibold text-forest">{destination.displayName?.split(",")[0]}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Cities Section */}
-                    <div className="mb-4 md:mb-2xl">
-                        <h3 className="text-base md:text-lg font-semibold text-forest mb-0.5 md:mb-xs text-center">Cities along your route</h3>
-
-                        {/* ✅ Loading state */}
-                        {loadingRoute && (
-                            <p className="text-xs text-stone text-center py-4">Fetching cities along your route...</p>
-                        )}
-
-                        {/* ✅ No cities found */}
-                        {!loadingRoute && citiesBetween.length === 0 && (
-                            <p className="text-xs text-stone text-center py-4">No known cities found along this route.</p>
-                        )}
-
-                        <div className="flex flex-wrap gap-2 md:gap-md py-2 md:py-md">
-                            {citiesBetween.map((city, index) => {
-                                const isSelected = stops.some(s => s.displayName === city.name);
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`flex-0 flex-[0_0_140px] md:flex-[0_0_180px] bg-white border border-sage-soft rounded-md p-2 md:p-md transition-all duration-base cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-sage ${isSelected ? 'bg-success/5 border-success' : ''}`}
-                                    >
-                                        <div className="flex items-center gap-2 md:gap-md">
-                                            <div className="w-8 h-8 md:w-10 md:h-10 bg-sage-soft rounded-md flex items-center justify-center text-sage text-sm md:text-lg">
-                                                <FiMapPin />
-                                            </div>
-                                            <div className="flex-1">
-                                                <h4 className="text-xs md:text-sm font-semibold text-forest mb-0.5">{city.name}</h4>
-                                            </div>
-                                            {!isSelected ? (
-                                                <button
-                                                    className="w-7 h-7 md:w-8 md:h-8 bg-sage border-none rounded-full flex items-center justify-center text-white cursor-pointer transition-all duration-base hover:bg-forest hover:scale-105"
-                                                    onClick={() => handleAddStop(city)}
-                                                >
-                                                    <FiPlus className="text-xs md:text-sm" />
-                                                </button>
-                                            ) : (
-                                                <div className="w-7 h-7 md:w-8 md:h-8 bg-success rounded-full flex items-center justify-center text-white">
-                                                    <FiCheck className="text-xs md:text-sm" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Continue Button */}
+                {/* Bottom Action Button */}
+                <div className="pt-4">
                     <button
-                        className="w-full inline-flex items-center justify-center gap-2 md:gap-md bg-gradient-primary text-white border-none px-4 md:px-6 py-3 md:py-3.5 rounded-full text-sm md:text-base font-bold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
+                        type="button"
                         onClick={handleContinue}
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-forest text-white py-4 rounded-full font-bold text-sm shadow-[0_8px_20px_rgba(26,58,46,0.2)] hover:shadow-[0_12px_28px_rgba(26,58,46,0.3)] hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                     >
-                        Set Price
-                        <FaArrowRight />
+                        <span>Continue to Fair Pricing Split</span>
+                        <FaArrowRight className="text-xs opacity-75" />
                     </button>
                 </div>
             </div>

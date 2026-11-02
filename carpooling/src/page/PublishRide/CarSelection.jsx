@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FiArrowLeft, FiCheck, FiUsers, FiHash, FiPlus } from "react-icons/fi";
-import { FaCar, FaPalette } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FiCheck, FiUsers, FiHash, FiPlus, FiMapPin } from "react-icons/fi";
+import { FaCar, FaPalette, FaArrowRight } from "react-icons/fa";
+import PublishStepperHeader from "../../component/PublishStepperHeader";
+import { getPublishDraft, savePublishDraft } from "../../utils/publishDraftStore";
 
 const CarSelection = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const draft = getPublishDraft();
+    const state = location.state || {};
+
+    const pickup = state.pickup || draft?.pickup;
+    const destination = state.destination || draft?.destination;
+    const stops = state.stops || draft?.stops || [];
+    const ratePerKm = state.ratePerKm || draft?.ratePerKm || 6;
+    const seats = state.seats || draft?.seats || 3;
+    const formData = state.formData || draft?.formData || {};
+    const totalDistanceKm = state.totalDistanceKm || draft?.totalDistanceKm;
+    const totalPriceFullRoute = state.totalPriceFullRoute || draft?.totalPriceFullRoute;
+    const totalPricePerSeat = state.totalPricePerSeat || draft?.totalPricePerSeat;
+
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedCarId, setSelectedCarId] = useState(null);
-
-    const { pickup, destination, stops = [], ratePerKm, seats, formData, totalDistanceKm, totalPriceFullRoute, totalPricePerSeat } = location.state || {};
+    const [selectedCarId, setSelectedCarId] = useState(draft?.selectedCar?._id || null);
 
     useEffect(() => {
         const fetchCars = async () => {
@@ -19,10 +32,7 @@ const CarSelection = () => {
                 setLoading(true);
                 const token = localStorage.getItem("token");
 
-                console.log(token);
-
                 if (!token) {
-                    console.error("No token found");
                     setCars([]);
                     setLoading(false);
                     return;
@@ -42,8 +52,10 @@ const CarSelection = () => {
                     setCars([]);
                 } else if (Array.isArray(data)) {
                     setCars(data);
+                    if (data.length > 0 && !selectedCarId) {
+                        setSelectedCarId(data[0]._id);
+                    }
                 } else {
-                    console.error("Invalid response:", data);
                     setCars([]);
                 }
             } catch (err) {
@@ -59,6 +71,19 @@ const CarSelection = () => {
 
     const handleSelectCar = (car) => {
         setSelectedCarId(car._id);
+        savePublishDraft({
+            pickup,
+            destination,
+            stops,
+            selectedCar: car,
+            ratePerKm,
+            seats,
+            formData,
+            totalDistanceKm,
+            totalPriceFullRoute,
+            totalPricePerSeat
+        });
+
         setTimeout(() => {
             navigate("/offer-ride/preferences", {
                 state: {
@@ -74,123 +99,169 @@ const CarSelection = () => {
                     totalPricePerSeat,
                 },
             });
-        }, 300);
+        }, 200);
     };
 
     const handleAddNewCar = () => {
+        savePublishDraft({
+            pickup,
+            destination,
+            stops,
+            ratePerKm,
+            seats,
+            formData,
+            totalDistanceKm,
+            totalPriceFullRoute,
+            totalPricePerSeat
+        });
         navigate("/vehicle/add");
     };
 
-    return (
-        <div className="min-h-screen bg-off-white font-inter">
-            <div className="max-w-[900px] mx-auto bg-white min-h-screen shadow-sm">
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                    <button
-                        className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft hover:-translate-x-0.5"
-                        onClick={() => navigate(-1)}
-                    >
-                        <FiArrowLeft className="text-sm md:text-base" />
-                    </button>
-                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
-                        <img 
-                            src="/logo.png" 
-                            alt="SafarGo Logo" 
-                            className="h-7 lg:h-9 w-auto object-contain" 
-                        />
-                    </Link>
-                </div>
-
-                {/* Title Section */}
-                <div className="text-center px-4 md:px-xl py-4 md:py-2xl pb-3 md:pb-xl">
-                    <h1 className="font-fraunces text-2xl md:text-3xl font-semibold text-forest mb-1 md:mb-sm">
-                        Select <span className="text-transparent bg-clip-text bg-gradient-primary">your vehicle</span>
-                    </h1>
-                    <p className="text-xs md:text-sm text-stone">
-                        Choose the car you'll be using for this ride
+    if (!pickup || !destination) {
+        return (
+            <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center p-4">
+                <div className="text-center bg-white p-8 rounded-[28px] max-w-[420px] shadow-sm border border-black/[0.06]">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <FiMapPin />
+                    </div>
+                    <h2 className="text-xl font-bold text-[#1D1D1F] mb-2">No active ride draft</h2>
+                    <p className="text-xs sm:text-sm text-[#6E6E73] mb-6 leading-relaxed">
+                        Please start from route selection to configure your journey.
                     </p>
+                    <button
+                        className="w-full bg-forest text-white py-3 rounded-full font-bold text-xs uppercase tracking-wider transition-all hover:bg-forest-light active:scale-95"
+                        onClick={() => navigate("/offer-ride")}
+                    >
+                        Start Over
+                    </button>
                 </div>
+            </div>
+        );
+    }
 
-                {/* Cars Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-md px-4 md:px-xl pb-4 md:pb-xl">
+    return (
+        <div className="min-h-screen bg-[#F8FAF9] flex flex-col font-sans text-[#1D1D1F]">
+            {/* Apple Stepper Header */}
+            <PublishStepperHeader
+                currentStep={3}
+                title="Select Registered Vehicle"
+                subtitle="Choose the car you will drive on this journey"
+            />
+
+            <div className="max-w-[900px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 flex flex-col justify-between">
+                <div>
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <span className="text-xs font-bold text-forest bg-forest/5 px-3 py-1 rounded-full border border-forest/10 uppercase tracking-wider inline-block mb-1.5">
+                                REGISTERED FLEET
+                            </span>
+                            <h2 className="text-xl sm:text-2xl font-bold text-[#1D1D1F]">
+                                Your Available Vehicles
+                            </h2>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleAddNewCar}
+                            className="inline-flex items-center gap-2 bg-[#F5F6F8] hover:bg-forest/10 text-forest border border-forest/20 px-4 py-2 rounded-full text-xs font-bold transition-all"
+                        >
+                            <FiPlus className="text-sm" />
+                            <span>Add New Car</span>
+                        </button>
+                    </div>
+
+                    {/* Vehicles Grid */}
                     {loading ? (
-                        <div className="col-span-1 sm:col-span-2 flex flex-col items-center justify-center py-3xl gap-lg text-center">
-                            <div className="w-[50px] h-[50px] border-3 border-sage-soft border-t-forest rounded-full animate-spin"></div>
-                            <p className="text-sm text-stone">Loading your vehicles...</p>
+                        <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+                            <div className="w-9 h-9 border-2 border-forest/20 border-t-forest rounded-full animate-spin"></div>
+                            <p className="text-xs font-semibold text-[#86868B]">Loading your vehicles...</p>
                         </div>
                     ) : cars.length === 0 ? (
-                        <div className="col-span-1 sm:col-span-2 flex flex-col items-center justify-center py-3xl text-center">
-                            <FaCar className="text-6xl text-sage-light mb-lg" />
-                            <h3 className="text-xl font-semibold text-forest mb-sm">No vehicles added yet</h3>
-                            <p className="text-sm text-stone mb-xl">Add your first vehicle to start offering rides</p>
+                        <div className="rounded-[28px] bg-white border border-black/[0.06] p-8 text-center shadow-xs max-w-md mx-auto">
+                            <div className="w-16 h-16 rounded-3xl bg-forest/10 text-forest flex items-center justify-center text-3xl mx-auto mb-4">
+                                <FaCar />
+                            </div>
+                            <h3 className="text-lg font-bold text-[#1D1D1F] mb-1">No vehicle registered yet</h3>
+                            <p className="text-xs text-[#6E6E73] mb-6 leading-relaxed">
+                                Register your car model and license plate to start listing empty seats. Your draft will be saved automatically.
+                            </p>
                             <button
-                                className="inline-flex items-center gap-2 bg-gradient-primary text-white border-none px-6 py-3 rounded-full text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 hover:shadow-md"
+                                type="button"
                                 onClick={handleAddNewCar}
+                                className="inline-flex items-center gap-2 bg-forest text-white px-7 py-3 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm hover:bg-forest-light active:scale-95 transition-all"
                             >
-                                <FiPlus />
-                                Add Vehicle
+                                <FiPlus className="text-sm" />
+                                <span>Register Vehicle Now</span>
                             </button>
                         </div>
                     ) : (
-                        cars.map((car) => (
-                            <div
-                                key={car._id}
-                                className={`bg-white border border-sage-soft rounded-md p-3 md:p-lg cursor-pointer transition-all duration-base relative hover:-translate-y-1 hover:shadow-lg hover:border-sage ${selectedCarId === car._id ? 'border-success bg-success/5 shadow-[0_0_0_2px_rgba(16,185,129,0.2)]' : ''
-                                    }`}
-                                onClick={() => handleSelectCar(car)}
-                            >
-                                {selectedCarId === car._id && (
-                                    <div className="absolute top-3 right-3 w-7 h-7 bg-success rounded-full flex items-center justify-center text-white animate-fade-in-scale">
-                                        <FiCheck className="text-sm" />
-                                    </div>
-                                )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {cars.map((car) => {
+                                const isSelected = selectedCarId === car._id;
+                                return (
+                                    <div
+                                        key={car._id}
+                                        onClick={() => handleSelectCar(car)}
+                                        className={`rounded-[26px] p-5 border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+                                            isSelected
+                                                ? 'bg-emerald-50/70 border-emerald-500 shadow-sm'
+                                                : 'bg-white border-black/[0.06] hover:border-forest/30 shadow-xs'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
+                                                    isSelected ? 'bg-forest text-white' : 'bg-forest/10 text-forest'
+                                                }`}>
+                                                    <FaCar />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-base font-bold text-[#1D1D1F]">
+                                                        {car.brand} {car.model}
+                                                    </h3>
+                                                    <span className="text-xs text-[#6E6E73] block">
+                                                        {car.registrationNumber || car.regNo}
+                                                    </span>
+                                                </div>
+                                            </div>
 
-                                <div className="flex gap-2 md:gap-2.5">
-                                    <div className="w-12 h-12 md:w-[60px] md:h-[60px] bg-gradient-primary rounded-md flex items-center justify-center mb-3 md:mb-md">
-                                        <FaCar className="text-xl md:text-3xl text-white" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <h3 className="font-fraunces text-base md:text-xl font-semibold text-forest mb-0.5 md:mb-xs tracking-[-0.02em]">
-                                            {car.brand} <span className="text-xs md:text-sm">{car.model}</span>
-                                        </h3>
-                                        <div className="flex items-center gap-1 text-xs text-stone">
-                                            <FiHash className="text-sage text-xs md:text-sm" />
-                                            <span>{car.numberPlate || "No plate"}</span>
+                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                                                isSelected ? 'bg-forest text-white' : 'border border-black/[0.15] text-transparent'
+                                            }`}>
+                                                <FiCheck />
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between text-xs text-[#86868B]">
+                                            <span className="flex items-center gap-1.5">
+                                                <FaPalette className="text-[11px]" />
+                                                {car.color || 'Standard'}
+                                            </span>
+                                            <span className="text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                                Ready for Ride
+                                            </span>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="flex gap-2 md:gap-md mb-3 md:mb-lg mt-2 md:mt-3">
-                                    <div className="flex items-center gap-1 md:gap-sm text-xs md:text-[13px] text-stone">
-                                        <FaPalette className="text-sage text-xs md:text-sm" />
-                                        <span>{car.color || "Unknown"}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1 md:gap-sm text-xs md:text-[13px] text-stone">
-                                        <FiUsers className="text-sage text-xs md:text-sm" />
-                                        <span>{car.seats} Seats</span>
-                                    </div>
-                                </div>
-
-                                <button className={`w-full py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-semibold transition-all duration-base hover:-translate-y-0.5 hover:shadow-sm ${selectedCarId === car._id
-                                    ? 'bg-success text-white'
-                                    : 'bg-gradient-primary text-white'
-                                    }`}>
-                                    Select
-                                </button>
-                            </div>
-                        ))
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
 
-                {/* Add New Car Button */}
+                {/* Bottom Action Button */}
                 {cars.length > 0 && (
-                    <div className="px-4 md:px-xl pb-4 md:pb-2xl">
+                    <div className="pt-6">
                         <button
-                            className="w-full flex items-center justify-center gap-2 bg-transparent border-2 border-dashed border-sage rounded-md py-3 md:py-md text-sm md:text-sm font-semibold text-sage cursor-pointer transition-all duration-base hover:bg-sage-soft hover:border-forest hover:-translate-y-0.5"
-                            onClick={handleAddNewCar}
+                            type="button"
+                            disabled={!selectedCarId}
+                            onClick={() => {
+                                const chosen = cars.find(c => c._id === selectedCarId);
+                                if (chosen) handleSelectCar(chosen);
+                            }}
+                            className="w-full inline-flex items-center justify-center gap-2.5 bg-forest text-white py-4 rounded-full font-bold text-sm shadow-[0_8px_20px_rgba(26,58,46,0.2)] hover:shadow-[0_12px_28px_rgba(26,58,46,0.3)] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 disabled:opacity-50"
                         >
-                            <FiPlus />
-                            Add another vehicle
+                            <span>Continue to Ride Rules</span>
+                            <FaArrowRight className="text-xs opacity-75" />
                         </button>
                     </div>
                 )}

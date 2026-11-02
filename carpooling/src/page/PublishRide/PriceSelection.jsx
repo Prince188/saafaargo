@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FiArrowLeft, FiInfo, FiAlertTriangle } from "react-icons/fi";
-import { FaArrowRight } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FiInfo, FiAlertTriangle, FiMapPin } from "react-icons/fi";
+import { FaArrowRight, FaRupeeSign } from "react-icons/fa";
 import { getCityCenter } from "../../constants/cityCenters";
+import PublishStepperHeader from "../../component/PublishStepperHeader";
+import { getPublishDraft, savePublishDraft } from "../../utils/publishDraftStore";
 
 const MAX_RECOMMENDED_RATE = 9;
 const MIN_RATE = 1;
@@ -11,16 +13,17 @@ const PriceSelection = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const {
-        pickup,
-        destination,
-        stops = [],
-        formData: rideFormData = {},
-        totalDistanceKm: roadDistanceKm,
-    } = location.state || {};
+    const draft = getPublishDraft();
+    const state = location.state || {};
 
-    const seats = parseInt(rideFormData?.passengers || 1);
-    const [ratePerKm, setRatePerKm] = useState(6);
+    const pickup = state.pickup || draft?.pickup;
+    const destination = state.destination || draft?.destination;
+    const stops = state.stops || draft?.stops || [];
+    const rideFormData = state.formData || draft?.formData || {};
+    const roadDistanceKm = state.totalDistanceKm || draft?.totalDistanceKm || 0;
+
+    const seats = parseInt(rideFormData?.passengers || draft?.seats || 3);
+    const [ratePerKm, setRatePerKm] = useState(draft?.ratePerKm || 6);
     const isAboveAvg = ratePerKm > MAX_RECOMMENDED_RATE;
 
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
@@ -40,7 +43,6 @@ const PriceSelection = () => {
         (a, b) => (a.routeIndex ?? 0) - (b.routeIndex ?? 0)
     );
 
-    // Use Haversine to get distance proportions, then scale to Google road distance
     const segments = [
         ...orderedStops,
         {
@@ -78,222 +80,188 @@ const PriceSelection = () => {
         };
     });
 
-    const totalDistanceDisplay = roadDistanceKm || totalHaversineDist;
-
-    const totalPriceFullRoute = Math.round(totalDistanceDisplay * ratePerKm);
-    const totalPricePerSeat = Math.round(totalPriceFullRoute / (seats + 1));
+    const destinationSegment = segmentPrices.find((s) => s.id === "destination") || segmentPrices[segmentPrices.length - 1];
+    const totalPriceFullRoute = destinationSegment?.totalRoutePrice || Math.round(roadDistanceKm * ratePerKm);
+    const totalPricePerSeat = destinationSegment?.pricePerSeat || Math.round((roadDistanceKm * ratePerKm) / (seats + 1));
 
     const handleContinue = () => {
+        savePublishDraft({
+            pickup,
+            destination,
+            stops,
+            ratePerKm,
+            seats,
+            totalDistanceKm: roadDistanceKm,
+            totalPriceFullRoute,
+            totalPricePerSeat,
+            formData: rideFormData
+        });
+
         navigate("/offer-ride/car", {
             state: {
                 pickup,
                 destination,
-                stops: segmentPrices,
+                stops,
                 ratePerKm,
                 seats,
                 formData: rideFormData,
-
-                // ✅ pass final computed values
-                totalDistanceKm: totalDistanceDisplay,
+                totalDistanceKm: roadDistanceKm,
                 totalPriceFullRoute,
                 totalPricePerSeat,
             },
         });
     };
 
-    console.log("state:", location.state);
-    console.log("rideFormData:", rideFormData);
-    console.log("seats:", seats);
-    console.log("passengers:", location.state?.formData?.passengers);
-
     if (!pickup || !destination) {
         return (
-            <div className="min-h-screen bg-off-white font-inter">
-                <div className="max-w-[700px] mx-auto bg-white min-h-screen">
-                    <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                        <button
-                            className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft"
-                            onClick={() => navigate(-1)}
-                        >
-                            <FiArrowLeft className="text-sm md:text-base" />
-                        </button>
+            <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center p-4">
+                <div className="text-center bg-white p-8 rounded-[28px] max-w-[420px] shadow-sm border border-black/[0.06]">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <FiMapPin />
                     </div>
-                    <div className="flex flex-col items-center justify-center min-h-[400px] gap-lg">
-                        <div className="w-10 h-10 border-3 border-sage-soft border-t-forest rounded-full animate-spin"></div>
-                        <p className="text-sm text-stone">Loading...</p>
-                    </div>
+                    <h2 className="text-xl font-bold text-[#1D1D1F] mb-2">No pricing route found</h2>
+                    <p className="text-xs sm:text-sm text-[#6E6E73] mb-6 leading-relaxed">
+                        Please restart from pickup and destination selection.
+                    </p>
+                    <button
+                        className="w-full bg-forest text-white py-3 rounded-full font-bold text-xs uppercase tracking-wider transition-all hover:bg-forest-light active:scale-95"
+                        onClick={() => navigate("/offer-ride")}
+                    >
+                        Start Over
+                    </button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-off-white font-inter">
-            <div className="max-w-[700px] mx-auto bg-white min-h-screen">
+        <div className="min-h-screen bg-[#F8FAF9] flex flex-col font-sans text-[#1D1D1F]">
+            {/* Apple Stepper Header */}
+            <PublishStepperHeader
+                currentStep={2}
+                title="Fair Highway Fuel Split"
+                subtitle="Set recommended mileage rate (split evenly among passengers & driver)"
+            />
 
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                    <button
-                        className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft"
-                        onClick={() => navigate(-1)}
-                    >
-                        <FiArrowLeft className="text-sm md:text-base" />
-                    </button>
-                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
-                        <img 
-                            src="/logo.png" 
-                            alt="SafarGo Logo" 
-                            className="h-7 lg:h-9 w-auto object-contain" 
-                        />
-                    </Link>
-                </div>
-
-                {/* Title */}
-                <div className="text-center px-4 md:px-xl py-4 md:py-xl pb-3 md:pb-lg">
-                    <h1 className="font-fraunces text-2xl md:text-[28px] font-semibold text-forest mb-1 md:mb-sm">
-                        Set <span className="text-transparent bg-clip-text bg-gradient-primary">prices</span>
-                    </h1>
-                    <p className="text-xs md:text-[13px] text-stone">Price per passenger for each segment</p>
-                </div>
-
-                {/* Rate per km adjuster */}
-                <div className="px-4 md:px-xl mb-4 md:mb-xl">
-                    <div className={`p-4 rounded-lg border-2 transition-all duration-base ${isAboveAvg ? 'border-red-300 bg-red-50' : 'border-sage-soft bg-off-white'}`}>
-                        <div className="flex items-center justify-between mb-3">
+            <div className="max-w-[900px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 flex flex-col justify-between">
+                <div>
+                    {/* Rate Adjuster Card */}
+                    <div className="rounded-[28px] bg-white border border-black/[0.06] p-6 sm:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] mb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div>
-                                <span className="block text-xs font-extrabold tracking-[0.08em] text-stone uppercase mb-0.5">Rate per km</span>
-                                <span className="text-[11px] text-stone-light">Applied to all stops · split by {seats + 1} (driver + {seats} passenger{seats > 1 ? 's' : ''})</span>
+                                <span className="text-xs font-bold text-forest bg-forest/5 px-3 py-1 rounded-full border border-forest/10 uppercase tracking-wider inline-block mb-1.5">
+                                    NON-COMMERCIAL MILEAGE RECOVERY
+                                </span>
+                                <h2 className="text-xl sm:text-2xl font-bold text-[#1D1D1F]">
+                                    Recommended Rate per Kilometre
+                                </h2>
+                                <p className="text-xs sm:text-sm text-[#6E6E73] mt-0.5">
+                                    Applies to all stops and complies with Indian carpooling regulations.
+                                </p>
                             </div>
-                            <div className="flex items-center gap-2">
+
+                            {/* Stepper Buttons & Display */}
+                            <div className="flex items-center gap-3 shrink-0">
                                 <button
-                                    className="w-8 h-8 rounded-full border border-sage-soft bg-white flex items-center justify-center text-forest font-bold text-lg transition-all duration-base hover:bg-sage-soft disabled:opacity-40"
+                                    type="button"
                                     onClick={() => setRatePerKm(r => Math.max(MIN_RATE, parseFloat((r - 0.5).toFixed(1))))}
                                     disabled={ratePerKm <= MIN_RATE}
-                                >−</button>
-                                <div className="flex items-center gap-0.5 bg-white border border-sage-soft rounded-md px-3 py-1.5 min-w-[80px] justify-center">
-                                    <span className="text-clay font-bold text-sm">₹</span>
-                                    <input
-                                        type="number"
-                                        value={ratePerKm}
-                                        min={MIN_RATE}
-                                        step="0.5"
-                                        onChange={(e) => setRatePerKm(parseFloat(e.target.value) || MIN_RATE)}
-                                        className="w-10 border-none text-base font-bold text-forest text-center bg-transparent focus:outline-none [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
-                                    />
-                                    <span className="text-[10px] text-stone-light">/km</span>
+                                    className="w-10 h-10 rounded-full border border-black/[0.08] bg-[#F5F6F8] hover:bg-[#EAECEF] flex items-center justify-center font-bold text-lg text-forest disabled:opacity-40 transition-all active:scale-95"
+                                >
+                                    −
+                                </button>
+                                <div className="bg-[#F8FAF9] border border-black/[0.08] rounded-2xl px-4 py-2 text-center min-w-[90px]">
+                                    <span className="text-xl font-bold text-forest">₹{ratePerKm}</span>
+                                    <span className="text-[10px] text-[#86868B] block">/ km</span>
                                 </div>
                                 <button
-                                    className="w-8 h-8 rounded-full border border-sage-soft bg-white flex items-center justify-center text-forest font-bold text-lg transition-all duration-base hover:bg-sage-soft"
+                                    type="button"
                                     onClick={() => setRatePerKm(r => parseFloat((r + 0.5).toFixed(1)))}
-                                >+</button>
+                                    className="w-10 h-10 rounded-full border border-black/[0.08] bg-[#F5F6F8] hover:bg-[#EAECEF] flex items-center justify-center font-bold text-lg text-forest transition-all active:scale-95"
+                                >
+                                    +
+                                </button>
                             </div>
                         </div>
 
-                        <input
-                            type="range"
-                            min={MIN_RATE}
-                            max={12}
-                            step={0.5}
-                            value={ratePerKm}
-                            onChange={(e) => setRatePerKm(parseFloat(e.target.value))}
-                            className="w-full accent-forest h-1.5 rounded-full cursor-pointer"
-                        />
-                        <div className="flex justify-between text-[10px] text-stone-light mt-1">
-                            <span>₹{MIN_RATE}/km</span>
-                            <span className="text-sage font-semibold">Recommended: ₹6–₹9/km</span>
-                            <span>₹12/km</span>
+                        {/* Slider */}
+                        <div className="mb-4">
+                            <input
+                                type="range"
+                                min={MIN_RATE}
+                                max={12}
+                                step={0.5}
+                                value={ratePerKm}
+                                onChange={(e) => setRatePerKm(parseFloat(e.target.value))}
+                                className="w-full accent-forest h-2 rounded-full cursor-pointer bg-[#ECEEF0]"
+                            />
+                            <div className="flex justify-between text-[11px] font-semibold text-[#86868B] mt-2">
+                                <span>₹{MIN_RATE}/km</span>
+                                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                    Recommended: ₹6 – ₹9/km
+                                </span>
+                                <span>₹12/km</span>
+                            </div>
                         </div>
 
                         {isAboveAvg && (
-                            <div className="flex items-start gap-2 mt-3 p-2.5 bg-red-100 border border-red-200 rounded-md">
-                                <FiAlertTriangle className="text-red-500 flex-shrink-0 mt-0.5 text-sm" />
-                                <p className="text-[11px] text-red-600 leading-relaxed">
-                                    ₹{ratePerKm}/km is above the recommended average of ₹{MAX_RECOMMENDED_RATE}/km. Passengers may prefer cheaper alternatives.
+                            <div className="flex items-start gap-2.5 p-3.5 bg-rose-50 border border-rose-200 rounded-2xl">
+                                <FiAlertTriangle className="text-rose-600 shrink-0 mt-0.5 text-base" />
+                                <p className="text-xs text-rose-700 leading-relaxed">
+                                    ₹{ratePerKm}/km is above the recommended cap of ₹{MAX_RECOMMENDED_RATE}/km. Keeping fares reasonable ensures your empty seats fill much faster.
                                 </p>
                             </div>
                         )}
                     </div>
+
+                    {/* Segment Price Breakdown Cards */}
+                    <div>
+                        <h3 className="text-xs font-bold text-[#86868B] uppercase tracking-wider mb-3 px-1">
+                            CALCULATED SEAT CONTRIBUTIONS BY SEGMENT
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                            {segmentPrices.map((stop, index) => (
+                                <div
+                                    key={stop.id || index}
+                                    className="bg-white rounded-2xl p-4 border border-black/[0.06] shadow-xs flex flex-col justify-between"
+                                >
+                                    <div className="flex items-start gap-2.5 mb-3">
+                                        <div className="w-6 h-6 rounded-full bg-forest/10 text-forest text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                            {index + 1}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="text-xs sm:text-sm font-bold text-[#1D1D1F] truncate">
+                                                {stop.displayName?.split(",")[0]}
+                                            </h4>
+                                            <span className="text-[10px] text-[#86868B]">
+                                                {stop.distanceKm} km from pickup
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-2 border-t border-black/[0.04] flex items-center justify-between">
+                                        <span className="text-[10px] text-[#86868B]">Per Seat:</span>
+                                        <span className="text-sm sm:text-base font-bold text-forest">
+                                            ₹{stop.pricePerSeat}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Quick Stats */}
-                {/* <div className="flex justify-around gap-2 md:gap-md px-4 md:px-xl pb-4 md:pb-xl flex-col sm:flex-row">
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
-                        <FaRoad className="text-sage text-base md:text-lg" />
-                        <div className="flex flex-col">
-                            <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Total Distance</span>
-                            <strong className="text-xs md:text-sm font-bold text-forest">{totalDistanceDisplay} km</strong>
-                        </div>
-                    </div>
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
-                        <FaRupeeSign className="text-sage text-base md:text-lg" />
-                        <div className="flex flex-col">
-                            ✅ per seat = total / seats
-                            <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Per Seat (full trip)</span>
-                            <strong className="text-xs md:text-sm font-bold text-forest">₹{totalPricePerSeat}</strong>
-                        </div>
-                    </div>
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
-                        <FiUsers className="text-sage text-base md:text-lg" />
-                        <div className="flex flex-col">
-                            <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Driver earns</span>
-                            ✅ driver earns = rate × distance (all seats fill)
-                            <strong className="text-xs md:text-sm font-bold text-forest">₹{totalPriceAllSeats}</strong>
-                        </div>
-                    </div>
-                    <div className="flex-1 flex items-center gap-2 md:gap-sm p-2 md:p-sm bg-off-white rounded-md">
-                        <FaCar className="text-sage text-base md:text-lg" />
-                        <div className="flex flex-col">
-                            <span className="text-[9px] md:text-[10px] text-stone uppercase tracking-[0.05em]">Rate/km</span>
-                            <strong className={`text-xs md:text-sm font-bold ${isAboveAvg ? 'text-red-500' : 'text-forest'}`}>₹{ratePerKm}</strong>
-                        </div>
-                    </div>
-                </div> */}
-
-                {/* Segment Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-md px-4 md:px-xl mb-4 md:mb-lg">
-                    {segmentPrices.map((stop, index) => (
-                        <div key={stop.id || index} className="bg-off-white rounded-md p-3 md:p-md transition-all duration-base border border-sage-soft hover:-translate-y-0.5 hover:shadow-md">
-                            <div className="flex items-center gap-2 md:gap-sm mb-3 md:mb-md">
-                                <div className="w-7 h-7 md:w-8 md:h-8 bg-sage rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm flex-shrink-0">
-                                    {index + 1}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="text-xs md:text-[13px] font-bold text-forest truncate">{stop.displayName?.split(",")[0]}</h4>
-                                    <span className="text-[9px] md:text-[10px] text-stone-light">{stop.distanceKm} km from pickup</span>
-                                </div>
-                            </div>
-
-                            {/* ✅ Price per seat prominently */}
-                            <div className="flex items-center justify-center gap-1 bg-white border border-sage-soft rounded-md p-2 mb-1.5">
-                                <span className="text-xs md:text-sm font-bold text-clay">₹</span>
-                                <span className="text-sm md:text-base font-bold text-forest">{stop.pricePerSeat}</span>
-                                <span className="text-[9px] md:text-[10px] text-stone-light">/seat</span>
-                            </div>
-
-                            {/* ✅ Calculation breakdown */}
-                            {/* <div className="flex items-center justify-center gap-1 bg-sage-soft rounded-md p-1.5 mb-2">
-                                <FiUsers className="text-sage text-[10px]" />
-                                <span className="text-[10px] md:text-xs font-semibold text-forest">
-                                    ₹{stop.totalRoutePrice} ÷ {seats} seat{seats > 1 ? 's' : ''}
-                                </span>
-                            </div> */}
-
-                            <div className="flex items-center justify-center gap-1 text-[9px] md:text-[10px] text-stone-light">
-                                <FiInfo className="text-[9px] md:text-[10px]" />
-                                <span>₹{Math.round((stop.distanceKm * 6) / (seats + 1))} recommended / seat</span>
-                            </div>
-                        </div>
-                    ))}
+                {/* Bottom Action Button */}
+                <div className="pt-6">
+                    <button
+                        type="button"
+                        onClick={handleContinue}
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-forest text-white py-4 rounded-full font-bold text-sm shadow-[0_8px_20px_rgba(26,58,46,0.2)] hover:shadow-[0_12px_28px_rgba(26,58,46,0.3)] hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                    >
+                        <span>Continue to Select Vehicle</span>
+                        <FaArrowRight className="text-xs opacity-75" />
+                    </button>
                 </div>
-
-                {/* Continue Button */}
-                <button
-                    className="w-[calc(100%-32px)] md:w-[calc(100%-64px)] mx-4 md:mx-xl mb-4 md:mb-xl inline-flex items-center justify-center gap-2 md:gap-md bg-gradient-primary text-white border-none px-4 md:px-6 py-3 md:py-3.5 rounded-full text-sm md:text-base font-bold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:gap-3 md:hover:gap-lg hover:shadow-md"
-                    onClick={handleContinue}
-                >
-                    Select Vehicle
-                    <FaArrowRight />
-                </button>
             </div>
         </div>
     );

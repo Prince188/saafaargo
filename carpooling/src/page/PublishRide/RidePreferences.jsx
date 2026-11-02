@@ -1,30 +1,62 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FiArrowLeft, FiCheck } from "react-icons/fi";
-import { FaUserFriends, FaDog, FaSmokingBan, FaUtensils, FaMusic, FaComments } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FiCheck, FiMapPin } from "react-icons/fi";
+import { FaUserFriends, FaDog, FaSmokingBan, FaUtensils, FaMusic, FaComments, FaArrowRight } from "react-icons/fa";
+import PublishStepperHeader from "../../component/PublishStepperHeader";
+import { getPublishDraft, savePublishDraft } from "../../utils/publishDraftStore";
 
 const preferencesList = [
-    { key: "womenOnly", icon: <FaUserFriends />, label: "Women only", desc: "Only female passengers" },
-    { key: "noPets", icon: <FaDog />, label: "No pets", desc: "Passengers cannot bring pets" },
-    { key: "noSmoking", icon: <FaSmokingBan />, label: "No smoking", desc: "No cigarettes or vaping" },
-    { key: "noFood", icon: <FaUtensils />, label: "No food", desc: "No eating inside the car" },
-    { key: "musicFriendly", icon: <FaMusic />, label: "Music friendly", desc: "Happy to play music" },
-    { key: "talkFriendly", icon: <FaComments />, label: "Talk friendly", desc: "Open to conversation" },
+    { key: "womenOnly", icon: <FaUserFriends className="text-xl text-rose-600" />, label: "Women Only", desc: "Co-passengers must be female" },
+    { key: "noPets", icon: <FaDog className="text-xl text-amber-700" />, label: "No Pets", desc: "No pets inside the vehicle" },
+    { key: "noSmoking", icon: <FaSmokingBan className="text-xl text-red-600" />, label: "No Smoking", desc: "No cigarettes or vaping allowed" },
+    { key: "noFood", icon: <FaUtensils className="text-xl text-orange-600" />, label: "No Food Inside", desc: "Keep car clean and spill-free" },
+    { key: "musicFriendly", icon: <FaMusic className="text-xl text-indigo-600" />, label: "Music Friendly", desc: "Enjoy tunes along the expressway" },
+    { key: "talkFriendly", icon: <FaComments className="text-xl text-emerald-600" />, label: "Conversation Friendly", desc: "Open to friendly conversations" },
 ];
 
 const RidePreferences = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { pickup, destination, stops, selectedCar, ratePerKm, seats, formData, totalDistanceKm, totalPriceFullRoute, totalPricePerSeat } = location.state || {};
+    const draft = getPublishDraft();
+    const state = location.state || {};
 
-    const [preferences, setPreferences] = useState({});
+    const pickup = state.pickup || draft?.pickup;
+    const destination = state.destination || draft?.destination;
+    const stops = state.stops || draft?.stops || [];
+    const selectedCar = state.selectedCar || draft?.selectedCar;
+    const ratePerKm = state.ratePerKm || draft?.ratePerKm;
+    const seats = state.seats || draft?.seats || 3;
+    const formData = state.formData || draft?.formData || {};
+    const totalDistanceKm = state.totalDistanceKm || draft?.totalDistanceKm;
+    const totalPriceFullRoute = state.totalPriceFullRoute || draft?.totalPriceFullRoute;
+    const totalPricePerSeat = state.totalPricePerSeat || draft?.totalPricePerSeat;
+
+    const [preferences, setPreferences] = useState(draft?.preferences || state.preferences || {});
 
     const toggle = (key) => {
-        setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+        setPreferences((prev) => {
+            const updated = { ...prev, [key]: !prev[key] };
+            savePublishDraft({ preferences: updated });
+            return updated;
+        });
     };
 
     const handleNext = () => {
+        savePublishDraft({
+            pickup,
+            destination,
+            stops,
+            selectedCar,
+            ratePerKm,
+            seats,
+            formData,
+            totalDistanceKm,
+            totalPriceFullRoute,
+            totalPricePerSeat,
+            preferences
+        });
+
         navigate("/offer-ride/date-seat", {
             state: {
                 pickup,
@@ -42,74 +74,104 @@ const RidePreferences = () => {
         });
     };
 
-    return (
-        <div className="min-h-screen bg-off-white font-inter">
-            <div className="max-w-[600px] mx-auto bg-white min-h-screen shadow-sm">
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 md:px-xl py-3 md:py-md border-b border-sage-soft sticky top-0 bg-white z-10">
+    if (!pickup || !destination) {
+        return (
+            <div className="min-h-screen bg-[#F8FAF9] font-sans flex items-center justify-center p-4">
+                <div className="text-center bg-white p-8 rounded-[28px] max-w-[420px] shadow-sm border border-black/[0.06]">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <FiMapPin />
+                    </div>
+                    <h2 className="text-xl font-bold text-[#1D1D1F] mb-2">No active ride draft</h2>
+                    <p className="text-xs sm:text-sm text-[#6E6E73] mb-6 leading-relaxed">
+                        Please restart from route selection to configure your journey.
+                    </p>
                     <button
-                        className="w-8 h-8 md:w-9 md:h-9 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer text-forest transition-all duration-base hover:bg-sage-soft"
-                        onClick={() => navigate(-1)}
+                        className="w-full bg-forest text-white py-3 rounded-full font-bold text-xs uppercase tracking-wider transition-all hover:bg-forest-light active:scale-95"
+                        onClick={() => navigate("/offer-ride")}
                     >
-                        <FiArrowLeft className="text-sm md:text-base" />
+                        Start Over
                     </button>
-                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
-                        <img
-                            src="/logo.png"
-                            alt="SafarGo Logo"
-                            className="h-7 lg:h-9 w-auto object-contain"
-                        />
-                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-[#F8FAF9] flex flex-col font-sans text-[#1D1D1F]">
+            {/* Apple Stepper Header */}
+            <PublishStepperHeader
+                currentStep={3}
+                title="Ride Rules & Atmosphere"
+                subtitle="Set expectations for a comfortable and respectful highway journey"
+            />
+
+            <div className="max-w-[800px] w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 flex flex-col justify-between">
+                <div>
+                    <div className="mb-6">
+                        <span className="text-xs font-bold text-forest bg-forest/5 px-3 py-1 rounded-full border border-forest/10 uppercase tracking-wider inline-block mb-1.5">
+                            COMMUNITY STANDARDS
+                        </span>
+                        <h2 className="text-xl sm:text-2xl font-bold text-[#1D1D1F]">
+                            Car Preferences & Atmosphere
+                        </h2>
+                        <p className="text-xs sm:text-sm text-[#6E6E73] mt-0.5">
+                            Tap to toggle any preferences that apply to your vehicle on this drive.
+                        </p>
+                    </div>
+
+                    {/* Preferences Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        {preferencesList.map((item) => {
+                            const isChecked = !!preferences[item.key];
+                            return (
+                                <button
+                                    key={item.key}
+                                    type="button"
+                                    onClick={() => toggle(item.key)}
+                                    className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between group ${
+                                        isChecked
+                                            ? 'bg-emerald-50/80 border-emerald-500 text-emerald-950 shadow-xs'
+                                            : 'bg-white border-black/[0.06] hover:border-forest/30 text-[#1D1D1F] shadow-xs'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3.5 min-w-0">
+                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                                            isChecked ? 'bg-white shadow-xs' : 'bg-[#F5F6F8]'
+                                        }`}>
+                                            {item.icon}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <h3 className="text-sm font-bold truncate">
+                                                {item.label}
+                                            </h3>
+                                            <p className="text-xs text-[#6E6E73] truncate">
+                                                {item.desc}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 transition-transform ${
+                                        isChecked
+                                            ? 'bg-forest text-white'
+                                            : 'border border-black/[0.15] text-transparent group-hover:scale-105'
+                                    }`}>
+                                        <FiCheck />
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
-                {/* Title */}
-                <div className="text-center px-4 md:px-xl py-4 md:py-lg pb-3 md:pb-md">
-                    <h1 className="font-fraunces text-2xl md:text-[24px] font-semibold text-forest">
-                        Ride <span className="text-transparent bg-clip-text bg-gradient-primary">preferences</span>
-                    </h1>
-                    <p className="text-sm text-stone mt-1">Set your ride rules and atmosphere</p>
-                </div>
-
-                {/* Preferences List */}
-                <div className="px-4 md:px-xl pb-4 md:pb-xl space-y-3">
-                    {preferencesList.map(({ key, icon, label, desc }) => (
-                        <button
-                            key={key}
-                            type="button"
-                            onClick={() => toggle(key)}
-                            className={`w-full flex items-center gap-3 md:gap-md p-3 md:p-md rounded-md border-2 transition-all duration-base text-left cursor-pointer ${
-                                preferences[key]
-                                    ? "border-sage bg-sage-soft/30"
-                                    : "border-sage-soft bg-white hover:border-sage hover:bg-off-white"
-                            }`}
-                        >
-                            <div className={`w-10 h-10 rounded-md flex items-center justify-center text-lg shrink-0 ${
-                                preferences[key] ? "bg-gradient-primary text-white" : "bg-sage-soft text-sage"
-                            }`}>
-                                {icon}
-                            </div>
-                            <div className="flex-1">
-                                <span className="block text-sm font-semibold text-forest">{label}</span>
-                                <span className="block text-xs text-stone mt-0.5">{desc}</span>
-                            </div>
-                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-base ${
-                                preferences[key]
-                                    ? "bg-gradient-primary border-sage"
-                                    : "border-sage-soft"
-                            }`}>
-                                {preferences[key] && <FiCheck className="text-white text-xs" />}
-                            </div>
-                        </button>
-                    ))}
-                </div>
-
-                {/* Next Button */}
-                <div className="px-4 md:px-xl pb-4 md:pb-xl">
+                {/* Bottom Action Button */}
+                <div className="pt-6">
                     <button
-                        className="flex items-center justify-center gap-2 md:gap-md w-full py-4 bg-gradient-primary text-white border-none rounded-full text-sm font-semibold cursor-pointer transition-all duration-base hover:-translate-y-0.5 hover:shadow-md"
+                        type="button"
                         onClick={handleNext}
+                        className="w-full inline-flex items-center justify-center gap-2.5 bg-forest text-white py-4 rounded-full font-bold text-sm shadow-[0_8px_20px_rgba(26,58,46,0.2)] hover:shadow-[0_12px_28px_rgba(26,58,46,0.3)] hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                     >
-                        Continue to Date & Time
+                        <span>Continue to Schedule & Seats</span>
+                        <FaArrowRight className="text-xs opacity-75" />
                     </button>
                 </div>
             </div>

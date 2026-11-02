@@ -1,129 +1,130 @@
-import React from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FiMapPin, FiInfo, FiCheck } from 'react-icons/fi';
+import { FaArrowRight } from 'react-icons/fa';
 import GoogleMapPicker from '../../component/GoogleMapPicker';
+import PublishStepperHeader from '../../component/PublishStepperHeader';
+import { getPublishDraft, savePublishDraft } from '../../utils/publishDraftStore';
 
 const DestinationPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { formData, pickup } = location.state || {};
+    const draft = getPublishDraft();
+    const formData = location.state?.formData || draft?.formData || {};
+    const pickup = location.state?.pickup || draft?.pickup;
 
-    console.log("DestinationPage received:", { formData, pickup });
+    const [selectedDestination, setSelectedDestination] = useState({
+        lat: formData?.toCoords?.lat || draft?.destination?.lat,
+        lng: formData?.toCoords?.lng || draft?.destination?.lng,
+        address: formData?.to || draft?.destination?.address,
+        displayName: formData?.to || draft?.destination?.displayName,
+    });
 
-    const handleDestinationSelect = (destinationLocation) => {
-        const finalData = {
-            ...formData,
-            pickup,
-            destination: destinationLocation,
-        };
+    useEffect(() => {
+        if (pickup) {
+            savePublishDraft({ pickup });
+        }
+    }, [pickup]);
+
+    const handleConfirmAndNext = (destinationLocation) => {
+        const safeDestination = destinationLocation ? {
+            lat: destinationLocation.lat,
+            lng: destinationLocation.lng,
+            address: destinationLocation.address || destinationLocation.displayName,
+            displayName: destinationLocation.displayName || destinationLocation.address,
+        } : selectedDestination;
+
+        setSelectedDestination(safeDestination);
+        savePublishDraft({ formData, pickup, destination: safeDestination });
 
         navigate("/offer-ride/route-preview", {
             state: {
-                ...finalData,
-                formData: location.state?.formData || formData,
+                formData,
+                pickup,
+                destination: safeDestination,
             },
         });
     };
 
-    // Called only when user clicks "Confirm Location" in the map
-    const handleMapSelect = (locationData) => {
-        handleDestinationSelect(locationData);
-    };
-
     return (
-        <div className="flex flex-col md:flex-row h-screen overflow-hidden">
-            {/* Left Panel - 35% on desktop */}
-            <div className="w-full md:w-[35%] bg-white flex flex-col overflow-y-auto border-r border-sage-soft md:h-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 md:px-xl py-4 md:py-lg border-b border-sage-soft sticky top-0 bg-white z-10">
-                    <button
-                        className="w-8 h-8 md:w-10 md:h-10 bg-transparent border border-sage-soft rounded-full flex items-center justify-center cursor-pointer transition-all duration-base text-forest hover:bg-sage-soft hover:-translate-x-0.5"
-                        onClick={() => navigate(-1)}
-                    >
-                        <FiArrowLeft className="text-sm md:text-base" />
-                    </button>
-                    <Link to="/" className="flex items-center no-underline transition-transform duration-fast hover:scale-102" aria-label="SafarGo home">
-                        <img 
-                            src="/logo.png" 
-                            alt="SafarGo Logo" 
-                            className="h-7 lg:h-9 w-auto object-contain" 
-                        />
-                    </Link>
-                </div>
+        <div className="min-h-screen bg-[#F8FAF9] flex flex-col font-sans text-[#1D1D1F]">
+            {/* Apple Stepper Header */}
+            <PublishStepperHeader
+                currentStep={1}
+                title="Exact Drop-Off Landmark"
+                subtitle="Drag or click the map pin to mark where passengers exit your car"
+            />
 
-                {/* Content - Desktop View (hidden on mobile) */}
-                <div className="hidden md:block px-6 py-6 flex-1">
-                    <h1 className="font-fraunces text-2xl font-semibold leading-[1.3] text-forest mb-2">
-                        Where are you
-                        <span
-                            className="inline"
-                            style={{
-                                background: "linear-gradient(135deg, #1A3A2E 0%, #2A4D3F 100%)",
-                                WebkitBackgroundClip: "text",
-                                backgroundClip: "text",
-                                color: "transparent"
-                            }}
-                        >
-                            &nbsp;dropping off?
-                        </span>
-                    </h1>
-                    <p className="text-[13px] text-stone mb-6">
-                        Choose a destination for your passengers
-                    </p>
+            {/* Split Workspace */}
+            <div className="flex-1 flex flex-col lg:flex-row max-w-[1400px] w-full mx-auto p-4 sm:p-6 lg:p-8 gap-6">
 
-                    {/* Pickup Summary - Desktop only */}
-                    <div className="mb-6 p-4 bg-sage-5 rounded-lg border-l-4 border-sage">
-                        <p className="text-[10px] text-stone-light uppercase tracking-wide mb-1">PICKUP LOCATION</p>
-                        <div className="flex items-start gap-2">
-                            <FiMapPin className="text-sage text-sm flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-forest font-medium break-words">
-                                {pickup?.displayName || pickup?.address ||
-                                    (pickup?.lat && pickup?.lng
-                                        ? `${pickup.lat.toFixed(5)}, ${pickup.lng.toFixed(5)}`
-                                        : "Not selected")}
+                {/* Left Card: Route Context & Drop-off Details */}
+                <div className="w-full lg:w-[380px] shrink-0 flex flex-col gap-5 order-2 lg:order-1">
+                    <div className="rounded-[28px] bg-white border border-black/[0.06] p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="inline-flex items-center gap-2 text-xs font-bold text-forest bg-forest/5 px-3 py-1 rounded-full border border-forest/10 uppercase tracking-wider mb-4">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            STEP 1B · DROP-OFF POINT
+                        </div>
+
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1D1D1F] mb-2">
+                            Where are you dropping off?
+                        </h1>
+                        <p className="text-xs sm:text-sm text-[#6E6E73] leading-relaxed mb-5">
+                            Set an easily reachable terminal point (toll gate, ring road exit, or station).
+                        </p>
+
+                        {/* Confirmed Pickup Reminder */}
+                        <div className="bg-[#F8FAF9] rounded-2xl p-3.5 border border-black/[0.06] mb-3">
+                            <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block mb-1">
+                                CONFIRMED PICKUP
                             </span>
+                            <div className="flex items-center gap-2 text-xs font-semibold text-forest">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span className="truncate">{pickup?.displayName || pickup?.address || "Pickup set"}</span>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Info Note */}
-                    <div className="flex gap-3 p-4 bg-sage-soft rounded-lg">
-                        <FiMapPin className="text-sage text-lg flex-shrink-0 mt-0.5" />
-                        <div>
-                            <strong className="block text-xs text-forest mb-1">Why an exact destination?</strong>
-                            <p className="text-[11px] text-stone leading-relaxed">
-                                Precise drop-off points help passengers plan their journey better.
-                            </p>
+                        {/* Selected Drop-Off Preview Box */}
+                        <div className="bg-[#F8FAF9] rounded-2xl p-4 border border-black/[0.06] mb-6">
+                            <div className="flex items-start gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-forest/10 text-forest flex items-center justify-center shrink-0 mt-0.5">
+                                    <FiMapPin className="text-base" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-wider block mb-0.5">
+                                        CURRENT DROP-OFF MARKER
+                                    </span>
+                                    <p className="text-xs sm:text-sm font-semibold text-[#1D1D1F] break-words line-clamp-2">
+                                        {selectedDestination?.displayName || selectedDestination?.address || "Click map to set exact pin"}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Action Capsule Button */}
+                        <button
+                            type="button"
+                            onClick={() => handleConfirmAndNext(selectedDestination)}
+                            className="w-full inline-flex items-center justify-center gap-2.5 bg-forest text-white py-3.5 rounded-full font-bold text-sm shadow-[0_8px_20px_rgba(26,58,46,0.2)] hover:shadow-[0_12px_28px_rgba(26,58,46,0.3)] hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                        >
+                            <span>Confirm Drop-Off & Preview Route</span>
+                            <FaArrowRight className="text-xs opacity-75" />
+                        </button>
                     </div>
                 </div>
 
-                {/* Mobile View - No pickup location */}
-                <div className="md:hidden px-4 py-6 flex-1 flex flex-col justify-center items-center text-center">
-                    <div className="w-16 h-16 bg-sage-10 rounded-full flex items-center justify-center mb-4">
-                        <FiMapPin className="text-sage text-2xl" />
-                    </div>
-                    <h1 className="font-fraunces text-xl font-semibold text-forest mb-2">
-                        Where are you dropping off?
-                    </h1>
-                    <p className="text-xs text-stone">
-                        Choose a destination for your passengers
-                    </p>
-                </div>
-            </div>
-
-            {/* Right Panel - Map with increased height */}
-            <div className="w-full md:w-[65%] relative bg-off-white h-[60vh] md:h-auto md:flex-1">
-                <div className="absolute inset-0">
+                {/* Right Area: Interactive Apple Map Canvas */}
+                <div className="w-full flex-1 order-1 lg:order-2 min-h-[400px] lg:min-h-[600px] rounded-[28px] overflow-hidden border border-black/[0.08] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative bg-white">
                     <GoogleMapPicker
-                        onSelect={handleMapSelect}
-                        initialLocation={
-                            formData?.toCoords
-                                ? { lat: formData.toCoords.lat, lng: formData.toCoords.lng }
-                                : pickup
-                        }
+                        onSelect={(loc) => {
+                            setSelectedDestination(loc);
+                            handleConfirmAndNext(loc);
+                        }}
+                        initialLocation={formData?.toCoords}
                     />
                 </div>
+
             </div>
         </div>
     );
