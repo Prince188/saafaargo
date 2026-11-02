@@ -1,8 +1,10 @@
 // PlainLayout.jsx
-import { Outlet } from "react-router-dom";
+import React from "react";
+import { Outlet, useLocation } from "react-router-dom";
 
 const PlainLayout = () => {
-    return <Outlet />;
+    const location = useLocation();
+    return <Outlet key={location.pathname} />;
 };
 
-export default PlainLayout
+export default PlainLayout;

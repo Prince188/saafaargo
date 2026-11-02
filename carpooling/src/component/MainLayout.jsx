@@ -1,13 +1,15 @@
 // MainLayout.jsx
+import React from "react";
 import Navbar from "../component/Navbar";
 import Footer from "../component/Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 const MainLayout = () => {
+    const location = useLocation();
     return (
         <>
             <Navbar />
-            <Outlet />
+            <Outlet key={location.pathname} />
             <Footer />
         </>
     );
