@@ -7,15 +7,13 @@ import {
     FaRupeeSign,
     FaShieldAlt,
     FaLeaf,
-    FaUsers,
     FaCheckCircle,
     FaChevronDown,
     FaStar,
     FaRoute,
-    FaHeart,
     FaLock
 } from 'react-icons/fa';
-import { FiMapPin, FiUsers } from 'react-icons/fi';
+import { FiMapPin } from 'react-icons/fi';
 import { HiOutlineSwitchVertical } from 'react-icons/hi';
 import LocationInput from '../component/LocationInput';
 import { showWarning } from '../utils/toastConfig';
@@ -24,27 +22,24 @@ const POPULAR_ESTIMATES = [
     {
         from: 'Delhi',
         to: 'Jaipur',
-        seats: 3,
-        perSeat: '₹450',
-        recovery: '₹1,350',
+        distance: '270 km',
+        duration: '~4.5 hrs',
         fromCoords: { lat: 28.6139, lng: 77.2090 },
         toCoords: { lat: 26.9124, lng: 75.7873 }
     },
     {
         from: 'Mumbai',
         to: 'Pune',
-        seats: 3,
-        perSeat: '₹280',
-        recovery: '₹840',
+        distance: '150 km',
+        duration: '~2.5 hrs',
         fromCoords: { lat: 19.0760, lng: 72.8777 },
         toCoords: { lat: 18.5204, lng: 73.8567 }
     },
     {
         from: 'Bengaluru',
         to: 'Chennai',
-        seats: 3,
-        perSeat: '₹520',
-        recovery: '₹1,560',
+        distance: '340 km',
+        duration: '~5.5 hrs',
         fromCoords: { lat: 12.9716, lng: 77.5946 },
         toCoords: { lat: 13.0827, lng: 80.2707 }
     }
@@ -142,13 +137,13 @@ const OfferRide = () => {
     };
 
     const handleQuickEstimate = (item) => {
-        setFormData({
+        setFormData(prev => ({
+            ...prev,
             from: `${item.from}, India`,
             to: `${item.to}, India`,
-            passengers: String(item.seats),
             fromCoords: item.fromCoords,
             toCoords: item.toCoords
-        });
+        }));
         window.scrollTo({ top: 120, behavior: 'smooth' });
     };
 
@@ -165,16 +160,10 @@ const OfferRide = () => {
         if (
             !formData.from ||
             !formData.to ||
-            !formData.passengers ||
             !formData.fromCoords ||
             !formData.toCoords
         ) {
-            showWarning('Please fill all fields and select valid locations');
-            return;
-        }
-
-        if (Number(formData.passengers) <= 0) {
-            showWarning('Passengers must be at least 1');
+            showWarning('Please select valid departure and destination locations');
             return;
         }
 
@@ -314,43 +303,6 @@ const OfferRide = () => {
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Seats Available Selector */}
-                                    <div className="bg-[#F8FAF9] rounded-2xl p-3.5 border border-black/[0.06] transition-all">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-emerald-600/10 text-emerald-800 flex items-center justify-center shrink-0">
-                                                    <FiUsers className="text-lg" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-[10px] font-bold tracking-[0.1em] text-[#86868B] uppercase">
-                                                        AVAILABLE EMPTY SEATS
-                                                    </label>
-                                                    <span className="text-xs text-[#6E6E73]">
-                                                        Max 4 for optimal highway comfort
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Seat Selection Pills */}
-                                            <div className="flex items-center gap-1.5 bg-white p-1 rounded-full border border-black/[0.06]">
-                                                {['1', '2', '3', '4'].map((s) => (
-                                                    <button
-                                                        key={s}
-                                                        type="button"
-                                                        onClick={() => setFormData(prev => ({ ...prev, passengers: s }))}
-                                                        className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
-                                                            formData.passengers === s
-                                                                ? 'bg-forest text-white shadow-sm'
-                                                                : 'text-[#6E6E73] hover:text-[#1D1D1F]'
-                                                        }`}
-                                                    >
-                                                        {s}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 {/* Submit Capsule Button */}
@@ -370,27 +322,27 @@ const OfferRide = () => {
                             </form>
                         </div>
 
-                        {/* 🍏 ESTIMATED EARNINGS PREVIEW (Right Column - 5 Cols) */}
+                        {/* 🍏 POPULAR CORRIDORS QUICK-FILL (Right Column - 5 Cols) */}
                         <div className="lg:col-span-5 space-y-5">
-                            {/* Estimated Cost Recovery Card */}
+                            {/* Popular Corridors Quick-Fill Card */}
                             <div className="rounded-[32px] bg-gradient-to-br from-[#1A3A2E] via-[#244E3E] to-[#142A21] text-white p-7 shadow-[0_20px_50px_rgba(26,58,46,0.22)] border border-white/10 relative overflow-hidden">
                                 <div className="absolute -right-20 -top-20 w-60 h-60 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none"></div>
 
                                 <div className="relative z-10">
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="text-xs font-bold uppercase tracking-widest text-emerald-200">
-                                            ESTIMATED FUEL RECOVERY
+                                            POPULAR CORRIDORS
                                         </span>
                                         <span className="text-[11px] bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full font-semibold border border-white/15">
-                                            Avg 3 Seats
+                                            Quick Fill
                                         </span>
                                     </div>
 
                                     <h3 className="text-xl font-bold leading-snug mb-2">
-                                        Typical Highway Cost Recovery
+                                        Frequent Highway Routes
                                     </h3>
                                     <p className="text-xs text-white/75 mb-5 leading-relaxed">
-                                        Tap any popular corridor to automatically fill your route:
+                                        Tap any popular corridor to automatically fill your departure and destination:
                                     </p>
 
                                     <div className="space-y-2.5">
@@ -399,7 +351,7 @@ const OfferRide = () => {
                                                 key={`${item.from}-${item.to}`}
                                                 type="button"
                                                 onClick={() => handleQuickEstimate(item)}
-                                                className="w-full text-left p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-between transition-all group"
+                                                className="w-full text-left p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/10 flex items-center justify-between transition-all group"
                                             >
                                                 <div>
                                                     <div className="text-sm font-bold text-white flex items-center gap-2 group-hover:text-emerald-200 transition-colors">
@@ -407,15 +359,14 @@ const OfferRide = () => {
                                                         <span className="text-white/50 text-xs">➔</span>
                                                         <span>{item.to}</span>
                                                     </div>
-                                                    <div className="text-[11px] text-white/60">
-                                                        {item.perSeat} / seat · 3 seats
+                                                    <div className="text-[11px] text-white/60 mt-0.5">
+                                                        {item.distance} · {item.duration}
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-sm font-bold text-emerald-300">
-                                                        +{item.recovery}
-                                                    </div>
-                                                    <span className="text-[10px] text-white/50 block">Offset</span>
+                                                    <span className="text-xs font-semibold text-emerald-300 bg-white/10 px-3 py-1.5 rounded-full border border-white/10 group-hover:bg-white group-hover:text-forest transition-all">
+                                                        Fill Route ➔
+                                                    </span>
                                                 </div>
                                             </button>
                                         ))}
