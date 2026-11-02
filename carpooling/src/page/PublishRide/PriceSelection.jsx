@@ -85,10 +85,12 @@ const PriceSelection = () => {
     const totalPricePerSeat = destinationSegment?.pricePerSeat || Math.round((roadDistanceKm * ratePerKm) / (seats + 1));
 
     const handleContinue = () => {
+        const intermediateSegmentPrices = segmentPrices.filter((s) => s.id !== "destination");
+
         savePublishDraft({
             pickup,
             destination,
-            stops,
+            stops: intermediateSegmentPrices,
             ratePerKm,
             seats,
             totalDistanceKm: roadDistanceKm,
@@ -101,7 +103,7 @@ const PriceSelection = () => {
             state: {
                 pickup,
                 destination,
-                stops,
+                stops: intermediateSegmentPrices,
                 ratePerKm,
                 seats,
                 formData: rideFormData,

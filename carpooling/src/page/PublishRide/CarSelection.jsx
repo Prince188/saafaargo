@@ -54,6 +54,9 @@ const CarSelection = () => {
                     setCars(data);
                     if (data.length > 0 && !selectedCarId) {
                         setSelectedCarId(data[0]._id);
+                        if (!draft?.selectedCar) {
+                            savePublishDraft({ selectedCar: data[0] });
+                        }
                     }
                 } else {
                     setCars([]);

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
     FiMapPin,
@@ -273,10 +273,48 @@ const RideReview = () => {
 
     const seats = seatsFromState || 1;
 
+    const [activeCar, setActiveCar] = useState(selectedCar || null);
     const [showDocModal, setShowDocModal] = useState(false);
     const [showPendingBanner, setShowPendingBanner] = useState(false);
     const [isSubmittingDocs, setIsSubmittingDocs] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
+
+    // Auto-fetch available vehicle if none is provided in state/draft
+    useEffect(() => {
+        if (!activeCar) {
+            const fetchVehicle = async () => {
+                try {
+                    const token = localStorage.getItem("token");
+                    if (!token) return;
+                    const res = await fetch(`${process.env.REACT_APP_API_URL}/vehicles/available`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (res.ok && Array.isArray(data) && data.length > 0) {
+                        setActiveCar(data[0]);
+                    }
+                } catch (e) {
+                    console.error("Auto-fetch vehicle error:", e);
+                }
+            };
+            fetchVehicle();
+        }
+    }, [activeCar]);
+
+    // Haversine distance calculator for fallback calculations
+    const calculateDistance = (lat1, lng1, lat2, lng2) => {
+        if (!lat1 || !lng1 || !lat2 || !lng2) return 0;
+        const R = 6371;
+        const dLat = ((Number(lat2) - Number(lat1)) * Math.PI) / 180;
+        const dLng = ((Number(lng2) - Number(lng1)) * Math.PI) / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((Number(lat1) * Math.PI) / 180) *
+            Math.cos((Number(lat2) * Math.PI) / 180) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
 
     // Format human readable date
     const formatDate = (dateString) => {
@@ -295,10 +333,45 @@ const RideReview = () => {
         }
     };
 
-    // Filter intermediate stops (driver may have chosen 0 stops or specific highway stops)
-    const intermediateStops = stops.filter(
-        (s) => s.id !== "destination" && s.displayName !== destination?.displayName
-    );
+    // Computed total distance
+    let computedDistanceKm = Number(totalDistanceKm);
+    if ((!computedDistanceKm || isNaN(computedDistanceKm)) && pickup?.lat && destination?.lat) {
+        computedDistanceKm = Math.round(calculateDistance(pickup.lat, pickup.lng, destination.lat, destination.lng));
+    }
+    if (!computedDistanceKm || isNaN(computedDistanceKm)) {
+        computedDistanceKm = 120;
+    }
+
+    // Computed total price per seat
+    let computedPricePerSeat = Number(totalPricePerSeat);
+    if (!computedPricePerSeat || isNaN(computedPricePerSeat)) {
+        computedPricePerSeat = Math.round((computedDistanceKm * ratePerKm) / (seats + 1));
+    }
+
+    // Filter and compute intermediate stops with guaranteed distance and pricePerSeat
+    const intermediateStops = stops
+        .filter((s) => s.id !== "destination" && s.displayName !== destination?.displayName)
+        .map((s, idx) => {
+            let dist = Number(s.distanceKm || s.distanceFromPickup);
+            if ((!dist || isNaN(dist)) && pickup?.lat && s.lat) {
+                dist = Math.round(calculateDistance(pickup.lat, pickup.lng, s.lat, s.lng));
+            }
+            if (!dist || isNaN(dist)) {
+                // Approximate evenly along route corridor
+                dist = Math.round(((idx + 1) / (stops.length + 1)) * computedDistanceKm);
+            }
+
+            let price = Number(s.pricePerSeat || s.price);
+            if (!price || isNaN(price)) {
+                price = Math.round((dist * ratePerKm) / (seats + 1));
+            }
+
+            return {
+                ...s,
+                distanceKm: dist,
+                pricePerSeat: price,
+            };
+        });
 
     // POST the ride to backend
     const publishRide = async () => {
@@ -329,10 +402,10 @@ const RideReview = () => {
                     time,
                     seatsAvailable: seats,
                     perkmprice: ratePerKm,
-                    car: selectedCar,
-                    totalDistanceKm,
-                    totalPriceFullRoute,
-                    totalPricePerSeat,
+                    car: activeCar || selectedCar,
+                    totalDistanceKm: computedDistanceKm,
+                    totalPriceFullRoute: Math.round(computedDistanceKm * ratePerKm),
+                    totalPricePerSeat: computedPricePerSeat,
                     preferences,
                 }),
             });
@@ -528,7 +601,7 @@ const RideReview = () => {
                                         <FaArrowRight />
                                     </div>
                                     <span className="text-[10px] font-bold text-forest mt-1.5 font-mono">
-                                        ~{totalDistanceKm} km
+                                        ~{computedDistanceKm} km
                                     </span>
                                 </div>
 
@@ -590,7 +663,7 @@ const RideReview = () => {
                                         <span className="text-[10px] font-semibold text-[#8E8E93] uppercase">Per Seat</span>
                                     </div>
                                     <p className="text-xs sm:text-[13px] font-bold text-forest font-mono">
-                                        ₹{totalPricePerSeat}
+                                        ₹{computedPricePerSeat}
                                     </p>
                                 </div>
                             </div>
@@ -635,12 +708,12 @@ const RideReview = () => {
                                                     {stop.displayName?.split(",")[0] || stop.address}
                                                 </h4>
                                                 <span className="text-[10px] text-[#8E8E93]">
-                                                    ~{stop.distanceKm || stop.distanceFromPickup || "—"} km from pickup
+                                                    ~{stop.distanceKm} km from pickup
                                                 </span>
                                             </div>
                                         </div>
                                         <span className="text-xs font-bold text-forest font-mono bg-white px-2.5 py-1 rounded-full border border-black/[0.04]">
-                                            ₹{stop.pricePerSeat || stop.price || "—"} /seat
+                                            ₹{stop.pricePerSeat} /seat
                                         </span>
                                     </div>
                                 ))}
@@ -649,7 +722,7 @@ const RideReview = () => {
                     </div>
 
                     {/* Assigned Vehicle Card */}
-                    {selectedCar && (
+                    {activeCar && (
                         <div className="rounded-[28px] bg-white border border-black/[0.06] p-6 shadow-xs flex items-center justify-between">
                             <div className="flex items-center gap-3.5">
                                 <div className="w-12 h-12 rounded-2xl bg-forest/10 text-forest flex items-center justify-center text-xl flex-shrink-0">
@@ -657,13 +730,13 @@ const RideReview = () => {
                                 </div>
                                 <div>
                                     <h4 className="text-sm font-bold text-[#1D1D1F]">
-                                        {selectedCar.brand} {selectedCar.model}
+                                        {activeCar.brand} {activeCar.model}
                                     </h4>
                                     <div className="flex items-center gap-2 text-xs text-[#6E6E73] mt-0.5">
-                                        <span>{selectedCar.color || "Standard"}</span>
+                                        <span>{activeCar.color || "Standard"}</span>
                                         <span>•</span>
                                         <span className="font-mono bg-[#F5F6F8] px-2 py-0.5 rounded-md border border-black/[0.04]">
-                                            {selectedCar.registrationNumber || selectedCar.numberPlate || selectedCar.regNo}
+                                            {activeCar.registrationNumber || activeCar.numberPlate || activeCar.regNo}
                                         </span>
                                     </div>
                                 </div>
