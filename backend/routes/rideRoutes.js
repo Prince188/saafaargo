@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
+const optionalAuthMiddleware = require("../middleware/optionalAuthMiddleware");
 const {
     createRide,
     getRides,
@@ -40,7 +41,7 @@ router.get("/driver/verification-status", authMiddleware, driverController.getVe
 // ─── Existing routes (unchanged) ──────────────────────────────────────────
 router.post("/", authMiddleware, createRide);
 
-router.get("/", getRides);
+router.get("/", optionalAuthMiddleware, getRides);
 
 // Public route: Dynamic top searched routes or fallback corridors
 router.get("/popular-routes", getPopularRoutes);
