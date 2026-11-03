@@ -18,7 +18,6 @@ import {
     FiPrinter,
     FiX,
     FiRefreshCw,
-    FiFileText,
     FiArrowRight,
     FiMaximize2,
     FiExternalLink,
