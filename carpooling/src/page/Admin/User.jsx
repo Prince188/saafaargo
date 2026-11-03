@@ -12,7 +12,6 @@ import {
   FiEye,
   FiUsers,
   FiUserPlus,
-  FiShield,
   FiDownload,
   FiPrinter,
   FiX,
