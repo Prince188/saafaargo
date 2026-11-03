@@ -1,32 +1,34 @@
-import React, { useEffect, useState } from "react";
+// src/page/Admin/DriverVerify.jsx
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import {
-    FaSearch,
-    FaUser,
-    FaEnvelope,
-    FaSpinner,
-    FaTimes,
-    FaPhone,
-    FaCalendarAlt,
-    FaIdCard,
-    FaCarSide,
-    FaCheckCircle,
-    FaTimesCircle,
-    FaEye,
-    FaUsers,
-    FaClock,
-    FaShieldAlt,
-    FaDownload,
-    FaPrint,
-} from "react-icons/fa";
+    FiSearch,
+    FiUser,
+    FiMail,
+    FiPhone,
+    FiCalendar,
+    FiCheckCircle,
+    FiXCircle,
+    FiEye,
+    FiUsers,
+    FiClock,
+    FiShield,
+    FiDownload,
+    FiPrinter,
+    FiX,
+    FiRefreshCw,
+    FiFileText,
+    FiArrowRight
+} from "react-icons/fi";
+import { FaIdCard, FaCarSide } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { showSuccess, showError } from "../../utils/toastConfig";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Document Preview Modal
+// Document Preview Modal (Apple iOS Sheet Style)
 // ─────────────────────────────────────────────────────────────────────────────
 const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }) => {
-
     const docUrl = (filePath) => {
         if (!filePath) return null;
         return filePath.replace(/\\/g, "/");
@@ -35,132 +37,156 @@ const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }
     const isPdf = (filePath) => filePath?.toLowerCase().endsWith(".pdf");
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-
-                {/* Header */}
-                <div className="flex items-center justify-between px-7 py-5 border-b border-[#e6e1d3] bg-[#faf8f2]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 animate-fade-in no-print">
+            <div className="bg-white rounded-[32px] w-full max-w-2xl shadow-2xl border border-black/[0.08] overflow-hidden max-h-[92vh] flex flex-col animate-fade-in-up">
+                {/* Frosted Top Sheet Header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.06] bg-[#F8FAF9]/80 backdrop-blur-sm">
                     <div className="flex items-center gap-3.5">
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5a3d] to-[#1a2620] flex items-center justify-center text-white font-semibold text-[15px]">
+                        <div className="w-12 h-12 rounded-2xl bg-forest text-white flex items-center justify-center font-black text-sm shadow-sm">
                             {driver.firstName?.[0]}{driver.lastName?.[0]}
                         </div>
                         <div>
-                            <p className="font-semibold text-[#1a2620] text-[15px]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                {driver.firstName} {driver.lastName}
-                            </p>
-                            <p className="text-[12px] text-[#7a8478]">{driver.email}</p>
+                            <div className="flex items-center gap-2">
+                                <h3 className="font-bold text-[#1D1D1F] text-base leading-tight">
+                                    {driver.firstName} {driver.lastName}
+                                </h3>
+                                {driver.driverVerified && (
+                                    <span className="text-[10px] text-forest bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold border border-emerald-200">
+                                        <MdVerified className="text-xs" /> Verified
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs text-[#8E8E93] mt-0.5">{driver.email}</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-9 h-9 rounded-lg bg-[#efece4] text-[#5a6358] hover:bg-[#e6e1d3] transition-colors flex items-center justify-center"
+                        className="w-9 h-9 rounded-full bg-[#F5F6F8] hover:bg-black/5 text-[#8E8E93] hover:text-[#1D1D1F] transition-all flex items-center justify-center"
                     >
-                        <FaTimes size={13} />
+                        <FiX className="text-base" />
                     </button>
                 </div>
 
-                {/* Docs */}
-                <div className="overflow-y-auto flex-1 px-7 py-6 space-y-5">
+                {/* Document Display Canvas */}
+                <div className="overflow-y-auto flex-1 p-6 space-y-6">
                     {[
                         { label: "Driving Licence (DL)", path: driver.driverDocuments?.dlImage, Icon: FaIdCard },
-                        { label: "Vehicle RC Book", path: driver.driverDocuments?.rcImage, Icon: FaCarSide },
+                        { label: "Vehicle Registration (RC Book)", path: driver.driverDocuments?.rcImage, Icon: FaCarSide },
                     ].map(({ label, path, Icon }) => (
-                        <div key={label}>
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-3 flex items-center gap-2">
-                                <Icon className="text-[#2f5a3d]" />
-                                {label}
-                            </p>
+                        <div key={label} className="rounded-[24px] bg-[#F8FAF9] border border-black/[0.06] p-5">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-lg bg-forest/10 text-forest flex items-center justify-center text-xs">
+                                        <Icon />
+                                    </div>
+                                    <span className="text-xs font-bold uppercase tracking-wider text-[#1D1D1F]">
+                                        {label}
+                                    </span>
+                                </div>
+                                {path && (
+                                    <a
+                                        href={docUrl(path)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-[11px] font-bold text-forest hover:underline"
+                                    >
+                                        Open Full View ↗
+                                    </a>
+                                )}
+                            </div>
+
                             {path ? (
                                 isPdf(path) ? (
-                                    <div className="w-full rounded-2xl border border-[#e6e1d3] overflow-hidden bg-[#faf8f2]">
+                                    <div className="w-full rounded-2xl border border-black/[0.06] overflow-hidden bg-white shadow-xs">
                                         <iframe
                                             src={docUrl(path)}
                                             title={label}
-                                            className="w-full h-[500px]"
+                                            className="w-full h-[400px]"
                                         />
-                                        <div className="px-4 py-3 border-t border-[#e6e1d3] flex justify-end">
-                                            <a
-                                                href={docUrl(path)}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2f5a3d] text-white text-sm font-medium hover:bg-[#244730] transition-colors"
-                                            >
-                                                Open in new tab →
-                                            </a>
-                                        </div>
                                     </div>
                                 ) : (
-                                    <a href={docUrl(path)} target="_blank" rel="noreferrer">
+                                    <a href={docUrl(path)} target="_blank" rel="noreferrer" className="block">
                                         <img
                                             src={docUrl(path)}
                                             alt={label}
-                                            className="w-full max-h-56 object-contain rounded-2xl border border-[#e6e1d3] bg-[#faf8f2] hover:opacity-90 transition-opacity cursor-zoom-in"
+                                            className="w-full max-h-64 object-contain rounded-2xl border border-black/[0.06] bg-white shadow-xs hover:opacity-95 transition-opacity cursor-zoom-in"
                                         />
                                     </a>
                                 )
                             ) : (
-                                <div className="h-28 rounded-2xl border-2 border-dashed border-[#e6e1d3] flex items-center justify-center text-[#9aa194] text-sm">
-                                    No document uploaded
+                                <div className="h-28 rounded-2xl border-2 border-dashed border-black/[0.08] bg-white/60 flex flex-col items-center justify-center text-[#8E8E93] text-xs gap-1">
+                                    <FiFileText className="text-xl opacity-40" />
+                                    <span>No document submitted for this requirement</span>
                                 </div>
                             )}
                         </div>
                     ))}
 
                     {driver.driverDocuments?.submittedAt && (
-                        <p className="text-[12px] text-[#9aa194] flex items-center gap-2 pt-1">
-                            <FaCalendarAlt size={11} />
-                            Submitted {new Date(driver.driverDocuments.submittedAt).toLocaleDateString("en-US", {
-                                year: "numeric", month: "short", day: "numeric",
-                                hour: "2-digit", minute: "2-digit"
-                            })}
-                        </p>
+                        <div className="flex items-center gap-2 text-xs text-[#8E8E93] bg-[#F5F6F8] px-4 py-2.5 rounded-2xl border border-black/[0.04]">
+                            <FiClock className="text-forest text-sm shrink-0" />
+                            <span>
+                                Submitted on{" "}
+                                <strong className="text-[#1D1D1F]">
+                                    {new Date(driver.driverDocuments.submittedAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </strong>
+                            </span>
+                        </div>
                     )}
                 </div>
 
-                {/* Actions */}
-                <div className="px-7 py-5 border-t border-[#e6e1d3] bg-[#faf8f2] flex gap-3">
+                {/* Bottom Sheet Action Pills */}
+                <div className="p-6 border-t border-black/[0.06] bg-[#F8FAF9]/80 backdrop-blur-sm flex gap-3">
                     <button
                         onClick={() => onReject(driver._id)}
                         disabled={!!actionLoading}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-[#f5c2c2] bg-[#fdecec] text-[#9b2c2c] font-semibold text-sm hover:bg-[#fbd5d5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full border border-rose-200 bg-rose-50 text-rose-700 font-bold text-xs hover:bg-rose-100 transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <FaTimesCircle size={14} />
-                        {actionLoading === "reject" ? "Rejecting…" : "Reject"}
+                        <FiXCircle className="text-sm" />
+                        <span>{actionLoading === "reject" ? "Rejecting…" : "Reject Application"}</span>
                     </button>
                     <button
                         onClick={() => onApprove(driver._id)}
                         disabled={!!actionLoading}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#2f5a3d] text-white font-semibold text-sm hover:bg-[#244730] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-forest text-white font-bold text-xs hover:bg-forest-light transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <FaCheckCircle size={14} />
-                        {actionLoading === "approve" ? "Approving…" : "Approve Driver"}
+                        <FiCheckCircle className="text-sm" />
+                        <span>{actionLoading === "approve" ? "Approving…" : "Approve Driver"}</span>
                     </button>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Status pill
+// Status pill (Apple HIG Squircle Chip)
 // ─────────────────────────────────────────────────────────────────────────────
 const STATUS_STYLES = {
-    pending: { pill: "bg-[#fef3c7] text-[#92400e] ring-1 ring-[#fde68a]", dot: "bg-[#d97706]", label: "Pending" },
-    verified: { pill: "bg-[#e8f1ea] text-[#2f5a3d] ring-1 ring-[#c5dccb]", dot: "bg-[#2f5a3d]", label: "Verified" },
-    rejected: { pill: "bg-[#fdecec] text-[#9b2c2c] ring-1 ring-[#f5c2c2]", dot: "bg-[#9b2c2c]", label: "Rejected" },
-    none: { pill: "bg-[#efece4] text-[#4a4a3f] ring-1 ring-[#dcd8cc]", dot: "bg-[#7a8478]", label: "No Docs" },
+    pending: { pill: "bg-amber-50 text-amber-800 border-amber-200/80", dot: "bg-amber-500", label: "Pending Review" },
+    verified: { pill: "bg-emerald-50 text-emerald-800 border-emerald-200/80", dot: "bg-emerald-500", label: "Approved" },
+    rejected: { pill: "bg-rose-50 text-rose-700 border-rose-200/80", dot: "bg-rose-500", label: "Rejected" },
+    none: { pill: "bg-[#F5F6F8] text-[#6E6E73] border-black/[0.04]", dot: "bg-[#8E8E93]", label: "No Docs" },
 };
 
 const StatusPill = ({ status }) => {
     const s = STATUS_STYLES[status] || STATUS_STYLES.none;
     return (
-        <span className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ${s.pill}`}>
-            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${s.dot}`} />
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${s.pill}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
             {s.label}
         </span>
     );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DriverVerify Main Page
 // ─────────────────────────────────────────────────────────────────────────────
 const DriverVerify = () => {
     const [allDrivers, setAllDrivers] = useState([]);
@@ -169,11 +195,12 @@ const DriverVerify = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [previewDriver, setPreviewDriver] = useState(null);
     const [actionLoading, setActionLoading] = useState(null);
+    const [activeTab, setActiveTab] = useState("pending"); // "pending", "verified", "rejected", "all"
 
     const token = () => localStorage.getItem("token");
 
-    // ── Fetch ─────────────────────────────────────────────────────────────────
-    const fetchDrivers = async () => {
+    // Fetch Drivers
+    const fetchDrivers = useCallback(async () => {
         try {
             setLoading(true);
             const res = await axios.get(
@@ -187,38 +214,56 @@ const DriverVerify = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    useEffect(() => { fetchDrivers(); }, []);
+    useEffect(() => {
+        fetchDrivers();
+    }, [fetchDrivers]);
 
-    // ── Derived lists ─────────────────────────────────────────────────────────
+    // Search filter
     const q = searchTerm.toLowerCase();
-    const matchSearch = (d) => !q
-        || d.firstName?.toLowerCase().includes(q)
-        || d.lastName?.toLowerCase().includes(q)
-        || d.email?.toLowerCase().includes(q)
-        || d.mobile?.includes(q);
+    const matchSearch = (d) =>
+        !q ||
+        d.firstName?.toLowerCase().includes(q) ||
+        d.lastName?.toLowerCase().includes(q) ||
+        d.email?.toLowerCase().includes(q) ||
+        d.mobile?.includes(q);
 
-    const pendingDrivers = allDrivers.filter(d => d.driverVerificationStatus === "pending" && matchSearch(d));
-    const verifiedDrivers = allDrivers.filter(d => d.driverVerificationStatus === "verified" && matchSearch(d));
-    const rejectedDrivers = allDrivers.filter(d => d.driverVerificationStatus === "rejected" && matchSearch(d));
-    const noneDrivers = allDrivers.filter(d => (d.driverVerificationStatus === "none" || !d.driverVerificationStatus) && matchSearch(d));
+    const pendingDrivers = allDrivers.filter((d) => d.driverVerificationStatus === "pending" && matchSearch(d));
+    const verifiedDrivers = allDrivers.filter((d) => d.driverVerificationStatus === "verified" && matchSearch(d));
+    const rejectedDrivers = allDrivers.filter((d) => d.driverVerificationStatus === "rejected" && matchSearch(d));
+    const allFilteredDrivers = allDrivers.filter((d) => matchSearch(d));
 
     const counts = {
         total: allDrivers.length,
-        pending: allDrivers.filter(d => d.driverVerificationStatus === "pending").length,
-        verified: allDrivers.filter(d => d.driverVerificationStatus === "verified").length,
-        rejected: allDrivers.filter(d => d.driverVerificationStatus === "rejected").length,
+        pending: allDrivers.filter((d) => d.driverVerificationStatus === "pending").length,
+        verified: allDrivers.filter((d) => d.driverVerificationStatus === "verified").length,
+        rejected: allDrivers.filter((d) => d.driverVerificationStatus === "rejected").length,
     };
 
+    // Auto-adjust active tab if pending has 0 items
+    useEffect(() => {
+        if (!loading && counts.pending === 0 && counts.total > 0 && activeTab === "pending") {
+            setActiveTab("verified");
+        }
+    }, [counts.pending, counts.total, loading, activeTab]);
+
+    const activeList =
+        activeTab === "pending"
+            ? pendingDrivers
+            : activeTab === "verified"
+            ? verifiedDrivers
+            : activeTab === "rejected"
+            ? rejectedDrivers
+            : allFilteredDrivers;
+
     const statsCards = [
-        { title: "Total Drivers", value: counts.total, accent: "#2f5a3d", tint: "#e8f1ea", Icon: FaUsers },
-        { title: "Pending Review", value: counts.pending, accent: "#92400e", tint: "#fef3c7", Icon: FaClock },
-        { title: "Verified", value: counts.verified, accent: "#1e3a8a", tint: "#eaf1fb", Icon: FaShieldAlt },
-        { title: "Rejected", value: counts.rejected, accent: "#9b2c2c", tint: "#fdecec", Icon: FaTimesCircle },
+        { title: "Total Drivers", value: counts.total, icon: <FiUsers className="text-forest text-lg" />, color: "bg-forest/10 border-forest/10 text-forest" },
+        { title: "Pending Review", value: counts.pending, icon: <FiClock className="text-amber-600 text-lg" />, color: "bg-amber-500/10 border-amber-500/10 text-amber-700" },
+        { title: "Approved Fleet", value: counts.verified, icon: <FiShield className="text-blue-600 text-lg" />, color: "bg-blue-500/10 border-blue-500/10 text-blue-700" },
+        { title: "Declined", value: counts.rejected, icon: <FiXCircle className="text-rose-600 text-lg" />, color: "bg-rose-500/10 border-rose-500/10 text-rose-700" },
     ];
 
-    // ── Search ────────────────────────────────────────────────────────────────
     const handleSearch = (e) => {
         e.preventDefault();
         setSearchTerm(searchInput);
@@ -229,7 +274,6 @@ const DriverVerify = () => {
         setSearchTerm("");
     };
 
-    // ── Approve ───────────────────────────────────────────────────────────────
     const handleApprove = async (userId) => {
         try {
             setActionLoading("approve");
@@ -238,17 +282,16 @@ const DriverVerify = () => {
                 {},
                 { headers: { Authorization: `Bearer ${token()}` } }
             );
-            showSuccess(res.data.message || "Driver approved");
+            showSuccess(res.data.message || "Driver approved successfully! 🚀");
             setPreviewDriver(null);
             await fetchDrivers();
         } catch (err) {
-            showError(err.response?.data?.message || "Failed to approve");
+            showError(err.response?.data?.message || "Failed to approve driver");
         } finally {
             setActionLoading(null);
         }
     };
 
-    // ── Reject ────────────────────────────────────────────────────────────────
     const handleReject = async (userId) => {
         try {
             setActionLoading("reject");
@@ -261,59 +304,59 @@ const DriverVerify = () => {
             setPreviewDriver(null);
             await fetchDrivers();
         } catch (err) {
-            showError(err.response?.data?.message || "Failed to reject");
+            showError(err.response?.data?.message || "Failed to reject driver");
         } finally {
             setActionLoading(null);
         }
     };
 
     const handleExportData = () => {
-        const dateStr = new Date().toISOString().split('T')[0];
+        const dateStr = new Date().toISOString().split("T")[0];
         const sectionize = (label, drivers) => {
-            const sectionTitle = [label, '', '', '', '', ''];
-            const header = ['Section', 'Name', 'Email', 'Mobile', 'Status', 'Submitted Date'];
-            const rows = drivers.map(d => [
-                '',
-                `${d.firstName} ${d.lastName}`,
-                d.email,
-                d.mobile || '',
+            const sectionTitle = [label, "", "", "", "", ""];
+            const header = ["Section", "Name", "Email", "Mobile", "Status", "Submitted Date"];
+            const rows = drivers.map((d) => [
+                "",
+                `"${d.firstName} ${d.lastName}"`,
+                `"${d.email}"`,
+                `"${d.mobile || ""}"`,
                 d.driverVerificationStatus,
-                d.driverDocuments?.submittedAt
-                    ? new Date(d.driverDocuments.submittedAt).toLocaleDateString()
-                    : '',
+                d.driverDocuments?.submittedAt ? new Date(d.driverDocuments.submittedAt).toLocaleDateString() : "",
             ]);
             return [sectionTitle, header, ...rows, []];
         };
 
         const csv = [
-            ['SafarGo — Driver Verification Report', '', '', '', '', ''],
-            [`Generated: ${new Date().toLocaleString()}`, '', '', '', '', ''],
+            ["SafarGo — Driver Verification Report", "", "", "", "", ""],
+            [`Generated: ${new Date().toLocaleString()}`, "", "", "", "", ""],
             [],
-            ['Summary', 'Count', '', '', '', ''],
-            ['Total Drivers', counts.total, '', '', '', ''],
-            ['Pending', counts.pending, '', '', '', ''],
-            ['Approved', counts.verified, '', '', '', ''],
-            ['Rejected', counts.rejected, '', '', '', ''],
+            ["Summary", "Count", "", "", "", ""],
+            ["Total Drivers", counts.total, "", "", "", ""],
+            ["Pending Review", counts.pending, "", "", "", ""],
+            ["Approved Drivers", counts.verified, "", "", "", ""],
+            ["Rejected Applications", counts.rejected, "", "", "", ""],
             [],
-            ...sectionize('Pending', pendingDrivers),
-            ...sectionize('Approved', verifiedDrivers),
-            ...sectionize('Rejected', rejectedDrivers),
-        ].map(r => r.join(',')).join('\n');
+            ...sectionize("Pending", pendingDrivers),
+            ...sectionize("Approved", verifiedDrivers),
+            ...sectionize("Rejected", rejectedDrivers),
+        ]
+            .map((r) => r.join(","))
+            .join("\n");
 
-        const blob = new Blob([csv], { type: 'text/csv' });
+        const blob = new Blob([csv], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.setAttribute('download', `safargo-drivers-${dateStr}.csv`);
+        link.setAttribute("download", `safargo-drivers-${dateStr}.csv`);
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
-        showSuccess('Driver data exported');
+        showSuccess("Driver verification CSV exported");
     };
 
     const handlePrint = () => {
-        const style = document.createElement('style');
+        const style = document.createElement("style");
         style.textContent = `
             @media print {
                 body * { visibility: hidden; }
@@ -328,302 +371,474 @@ const DriverVerify = () => {
         setTimeout(() => style.remove(), 100);
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen font-inter text-[#1a2620]">
-            <div className="max-w-7xl mx-auto" id="driver-print-area">
+        <div className="font-sans text-[#1D1D1F] pb-12 max-w-[1400px] mx-auto" id="driver-print-area">
+            {/* Modal */}
+            {previewDriver && (
+                <DocPreviewModal
+                    driver={previewDriver}
+                    onClose={() => setPreviewDriver(null)}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    actionLoading={actionLoading}
+                />
+            )}
 
-                {/* Preview Modal */}
-                {previewDriver && (
-                    <DocPreviewModal
-                        driver={previewDriver}
-                        onClose={() => setPreviewDriver(null)}
-                        onApprove={handleApprove}
-                        onReject={handleReject}
-                        actionLoading={actionLoading}
-                    />
-                )}
-
-                {/* ── HEADER ─────────────────────────────────────────────────────── */}
-                <div className="mb-10">
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-8 border-b border-[#e6e1d3]">
-                        <div>
-                            <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#7a8478] mb-3">
-                                <span className="w-6 h-px bg-[#7a8478]" />
-                                Admin · Verification
+            {/* Apple Spatial Header */}
+            <header className="mb-8">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                    <div>
+                        {/* Live KYC Beacon Badge */}
+                        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full mb-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-forest" />
                             </span>
-                            <h1
-                                className="text-4xl lg:text-5xl font-semibold leading-[1.05] text-[#1a2620]"
-                                style={{ fontFamily: '"Fraunces", serif' }}
-                            >
-                                Driver <span className="italic text-[#2f5a3d]">verification</span>
-                            </h1>
-                            <p className="text-[#5a6358] mt-3 max-w-md text-[15px]">
-                                Review submitted documents and approve or reject driver accounts.
-                            </p>
+                            <span className="text-[10px] font-bold tracking-wider uppercase text-emerald-900">
+                                KYC & Document Approval Radar
+                            </span>
                         </div>
-                        <div className="flex items-center gap-3 no-print">
-                            {counts.pending > 0 && (
-                                <div className="inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#fef3c7] text-[#92400e] border border-[#fde68a] text-sm font-semibold">
-                                    <FaClock className="text-xs" />
-                                    {counts.pending} pending {counts.pending === 1 ? "review" : "reviews"}
-                                </div>
-                            )}
-                            <button
-                                onClick={handleExportData}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
-                            >
-                                <FaDownload className="text-xs text-[#2f5a3d]" />
-                                Export
-                            </button>
-                            <button
-                                onClick={handlePrint}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-[#e6e1d3] text-[#1a2620] hover:border-[#2f5a3d] hover:bg-[#faf8f2] transition-all duration-300 text-sm font-medium"
-                            >
-                                <FaPrint className="text-xs text-[#2f5a3d]" />
-                                Print
-                            </button>
-                        </div>
+
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-[#1D1D1F]">
+                            Driver <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest to-emerald-700">Verification</span>
+                        </h1>
+                        <p className="text-xs sm:text-sm text-[#6E6E73] mt-1 max-w-2xl leading-relaxed">
+                            Audit driver credentials, verify official Driving Licences (DL) and vehicle RC documents, and unlock instant live publishing.
+                        </p>
+                    </div>
+
+                    {/* Apple Action Pills */}
+                    <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap no-print">
+                        {counts.pending > 0 && (
+                            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-800 text-xs font-bold shadow-xs">
+                                <FiClock className="text-xs text-amber-600" />
+                                <span>{counts.pending} Awaiting Review</span>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={fetchDrivers}
+                            disabled={loading}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#1D1D1F] text-xs font-bold transition-all border border-black/[0.08] shadow-xs active:scale-95 disabled:opacity-50"
+                        >
+                            <FiRefreshCw className={`text-xs text-forest ${loading ? "animate-spin" : ""}`} />
+                            <span>Refresh</span>
+                        </button>
+
+                        <button
+                            onClick={handleExportData}
+                            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#1D1D1F] text-xs font-bold transition-all border border-black/[0.08] shadow-xs active:scale-95"
+                        >
+                            <FiDownload className="text-xs text-forest" />
+                            <span>Export CSV</span>
+                        </button>
+
+                        <button
+                            onClick={handlePrint}
+                            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#1D1D1F] text-xs font-bold transition-all border border-black/[0.08] shadow-xs active:scale-95"
+                        >
+                            <FiPrinter className="text-xs text-forest" />
+                            <span>Print</span>
+                        </button>
+
+                        <Link
+                            to="/admin/dashboard"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-forest hover:bg-forest-light text-white text-xs font-bold transition-all shadow-xs no-underline active:scale-95"
+                        >
+                            <span>Dashboard</span>
+                            <FiArrowRight className="text-xs" />
+                        </Link>
                     </div>
                 </div>
+            </header>
 
-                {/* ── STATS ──────────────────────────────────────────────────────── */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
-                    {statsCards.map(({ title, value, accent, tint, Icon }) => (
-                        <div
-                            key={title}
-                            className="group bg-white rounded-2xl border border-[#e6e1d3] p-5 hover:border-[#2f5a3d]/40 hover:shadow-[0_8px_24px_-12px_rgba(47,90,61,0.18)] transition-all duration-300"
-                        >
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <p className="text-[11px] uppercase tracking-[0.18em] text-[#7a8478] mb-2">{title}</p>
-                                    <p className="text-3xl font-semibold text-[#1a2620] tracking-tight" style={{ fontFamily: '"Fraunces", serif' }}>
-                                        {value}
-                                    </p>
-                                </div>
-                                <div
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300"
-                                    style={{ backgroundColor: tint, color: accent }}
-                                >
-                                    <Icon className="text-base" />
-                                </div>
+            {/* Top Stat Cards (Apple Bento 4-Column Grid) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+                {statsCards.map(({ title, value, icon, color }) => (
+                    <div
+                        key={title}
+                        className="rounded-[28px] bg-white border border-black/[0.06] p-6 shadow-xs hover:shadow-md transition-all duration-300"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                                {title}
+                            </span>
+                            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg border ${color}`}>
+                                {icon}
                             </div>
-                            <div className="mt-4 h-px w-8" style={{ backgroundColor: accent, opacity: 0.4 }} />
                         </div>
-                    ))}
-                </div>
+                        <div className="text-3xl font-black tracking-tight text-[#1D1D1F]">
+                            {value.toLocaleString()}
+                        </div>
+                        <p className="text-[11px] font-medium text-[#8E8E93] mt-2">
+                            {title === "Pending Review"
+                                ? "Action needed on KYC docs"
+                                : title === "Approved Fleet"
+                                ? "Cleared for live publishing"
+                                : title === "Declined"
+                                ? "Applications rejected"
+                                : "Total registered drivers"}
+                        </p>
+                    </div>
+                ))}
+            </div>
 
-                {/* ── SEARCH ─────────────────────────────────────────────────────── */}
-                <div className="bg-white rounded-2xl border border-[#e6e1d3] p-4 sm:p-5 mb-8 shadow-[0_1px_0_rgba(26,38,32,0.02)]">
-                    <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3">
-                        <div className="flex-1 relative">
-                            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa194] text-sm" />
-                            <input
-                                type="text"
-                                placeholder="Search by name, email, or phone…"
-                                value={searchInput}
-                                onChange={(e) => setSearchInput(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 bg-[#faf8f2] border border-[#e6e1d3] rounded-xl focus:bg-white focus:border-[#2f5a3d] focus:ring-2 focus:ring-[#2f5a3d]/15 outline-none transition-all text-[#1a2620] placeholder:text-[#9aa194] text-[15px]"
-                            />
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                type="submit"
-                                className="px-5 py-3 rounded-xl bg-[#2f5a3d] text-white hover:bg-[#244730] transition-colors flex items-center gap-2 font-medium text-sm"
-                            >
-                                <FaSearch size={13} /> Search
-                            </button>
-                            {searchTerm && (
-                                <button
-                                    type="button"
-                                    onClick={handleClearSearch}
-                                    className="px-5 py-3 rounded-xl bg-[#efece4] text-[#5a6358] hover:bg-[#e6e1d3] transition-colors flex items-center gap-2 font-medium text-sm"
-                                >
-                                    <FaTimes size={13} /> Clear
-                                </button>
-                            )}
-                        </div>
-                    </form>
+            {/* Apple Filter & Search Controls Bar */}
+            <div className="rounded-[28px] bg-white border border-black/[0.06] p-4 sm:p-5 mb-6 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+                {/* Search Inset Pill */}
+                <form onSubmit={handleSearch} className="w-full md:w-96 relative">
+                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8E8E93] text-sm pointer-events-none" />
+                    <input
+                        type="text"
+                        placeholder="Search by driver name, email, or mobile…"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className="w-full pl-10 pr-9 py-2.5 bg-[#F5F6F8] hover:bg-black/[0.02] border border-black/[0.06] rounded-full text-xs font-semibold text-[#1D1D1F] placeholder-[#8E8E93] outline-none focus:bg-white focus:border-forest/40 focus:ring-2 focus:ring-forest/10 transition-all"
+                    />
                     {searchTerm && (
-                        <div className="mt-4 pt-3 border-t border-[#efece4] text-sm text-[#5a6358]">
-                            Results for <span className="font-semibold text-[#2f5a3d]">"{searchTerm}"</span>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={handleClearSearch}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-[#1D1D1F] p-1"
+                        >
+                            <FiX className="text-xs" />
+                        </button>
                     )}
-                </div>
+                </form>
 
-                {/* ── DRIVER SECTIONS (Pending / Verified / Rejected) ───────────── */}
+                {/* Apple iOS Segmented Control Tabs */}
+                <div className="p-1 bg-[#F5F6F8] rounded-full border border-black/[0.06] flex items-center gap-1 w-full md:w-auto overflow-x-auto">
+                    <button
+                        onClick={() => setActiveTab("pending")}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                            activeTab === "pending"
+                                ? "bg-white text-amber-800 shadow-xs"
+                                : "text-[#6E6E73] hover:text-amber-800"
+                        }`}
+                    >
+                        <span className={`w-1.5 h-1.5 rounded-full ${activeTab === "pending" ? "bg-amber-500 animate-pulse" : "bg-amber-400"}`} />
+                        <span>Pending</span>
+                        {counts.pending > 0 && (
+                            <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black">
+                                {counts.pending}
+                            </span>
+                        )}
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab("verified")}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                            activeTab === "verified"
+                                ? "bg-white text-emerald-800 shadow-xs"
+                                : "text-[#6E6E73] hover:text-emerald-800"
+                        }`}
+                    >
+                        <span className={`w-1.5 h-1.5 rounded-full ${activeTab === "verified" ? "bg-emerald-600" : "bg-emerald-400"}`} />
+                        <span>Approved ({counts.verified})</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab("rejected")}
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                            activeTab === "rejected"
+                                ? "bg-white text-rose-700 shadow-xs"
+                                : "text-[#6E6E73] hover:text-rose-700"
+                        }`}
+                    >
+                        <span className={`w-1.5 h-1.5 rounded-full ${activeTab === "rejected" ? "bg-rose-600" : "bg-rose-400"}`} />
+                        <span>Rejected ({counts.rejected})</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab("all")}
+                        className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                            activeTab === "all"
+                                ? "bg-white text-[#1D1D1F] shadow-xs"
+                                : "text-[#6E6E73] hover:text-[#1D1D1F]"
+                        }`}
+                    >
+                        All ({counts.total})
+                    </button>
+                </div>
+            </div>
+
+            {/* Drivers Data Table Card */}
+            <div className="rounded-[32px] bg-white border border-black/[0.06] shadow-xs overflow-hidden mb-6">
                 {loading ? (
-                    <div className="flex items-center justify-center py-32">
-                        <div className="text-center">
-                            <div className="relative w-16 h-16 mx-auto">
-                                <div className="absolute inset-0 border-2 border-[#e6e1d3] border-t-[#2f5a3d] rounded-full animate-spin" />
-                                <FaSpinner className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#2f5a3d] text-lg" />
-                            </div>
-                            <p className="text-[#5a6358] mt-5 text-sm">Loading drivers…</p>
+                    <div className="py-24 text-center text-[#8E8E93]">
+                        <FiRefreshCw className="animate-spin text-forest text-2xl mx-auto mb-3" />
+                        <p className="text-xs font-bold text-[#1D1D1F]">Loading drivers & verification status…</p>
+                    </div>
+                ) : activeList.length === 0 ? (
+                    <div className="py-24 text-center text-[#8E8E93] p-6">
+                        <div className="w-14 h-14 bg-[#F5F6F8] rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl text-[#8E8E93]">
+                            <FiUser />
                         </div>
+                        <h3 className="font-bold text-base text-[#1D1D1F]">
+                            No {activeTab === "pending" ? "pending" : activeTab === "verified" ? "approved" : activeTab === "rejected" ? "rejected" : ""} drivers found
+                        </h3>
+                        <p className="text-xs text-[#8E8E93] mt-1 max-w-sm mx-auto">
+                            {searchTerm
+                                ? `No drivers match "${searchTerm}". Try another search or clear the filter.`
+                                : `All driver applications for this category have been processed.`}
+                        </p>
+                        {searchTerm && (
+                            <button
+                                onClick={handleClearSearch}
+                                className="mt-4 px-4 py-2 rounded-full bg-[#F5F6F8] hover:bg-black/5 text-xs font-bold text-[#1D1D1F] transition-all"
+                            >
+                                Clear Search
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <>
-                        {[
-                            { key: "pending", label: "Pending", data: pendingDrivers, accent: "#92400e", tint: "#fef3c7", dot: "bg-amber-500", pill: "bg-amber-50 text-amber-700 border border-amber-200" },
-                            { key: "verified", label: "Approved", data: verifiedDrivers, accent: "#2f5a3d", tint: "#e8f1ea", dot: "bg-green-500", pill: "bg-green-50 text-green-700 border border-green-200" },
-                            { key: "rejected", label: "Rejected", data: rejectedDrivers, accent: "#9b2c2c", tint: "#fdecec", dot: "bg-red-500", pill: "bg-red-50 text-red-700 border border-red-200" },
-                        ].map(({ key, label, data, accent, tint, dot, pill }) => (
-                            <div key={key} className="mb-10 last:mb-0">
-                                {/* Section heading */}
-                                <div className="flex items-center gap-4 mb-5">
-                                    <h2
-                                        className="text-2xl lg:text-3xl font-semibold text-[#1a2620] tracking-tight"
-                                        style={{ fontFamily: '"Fraunces", serif' }}
-                                    >
-                                        {label}
-                                    </h2>
-                                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${pill}`}>
-                                        <span className={`w-2 h-2 rounded-full ${dot}`} />
-                                        {data.length} driver{data.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
+                        {/* Desktop & iPad Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-black/[0.06] bg-[#F8FAF9]/80 backdrop-blur-sm text-[11px] font-bold uppercase tracking-wider text-[#8E8E93]">
+                                        <th className="py-4 px-6 font-bold">Driver Identity</th>
+                                        <th className="py-4 px-6 font-bold">Contact Details</th>
+                                        <th className="py-4 px-6 font-bold">KYC Status</th>
+                                        <th className="py-4 px-6 font-bold">Documents</th>
+                                        <th className="py-4 px-6 font-bold">Submitted Date</th>
+                                        <th className="py-4 px-6 font-bold text-right no-print">Review Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-black/[0.04] text-xs">
+                                    {activeList.map((driver) => {
+                                        const hasDl = !!driver.driverDocuments?.dlImage;
+                                        const hasRc = !!driver.driverDocuments?.rcImage;
 
-                                {data.length === 0 ? (
-                                    <div className="bg-white rounded-2xl border border-[#e6e1d3] p-12 text-center">
-                                        <div className="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: tint, color: accent }}>
-                                            <FaUser className="text-xl" />
-                                        </div>
-                                        <p className="text-lg font-semibold text-[#1a2620]" style={{ fontFamily: '"Fraunces", serif' }}>
-                                            No {label.toLowerCase()} drivers
-                                        </p>
-                                        <p className="text-[#7a8478] text-sm mt-1">
-                                            {searchTerm ? "Try a different search term" : `No drivers with "${label}" status`}
-                                        </p>
-                                        {searchTerm && (
-                                            <button onClick={handleClearSearch} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1a2620] text-[#f8f6ef] hover:bg-[#2f5a3d] transition-colors text-sm mt-5">
-                                                <FaTimes className="text-xs" /> Clear search
-                                            </button>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="bg-white rounded-2xl border border-[#e6e1d3] overflow-hidden">
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full">
-                                                <thead>
-                                                    <tr className="bg-[#faf8f2] border-b border-[#e6e1d3]">
-                                                        {["Driver", "Contact", "Doc Status", "Submitted", "Actions"].map((h) => (
-                                                            <th key={h} className="px-6 py-4 text-left text-[11px] font-semibold text-[#7a8478] uppercase tracking-[0.16em]">{h}</th>
-                                                        ))}
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-[#efece4]">
-                                                    {data.map((driver) => (
-                                                        <tr key={driver._id} className="group hover:bg-[#faf8f2] transition-colors duration-200">
-
-                                                            {/* Driver */}
-                                                            <td className="px-6 py-5">
-                                                                <div className="flex items-center gap-3.5">
-                                                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2f5a3d] to-[#1a2620] flex items-center justify-center text-white font-semibold text-[15px] shadow-sm">
-                                                                        {driver.firstName?.[0]}{driver.lastName?.[0]}
-                                                                    </div>
-                                                                    <div>
-                                                                        <div className="font-semibold text-[#1a2620] text-[15px] leading-tight" style={{ fontFamily: '"Fraunces", serif' }}>
-                                                                            {driver.firstName} {driver.lastName}
-                                                                        </div>
-                                                                        <div className="flex items-center gap-2 mt-1">
-                                                                            {driver.driverVerified && (
-                                                                                <span className="text-[10px] text-[#2f5a3d] bg-[#e8f1ea] px-2 py-0.5 rounded-full flex items-center gap-1 font-medium">
-                                                                                    <MdVerified size={10} /> Verified
-                                                                                </span>
-                                                                            )}
-                                                                            <span className="text-[11px] text-[#9aa194] font-mono">#{driver._id?.slice(-6)}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-
-                                                            {/* Contact */}
-                                                            <td className="px-6 py-5">
-                                                                <div className="space-y-1.5">
-                                                                    <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
-                                                                        <FaEnvelope className="text-[#7a8478] text-xs" />
-                                                                        <span>{driver.email}</span>
-                                                                    </div>
-                                                                    {driver.mobile && (
-                                                                        <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
-                                                                            <FaPhone className="text-[#7a8478] text-xs" />
-                                                                            <span>{driver.mobile}</span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-
-                                                            {/* Status */}
-                                                            <td className="px-6 py-5">
-                                                                <StatusPill status={driver.driverVerificationStatus} />
-                                                            </td>
-
-                                                            {/* Submitted */}
-                                                            <td className="px-6 py-5">
-                                                                {driver.driverDocuments?.submittedAt ? (
-                                                                    <div className="flex items-center gap-2 text-[#5a6358] text-[13.5px]">
-                                                                        <FaCalendarAlt className="text-[#7a8478] text-xs" />
-                                                                        {new Date(driver.driverDocuments.submittedAt).toLocaleDateString("en-US", {
-                                                                            year: "numeric", month: "short", day: "numeric"
-                                                                        })}
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-[#9aa194] text-[13px]">—</span>
+                                        return (
+                                            <tr
+                                                key={driver._id}
+                                                className="hover:bg-[#F8FAF9]/80 transition-colors duration-150"
+                                            >
+                                                {/* Driver Identity */}
+                                                <td className="py-4 px-6">
+                                                    <div className="flex items-center gap-3.5">
+                                                        <div className="w-11 h-11 rounded-2xl bg-forest text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+                                                            {driver.firstName?.[0]}{driver.lastName?.[0]}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-bold text-[#1D1D1F] text-[13px] flex items-center gap-1.5">
+                                                                <span>{driver.firstName} {driver.lastName}</span>
+                                                                {driver.driverVerified && (
+                                                                    <MdVerified className="text-emerald-600 text-sm shrink-0" title="Verified Driver" />
                                                                 )}
-                                                            </td>
+                                                            </div>
+                                                            <span className="text-[11px] font-mono text-[#8E8E93]">
+                                                                #{driver._id?.slice(-6)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
 
-                                                            {/* Actions */}
-                                                            <td className="px-6 py-5">
-                                                                <div className="flex items-center gap-2">
+                                                {/* Contact Details */}
+                                                <td className="py-4 px-6 text-[#6E6E73]">
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <FiMail className="text-forest text-xs shrink-0" />
+                                                            <span className="truncate max-w-[200px] font-medium">{driver.email}</span>
+                                                        </div>
+                                                        {driver.mobile && (
+                                                            <div className="flex items-center gap-1.5 text-[11px]">
+                                                                <FiPhone className="text-[#8E8E93] text-xs shrink-0" />
+                                                                <span className="font-mono">{driver.mobile}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
 
-                                                                    {/* View docs */}
-                                                                    <div className="relative group/tip">
-                                                                        <button onClick={() => setPreviewDriver(driver)} className="w-9 h-9 rounded-lg bg-[#eaf1fb] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white transition-colors flex items-center justify-center">
-                                                                            <FaEye size={13} />
-                                                                        </button>
-                                                                        <div className="absolute left-1/2 -translate-x-1/2 -top-9 opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none bg-[#1a2620] text-white text-[11px] px-2.5 py-1 rounded-md whitespace-nowrap z-50">
-                                                                            View documents
-                                                                        </div>
-                                                                    </div>
+                                                {/* KYC Status Pill */}
+                                                <td className="py-4 px-6">
+                                                    <StatusPill status={driver.driverVerificationStatus} />
+                                                </td>
 
-                                                                    {/* Approve — shown for pending & rejected */}
-                                                                    {(driver.driverVerificationStatus === "pending" || driver.driverVerificationStatus === "rejected") && (
-                                                                        <div className="relative group/tip">
-                                                                            <button onClick={() => handleApprove(driver._id)} className="w-9 h-9 rounded-lg bg-[#e8f1ea] text-[#2f5a3d] hover:bg-[#2f5a3d] hover:text-white transition-colors flex items-center justify-center">
-                                                                                <FaCheckCircle size={13} />
-                                                                            </button>
-                                                                            <div className="absolute left-1/2 -translate-x-1/2 -top-9 opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none bg-[#1a2620] text-white text-[11px] px-2.5 py-1 rounded-md whitespace-nowrap z-50">
-                                                                                {driver.driverVerificationStatus === "rejected" ? "Approve anyway" : "Approve"}
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
+                                                {/* Documents Attached */}
+                                                <td className="py-4 px-6">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span
+                                                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                                                hasDl
+                                                                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                                                    : "bg-[#F5F6F8] text-[#8E8E93] border-black/[0.04]"
+                                                            }`}
+                                                        >
+                                                            DL: {hasDl ? "Attached" : "Missing"}
+                                                        </span>
+                                                        <span
+                                                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                                                hasRc
+                                                                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                                                    : "bg-[#F5F6F8] text-[#8E8E93] border-black/[0.04]"
+                                                            }`}
+                                                        >
+                                                            RC: {hasRc ? "Attached" : "Missing"}
+                                                        </span>
+                                                    </div>
+                                                </td>
 
-                                                                    {/* Reject — shown for pending only */}
-                                                                    {driver.driverVerificationStatus === "pending" && (
-                                                                        <div className="relative group/tip">
-                                                                            <button onClick={() => handleReject(driver._id)} className="w-9 h-9 rounded-lg bg-[#fdecec] text-[#9b2c2c] hover:bg-[#9b2c2c] hover:text-white transition-colors flex items-center justify-center">
-                                                                                <FaTimesCircle size={13} />
-                                                                            </button>
-                                                                            <div className="absolute left-1/2 -translate-x-1/2 -top-9 opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none bg-[#1a2620] text-white text-[11px] px-2.5 py-1 rounded-md whitespace-nowrap z-50">
-                                                                                Reject
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                {/* Submitted Date */}
+                                                <td className="py-4 px-6 text-[#8E8E93]">
+                                                    {driver.driverDocuments?.submittedAt ? (
+                                                        <div className="flex items-center gap-1.5">
+                                                            <FiCalendar className="text-forest text-xs shrink-0" />
+                                                            <span className="font-medium text-[#1D1D1F]">
+                                                                {new Date(driver.driverDocuments.submittedAt).toLocaleDateString("en-US", {
+                                                                    year: "numeric",
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-[#8E8E93]">—</span>
+                                                    )}
+                                                </td>
+
+                                                {/* Actions */}
+                                                <td className="py-4 px-6 text-right no-print">
+                                                    <div className="flex items-center justify-end gap-1.5">
+                                                        {/* View Documents Button */}
+                                                        <button
+                                                            onClick={() => setPreviewDriver(driver)}
+                                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#F5F6F8] hover:bg-black/5 text-[#1D1D1F] text-xs font-bold transition-all border border-black/[0.06] shadow-xs active:scale-95"
+                                                            title="Inspect Driving Licence and RC Book"
+                                                        >
+                                                            <FiEye className="text-xs text-forest" />
+                                                            <span>Inspect Docs</span>
+                                                        </button>
+
+                                                        {/* Approve Button */}
+                                                        {(driver.driverVerificationStatus === "pending" || driver.driverVerificationStatus === "rejected") && (
+                                                            <button
+                                                                onClick={() => handleApprove(driver._id)}
+                                                                disabled={actionLoading === "approve"}
+                                                                className="w-8 h-8 rounded-full bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 flex items-center justify-center transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                                                                title="Approve Driver"
+                                                            >
+                                                                <FiCheckCircle className="text-xs" />
+                                                            </button>
+                                                        )}
+
+                                                        {/* Reject Button */}
+                                                        {driver.driverVerificationStatus === "pending" && (
+                                                            <button
+                                                                onClick={() => handleReject(driver._id)}
+                                                                disabled={actionLoading === "reject"}
+                                                                className="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 flex items-center justify-center transition-all shadow-xs active:scale-95 disabled:opacity-50"
+                                                                title="Reject Driver"
+                                                            >
+                                                                <FiXCircle className="text-xs" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile iPhone Card Stack View */}
+                        <div className="block md:hidden divide-y divide-black/[0.06]">
+                            {activeList.map((driver) => {
+                                const hasDl = !!driver.driverDocuments?.dlImage;
+                                const hasRc = !!driver.driverDocuments?.rcImage;
+
+                                return (
+                                    <div key={driver._id} className="p-4 sm:p-5 space-y-3 hover:bg-[#F8FAF9] transition-colors">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-11 h-11 rounded-2xl bg-forest text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                                    {driver.firstName?.[0]}{driver.lastName?.[0]}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-[#1D1D1F] text-sm flex items-center gap-1.5">
+                                                        <span>{driver.firstName} {driver.lastName}</span>
+                                                        {driver.driverVerified && (
+                                                            <MdVerified className="text-emerald-600 text-sm shrink-0" />
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[11px] text-[#8E8E93] truncate max-w-[200px]">
+                                                        {driver.email}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <StatusPill status={driver.driverVerificationStatus} />
+                                        </div>
+
+                                        {/* Contact & Docs Summary */}
+                                        <div className="flex items-center justify-between text-xs pt-1 border-t border-black/[0.04]">
+                                            <div className="flex items-center gap-1.5 text-[11px] text-[#6E6E73]">
+                                                <span className={`px-2 py-0.5 rounded-md font-bold border ${hasDl ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-[#F5F6F8] text-[#8E8E93] border-black/[0.04]"}`}>
+                                                    DL: {hasDl ? "✓" : "✗"}
+                                                </span>
+                                                <span className={`px-2 py-0.5 rounded-md font-bold border ${hasRc ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-[#F5F6F8] text-[#8E8E93] border-black/[0.04]"}`}>
+                                                    RC: {hasRc ? "✓" : "✗"}
+                                                </span>
+                                            </div>
+
+                                            {driver.mobile && (
+                                                <span className="font-mono text-[11px] text-[#6E6E73]">
+                                                    {driver.mobile}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Mobile 1-Tap Action Capsule */}
+                                        <div className="pt-2 flex items-center gap-2">
+                                            <button
+                                                onClick={() => setPreviewDriver(driver)}
+                                                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-[#F5F6F8] hover:bg-black/5 text-[#1D1D1F] font-bold text-xs transition-all border border-black/[0.06] shadow-xs active:scale-95"
+                                            >
+                                                <FiEye className="text-xs text-forest" />
+                                                <span>Inspect Docs</span>
+                                            </button>
+
+                                            {(driver.driverVerificationStatus === "pending" || driver.driverVerificationStatus === "rejected") && (
+                                                <button
+                                                    onClick={() => handleApprove(driver._id)}
+                                                    disabled={actionLoading === "approve"}
+                                                    className="inline-flex items-center justify-center gap-1 px-4 py-2.5 rounded-full bg-forest text-white font-bold text-xs shadow-xs active:scale-95"
+                                                >
+                                                    <FiCheckCircle className="text-xs" />
+                                                    <span>Approve</span>
+                                                </button>
+                                            )}
+
+                                            {driver.driverVerificationStatus === "pending" && (
+                                                <button
+                                                    onClick={() => handleReject(driver._id)}
+                                                    disabled={actionLoading === "reject"}
+                                                    className="inline-flex items-center justify-center gap-1 px-3 py-2.5 rounded-full bg-rose-50 text-rose-700 font-bold text-xs border border-rose-200 shadow-xs active:scale-95"
+                                                >
+                                                    <FiXCircle className="text-xs" />
+                                                    <span>Reject</span>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        ))}
+                                );
+                            })}
+                        </div>
                     </>
                 )}
 
+                {/* Footer Count Strip */}
+                <div className="p-4 sm:p-5 bg-[#F8FAF9] border-t border-black/[0.06] flex items-center justify-between text-xs text-[#8E8E93]">
+                    <span>
+                        Displaying <strong className="text-[#1D1D1F]">{activeList.length}</strong> driver{activeList.length !== 1 ? "s" : ""} in active filter
+                    </span>
+                    <span className="font-semibold text-forest">
+                        {counts.verified} Verified Fleet Drivers
+                    </span>
+                </div>
             </div>
         </div>
     );
