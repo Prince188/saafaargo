@@ -19,16 +19,25 @@ import {
     FiX,
     FiRefreshCw,
     FiFileText,
-    FiArrowRight
+    FiArrowRight,
+    FiMaximize2,
+    FiExternalLink,
+    FiAlertCircle,
+    FiCheck
 } from "react-icons/fi";
 import { FaIdCard, FaCarSide } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { showSuccess, showError } from "../../utils/toastConfig";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Document Preview Modal (Apple iOS Sheet Style)
+// Document Preview & Audit Modal (Apple iOS Glass Sheet Style)
 // ─────────────────────────────────────────────────────────────────────────────
 const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }) => {
+    const [activeDocTab, setActiveDocTab] = useState("all"); // "all", "dl", "rc"
+    const [lightboxImage, setLightboxImage] = useState(null); // { url, title }
+    const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+    const [rejectReason, setRejectReason] = useState("Document image is blurry or unreadable");
+
     const docUrl = (filePath) => {
         if (!filePath) return null;
         return filePath.replace(/\\/g, "/");
@@ -36,95 +45,161 @@ const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }
 
     const isPdf = (filePath) => filePath?.toLowerCase().endsWith(".pdf");
 
+    const dlPath = driver.driverDocuments?.dlImage;
+    const rcPath = driver.driverDocuments?.rcImage;
+
+    const REJECTION_PRESETS = [
+        "Document image is blurry or unreadable",
+        "Driving Licence is expired",
+        "Driver name does not match submitted DL",
+        "Vehicle RC is unverified or expired",
+        "Incorrect document uploaded"
+    ];
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 animate-fade-in no-print">
-            <div className="bg-white rounded-[32px] w-full max-w-2xl shadow-2xl border border-black/[0.08] overflow-hidden max-h-[92vh] flex flex-col animate-fade-in-up">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xl p-0 sm:p-4 animate-fade-in no-print">
+            {/* Full-Screen Interactive Lightbox Overlay */}
+            {lightboxImage && (
+                <div
+                    className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-2xl flex flex-col justify-between p-4 sm:p-6 animate-fade-in"
+                    onClick={() => setLightboxImage(null)}
+                >
+                    {/* Lightbox Top Control Bar */}
+                    <div className="flex items-center justify-between text-white max-w-5xl mx-auto w-full pb-3 border-b border-white/10" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <h4 className="text-sm sm:text-base font-bold tracking-tight">
+                                {lightboxImage.title}
+                            </h4>
+                            <span className="text-[11px] text-white/60 bg-white/10 px-2.5 py-0.5 rounded-full">
+                                Full Resolution
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <a
+                                href={lightboxImage.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all"
+                            >
+                                <FiExternalLink className="text-xs" />
+                                <span>Open Raw ↗</span>
+                            </a>
+                            <button
+                                onClick={() => setLightboxImage(null)}
+                                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all text-sm"
+                                title="Close Lightbox (Esc)"
+                            >
+                                <FiX />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Lightbox Image Stage */}
+                    <div className="flex-1 flex items-center justify-center p-2 sm:p-6 overflow-hidden">
+                        <img
+                            src={lightboxImage.url}
+                            alt={lightboxImage.title}
+                            className="max-h-[80vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/10 select-none animate-fade-in-up"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+
+                    {/* Lightbox Footer Instruction */}
+                    <div className="text-center text-white/50 text-[11px] font-medium py-1">
+                        Click anywhere or press close to return to verification sheet
+                    </div>
+                </div>
+            )}
+
+            {/* Apple Inset Modal Sheet */}
+            <div className="bg-white/95 backdrop-blur-2xl rounded-t-[36px] sm:rounded-[36px] w-full max-w-3xl shadow-[0_25px_70px_rgba(0,0,0,0.35)] border border-black/[0.08] overflow-hidden max-h-[94vh] flex flex-col animate-fade-in-up">
+                {/* Mobile Grab Indicator */}
+                <div className="w-12 h-1.5 bg-black/20 rounded-full mx-auto my-2.5 sm:hidden shrink-0" />
+
                 {/* Frosted Top Sheet Header */}
-                <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.06] bg-[#F8FAF9]/80 backdrop-blur-sm">
-                    <div className="flex items-center gap-3.5">
-                        <div className="w-12 h-12 rounded-2xl bg-forest text-white flex items-center justify-center font-black text-sm shadow-sm">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.06] bg-[#F8FAF9]/90 backdrop-blur-md shrink-0">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-forest to-emerald-700 text-white flex items-center justify-center font-black text-sm shadow-sm ring-2 ring-forest/20 shrink-0">
                             {driver.firstName?.[0]}{driver.lastName?.[0]}
                         </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-[#1D1D1F] text-base leading-tight">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h3 className="font-bold text-[#1D1D1F] text-base leading-tight truncate">
                                     {driver.firstName} {driver.lastName}
                                 </h3>
-                                {driver.driverVerified && (
-                                    <span className="text-[10px] text-forest bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold border border-emerald-200">
-                                        <MdVerified className="text-xs" /> Verified
+                                {driver.driverVerified ? (
+                                    <span className="text-[10px] text-forest bg-emerald-50 px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold border border-emerald-200">
+                                        <MdVerified className="text-xs" /> Verified Driver
+                                    </span>
+                                ) : (
+                                    <span className="text-[10px] text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold border border-amber-200/80">
+                                        <FiClock className="text-xs" /> Under Review
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs text-[#8E8E93] mt-0.5">{driver.email}</p>
+                            <div className="flex items-center gap-2 text-xs text-[#8E8E93] mt-0.5 flex-wrap">
+                                <span className="truncate max-w-[180px] sm:max-w-none">{driver.email}</span>
+                                {driver.mobile && (
+                                    <>
+                                        <span>•</span>
+                                        <span className="font-mono text-[#6E6E73]">{driver.mobile}</span>
+                                    </>
+                                )}
+                                <span>•</span>
+                                <span className="font-mono text-[#8E8E93]">ID: #{driver._id?.slice(-6)}</span>
+                            </div>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-9 h-9 rounded-full bg-[#F5F6F8] hover:bg-black/5 text-[#8E8E93] hover:text-[#1D1D1F] transition-all flex items-center justify-center"
+                        className="w-9 h-9 rounded-full bg-black/[0.05] hover:bg-black/[0.1] active:scale-90 text-[#1D1D1F] transition-all flex items-center justify-center shrink-0 ml-2"
+                        title="Close Inspector"
                     >
                         <FiX className="text-base" />
                     </button>
                 </div>
 
-                {/* Document Display Canvas */}
-                <div className="overflow-y-auto flex-1 p-6 space-y-6">
-                    {[
-                        { label: "Driving Licence (DL)", path: driver.driverDocuments?.dlImage, Icon: FaIdCard },
-                        { label: "Vehicle Registration (RC Book)", path: driver.driverDocuments?.rcImage, Icon: FaCarSide },
-                    ].map(({ label, path, Icon }) => (
-                        <div key={label} className="rounded-[24px] bg-[#F8FAF9] border border-black/[0.06] p-5">
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-lg bg-forest/10 text-forest flex items-center justify-center text-xs">
-                                        <Icon />
-                                    </div>
-                                    <span className="text-xs font-bold uppercase tracking-wider text-[#1D1D1F]">
-                                        {label}
-                                    </span>
-                                </div>
-                                {path && (
-                                    <a
-                                        href={docUrl(path)}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-[11px] font-bold text-forest hover:underline"
-                                    >
-                                        Open Full View ↗
-                                    </a>
-                                )}
-                            </div>
-
-                            {path ? (
-                                isPdf(path) ? (
-                                    <div className="w-full rounded-2xl border border-black/[0.06] overflow-hidden bg-white shadow-xs">
-                                        <iframe
-                                            src={docUrl(path)}
-                                            title={label}
-                                            className="w-full h-[400px]"
-                                        />
-                                    </div>
-                                ) : (
-                                    <a href={docUrl(path)} target="_blank" rel="noreferrer" className="block">
-                                        <img
-                                            src={docUrl(path)}
-                                            alt={label}
-                                            className="w-full max-h-64 object-contain rounded-2xl border border-black/[0.06] bg-white shadow-xs hover:opacity-95 transition-opacity cursor-zoom-in"
-                                        />
-                                    </a>
-                                )
-                            ) : (
-                                <div className="h-28 rounded-2xl border-2 border-dashed border-black/[0.08] bg-white/60 flex flex-col items-center justify-center text-[#8E8E93] text-xs gap-1">
-                                    <FiFileText className="text-xl opacity-40" />
-                                    <span>No document submitted for this requirement</span>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                {/* Subheader: Apple Document View Mode Selector */}
+                <div className="px-6 py-3 border-b border-black/[0.04] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                    <div className="p-1 bg-[#F5F6F8] rounded-full border border-black/[0.06] flex items-center gap-1 self-start">
+                        <button
+                            onClick={() => setActiveDocTab("all")}
+                            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                                activeDocTab === "all"
+                                    ? "bg-white text-[#1D1D1F] shadow-xs"
+                                    : "text-[#6E6E73] hover:text-[#1D1D1F]"
+                            }`}
+                        >
+                            All Documents (2)
+                        </button>
+                        <button
+                            onClick={() => setActiveDocTab("dl")}
+                            className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                                activeDocTab === "dl"
+                                    ? "bg-white text-[#1D1D1F] shadow-xs"
+                                    : "text-[#6E6E73] hover:text-[#1D1D1F]"
+                            }`}
+                        >
+                            <span>Driving Licence</span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${dlPath ? "bg-emerald-500" : "bg-rose-400"}`} />
+                        </button>
+                        <button
+                            onClick={() => setActiveDocTab("rc")}
+                            className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                                activeDocTab === "rc"
+                                    ? "bg-white text-[#1D1D1F] shadow-xs"
+                                    : "text-[#6E6E73] hover:text-[#1D1D1F]"
+                            }`}
+                        >
+                            <span>Vehicle RC</span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${rcPath ? "bg-emerald-500" : "bg-rose-400"}`} />
+                        </button>
+                    </div>
 
                     {driver.driverDocuments?.submittedAt && (
-                        <div className="flex items-center gap-2 text-xs text-[#8E8E93] bg-[#F5F6F8] px-4 py-2.5 rounded-2xl border border-black/[0.04]">
-                            <FiClock className="text-forest text-sm shrink-0" />
+                        <div className="text-[11px] text-[#8E8E93] flex items-center gap-1.5">
+                            <FiClock className="text-forest text-xs shrink-0" />
                             <span>
                                 Submitted on{" "}
                                 <strong className="text-[#1D1D1F]">
@@ -132,8 +207,6 @@ const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }
                                         year: "numeric",
                                         month: "short",
                                         day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
                                     })}
                                 </strong>
                             </span>
@@ -141,24 +214,268 @@ const DocPreviewModal = ({ driver, onClose, onApprove, onReject, actionLoading }
                     )}
                 </div>
 
+                {/* Document Display Canvas */}
+                <div className="overflow-y-auto flex-1 p-6 space-y-6">
+                    {/* Guidance Checklist Banner */}
+                    <div className="rounded-[24px] bg-emerald-500/[0.06] border border-emerald-500/20 p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest flex items-center justify-center shrink-0 mt-0.5">
+                                <FiCheck className="text-sm font-black" />
+                            </div>
+                            <div className="text-xs text-[#1D1D1F] leading-relaxed">
+                                <span className="font-bold text-forest block mb-0.5">Admin KYC Inspection Protocol</span>
+                                <p className="text-[11px] text-[#6E6E73]">
+                                    Verify that the driver's full name matches the DL photo, registration plate matches the vehicle profile, and documents are not expired. Once approved, all pending rides of this driver will publish live automatically.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Driving Licence Card */}
+                    {(activeDocTab === "all" || activeDocTab === "dl") && (
+                        <div className="rounded-[28px] bg-[#F8FAF9] border border-black/[0.06] p-5 sm:p-6 shadow-xs hover:border-forest/20 transition-all">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest flex items-center justify-center text-sm">
+                                        <FaIdCard />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#1D1D1F]">
+                                            Driving Licence (DL)
+                                        </h4>
+                                        <span className="text-[10px] text-[#8E8E93]">Government Issued Operator Credential</span>
+                                    </div>
+                                </div>
+
+                                {dlPath && (
+                                    <div className="flex items-center gap-2">
+                                        {!isPdf(dlPath) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setLightboxImage({ url: docUrl(dlPath), title: `${driver.firstName} ${driver.lastName} — Driving Licence` })}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-black/5 text-[#1D1D1F] border border-black/[0.08] text-xs font-bold shadow-xs active:scale-95 transition-all"
+                                            >
+                                                <FiMaximize2 className="text-xs text-forest" />
+                                                <span>Zoom View</span>
+                                            </button>
+                                        )}
+                                        <a
+                                            href={docUrl(dlPath)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-black/5 text-forest border border-black/[0.08] text-xs font-bold shadow-xs active:scale-95 transition-all"
+                                        >
+                                            <FiExternalLink className="text-xs" />
+                                            <span>Raw File</span>
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {dlPath ? (
+                                isPdf(dlPath) ? (
+                                    <div className="w-full rounded-2xl border border-black/[0.06] overflow-hidden bg-white shadow-xs">
+                                        <iframe
+                                            src={docUrl(dlPath)}
+                                            title="Driving Licence"
+                                            className="w-full h-[400px]"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
+                                        onClick={() => setLightboxImage({ url: docUrl(dlPath), title: `${driver.firstName} ${driver.lastName} — Driving Licence` })}
+                                        className="rounded-[20px] bg-white border border-black/[0.06] p-3 overflow-hidden flex items-center justify-center min-h-[220px] relative group cursor-pointer hover:border-forest/40 transition-all shadow-xs"
+                                    >
+                                        <img
+                                            src={docUrl(dlPath)}
+                                            alt="Driving Licence"
+                                            className="max-h-72 w-full object-contain rounded-xl group-hover:scale-[1.01] transition-transform duration-300"
+                                        />
+                                        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[20px]">
+                                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#1D1D1F] text-xs font-bold shadow-lg">
+                                                <FiMaximize2 className="text-forest" />
+                                                <span>Click to Inspect High-Res</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                )
+                            ) : (
+                                <div className="h-32 rounded-2xl border-2 border-dashed border-black/[0.08] bg-white/60 flex flex-col items-center justify-center text-[#8E8E93] text-xs gap-1.5">
+                                    <FiAlertCircle className="text-xl text-amber-500" />
+                                    <span className="font-semibold text-[#1D1D1F]">Driving Licence not yet submitted</span>
+                                    <span className="text-[11px] text-[#8E8E93]">Driver needs to provide front/back DL photo</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Vehicle Registration RC Book Card */}
+                    {(activeDocTab === "all" || activeDocTab === "rc") && (
+                        <div className="rounded-[28px] bg-[#F8FAF9] border border-black/[0.06] p-5 sm:p-6 shadow-xs hover:border-forest/20 transition-all">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-forest/10 text-forest flex items-center justify-center text-sm">
+                                        <FaCarSide />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#1D1D1F]">
+                                            Vehicle Registration (RC Book)
+                                        </h4>
+                                        <span className="text-[10px] text-[#8E8E93]">Official Transport Authority Certificate</span>
+                                    </div>
+                                </div>
+
+                                {rcPath && (
+                                    <div className="flex items-center gap-2">
+                                        {!isPdf(rcPath) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setLightboxImage({ url: docUrl(rcPath), title: `${driver.firstName} ${driver.lastName} — Vehicle RC` })}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-black/5 text-[#1D1D1F] border border-black/[0.08] text-xs font-bold shadow-xs active:scale-95 transition-all"
+                                            >
+                                                <FiMaximize2 className="text-xs text-forest" />
+                                                <span>Zoom View</span>
+                                            </button>
+                                        )}
+                                        <a
+                                            href={docUrl(rcPath)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-black/5 text-forest border border-black/[0.08] text-xs font-bold shadow-xs active:scale-95 transition-all"
+                                        >
+                                            <FiExternalLink className="text-xs" />
+                                            <span>Raw File</span>
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+
+                            {rcPath ? (
+                                isPdf(rcPath) ? (
+                                    <div className="w-full rounded-2xl border border-black/[0.06] overflow-hidden bg-white shadow-xs">
+                                        <iframe
+                                            src={docUrl(rcPath)}
+                                            title="Vehicle RC Book"
+                                            className="w-full h-[400px]"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
+                                        onClick={() => setLightboxImage({ url: docUrl(rcPath), title: `${driver.firstName} ${driver.lastName} — Vehicle RC` })}
+                                        className="rounded-[20px] bg-white border border-black/[0.06] p-3 overflow-hidden flex items-center justify-center min-h-[220px] relative group cursor-pointer hover:border-forest/40 transition-all shadow-xs"
+                                    >
+                                        <img
+                                            src={docUrl(rcPath)}
+                                            alt="Vehicle RC Book"
+                                            className="max-h-72 w-full object-contain rounded-xl group-hover:scale-[1.01] transition-transform duration-300"
+                                        />
+                                        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[20px]">
+                                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#1D1D1F] text-xs font-bold shadow-lg">
+                                                <FiMaximize2 className="text-forest" />
+                                                <span>Click to Inspect High-Res</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                )
+                            ) : (
+                                <div className="h-32 rounded-2xl border-2 border-dashed border-black/[0.08] bg-white/60 flex flex-col items-center justify-center text-[#8E8E93] text-xs gap-1.5">
+                                    <FiAlertCircle className="text-xl text-amber-500" />
+                                    <span className="font-semibold text-[#1D1D1F]">RC Book document not yet submitted</span>
+                                    <span className="text-[11px] text-[#8E8E93]">Vehicle registration document is pending upload</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Rejection Reason Selector Dialog (Appears on click reject) */}
+                    {showRejectConfirm && (
+                        <div className="rounded-[28px] bg-rose-50 border border-rose-200/80 p-5 animate-fade-in-up">
+                            <div className="flex items-start gap-3 mb-3">
+                                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <FiXCircle className="text-base" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-xs sm:text-sm font-bold text-rose-900">
+                                        Decline Driver Verification
+                                    </h4>
+                                    <p className="text-[11px] text-rose-700 mt-0.5 leading-relaxed">
+                                        Select the rejection reason. The driver will be asked to re-upload clear credentials before their rides can be approved.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5 mb-4">
+                                {REJECTION_PRESETS.map((reason) => (
+                                    <label
+                                        key={reason}
+                                        onClick={() => setRejectReason(reason)}
+                                        className={`flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-xs font-semibold transition-all border ${
+                                            rejectReason === reason
+                                                ? "bg-white text-rose-900 border-rose-300 shadow-xs"
+                                                : "text-rose-800 border-transparent hover:bg-white/60"
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="rejectionReason"
+                                            checked={rejectReason === reason}
+                                            onChange={() => setRejectReason(reason)}
+                                            className="text-rose-600 accent-rose-600"
+                                        />
+                                        <span>{reason}</span>
+                                    </label>
+                                ))}
+                            </div>
+
+                            <div className="flex items-center gap-2.5">
+                                <button
+                                    onClick={() => setShowRejectConfirm(false)}
+                                    className="flex-1 py-2.5 rounded-full bg-white hover:bg-black/5 text-[#1D1D1F] font-bold text-xs border border-black/[0.08] transition-all shadow-xs"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => onReject(driver._id)}
+                                    disabled={actionLoading === "reject"}
+                                    className="flex-1 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+                                >
+                                    {actionLoading === "reject" ? "Rejecting…" : "Confirm Rejection"}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* Bottom Sheet Action Pills */}
-                <div className="p-6 border-t border-black/[0.06] bg-[#F8FAF9]/80 backdrop-blur-sm flex gap-3">
+                <div className="p-5 sm:p-6 border-t border-black/[0.06] bg-[#F8FAF9]/90 backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
                     <button
-                        onClick={() => onReject(driver._id)}
-                        disabled={!!actionLoading}
-                        className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full border border-rose-200 bg-rose-50 text-rose-700 font-bold text-xs hover:bg-rose-100 transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={onClose}
+                        className="w-full sm:w-auto py-3 px-5 rounded-full bg-white hover:bg-[#F5F6F8] text-[#6E6E73] hover:text-[#1D1D1F] font-bold text-xs border border-black/[0.08] shadow-xs active:scale-95 transition-all text-center"
                     >
-                        <FiXCircle className="text-sm" />
-                        <span>{actionLoading === "reject" ? "Rejecting…" : "Reject Application"}</span>
+                        Dismiss Sheet
                     </button>
-                    <button
-                        onClick={() => onApprove(driver._id)}
-                        disabled={!!actionLoading}
-                        className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full bg-forest text-white font-bold text-xs hover:bg-forest-light transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <FiCheckCircle className="text-sm" />
-                        <span>{actionLoading === "approve" ? "Approving…" : "Approve Driver"}</span>
-                    </button>
+
+                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                        <button
+                            onClick={() => setShowRejectConfirm(!showRejectConfirm)}
+                            disabled={!!actionLoading}
+                            className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-full border border-rose-200/80 bg-rose-50 text-rose-700 font-bold text-xs hover:bg-rose-100 transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                showRejectConfirm ? "ring-2 ring-rose-400" : ""
+                            }`}
+                        >
+                            <FiXCircle className="text-sm" />
+                            <span>{showRejectConfirm ? "Close Reason Form" : "Reject Application"}</span>
+                        </button>
+
+                        <button
+                            onClick={() => onApprove(driver._id)}
+                            disabled={!!actionLoading}
+                            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 py-3.5 px-8 rounded-full bg-forest text-white font-bold text-xs hover:bg-forest-light transition-all shadow-[0_8px_20px_rgba(26,58,46,0.2)] hover:shadow-[0_12px_28px_rgba(26,58,46,0.3)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <FiCheckCircle className="text-sm" />
+                            <span>{actionLoading === "approve" ? "Approving…" : "Approve Driver & Grant Live Publishing"}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
