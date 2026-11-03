@@ -114,6 +114,15 @@ const Search = () => {
             setLoading(true);
             setError(null);
             try {
+                const token = localStorage.getItem("token");
+                let loggedInUserId = null;
+                try {
+                    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+                    if (storedUser) {
+                        loggedInUserId = storedUser._id || storedUser.id;
+                    }
+                } catch (e) {}
+
                 const params = new URLSearchParams({
                     from: typeof from === "object" ? from.city || "" : from,
                     to: typeof to === "object" ? to.city || "" : to,
@@ -121,8 +130,20 @@ const Search = () => {
                     seats: seats || 1,
                 });
 
+                if (loggedInUserId) {
+                    params.append("userId", loggedInUserId);
+                }
+
+                const headers = {
+                    "Content-Type": "application/json"
+                };
+                if (token) {
+                    headers["Authorization"] = `Bearer ${token}`;
+                }
+
                 const res = await fetch(
-                    `${process.env.REACT_APP_API_URL}/rides?${params}`
+                    `${process.env.REACT_APP_API_URL}/rides?${params}`,
+                    { headers }
                 );
                 const data = await res.json();
 

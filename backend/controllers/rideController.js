@@ -4,6 +4,7 @@ const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 const SearchLog = require("../models/SearchLog");
+const Visitor = require("../models/Visitor");
 const { notifyUser } = require("../util/fcm");
 const { buildDepartureDate } = require("../util/rideTime");
 const { getRideCountsByDriver, getRideCountForDriver } = require("../util/driverStats");
@@ -432,7 +433,23 @@ exports.getRides = async (req, res) => {
                     const routeKey = `${fromCity} → ${toCity}`;
                     const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress || "";
                     const userAgent = req.headers["user-agent"] || "";
-                    const userId = req.user?.id || req.query.userId || null;
+                    let userId = req.user?.id || req.user?._id || req.query.userId || null;
+
+                    // Fallback: If no direct auth token / userId, check if active visitor session on this IP has a known user
+                    if (!userId && clientIp) {
+                        try {
+                            const recentVisitor = await Visitor.findOne({
+                                ip: clientIp,
+                                userId: { $exists: true, $ne: "guest" }
+                            }).sort({ updatedAt: -1 });
+
+                            if (recentVisitor && recentVisitor.userId && mongoose.Types.ObjectId.isValid(recentVisitor.userId)) {
+                                userId = recentVisitor.userId;
+                            }
+                        } catch (vErr) {
+                            // ignore fallback error
+                        }
+                    }
 
                     await SearchLog.create({
                         from: String(from).trim(),

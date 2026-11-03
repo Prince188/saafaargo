@@ -121,6 +121,7 @@ const SearchDemand = () => {
                 "Status",
                 "User Name",
                 "User Email",
+                "User Mobile",
                 "Guest IP",
                 "Searched At"
             ];
@@ -136,6 +137,7 @@ const SearchDemand = () => {
                 log.resultsCount === 0 ? "Unmet Demand" : "Rides Found",
                 `"${log.userId ? `${log.userId.firstName || ""} ${log.userId.lastName || ""}`.trim() : "Guest"}"`,
                 `"${log.userId?.email || ""}"`,
+                `"${log.userId?.mobile || log.userId?.phone || ""}"`,
                 `"${log.ip || ""}"`,
                 `"${new Date(log.createdAt).toISOString()}"`
             ]);
@@ -537,6 +539,11 @@ const SearchDemand = () => {
                                                                 {log.userId.firstName} {log.userId.lastName}
                                                             </div>
                                                             <div className="text-[10px] text-[#8E8E93] truncate">{log.userId.email}</div>
+                                                            {(log.userId.mobile || log.userId.phone) && (
+                                                                <div className="text-[10px] text-forest font-medium truncate mt-0.5">
+                                                                    📞 {log.userId.mobile || log.userId.phone}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         {log.userId.email && (
                                                             <button
@@ -677,6 +684,11 @@ const SearchDemand = () => {
                                                     <p className="text-[10px] text-[#8E8E93] truncate">
                                                         {log.userId.email}
                                                     </p>
+                                                    {(log.userId.mobile || log.userId.phone) && (
+                                                        <p className="text-[10px] text-forest font-medium truncate">
+                                                            📞 {log.userId.mobile || log.userId.phone}
+                                                        </p>
+                                                    )}
                                                 </>
                                             ) : (
                                                 <span className="text-[10px] font-mono text-[#8E8E93]">

@@ -197,7 +197,7 @@ exports.getAdminDashboard = async (req, res) => {
         const recentSearches = await SearchLog.find()
             .sort({ createdAt: -1 })
             .limit(5)
-            .populate("userId", "firstName lastName email")
+            .populate("userId", "firstName lastName email phone mobile")
             .lean();
 
         const searchStats = {
@@ -348,7 +348,7 @@ exports.getSearchAnalytics = async (req, res) => {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .populate("userId", "firstName lastName email phone")
+                .populate("userId", "firstName lastName email phone mobile")
                 .lean()
         ]);
 
